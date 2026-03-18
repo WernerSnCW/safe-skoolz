@@ -4,7 +4,7 @@ import { useGetIncident, useUpdateIncidentStatus } from "@workspace/api-client-r
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { formatDateTime, formatDate } from "@/lib/utils";
-import { ArrowLeft, MapPin, Calendar, User, ShieldAlert, CheckCircle, Clock } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, User, ShieldAlert, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 
 export default function IncidentDetail() {
   const [, params] = useRoute("/incidents/:id");
