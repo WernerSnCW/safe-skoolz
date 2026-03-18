@@ -71,7 +71,7 @@ router.post("/auth/staff/login", async (req, res): Promise<void> => {
     return;
   }
 
-  if (!["teacher", "coordinator", "head_teacher", "senco"].includes(user.role)) {
+  if (!["teacher", "head_of_year", "coordinator", "head_teacher", "senco", "support_staff"].includes(user.role)) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }

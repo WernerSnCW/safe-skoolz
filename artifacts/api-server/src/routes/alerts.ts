@@ -7,7 +7,7 @@ import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
 
-router.get("/alerts", authMiddleware, requireRole("coordinator", "head_teacher", "teacher"), async (req, res): Promise<void> => {
+router.get("/alerts", authMiddleware, requireRole("coordinator", "head_teacher", "teacher", "head_of_year", "senco"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
   const query = ListAlertsQueryParams.safeParse(req.query);
   const page = query.success ? (query.data.page ?? 1) : 1;

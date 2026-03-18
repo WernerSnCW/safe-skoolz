@@ -44,9 +44,14 @@ Multi-role safeguarding and incident reporting platform for schools.
 
 ### Auth & Roles
 - JWT-based authentication (custom, bcrypt passwords/PINs)
-- Roles: pupil, parent, teacher, coordinator, head_teacher, senco
+- Roles: pupil, parent, teacher, head_of_year, coordinator, head_teacher, senco, support_staff
 - Token stored in localStorage as `safeschool_token`
 - `customFetch` in `lib/api-client-react/src/custom-fetch.ts` auto-injects Bearer token
+- Staff visibility hierarchy:
+  - teacher → sees assigned class only
+  - head_of_year → sees all classes in assigned year group
+  - head_teacher / coordinator / senco → sees all classes in school
+  - support_staff → customised (className, yearGroup, or whole school)
 
 ### API Proxy
 - Vite dev server proxies `/api/*` to `http://localhost:8080`
@@ -68,7 +73,7 @@ Multi-role safeguarding and incident reporting platform for schools.
 ### Seed Data
 - 1 school: Morna
 - 8 pupils: Boy A–D, Girl A–D (PIN: 1234)
-- 5 staff: Coordinator A, Head Teacher A, Teacher A, Teacher B, SENCO A (password: password123)
+- 8 staff: Coordinator A, Head Teacher A, Teacher A (head_of_year Y6), Teacher B–D, Support Staff A, SENCO A (password: password123)
 - 2 parents: Parent A, Parent B (password: parent123)
 - Run: `pnpm --filter @workspace/scripts run seed`
 - Compliance data: 15 annex templates, 10 referral bodies, 4 delegated role appointments
@@ -77,8 +82,11 @@ Multi-role safeguarding and incident reporting platform for schools.
 ### Demo Credentials
 - Coordinator A: coordinator@safeschool.dev / password123
 - Head Teacher A: head@safeschool.dev / password123
-- Teacher A: teacher@safeschool.dev / password123
+- Teacher A (Head of Year Y6): teacher@safeschool.dev / password123
 - Teacher B: teacher2@safeschool.dev / password123
+- Teacher C: teacher3@safeschool.dev / password123
+- Teacher D: teacher4@safeschool.dev / password123
+- Support Staff A: support@safeschool.dev / password123
 - SENCO A: senco@safeschool.dev / password123
 - Parent A: parent.a@safeschool.dev / parent123
 - Parent B: parent.b@safeschool.dev / parent123
@@ -98,11 +106,13 @@ Multi-role safeguarding and incident reporting platform for schools.
 - `/login` - Multi-tab login (pupil/staff/parent)
 - `/` - Dashboard (role-specific views)
 - `/report` - Report incident form
+- `/class` - My Class / My Year Group / All Pupils (role-scoped visibility)
 - `/incidents` - Incidents list (coordinator/head_teacher)
 - `/incidents/:id` - Incident detail
 - `/protocols` - Protocols list
 - `/alerts` - Pattern alerts
 - `/notifications` - Notifications
+- `/settings` - Edit profile (name, email for staff, avatar for pupils)
 
 ### API Routes (all under /api)
 - `GET /healthz` - Health check
@@ -113,6 +123,8 @@ Multi-role safeguarding and incident reporting platform for schools.
 - `GET /schools` - List schools (public)
 - `GET /schools/:id/pupils` - List pupils for login (public, last names truncated)
 - `GET /schools/:id/staff` - List staff (coordinator/head_teacher only)
+- `GET /my-pupils` - Role-scoped pupil list (teacher→class, head_of_year→year, head_teacher→school, support_staff→customised)
+- `PATCH /auth/profile` - Update profile (name, email, avatar)
 - CRUD for incidents, protocols, alerts, notifications, dashboard
 - `GET /delegated-roles` - Governance appointments (coordinator/head_teacher)
 - `POST /delegated-roles` - Create appointment

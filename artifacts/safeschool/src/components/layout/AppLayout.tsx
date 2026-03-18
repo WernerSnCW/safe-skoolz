@@ -44,21 +44,32 @@ export function AppLayout({ children }: AppLayoutProps) {
       ];
     }
 
-    if (user.role === "teacher") {
+    if (user.role === "teacher" || user.role === "head_of_year") {
       return [
         ...base,
         { name: "Report Incident", href: "/report", icon: AlertTriangle },
-        { name: "My Class", href: "/class", icon: Users },
+        { name: user.role === "head_of_year" ? "My Year Group" : "My Class", href: "/class", icon: Users },
         { name: "Alerts", href: "/alerts", icon: Activity },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
         { name: "Settings", href: "/settings", icon: Settings },
       ];
     }
 
-    // Coordinator & Head Teacher
+    if (user.role === "support_staff") {
+      return [
+        ...base,
+        { name: "Report Incident", href: "/report", icon: AlertTriangle },
+        { name: "My Pupils", href: "/class", icon: Users },
+        { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
+        { name: "Settings", href: "/settings", icon: Settings },
+      ];
+    }
+
+    // Coordinator, Head Teacher, SENCO
     return [
       ...base,
       { name: "Incidents", href: "/incidents", icon: AlertTriangle },
+      { name: "All Pupils", href: "/class", icon: Users },
       { name: "Protocols", href: "/protocols", icon: FileText },
       { name: "Alerts", href: "/alerts", icon: Activity },
       { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },

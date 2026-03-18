@@ -173,7 +173,7 @@ router.get("/incidents/:id", authMiddleware, async (req, res): Promise<void> => 
     return;
   }
 
-  if (user.role === "pupil" || user.role === "parent" || user.role === "teacher") {
+  if (["pupil", "parent", "teacher", "head_of_year", "support_staff"].includes(user.role)) {
     if (incident.reporterId !== user.userId) {
       res.status(403).json({ error: "Insufficient permissions" });
       return;

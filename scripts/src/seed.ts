@@ -65,8 +65,11 @@ async function seed() {
   const staffMembers = [
     { firstName: "Coordinator", lastName: "A", role: "coordinator", email: "coordinator@safeschool.dev" },
     { firstName: "Head Teacher", lastName: "A", role: "head_teacher", email: "head@safeschool.dev" },
-    { firstName: "Teacher", lastName: "A", role: "teacher", email: "teacher@safeschool.dev", className: "6A" },
+    { firstName: "Teacher", lastName: "A", role: "head_of_year", email: "teacher@safeschool.dev", className: "6A", yearGroup: "Y6" },
     { firstName: "Teacher", lastName: "B", role: "teacher", email: "teacher2@safeschool.dev", className: "5B" },
+    { firstName: "Teacher", lastName: "C", role: "teacher", email: "teacher3@safeschool.dev", className: "4A" },
+    { firstName: "Teacher", lastName: "D", role: "teacher", email: "teacher4@safeschool.dev", className: "3A" },
+    { firstName: "Support Staff", lastName: "A", role: "support_staff", email: "support@safeschool.dev" },
     { firstName: "SENCO", lastName: "A", role: "senco", email: "senco@safeschool.dev" },
   ];
 
@@ -78,6 +81,7 @@ async function seed() {
       lastName: s.lastName,
       email: s.email,
       className: (s as any).className || null,
+      yearGroup: (s as any).yearGroup || null,
       passwordHash: staffPassword,
       active: true,
     });
@@ -107,9 +111,14 @@ async function seed() {
   console.log("\nLogin credentials:");
   console.log("  Coordinator: coordinator@safeschool.dev / password123");
   console.log("  Head Teacher: head@safeschool.dev / password123");
-  console.log("  Teacher: teacher@safeschool.dev / password123");
+  console.log("  Teacher A (Head of Year Y6): teacher@safeschool.dev / password123");
+  console.log("  Teacher B: teacher2@safeschool.dev / password123");
+  console.log("  Teacher C: teacher3@safeschool.dev / password123");
+  console.log("  Teacher D: teacher4@safeschool.dev / password123");
+  console.log("  Support Staff A: support@safeschool.dev / password123");
   console.log("  SENCO: senco@safeschool.dev / password123");
-  console.log("  Parent: parent.a@safeschool.dev / parent123");
+  console.log("  Parent A: parent.a@safeschool.dev / parent123");
+  console.log("  Parent B: parent.b@safeschool.dev / parent123");
   console.log("  Pupil: Select school, select name (Boy A, Girl A, etc.), PIN: 1234");
 
   process.exit(0);

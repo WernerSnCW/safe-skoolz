@@ -181,7 +181,7 @@ export default function Dashboard() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       {user.role === "pupil" ? (
         <PupilDashboard user={user} />
-      ) : user.role === "coordinator" || user.role === "head_teacher" ? (
+      ) : user.role === "coordinator" || user.role === "head_teacher" || user.role === "senco" ? (
         <CoordinatorDashboardView />
       ) : (
         <div className="max-w-3xl mx-auto py-12 text-center">

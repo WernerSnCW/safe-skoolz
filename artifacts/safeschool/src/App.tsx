@@ -17,6 +17,7 @@ import ProtocolsList from "@/pages/protocols";
 import AlertsList from "@/pages/alerts";
 import NotificationsList from "@/pages/notifications";
 import Settings from "@/pages/settings";
+import MyClass from "@/pages/my-class";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,9 @@ function Router() {
       </Route>
       <Route path="/protocols">
         {() => <ProtectedRoute component={ProtocolsList} />}
+      </Route>
+      <Route path="/class">
+        {() => <ProtectedRoute component={MyClass} />}
       </Route>
       <Route path="/alerts">
         {() => <ProtectedRoute component={AlertsList} />}

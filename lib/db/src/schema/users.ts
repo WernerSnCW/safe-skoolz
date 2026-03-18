@@ -6,7 +6,7 @@ import { schoolsTable } from "./schools";
 export const usersTable = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   schoolId: uuid("school_id").references(() => schoolsTable.id).notNull(),
-  role: varchar("role", { length: 20 }).notNull(),
+  role: varchar("role", { length: 30 }).notNull(),
   firstName: varchar("first_name", { length: 100 }).notNull(),
   lastName: varchar("last_name", { length: 100 }).notNull(),
   email: varchar("email", { length: 255 }).unique(),
