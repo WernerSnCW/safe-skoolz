@@ -66,7 +66,7 @@ Multi-role safeguarding and incident reporting platform for schools.
 - Referral body types: ib_dona, municipal_services, policia_nacional, guardia_civil, fiscalia_menores, servicios_sociales, salud_mental, caib_education
 
 ### Seed Data
-- 1 school: International School of Mallorca
+- 1 school: Morna
 - 8 pupils: Boy A–D, Girl A–D (PIN: 1234)
 - 5 staff: Coordinator A, Head Teacher A, Teacher A, Teacher B, SENCO A (password: password123)
 - 2 parents: Parent A, Parent B (password: parent123)

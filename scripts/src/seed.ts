@@ -15,8 +15,8 @@ async function seed() {
   const [school] = await db
     .insert(schoolsTable)
     .values({
-      name: "International School of Mallorca",
-      legalEntity: "ISM Foundation S.L.",
+      name: "Morna",
+      legalEntity: "Morna International College S.L.",
       cif: "B12345678",
       address: "Carrer de Sa Figuera 12, Palma, Mallorca",
       country: "ES",
