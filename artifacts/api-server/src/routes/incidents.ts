@@ -267,7 +267,7 @@ router.get("/incidents/:id", authMiddleware, async (req, res): Promise<void> => 
   res.json(enriched[0]);
 });
 
-router.patch("/incidents/:id/status", authMiddleware, requireRole("coordinator"), async (req, res): Promise<void> => {
+router.patch("/incidents/:id/status", authMiddleware, requireRole("coordinator", "head_teacher", "senco"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
