@@ -3,25 +3,29 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { usePupilLogin, useStaffLogin, useParentLogin, useListSchools, useListPupilsBySchool } from "@workspace/api-client-react";
 import { Button, Input, Label, Card, CardContent } from "@/components/ui-polished";
-import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Zap } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ShieldCheck, User, Users, GraduationCap, AlertTriangle } from "lucide-react";
+import { motion } from "framer-motion";
 
-const DEMO_ACCOUNTS = [
-  { label: "Coordinator A", email: "coordinator@safeschool.dev", password: "password123", role: "coordinator", color: "bg-violet-500" },
-  { label: "Head Teacher A", email: "head@safeschool.dev", password: "password123", role: "head_teacher", color: "bg-blue-500" },
-  { label: "Teacher A (HoY)", email: "teacher@safeschool.dev", password: "password123", role: "head_of_year", color: "bg-emerald-500" },
-  { label: "Teacher B", email: "teacher2@safeschool.dev", password: "password123", role: "teacher", color: "bg-green-500" },
-  { label: "Support Staff A", email: "support@safeschool.dev", password: "password123", role: "support_staff", color: "bg-amber-500" },
-  { label: "SENCO A", email: "senco@safeschool.dev", password: "password123", role: "senco", color: "bg-pink-500" },
-  { label: "Parent A", email: "parent.a@safeschool.dev", password: "parent123", role: "parent", color: "bg-orange-500", isParent: true },
+const STAFF_ACCOUNTS = [
+  { label: "Coordinator A", subtitle: "Coordinator", email: "coordinator@safeschool.dev", password: "password123" },
+  { label: "Head Teacher A", subtitle: "Head Teacher", email: "head@safeschool.dev", password: "password123" },
+  { label: "Teacher A", subtitle: "Head of Year · Y6 · 6A", email: "teacher@safeschool.dev", password: "password123" },
+  { label: "Teacher B", subtitle: "Teacher · 5B", email: "teacher2@safeschool.dev", password: "password123" },
+  { label: "Teacher C", subtitle: "Teacher · 4A", email: "teacher3@safeschool.dev", password: "password123" },
+  { label: "Teacher D", subtitle: "Teacher · 3A", email: "teacher4@safeschool.dev", password: "password123" },
+  { label: "SENCO A", subtitle: "SENCO", email: "senco@safeschool.dev", password: "password123" },
+  { label: "Support Staff A", subtitle: "Support Staff", email: "support@safeschool.dev", password: "password123" },
+];
+
+const PARENT_ACCOUNTS = [
+  { label: "Parent A", subtitle: "Parent of Boy A", email: "parent.a@safeschool.dev", password: "parent123" },
+  { label: "Parent B", subtitle: "Parent of Girl A", email: "parent.b@safeschool.dev", password: "parent123" },
 ];
 
 export default function Login() {
   const [_, setLocation] = useLocation();
   const { setToken } = useAuth();
   const [activeTab, setActiveTab] = useState<"pupil" | "staff" | "parent">("pupil");
-  const [showDemoPanel, setShowDemoPanel] = useState(false);
-
   const pupilLogin = usePupilLogin();
   const staffLogin = useStaffLogin();
   const parentLogin = useParentLogin();
@@ -30,10 +34,10 @@ export default function Login() {
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [selectedPupilId, setSelectedPupilId] = useState("");
   const [pin, setPin] = useState("");
+  const [selectedStaffEmail, setSelectedStaffEmail] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [demoLoading, setDemoLoading] = useState<string | null>(null);
 
   const { data: pupils } = useListPupilsBySchool(selectedSchoolId, {}, { query: { enabled: !!selectedSchoolId } });
 
@@ -58,12 +62,28 @@ export default function Login() {
           data: { schoolId: selectedSchoolId, pupilId: selectedPupilId, pin }
         });
       } else if (activeTab === "staff") {
+        const accounts = STAFF_ACCOUNTS;
+        const selected = accounts.find(a => a.email === selectedStaffEmail);
+        const loginEmail = selected?.email || email;
+        const loginPassword = selected?.password || password;
+        if (!loginEmail || !loginPassword) {
+          setError("Please select your name or enter your credentials.");
+          return;
+        }
         res = await staffLogin.mutateAsync({
-          data: { email, password }
+          data: { email: loginEmail, password: loginPassword }
         });
       } else {
+        const accounts = PARENT_ACCOUNTS;
+        const selected = accounts.find(a => a.email === selectedStaffEmail);
+        const loginEmail = selected?.email || email;
+        const loginPassword = selected?.password || password;
+        if (!loginEmail || !loginPassword) {
+          setError("Please select your name or enter your credentials.");
+          return;
+        }
         res = await parentLogin.mutateAsync({
-          data: { email, password }
+          data: { email: loginEmail, password: loginPassword }
         });
       }
 
@@ -71,23 +91,6 @@ export default function Login() {
       setLocation("/");
     } catch (err: any) {
       setError(err?.data?.error || "Login failed. Please check your credentials.");
-    }
-  };
-
-  const handleDemoLogin = async (account: typeof DEMO_ACCOUNTS[0]) => {
-    setDemoLoading(account.email);
-    setError("");
-    try {
-      const loginFn = account.isParent ? parentLogin : staffLogin;
-      const res = await loginFn.mutateAsync({
-        data: { email: account.email, password: account.password }
-      });
-      setToken(res.token);
-      setLocation("/");
-    } catch (err: any) {
-      setError(err?.data?.error || "Demo login failed.");
-    } finally {
-      setDemoLoading(null);
     }
   };
 
@@ -123,7 +126,7 @@ export default function Login() {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => { setActiveTab(tab.id); setError(""); }}
+                onClick={() => { setActiveTab(tab.id); setError(""); setSelectedStaffEmail(""); }}
                 className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
                   activeTab === tab.id
                     ? "bg-card shadow-sm text-primary"
@@ -196,28 +199,68 @@ export default function Login() {
                 </motion.div>
               ) : (
                 <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                  <div>
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="name@school.edu"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
+                  {(() => {
+                    const accounts = activeTab === "parent" ? PARENT_ACCOUNTS : STAFF_ACCOUNTS;
+                    const selectedAccount = accounts.find(a => a.email === selectedStaffEmail);
+                    return (
+                      <>
+                        <div>
+                          <Label htmlFor="staffSelect">My Name</Label>
+                          <select
+                            id="staffSelect"
+                            value={selectedStaffEmail}
+                            onChange={e => {
+                              setSelectedStaffEmail(e.target.value);
+                              setEmail("");
+                              setPassword("");
+                            }}
+                            className="w-full h-12 rounded-xl border border-input bg-background px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                          >
+                            <option value="">Find my name...</option>
+                            {accounts.map(a => (
+                              <option key={a.email} value={a.email}>
+                                {a.label} — {a.subtitle}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        {selectedAccount ? (
+                          <div className="p-3 rounded-xl bg-muted/50 border border-border">
+                            <p className="text-sm font-bold">{selectedAccount.label}</p>
+                            <p className="text-xs text-muted-foreground">{selectedAccount.subtitle}</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-3 text-muted-foreground text-xs">
+                              <div className="flex-1 h-px bg-border" />
+                              <span>or enter manually</span>
+                              <div className="flex-1 h-px bg-border" />
+                            </div>
+                            <div>
+                              <Label htmlFor="email">Email Address</Label>
+                              <Input
+                                id="email"
+                                type="email"
+                                placeholder="name@school.edu"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="password">Password</Label>
+                              <Input
+                                id="password"
+                                type="password"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                              />
+                            </div>
+                          </>
+                        )}
+                      </>
+                    );
+                  })()}
                 </motion.div>
               )}
 
@@ -228,55 +271,7 @@ export default function Login() {
           </CardContent>
         </Card>
 
-        <div className="mt-6">
-          <button
-            onClick={() => setShowDemoPanel(!showDemoPanel)}
-            className="w-full flex items-center justify-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors py-2"
-          >
-            <Zap size={14} />
-            {showDemoPanel ? "Hide Demo Logins" : "Quick Demo Login"}
-          </button>
-
-          <AnimatePresence>
-            {showDemoPanel && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <Card className="mt-2 border-dashed border-2 border-primary/30 bg-primary/5">
-                  <CardContent className="p-4">
-                    <p className="text-xs text-muted-foreground mb-3 text-center font-medium">Click any role to log in instantly</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {DEMO_ACCOUNTS.map((account) => (
-                        <button
-                          key={account.email}
-                          onClick={() => handleDemoLogin(account)}
-                          disabled={!!demoLoading}
-                          className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border bg-card hover:bg-muted transition-colors text-left disabled:opacity-50"
-                        >
-                          <div className={`w-2 h-2 rounded-full ${account.color} shrink-0`} />
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold truncate">
-                              {demoLoading === account.email ? "Logging in..." : account.label}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground truncate">{account.role.replace("_", " ")}</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mt-3 text-center">
-                      Pupils: select name above, PIN: <span className="font-mono font-bold">1234</span>
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <p className="text-center text-sm text-muted-foreground mt-4">
+        <p className="text-center text-sm text-muted-foreground mt-6">
           Protected by SafeSchool. Your reports are confidential.
         </p>
       </div>
