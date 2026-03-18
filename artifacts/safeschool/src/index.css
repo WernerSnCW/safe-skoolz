@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: 'Nunito', sans-serif;
+  --font-display: 'Quicksand', sans-serif;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+:root {
+  /* Calming Teal & Soft Blue Palette */
+  --background: 210 40% 98%;      /* Slate 50 */
+  --foreground: 222 47% 11%;      /* Slate 900 */
+  
+  --card: 0 0% 100%;              /* White */
+  --card-foreground: 222 47% 11%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  
+  --primary: 173 80% 36%;         /* Teal 600 - Calming but authoritative */
+  --primary-foreground: 210 40% 98%;
+  
+  --secondary: 199 89% 48%;       /* Sky 500 - Friendly */
+  --secondary-foreground: 210 40% 98%;
+  
+  --muted: 210 40% 96%;           /* Slate 100 */
+  --muted-foreground: 215 16% 47%;/* Slate 500 */
+  
+  --accent: 173 80% 96%;          /* Teal 50 */
+  --accent-foreground: 173 80% 36%;
+  
+  --destructive: 348 83% 47%;     /* Rose 500 */
+  --destructive-foreground: 210 40% 98%;
+
+  --warning: 38 92% 50%;          /* Orange 500 */
+  --warning-foreground: 210 40% 98%;
+  
+  --border: 214 32% 91%;          /* Slate 200 */
+  --input: 214 32% 91%;
+  --ring: 173 80% 36%;
+  
+  --radius: 0.75rem;              /* 12px for softer, friendlier corners */
+}
+
+.dark {
+  --background: 222 47% 11%;      /* Slate 900 */
+  --foreground: 210 40% 98%;      /* Slate 50 */
+  
+  --card: 217 33% 17%;            /* Slate 800 */
+  --card-foreground: 210 40% 98%;
+  
+  --popover: 217 33% 17%;
+  --popover-foreground: 210 40% 98%;
+  
+  --primary: 173 80% 46%;         /* Teal 500 */
+  --primary-foreground: 222 47% 11%;
+  
+  --secondary: 199 89% 58%;       /* Sky 400 */
+  --secondary-foreground: 222 47% 11%;
+  
+  --muted: 217 33% 22%;           /* Slate 700 */
+  --muted-foreground: 215 20% 65%;/* Slate 400 */
+  
+  --accent: 217 33% 22%;
+  --accent-foreground: 210 40% 98%;
+  
+  --destructive: 348 83% 57%;     /* Rose 400 */
+  --destructive-foreground: 210 40% 98%;
+
+  --warning: 38 92% 60%;
+  --warning-foreground: 222 47% 11%;
+  
+  --border: 217 33% 22%;
+  --input: 217 33% 22%;
+  --ring: 173 80% 46%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold tracking-tight text-foreground;
+  }
+}
+
+/* Custom Scrollbar for a polished feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  @apply bg-background/80 backdrop-blur-xl border border-border/50 shadow-lg shadow-black/5;
+}

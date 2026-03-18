@@ -1,0 +1,36 @@
+You already have a solid v0.2 schema and route map; using it as-is you’re in a good place to build a minimal but LOPIVI‑aligned ECMS that can also output Convivèxit and Machista case bundles.
+
+Where this design is strong
+Clear separation of incidents vs protocols, which matches how LOPIVI and Balearic guidance distinguish “concern / possible bullying” from a formally opened protocol.
+
+Pattern alerts and overdue checks map neatly to the “early detection” and “rapid, coordinated response” language in Convivèxit and LOPIVI (risk mapping, early indicators, time‑bound actions).
+
+Audit log, SAR export, retention rules and encryption at rest/in transit line up with GDPR and LOPIVI’s emphasis on traceability and child‑centred case management.
+
+Gaps / refinements to consider
+LOPIVI and Balearic protocols require a designated delegado/coordinator role and clear governance; you may want a designations or roles_per_school table to record appointments, training dates, and mandate scope rather than relying only on users.role.
+
+Convivèxit annexes are explicit; you’ve started this with annex_reference and export bundles, but you might add a small lookup table annex_templates (id, framework, annex_code, title, description) so exports can stay in sync when the CAIB updates forms.
+
+For Machista Violence, protocols usually track contact with external specialist services (IB Dona, municipal services, etc.); consider normalising external_referral_body into a referral_bodies table so schools can configure local contacts per island/municipality.
+​
+
+Possible small schema additions
+
+delegated_roles table: {id, school_id, user_id, role_type ('lopivi_delegate','convivexit_coordinator','machista_protocol_lead'), appointed_at, expires_at} to prove compliance during inspections.
+
+case_tasks table (optional but powerful): {id, school_id, protocol_id, task_type, due_at, completed_at, assignee_id}, fed by your overdue_checks rules instead of encoding everything only in jobs; this gives human‑readable “to do” lists.
+
+Framework coverage vs targets
+Target framework	Coverage from current design	Obvious next steps
+LOPIVI	Channels for children, parents, staff, plus audit, SAR, deadlines, and pattern flags support “entornos seguros” and duty to report.
+Add governance record for the protection delegate and configurable risk‑mapping / hotspot views (you already have location_hotspot rule).
+Convivèxit bullying	Protocol opening, annex‑style interviews and exports match the 2024 protocol and annex structure.
+Tighten mapping of protocol_type values to exact CAIB wording, and ensure exports reproduce the current annex numbering.
+Machista violence	protocol_type='machista_violence', gender_based_violence, external referral fields and dedicated export bundle align with the CAIB protocol and State Pact references.
+Add specific questions/fields recommended in the CAIB Machista protocol (risk factors, protective factors, family context) as optional JSON on protocols.
+Implementation alignment items
+For LOPIVI “child‑friendly channels”, your mobile‑first single‑page PWA and PIN‑based pupil auth are consistent with guidance that reporting must be accessible and adapted to minors.
+
+Convivèxit stresses pattern review and data use for evaluation; your dashboard + pattern_alerts + exports can directly underpin the periodic reviews that Balearic authorities expect schools to carry out.
+

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "SafeSchool"
+version = "1.0.0"
+id = "artifacts/safeschool"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 19618
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/safeschool run dev"
+
+[services.env]
+PORT = "19618"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/safeschool", "run", "build"]
+publicDir = "artifacts/safeschool/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

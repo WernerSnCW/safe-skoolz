@@ -15,82 +15,105 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
+- **Frontend**: React + Vite + TailwindCSS + Framer Motion
+- **Auth**: Custom JWT + bcrypt (NOT Replit Auth)
 
 ## Structure
 
 ```text
 artifacts-monorepo/
 ├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
+│   ├── api-server/         # Express API server (port 8080)
+│   └── safeschool/         # React+Vite frontend (SafeSchool app)
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
-│   ├── api-client-react/   # Generated React Query hooks
+│   ├── api-client-react/   # Generated React Query hooks + custom fetch with auth token injection
 │   ├── api-zod/            # Generated Zod schemas from OpenAPI
 │   └── db/                 # Drizzle ORM schema + DB connection
 ├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
+│   └── src/                # Individual .ts scripts
+├── pnpm-workspace.yaml     # pnpm workspace config
+├── tsconfig.base.json      # Shared TS options
 ├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+└── package.json            # Root package
 ```
+
+## SafeSchool App (v0.2.0)
+
+Multi-role safeguarding and incident reporting platform for schools.
+
+### Auth & Roles
+- JWT-based authentication (custom, bcrypt passwords/PINs)
+- Roles: pupil, parent, teacher, coordinator, head_teacher, senco
+- Token stored in localStorage as `safeschool_token`
+- `customFetch` in `lib/api-client-react/src/custom-fetch.ts` auto-injects Bearer token
+
+### API Proxy
+- Vite dev server proxies `/api/*` to `http://localhost:8080`
+- API server mounts all routes at `/api` prefix
+
+### Database Schema
+- schools, users, incidents, protocols, interviews, notifications, patternAlerts, auditLog
+- All in `lib/db/src/schema/index.ts`
+
+### Seed Data
+- 1 school: International School of Mallorca
+- 8 pupils (PIN: 1234), 5 staff (password: password123), 2 parents (password: parent123)
+- Run: `pnpm --filter @workspace/scripts run seed`
+
+### Demo Credentials
+- Coordinator: coordinator@safeschool.dev / password123
+- Head Teacher: head@safeschool.dev / password123
+- Teacher: teacher@safeschool.dev / password123
+- Parent: parent.martinez@safeschool.dev / parent123
+- Pupils: Select school → select name → PIN 1234
+
+### Key Features
+- Role-based login (pupil selector, staff/parent email login)
+- Incident reporting with emotional state tracking (pupils) and safeguarding checks (staff)
+- Escalation tiers: sexual/coercive→tier3, physical/psychological/online→tier2, others→tier1
+- Pattern detection alerts (async, post-incident)
+- Safeguarding protocols management
+- Notifications with acknowledgment
+- Audit logging
+- Coordinator dashboard with stats
+
+### Frontend Pages
+- `/login` - Multi-tab login (pupil/staff/parent)
+- `/` - Dashboard (role-specific views)
+- `/report` - Report incident form
+- `/incidents` - Incidents list (coordinator/head_teacher)
+- `/incidents/:id` - Incident detail
+- `/protocols` - Protocols list
+- `/alerts` - Pattern alerts
+- `/notifications` - Notifications
+
+### API Routes (all under /api)
+- `GET /healthz` - Health check
+- `POST /auth/pupil/login` - Pupil login
+- `POST /auth/staff/login` - Staff login
+- `POST /auth/parent/login` - Parent login
+- `GET /auth/me` - Current user (auth required)
+- `GET /schools` - List schools (public)
+- `GET /schools/:id/pupils` - List pupils for login (public, last names truncated)
+- `GET /schools/:id/staff` - List staff (coordinator/head_teacher only)
+- CRUD for incidents, protocols, alerts, notifications, dashboard
 
 ## TypeScript & Composite Projects
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references.
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+- **Always typecheck from the root** — run `pnpm run typecheck`
+- **`emitDeclarationOnly`** — only `.d.ts` files emitted during typecheck
+- **Project references** — packages declare dependencies via `references` array
 
 ## Root Scripts
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+- `pnpm run build` — typecheck + recursive build
+- `pnpm run typecheck` — `tsc --build --emitDeclarationOnly`
 
-## Packages
+## Important Notes
 
-### `artifacts/api-server` (`@workspace/api-server`)
-
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
-
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
-
-### `lib/db` (`@workspace/db`)
-
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
-
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
-
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
-
-### `lib/api-spec` (`@workspace/api-spec`)
-
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
-
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+- bcrypt added to `onlyBuiltDependencies` in pnpm-workspace.yaml
+- `useQueryClient` must be imported from `@tanstack/react-query`, NOT from `@workspace/api-client-react`
+- Public pupil endpoint returns truncated last names (first initial only) for privacy

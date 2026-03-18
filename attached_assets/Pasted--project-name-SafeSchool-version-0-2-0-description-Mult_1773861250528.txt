@@ -1,0 +1,464 @@
+{
+  "project": {
+    "name": "SafeSchool",
+    "version": "0.2.0",
+    "description": "Multi-role safeguarding and incident reporting platform for schools",
+    "stack": {
+      "frontend": "HTML/CSS/JS (single file, mobile-first PWA)",
+      "backend": "Node.js + Express",
+      "database": "PostgreSQL",
+      "auth": "JWT + bcrypt",
+      "realtime": "Socket.io (coordinator alerts)",
+      "storage": "Replit Object Storage (avatar images)"
+    },
+    "target_frameworks": ["LOPIVI", "Balearic Convivèxit Protocol", "Balearic Machista Violence Protocol"],
+    "languages": ["en", "es", "ca"]
+  },
+
+  "database": {
+    "tables": {
+
+      "schools": {
+        "description": "One record per school. Each school is a separate data controller.",
+        "fields": {
+          "id": "uuid PRIMARY KEY",
+          "name": "varchar(255) NOT NULL",
+          "legal_entity": "varchar(255)",
+          "cif": "varchar(20)",
+          "address": "text",
+          "country": "varchar(10) DEFAULT 'ES'",
+          "region": "varchar(50) DEFAULT 'Balearic Islands'",
+          "created_at": "timestamptz DEFAULT now()",
+          "active": "boolean DEFAULT true"
+        }
+      },
+
+      "users": {
+        "description": "All users across all roles. Pupils, parents, teachers, coordinators.",
+        "fields": {
+          "id": "uuid PRIMARY KEY",
+          "school_id": "uuid REFERENCES schools(id)",
+          "role": "varchar(20) NOT NULL CHECK (role IN ('pupil','parent','teacher','coordinator','head_teacher','senco'))",
+          "first_name": "varchar(100) NOT NULL",
+          "last_name": "varchar(100) NOT NULL",
+          "email": "varchar(255) UNIQUE",
+          "pin_hash": "varchar(255) COMMENT 'bcrypt hash of 4-digit PIN (pupils only)'",
+          "password_hash": "varchar(255) COMMENT 'bcrypt hash (staff and parents)'",
+          "year_group": "varchar(10) COMMENT 'pupils only e.g. Y3, Y6'",
+          "class_name": "varchar(50) COMMENT 'e.g. 6A'",
+          "avatar_type": "varchar(10) CHECK (avatar_type IN ('animal','face','initials'))",
+          "avatar_value": "text COMMENT 'emoji string for animal, JSON string for face params, or initials'",
+          "avatar_image_url": "text COMMENT 'Replit Object Storage URL if face saved as image'",
+          "parent_of": "uuid[] COMMENT 'array of pupil user IDs this parent is linked to'",
+          "active": "boolean DEFAULT true",
+          "created_at": "timestamptz DEFAULT now()",
+          "last_login": "timestamptz"
+        },
+        "indexes": ["school_id", "role", "class_name"]
+      },
+
+      "incidents": {
+        "description": "Every report submitted by any user. Immutable after creation.",
+        "fields": {
+          "id": "uuid PRIMARY KEY",
+          "reference_number": "varchar(20) NOT NULL UNIQUE COMMENT 'e.g. SS-2026-0847'",
+          "school_id": "uuid REFERENCES schools(id)",
+          "reporter_id": "uuid REFERENCES users(id) COMMENT 'null if anonymous'",
+          "reporter_role": "varchar(20) NOT NULL",
+          "anonymous": "boolean DEFAULT false",
+          "submission_device": "varchar(20) DEFAULT 'personal_device' CHECK (submission_device IN ('personal_device','shared_ipad','web'))",
+          "category": "varchar(30) NOT NULL CHECK (category IN ('physical','verbal','psychological','sexual','relational','coercive','property','online'))",
+          "escalation_tier": "integer NOT NULL CHECK (escalation_tier IN (1,2,3))",
+          "safeguarding_trigger": "boolean DEFAULT false",
+          "incident_date": "date NOT NULL",
+          "incident_time": "time",
+          "location": "varchar(30) CHECK (location IN ('classroom','playground','corridor','canteen','sports_area','forest_area','library','bathroom','online','other'))",
+          "description": "text",
+          "victim_ids": "uuid[] COMMENT 'array of pupil user IDs identified as victim'",
+          "perpetrator_ids": "uuid[] COMMENT 'array of pupil user IDs identified as perpetrators'",
+          "witness_ids": "uuid[]",
+          "emotional_state": "varchar(30) CHECK (emotional_state IN ('scared','sad','angry','worried','confused','okay','prefer_not_to_say'))",
+          "emotional_freetext": "text",
+          "happening_to_me": "boolean",
+          "happening_to_someone_else": "boolean",
+          "i_saw_it": "boolean",
+          "children_separated": "boolean COMMENT 'teacher field'",
+          "coordinator_notified": "boolean COMMENT 'teacher field'",
+          "immediate_action_taken": "text COMMENT 'teacher field'",
+          "part_of_known_pattern": "boolean COMMENT 'teacher field'",
+          "told_by_child": "boolean COMMENT 'parent field'",
+          "child_consent_to_share": "boolean COMMENT 'parent field'",
+          "formal_response_requested": "boolean DEFAULT false COMMENT 'parent field'",
+          "request_external_referral": "boolean DEFAULT false",
+          "confidential_flag": "boolean DEFAULT false",
+          "status": "varchar(30) DEFAULT 'submitted' CHECK (status IN ('submitted','acknowledged','under_investigation','protocol_open','resolved','escalated'))",
+          "protocol_id": "uuid REFERENCES protocols(id) COMMENT 'set when protocol is opened'",
+          "created_at": "timestamptz DEFAULT now()",
+          "immutable": "boolean DEFAULT true COMMENT 'never update this row. use audit_log for amendments'"
+        },
+        "indexes": ["school_id", "category", "escalation_tier", "status", "incident_date", "victim_ids", "perpetrator_ids"]
+      },
+
+      "protocols": {
+        "description": "Formal safeguarding protocol records. Opened by coordinator at tier 3 or on red pattern alert.",
+        "fields": {
+          "id": "uuid PRIMARY KEY",
+          "reference_number": "varchar(20) NOT NULL UNIQUE COMMENT 'e.g. PROT-2026-004'",
+          "school_id": "uuid REFERENCES schools(id)",
+          "opened_by": "uuid REFERENCES users(id) COMMENT 'coordinator only'",
+          "opened_at": "timestamptz DEFAULT now()",
+          "protocol_type": "varchar(40) CHECK (protocol_type IN ('bullying_convivexit','ciberbullying_convivexit','sexual_harassment','machista_violence','safeguarding','combined'))",
+          "protocol_source": "varchar(30) CHECK (protocol_source IN ('lopivi','convivexit_bullying','machista_violence','other'))",
+          "gender_based_violence": "boolean DEFAULT false",
+          "context": "varchar(30) CHECK (context IN ('school_context','family_context','online_outside_school','other'))",
+          "linked_incident_ids": "uuid[]",
+          "victim_id": "uuid REFERENCES users(id)",
+          "alleged_perpetrator_ids": "uuid[]",
+          "parent_notification_sent": "boolean DEFAULT false",
+          "parent_notification_at": "timestamptz",
+          "interviews_required": "boolean DEFAULT true",
+          "risk_assessment": "text",
+          "protective_measures": "text[]",
+          "external_referral_required": "boolean DEFAULT false",
+          "external_referral_body": "varchar(100)",
+          "external_referral_at": "timestamptz",
+          "initial_assessment_url": "text COMMENT 'Replit Object Storage'",
+          "closure_report_url": "text",
+          "status": "varchar(30) DEFAULT 'open' CHECK (status IN ('open','under_investigation','awaiting_review','closed','escalated_externally'))",
+          "resolution_notes": "text",
+          "closed_at": "timestamptz",
+          "updated_at": "timestamptz DEFAULT now()"
+        },
+        "indexes": ["school_id", "status", "victim_id", "protocol_type"]
+      },
+
+      "interviews": {
+        "description": "Individual interview records linked to a protocol.",
+        "fields": {
+          "id": "uuid PRIMARY KEY",
+          "protocol_id": "uuid REFERENCES protocols(id)",
+          "school_id": "uuid REFERENCES schools(id)",
+          "interviewee_id": "uuid REFERENCES users(id)",
+          "interviewee_role": "varchar(20) CHECK (interviewee_role IN ('victim','perpetrator','witness','parent'))",
+          "conducted_by": "uuid REFERENCES users(id) COMMENT 'must be the designated coordinator'",
+          "interview_date": "date",
+          "summary": "text",
+          "annex_reference": "varchar(50) COMMENT 'e.g. Convivèxit Annex 3'",
+          "document_url": "text COMMENT 'Replit Object Storage'",
+          "created_at": "timestamptz DEFAULT now()"
+        }
+      },
+
+      "notifications": {
+        "description": "All notifications sent to users. Immutable log.",
+        "fields": {
+          "id": "uuid PRIMARY KEY",
+          "school_id": "uuid REFERENCES schools(id)",
+          "recipient_id": "uuid REFERENCES users(id)",
+          "trigger": "varchar(60) NOT NULL",
+          "channel": "varchar(20) CHECK (channel IN ('in_app','email','sms'))",
+          "subject": "text",
+          "body": "text",
+          "reference": "varchar(20) COMMENT 'incident or protocol reference number'",
+          "sent_at": "timestamptz DEFAULT now()",
+          "acknowledged_at": "timestamptz",
+          "delivered": "boolean DEFAULT false"
+        },
+        "indexes": ["recipient_id", "school_id", "trigger", "sent_at"]
+      },
+
+      "pattern_alerts": {
+        "description": "Pattern detection rule triggers. Created by background job.",
+        "fields": {
+          "id": "uuid PRIMARY KEY",
+          "school_id": "uuid REFERENCES schools(id)",
+          "rule_id": "varchar(60) NOT NULL",
+          "rule_label": "varchar(100)",
+          "alert_level": "varchar(10) CHECK (alert_level IN ('amber','red'))",
+          "victim_id": "uuid REFERENCES users(id)",
+          "perpetrator_ids": "uuid[]",
+          "linked_incident_ids": "uuid[]",
+          "triggered_at": "timestamptz DEFAULT now()",
+          "reviewed_at": "timestamptz",
+          "reviewed_by": "uuid REFERENCES users(id)",
+          "status": "varchar(20) DEFAULT 'open' CHECK (status IN ('open','reviewed','dismissed','escalated'))",
+          "notes": "text"
+        },
+        "indexes": ["school_id", "alert_level", "status", "victim_id"]
+      },
+
+      "audit_log": {
+        "description": "Immutable audit trail. Every event across every table.",
+        "fields": {
+          "id": "uuid PRIMARY KEY",
+          "school_id": "uuid REFERENCES schools(id)",
+          "event_type": "varchar(60) NOT NULL",
+          "actor_role": "varchar(30)",
+          "actor_id": "uuid COMMENT 'pseudonymised in exports'",
+          "target_type": "varchar(30) COMMENT 'incident, protocol, user, notification etc'",
+          "target_id": "uuid",
+          "details": "jsonb",
+          "ip_address": "varchar(45)",
+          "user_agent": "text",
+          "created_at": "timestamptz DEFAULT now()"
+        },
+        "indexes": ["school_id", "event_type", "actor_id", "target_id", "created_at"],
+        "note": "NEVER allow UPDATE or DELETE on this table. Append only."
+      }
+    }
+  },
+
+  "api_routes": {
+
+    "auth": {
+      "POST /auth/pupil/login": {
+        "body": {"school_id": "uuid", "pupil_id": "uuid", "pin": "string"},
+        "returns": {"token": "JWT", "user": "user object with avatar", "first_login": "boolean"},
+        "note": "If first_login true, client shows avatar setup screen before proceeding"
+      },
+      "POST /auth/staff/login": {
+        "body": {"email": "string", "password": "string"},
+        "returns": {"token": "JWT", "user": "user object"}
+      },
+      "POST /auth/parent/login": {
+        "body": {"email": "string", "password": "string"},
+        "returns": {"token": "JWT", "user": "user object with linked children"}
+      }
+    },
+
+    "pupils": {
+      "GET /pupils/class/:classId": {
+        "auth": ["teacher", "coordinator", "head_teacher"],
+        "returns": "array of pupils with name, id, avatar_type, avatar_value"
+      },
+      "POST /pupils/:id/avatar": {
+        "auth": ["pupil (own record only)"],
+        "body": {"avatar_type": "animal|face", "avatar_value": "emoji or face JSON", "avatar_image": "base64 optional"},
+        "returns": {"avatar_url": "string"}
+      }
+    },
+
+    "incidents": {
+      "POST /incidents": {
+        "auth": ["pupil", "parent", "teacher", "coordinator"],
+        "body": "incident fields per report_schema",
+        "returns": {"id": "uuid", "reference_number": "string", "escalation_tier": "integer"},
+        "side_effects": [
+          "Auto-set escalation_tier from category",
+          "Trigger immediate coordinator alert if tier 3",
+          "Run pattern detection rules",
+          "Write to audit_log",
+          "Send confirmation notification to reporter"
+        ]
+      },
+      "GET /incidents": {
+        "auth": ["coordinator", "head_teacher"],
+        "query": {"status": "string", "category": "string", "from": "date", "to": "date"},
+        "returns": "paginated incident list"
+      },
+      "GET /incidents/:id": {
+        "auth": ["coordinator", "head_teacher", "reporter (own only)"],
+        "returns": "full incident record"
+      },
+      "PATCH /incidents/:id/status": {
+        "auth": ["coordinator"],
+        "body": {"status": "string", "note": "string"},
+        "side_effects": ["Write to audit_log", "Notify parent if status changes to protocol_open"]
+      }
+    },
+
+    "protocols": {
+      "POST /protocols": {
+        "auth": ["coordinator"],
+        "body": "protocol fields",
+        "returns": {"id": "uuid", "reference_number": "string"},
+        "side_effects": [
+          "Link to incident IDs",
+          "Send parent notification immediately",
+          "Write to audit_log"
+        ]
+      },
+      "GET /protocols": {
+        "auth": ["coordinator", "head_teacher"],
+        "query": {"status": "string", "type": "string"},
+        "returns": "paginated protocol list with overdue flags"
+      },
+      "GET /protocols/:id": {
+        "auth": ["coordinator", "head_teacher"],
+        "returns": "full protocol with linked incidents, interviews, notifications"
+      },
+      "PATCH /protocols/:id": {
+        "auth": ["coordinator"],
+        "body": "partial protocol fields",
+        "side_effects": ["Write to audit_log", "Notify parent if update"]
+      },
+      "GET /protocols/:id/export": {
+        "auth": ["coordinator"],
+        "query": {"format": "pdf|csv", "bundle": "convivexit_case_file|machista_violence_case_file|sar_child_file"},
+        "returns": "file download",
+        "side_effects": ["Write regulatory_export_generated to audit_log"]
+      }
+    },
+
+    "pattern_alerts": {
+      "GET /alerts": {
+        "auth": ["coordinator", "head_teacher", "teacher (own class only)"],
+        "query": {"level": "amber|red", "status": "open|reviewed"},
+        "returns": "paginated alert list"
+      },
+      "PATCH /alerts/:id": {
+        "auth": ["coordinator"],
+        "body": {"status": "string", "notes": "string"},
+        "side_effects": ["Write to audit_log"]
+      }
+    },
+
+    "notifications": {
+      "GET /notifications": {
+        "auth": ["all authenticated users (own only)"],
+        "returns": "paginated notifications for the current user"
+      },
+      "PATCH /notifications/:id/acknowledge": {
+        "auth": ["recipient only"],
+        "side_effects": ["Set acknowledged_at timestamp"]
+      }
+    },
+
+    "sar": {
+      "POST /sar": {
+        "auth": ["parent", "coordinator"],
+        "body": {"child_id": "uuid", "requested_by": "uuid", "reason": "string"},
+        "returns": {"sar_id": "uuid", "due_by": "date COMMENT 30 days from request"},
+        "side_effects": [
+          "Write to audit_log",
+          "Alert coordinator",
+          "Schedule due_by reminder"
+        ]
+      },
+      "GET /sar/:id/export": {
+        "auth": ["coordinator"],
+        "returns": "PDF of all data held for child including incidents, emotional data, protocol records",
+        "side_effects": ["Write sar_export to audit_log"]
+      }
+    },
+
+    "dashboard": {
+      "GET /dashboard/coordinator": {
+        "auth": ["coordinator", "head_teacher"],
+        "returns": {
+          "open_protocols": "integer",
+          "pattern_alerts": {"amber": "integer", "red": "integer"},
+          "reports_this_month": "integer",
+          "reports_by_day": "array of 7 integers",
+          "emotional_welfare_alerts": "integer",
+          "overdue_notifications": "integer"
+        }
+      },
+      "GET /dashboard/child/:id": {
+        "auth": ["coordinator", "senco"],
+        "returns": {
+          "incident_history": "array",
+          "emotional_state_trend": "array of {date, state} objects",
+          "open_protocols": "array",
+          "pattern_alerts": "array"
+        }
+      }
+    }
+  },
+
+  "background_jobs": {
+    "pattern_detection": {
+      "trigger": "on every new incident insert",
+      "rules": [
+        {"id": "same_victim_3_incidents", "window_days": 30, "threshold": 3, "alert": "amber"},
+        {"id": "same_perpetrator_2_incidents", "window_days": 14, "threshold": 2, "alert": "amber"},
+        {"id": "same_pair_escalating", "window_days": 30, "categories_required": 2, "alert": "red"},
+        {"id": "group_targeting", "window_days": 14, "perpetrators_required": 3, "alert": "red"},
+        {"id": "sexual_any", "categories": ["sexual"], "alert": "red", "immediate": true},
+        {"id": "location_hotspot", "window_days": 14, "threshold": 3, "alert": "amber"},
+        {"id": "anonymous_cluster", "window_days": 30, "threshold": 3, "alert": "amber"},
+        {"id": "emotional_distress_pattern", "window_days": 30, "states": ["scared","sad","worried"], "threshold": 3, "alert": "amber", "notify": ["coordinator","senco"]}
+      ]
+    },
+    "overdue_checks": {
+      "trigger": "cron every hour",
+      "checks": [
+        "Tier 2 incident not acknowledged within 24 hours → alert coordinator and head",
+        "Tier 3 incident not acknowledged within 2 hours → alert coordinator and head",
+        "Protocol opened but parent not notified within 24 hours → alert coordinator",
+        "Protocol open but interviews not scheduled within 48 hours → alert coordinator",
+        "SAR not responded to within 25 days → alert coordinator (5 day warning before 30 day deadline)"
+      ]
+    }
+  },
+
+  "realtime": {
+    "library": "Socket.io",
+    "events": {
+      "incident:new_tier3": "Broadcast to coordinator room immediately on tier 3 submission",
+      "alert:pattern_red": "Broadcast to coordinator room on red pattern alert",
+      "protocol:overdue": "Broadcast to coordinator on overdue notification check",
+      "notification:new": "Broadcast to individual user on new notification"
+    },
+    "rooms": ["school:{school_id}:coordinators", "user:{user_id}"]
+  },
+
+  "avatar": {
+    "animals": ["🦊","🐻","🐬","🦋","🐧","🦁","🐨","🐺","🦄","🐙","🦅","🐸"],
+    "face_params": {
+      "skin": ["#FDDBB4","#F0C27F","#C68642","#8D5524","#4A2912"],
+      "hair_style": [0,1,2,3,4],
+      "eyes": [0,1,2,3],
+      "hair_color": ["#2C1810","#6B3A2A","#C4882A","#E8D5A3","#C0C0C0","#E83A8C"]
+    },
+    "storage": "Replit Object Storage",
+    "path_pattern": "avatars/{school_id}/{user_id}.png",
+    "fallback": "initials with gradient background"
+  },
+
+  "gdpr": {
+    "data_controller": "school_legal_entity",
+    "legal_bases": {
+      "pupil_reports": "legal_obligation_lopivi",
+      "emotional_data": "vital_interests_child",
+      "staff_reports": "public_task_education",
+      "parent_reports": "legal_obligation_lopivi"
+    },
+    "retention": {
+      "anonymous_reports": "12 months",
+      "named_reports": "until child leaves school + 7 years",
+      "emotional_data": "until child leaves school + 7 years",
+      "protocols": "until closed + 7 years",
+      "audit_log": "indefinite",
+      "annual_summaries": "indefinite"
+    },
+    "encryption": "at_rest_and_in_transit",
+    "audit_trail": "append_only",
+    "sar_response_days": 30
+  },
+
+  "environment_variables": {
+    "DATABASE_URL": "PostgreSQL connection string",
+    "JWT_SECRET": "secret for signing tokens",
+    "JWT_EXPIRES_IN": "8h",
+    "BCRYPT_ROUNDS": "12",
+    "REPLIT_OBJECT_STORAGE_BUCKET": "safeschool-avatars",
+    "SMTP_HOST": "email server host",
+    "SMTP_PORT": "587",
+    "SMTP_USER": "email address",
+    "SMTP_PASS": "email password",
+    "SMS_API_KEY": "SMS provider API key",
+    "PORT": "3000"
+  },
+
+  "file_structure": {
+    "/": "package.json, .env, README.md",
+    "/server": "index.js, app.js",
+    "/server/routes": "auth.js, incidents.js, protocols.js, alerts.js, notifications.js, sar.js, dashboard.js, pupils.js",
+    "/server/middleware": "auth.js (JWT verify), role.js (role guard), school.js (tenant isolation)",
+    "/server/jobs": "patternDetection.js, overdueChecks.js",
+    "/server/services": "notifications.js, storage.js (Replit Object Storage), export.js (PDF generation)",
+    "/server/db": "index.js (pg pool), migrations/",
+    "/public": "safeschool.html (the single-file frontend)"
+  }
+}

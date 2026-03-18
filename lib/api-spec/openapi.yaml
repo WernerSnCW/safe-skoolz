@@ -1,22 +1,37 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
-  description: API specification
+  version: 0.2.0
+  description: SafeSchool safeguarding and incident reporting API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: schools
+    description: School management
+  - name: users
+    description: User management
+  - name: incidents
+    description: Incident reporting
+  - name: protocols
+    description: Safeguarding protocols
+  - name: alerts
+    description: Pattern alerts
+  - name: notifications
+    description: User notifications
+  - name: dashboard
+    description: Dashboard data
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +39,529 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/pupil/login:
+    post:
+      operationId: pupilLogin
+      tags: [auth]
+      summary: Pupil login with PIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PupilLoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/staff/login:
+    post:
+      operationId: staffLogin
+      tags: [auth]
+      summary: Staff login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffLoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/parent/login:
+    post:
+      operationId: parentLogin
+      tags: [auth]
+      summary: Parent login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffLoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /schools:
+    get:
+      operationId: listSchools
+      tags: [schools]
+      summary: List all schools
+      responses:
+        "200":
+          description: School list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/School"
+
+  /schools/{schoolId}/pupils:
+    get:
+      operationId: listPupilsBySchool
+      tags: [users]
+      summary: List pupils for a school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: className
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Pupil list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PupilSummary"
+
+  /schools/{schoolId}/staff:
+    get:
+      operationId: listStaffBySchool
+      tags: [users]
+      summary: List staff for a school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Staff list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /users/{id}/avatar:
+    post:
+      operationId: updateAvatar
+      tags: [users]
+      summary: Update user avatar
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAvatarBody"
+      responses:
+        "200":
+          description: Avatar updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvatarResponse"
+
+  /incidents:
+    get:
+      operationId: listIncidents
+      tags: [incidents]
+      summary: List incidents
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+        - name: to
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Paginated incidents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedIncidents"
+    post:
+      operationId: createIncident
+      tags: [incidents]
+      summary: Create a new incident report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIncidentBody"
+      responses:
+        "201":
+          description: Incident created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /incidents/{id}:
+    get:
+      operationId: getIncident
+      tags: [incidents]
+      summary: Get incident by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Incident detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /incidents/{id}/status:
+    patch:
+      operationId: updateIncidentStatus
+      tags: [incidents]
+      summary: Update incident status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateIncidentStatusBody"
+      responses:
+        "200":
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+
+  /protocols:
+    get:
+      operationId: listProtocols
+      tags: [protocols]
+      summary: List protocols
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Paginated protocols
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedProtocols"
+    post:
+      operationId: createProtocol
+      tags: [protocols]
+      summary: Open a new protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProtocolBody"
+      responses:
+        "201":
+          description: Protocol created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Protocol"
+
+  /protocols/{id}:
+    get:
+      operationId: getProtocol
+      tags: [protocols]
+      summary: Get protocol detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Protocol detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateProtocol
+      tags: [protocols]
+      summary: Update protocol
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProtocolBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Protocol"
+
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List pattern alerts
+      parameters:
+        - name: level
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Paginated alerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedAlerts"
+
+  /alerts/{id}:
+    patch:
+      operationId: updateAlert
+      tags: [alerts]
+      summary: Update alert status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAlertBody"
+      responses:
+        "200":
+          description: Alert updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatternAlert"
+
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List notifications for current user
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Paginated notifications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedNotifications"
+
+  /notifications/{id}/acknowledge:
+    patch:
+      operationId: acknowledgeNotification
+      tags: [notifications]
+      summary: Acknowledge a notification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /dashboard/coordinator:
+    get:
+      operationId: getCoordinatorDashboard
+      tags: [dashboard]
+      summary: Get coordinator dashboard stats
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoordinatorDashboard"
+
+  /dashboard/child/{id}:
+    get:
+      operationId: getChildDashboard
+      tags: [dashboard]
+      summary: Get child safeguarding profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Child dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChildDashboard"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +572,768 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    PupilLoginBody:
+      type: object
+      properties:
+        schoolId:
+          type: string
+        pupilId:
+          type: string
+        pin:
+          type: string
+      required:
+        - schoolId
+        - pupilId
+        - pin
+
+    StaffLoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        firstLogin:
+          type: boolean
+      required:
+        - token
+        - user
+        - firstLogin
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        schoolId:
+          type: string
+        role:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: ["string", "null"]
+        yearGroup:
+          type: ["string", "null"]
+        className:
+          type: ["string", "null"]
+        avatarType:
+          type: ["string", "null"]
+        avatarValue:
+          type: ["string", "null"]
+        avatarImageUrl:
+          type: ["string", "null"]
+        parentOf:
+          type: array
+          items:
+            type: string
+        active:
+          type: boolean
+        lastLogin:
+          type: ["string", "null"]
+      required:
+        - id
+        - schoolId
+        - role
+        - firstName
+        - lastName
+        - active
+
+    School:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        legalEntity:
+          type: ["string", "null"]
+        cif:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        country:
+          type: string
+        region:
+          type: string
+        active:
+          type: boolean
+      required:
+        - id
+        - name
+        - country
+        - region
+        - active
+
+    PupilSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        yearGroup:
+          type: ["string", "null"]
+        className:
+          type: ["string", "null"]
+        avatarType:
+          type: ["string", "null"]
+        avatarValue:
+          type: ["string", "null"]
+      required:
+        - id
+        - firstName
+        - lastName
+
+    UpdateAvatarBody:
+      type: object
+      properties:
+        avatarType:
+          type: string
+        avatarValue:
+          type: string
+      required:
+        - avatarType
+        - avatarValue
+
+    AvatarResponse:
+      type: object
+      properties:
+        avatarType:
+          type: string
+        avatarValue:
+          type: string
+        avatarImageUrl:
+          type: ["string", "null"]
+      required:
+        - avatarType
+        - avatarValue
+
+    CreateIncidentBody:
+      type: object
+      properties:
+        anonymous:
+          type: boolean
+          default: false
+        category:
+          type: string
+        incidentDate:
+          type: string
+        incidentTime:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        victimIds:
+          type: array
+          items:
+            type: string
+        perpetratorIds:
+          type: array
+          items:
+            type: string
+        witnessIds:
+          type: array
+          items:
+            type: string
+        emotionalState:
+          type: ["string", "null"]
+        emotionalFreetext:
+          type: ["string", "null"]
+        happeningToMe:
+          type: boolean
+        happeningToSomeoneElse:
+          type: boolean
+        iSawIt:
+          type: boolean
+        childrenSeparated:
+          type: ["boolean", "null"]
+        coordinatorNotified:
+          type: ["boolean", "null"]
+        immediateActionTaken:
+          type: ["string", "null"]
+        partOfKnownPattern:
+          type: ["boolean", "null"]
+        toldByChild:
+          type: ["boolean", "null"]
+        childConsentToShare:
+          type: ["boolean", "null"]
+        formalResponseRequested:
+          type: boolean
+          default: false
+        requestExternalReferral:
+          type: boolean
+          default: false
+        confidentialFlag:
+          type: boolean
+          default: false
+      required:
+        - category
+        - incidentDate
+
+    Incident:
+      type: object
+      properties:
+        id:
+          type: string
+        referenceNumber:
+          type: string
+        schoolId:
+          type: string
+        reporterId:
+          type: ["string", "null"]
+        reporterRole:
+          type: string
+        anonymous:
+          type: boolean
+        category:
+          type: string
+        escalationTier:
+          type: integer
+        safeguardingTrigger:
+          type: boolean
+        incidentDate:
+          type: string
+        incidentTime:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        victimIds:
+          type: array
+          items:
+            type: string
+        perpetratorIds:
+          type: array
+          items:
+            type: string
+        witnessIds:
+          type: array
+          items:
+            type: string
+        emotionalState:
+          type: ["string", "null"]
+        emotionalFreetext:
+          type: ["string", "null"]
+        happeningToMe:
+          type: boolean
+        happeningToSomeoneElse:
+          type: boolean
+        iSawIt:
+          type: boolean
+        childrenSeparated:
+          type: ["boolean", "null"]
+        coordinatorNotified:
+          type: ["boolean", "null"]
+        immediateActionTaken:
+          type: ["string", "null"]
+        partOfKnownPattern:
+          type: ["boolean", "null"]
+        toldByChild:
+          type: ["boolean", "null"]
+        childConsentToShare:
+          type: ["boolean", "null"]
+        formalResponseRequested:
+          type: boolean
+        requestExternalReferral:
+          type: boolean
+        confidentialFlag:
+          type: boolean
+        status:
+          type: string
+        protocolId:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        reporterName:
+          type: ["string", "null"]
+        victimNames:
+          type: array
+          items:
+            type: string
+        perpetratorNames:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - referenceNumber
+        - schoolId
+        - reporterRole
+        - anonymous
+        - category
+        - escalationTier
+        - safeguardingTrigger
+        - incidentDate
+        - status
+        - createdAt
+
+    PaginatedIncidents:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Incident"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - limit
+
+    UpdateIncidentStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+        note:
+          type: ["string", "null"]
+      required:
+        - status
+
+    CreateProtocolBody:
+      type: object
+      properties:
+        protocolType:
+          type: string
+        protocolSource:
+          type: ["string", "null"]
+        genderBasedViolence:
+          type: boolean
+          default: false
+        context:
+          type: ["string", "null"]
+        linkedIncidentIds:
+          type: array
+          items:
+            type: string
+        victimId:
+          type: string
+        allegedPerpetratorIds:
+          type: array
+          items:
+            type: string
+        riskAssessment:
+          type: ["string", "null"]
+        protectiveMeasures:
+          type: array
+          items:
+            type: string
+        externalReferralRequired:
+          type: boolean
+          default: false
+        externalReferralBody:
+          type: ["string", "null"]
+      required:
+        - protocolType
+        - victimId
+
+    Protocol:
+      type: object
+      properties:
+        id:
+          type: string
+        referenceNumber:
+          type: string
+        schoolId:
+          type: string
+        openedBy:
+          type: string
+        openedAt:
+          type: string
+        protocolType:
+          type: string
+        protocolSource:
+          type: ["string", "null"]
+        genderBasedViolence:
+          type: boolean
+        context:
+          type: ["string", "null"]
+        linkedIncidentIds:
+          type: array
+          items:
+            type: string
+        victimId:
+          type: string
+        allegedPerpetratorIds:
+          type: array
+          items:
+            type: string
+        parentNotificationSent:
+          type: boolean
+        interviewsRequired:
+          type: boolean
+        riskAssessment:
+          type: ["string", "null"]
+        protectiveMeasures:
+          type: array
+          items:
+            type: string
+        externalReferralRequired:
+          type: boolean
+        externalReferralBody:
+          type: ["string", "null"]
+        status:
+          type: string
+        resolutionNotes:
+          type: ["string", "null"]
+        closedAt:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+        victimName:
+          type: ["string", "null"]
+        openedByName:
+          type: ["string", "null"]
+      required:
+        - id
+        - referenceNumber
+        - schoolId
+        - openedBy
+        - openedAt
+        - protocolType
+        - genderBasedViolence
+        - victimId
+        - parentNotificationSent
+        - interviewsRequired
+        - externalReferralRequired
+        - status
+        - updatedAt
+
+    ProtocolDetail:
+      type: object
+      properties:
+        protocol:
+          $ref: "#/components/schemas/Protocol"
+        linkedIncidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Incident"
+        interviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Interview"
+        notifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+      required:
+        - protocol
+        - linkedIncidents
+        - interviews
+        - notifications
+
+    Interview:
+      type: object
+      properties:
+        id:
+          type: string
+        protocolId:
+          type: string
+        intervieweeId:
+          type: string
+        intervieweeRole:
+          type: string
+        conductedBy:
+          type: string
+        interviewDate:
+          type: ["string", "null"]
+        summary:
+          type: ["string", "null"]
+        annexReference:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        intervieweeName:
+          type: ["string", "null"]
+        conductedByName:
+          type: ["string", "null"]
+      required:
+        - id
+        - protocolId
+        - intervieweeId
+        - intervieweeRole
+        - conductedBy
+        - createdAt
+
+    PaginatedProtocols:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Protocol"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - limit
+
+    UpdateProtocolBody:
+      type: object
+      properties:
+        status:
+          type: ["string", "null"]
+        riskAssessment:
+          type: ["string", "null"]
+        protectiveMeasures:
+          type: array
+          items:
+            type: string
+        resolutionNotes:
+          type: ["string", "null"]
+        parentNotificationSent:
+          type: ["boolean", "null"]
+        externalReferralRequired:
+          type: ["boolean", "null"]
+        externalReferralBody:
+          type: ["string", "null"]
+
+    PatternAlert:
+      type: object
+      properties:
+        id:
+          type: string
+        schoolId:
+          type: string
+        ruleId:
+          type: string
+        ruleLabel:
+          type: ["string", "null"]
+        alertLevel:
+          type: string
+        victimId:
+          type: ["string", "null"]
+        perpetratorIds:
+          type: array
+          items:
+            type: string
+        linkedIncidentIds:
+          type: array
+          items:
+            type: string
+        triggeredAt:
+          type: string
+        reviewedAt:
+          type: ["string", "null"]
+        reviewedBy:
+          type: ["string", "null"]
+        status:
+          type: string
+        notes:
+          type: ["string", "null"]
+        victimName:
+          type: ["string", "null"]
+      required:
+        - id
+        - schoolId
+        - ruleId
+        - alertLevel
+        - triggeredAt
+        - status
+
+    PaginatedAlerts:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PatternAlert"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - limit
+
+    UpdateAlertBody:
+      type: object
+      properties:
+        status:
+          type: string
+        notes:
+          type: ["string", "null"]
+      required:
+        - status
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        schoolId:
+          type: string
+        recipientId:
+          type: string
+        trigger:
+          type: string
+        channel:
+          type: string
+        subject:
+          type: ["string", "null"]
+        body:
+          type: ["string", "null"]
+        reference:
+          type: ["string", "null"]
+        sentAt:
+          type: string
+        acknowledgedAt:
+          type: ["string", "null"]
+        delivered:
+          type: boolean
+      required:
+        - id
+        - schoolId
+        - recipientId
+        - trigger
+        - channel
+        - sentAt
+        - delivered
+
+    PaginatedNotifications:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - limit
+
+    CoordinatorDashboard:
+      type: object
+      properties:
+        openProtocols:
+          type: integer
+        patternAlerts:
+          type: object
+          properties:
+            amber:
+              type: integer
+            red:
+              type: integer
+          required:
+            - amber
+            - red
+        reportsThisMonth:
+          type: integer
+        reportsByDay:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+              count:
+                type: integer
+            required:
+              - date
+              - count
+        emotionalWelfareAlerts:
+          type: integer
+        overdueNotifications:
+          type: integer
+        recentIncidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Incident"
+        recentAlerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PatternAlert"
+      required:
+        - openProtocols
+        - patternAlerts
+        - reportsThisMonth
+        - reportsByDay
+        - emotionalWelfareAlerts
+        - overdueNotifications
+        - recentIncidents
+        - recentAlerts
+
+    ChildDashboard:
+      type: object
+      properties:
+        child:
+          $ref: "#/components/schemas/PupilSummary"
+        incidentHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/Incident"
+        emotionalStateTrend:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+              state:
+                type: string
+            required:
+              - date
+              - state
+        openProtocols:
+          type: array
+          items:
+            $ref: "#/components/schemas/Protocol"
+        patternAlerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PatternAlert"
+      required:
+        - child
+        - incidentHistory
+        - emotionalStateTrend
+        - openProtocols
+        - patternAlerts

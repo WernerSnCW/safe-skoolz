@@ -1,0 +1,24 @@
+packages:
+  "framer-motion": "For fluid page transitions, layout animations, and interactive component states."
+  "recharts": "For rendering beautiful, responsive data visualizations on the coordinator dashboard."
+  "date-fns": "For formatting incident dates, protocol deadlines, and timeline events securely."
+  "react-hook-form": "For managing complex, multi-step incident reporting and protocol forms."
+  "@hookform/resolvers": "To integrate Zod schema validation directly with react-hook-form."
+  "zod": "For strict runtime type validation of form inputs."
+  "clsx": "For conditional class name merging."
+  "tailwind-merge": "To resolve tailwind utility conflicts gracefully."
+
+images:
+  - path: "artifacts/safeschool/public/images/login-bg.png"
+    description: "A calming, abstract geometric background with soft overlapping shapes in light teal, mint green, and soft sky blue. Child-friendly but professional, minimalist, paper-cut aesthetic."
+    aspect_ratio: "16:9"
+  - path: "artifacts/safeschool/public/images/avatar-fox.png"
+    description: "A cute, flat-vector illustration of a friendly fox face on a transparent background, used as a child's avatar. Soft pastel colors."
+    aspect_ratio: "1:1"
+  - path: "artifacts/safeschool/public/images/avatar-dolphin.png"
+    description: "A cute, flat-vector illustration of a friendly dolphin face on a transparent background, used as a child's avatar. Soft pastel colors."
+    aspect_ratio: "1:1"
+
+notes:
+  - Assuming the API client `customFetch` automatically injects `Authorization: Bearer <token>` if a token is present in localStorage.
+  - The `@workspace/api-client-react` package handles all base API URL resolutions.
