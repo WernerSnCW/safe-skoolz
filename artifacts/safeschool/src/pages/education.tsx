@@ -107,11 +107,18 @@ function PupilContent() {
               <span className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
               <div>
                 <p className="font-bold">Walk away if you can</p>
-                <p className="text-muted-foreground">You don't have to fight back or argue. Walking away and telling an adult is the bravest thing you can do.</p>
+                <p className="text-muted-foreground">If it feels safe, walking away and telling an adult is a really brave thing to do. You don't have to argue or get pulled into a fight.</p>
               </div>
             </div>
             <div className="flex gap-3 items-start">
               <span className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">4</span>
+              <div>
+                <p className="font-bold">It's okay to protect yourself</p>
+                <p className="text-muted-foreground">If someone is physically hurting you and you can't walk away or get help, you have the right to protect yourself. Self-defence means doing what you need to stay safe — not to hurt someone back, but to stop yourself from being hurt. Always tell a trusted adult afterwards.</p>
+              </div>
+            </div>
+            <div className="flex gap-3 items-start">
+              <span className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">5</span>
               <div>
                 <p className="font-bold">Keep evidence of online bullying</p>
                 <p className="text-muted-foreground">If someone is being mean online, take screenshots before blocking them. Show these to an adult.</p>
@@ -390,37 +397,56 @@ function ParentContent() {
 
 export default function Education() {
   const { user } = useAuth();
-  const defaultTab: Tab = user?.role === "pupil" ? "pupils" : user?.role === "parent" ? "parents" : "staff";
+  const role = user?.role || "pupil";
+
+  const isPupil = role === "pupil";
+  const isParent = role === "parent";
+  const isStaff = !isPupil && !isParent;
+
+  const availableTabs = isPupil
+    ? TABS.filter(t => t.id === "pupils")
+    : isParent
+    ? TABS.filter(t => t.id === "pupils" || t.id === "parents")
+    : TABS;
+
+  const defaultTab: Tab = isPupil ? "pupils" : isParent ? "parents" : "staff";
   const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
+
+  const showTabs = availableTabs.length > 1;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-display font-bold flex items-center gap-3">
           <BookOpen size={28} className="text-primary" />
-          Education Centre
+          {isPupil ? "Learn About Staying Safe" : "Education Centre"}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Learn about bullying, safeguarding, and how we all work together to keep everyone safe.
+          {isPupil
+            ? "Everything you need to know about staying safe, being a good friend, and getting help."
+            : "Learn about bullying, safeguarding, and how we all work together to keep everyone safe."
+          }
         </p>
       </div>
 
-      <div className="flex gap-2 p-1 bg-muted/50 rounded-xl border border-border">
-        {TABS.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-bold transition-all ${
-              activeTab === tab.id
-                ? "bg-white dark:bg-zinc-800 text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <tab.icon size={18} />
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {showTabs && (
+        <div className="flex gap-2 p-1 bg-muted/50 rounded-xl border border-border">
+          {availableTabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-bold transition-all ${
+                activeTab === tab.id
+                  ? "bg-white dark:bg-zinc-800 text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <tab.icon size={18} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -431,8 +457,8 @@ export default function Education() {
           transition={{ duration: 0.2 }}
         >
           {activeTab === "pupils" && <PupilContent />}
-          {activeTab === "staff" && <StaffContent />}
-          {activeTab === "parents" && <ParentContent />}
+          {activeTab === "staff" && isStaff && <StaffContent />}
+          {activeTab === "parents" && (isParent || isStaff) && <ParentContent />}
         </motion.div>
       </AnimatePresence>
     </div>
