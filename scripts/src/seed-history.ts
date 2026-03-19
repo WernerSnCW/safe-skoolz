@@ -22,6 +22,27 @@ const LOCATIONS = [
   "cloakroom", "online",
 ];
 
+const OUTDOOR_LOCATIONS = [
+  "playground", "forest", "stage_amphitheatre", "tires", "play_park",
+  "picnic_area", "basketball_court", "football_pitch",
+];
+
+const INDOOR_LOCATIONS = [
+  "classroom", "corridor", "library", "cafeteria_buffet", "cloakroom",
+];
+
+function locationForDescription(desc: string, category: string): string {
+  if (category === "online" || category.includes("online") || desc.includes("group chat") || desc.includes("online") || desc.includes("messages") || desc.includes("social media") || desc.includes("photo of me")) return "online";
+  if (desc.includes("corridor")) return "corridor";
+  if (desc.includes("classroom") || desc.includes("chair") || desc.includes("in class") || desc.includes("in my class") || desc.includes("read out loud") || desc.includes("teacher didn't see")) return "classroom";
+  if (desc.includes("lunch") || desc.includes("sit with me at") || desc.includes("hungry")) return "cafeteria_buffet";
+  if (desc.includes("clothing") || desc.includes("arrived at school") || desc.includes("arrived without")) return "classroom";
+  if (desc.includes("break") || desc.includes("outside") || desc.includes("play ") || desc.includes("playground")) return pick(OUTDOOR_LOCATIONS);
+  if (desc.includes("wall") || desc.includes("push")) return pick([...OUTDOOR_LOCATIONS, "corridor"]);
+  if (desc.includes("team") || desc.includes("game")) return pick(OUTDOOR_LOCATIONS);
+  return pick(LOCATIONS.filter(l => l !== "online"));
+}
+
 const CATEGORIES = ["verbal", "physical", "psychological", "exclusion", "online", "verbal,physical", "verbal,psychological"];
 
 const EMOTIONS = [
@@ -176,7 +197,7 @@ async function seedHistory() {
         escalationTier,
         safeguardingTrigger: false,
         incidentDate: dateAgo(daysAgo),
-        location: pick(LOCATIONS),
+        location: locationForDescription(description, category),
         description,
         victimIds: [victim.id],
         perpetratorIds: [perpetrator.id],
@@ -229,7 +250,7 @@ async function seedHistory() {
       safeguardingTrigger: false,
       incidentDate: dateAgo(pattern.daysAgo),
       incidentTime: pattern.time,
-      location: pick(LOCATIONS),
+      location: locationForDescription(pattern.desc, pattern.cat),
       description: pattern.desc,
       victimIds: [boyA.id],
       perpetratorIds: [boyB.id],
@@ -267,7 +288,7 @@ async function seedHistory() {
       safeguardingTrigger: false,
       incidentDate: dateAgo(inc.daysAgo),
       incidentTime: inc.time,
-      location: pick(LOCATIONS),
+      location: locationForDescription(inc.desc, inc.cat),
       description: inc.desc,
       victimIds: [boyB.id],
       perpetratorIds: [pick(pupils.filter((p) => p.id !== boyB.id)).id],
@@ -303,7 +324,7 @@ async function seedHistory() {
       safeguardingTrigger: false,
       incidentDate: dateAgo(inc.daysAgo),
       incidentTime: inc.time,
-      location: pick(LOCATIONS),
+      location: locationForDescription(inc.desc, inc.cat),
       description: inc.desc,
       victimIds: [girlA.id],
       perpetratorIds: [pick(pupils.filter((p) => p.id !== girlA.id)).id],
