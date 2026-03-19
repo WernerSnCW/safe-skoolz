@@ -23,6 +23,7 @@ import MyClass from "@/pages/my-class";
 import Education from "@/pages/education";
 import MessagesPage from "@/pages/messages";
 import CaseloadPage from "@/pages/caseload";
+import BehaviourPage from "@/pages/behaviour";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -95,6 +96,9 @@ function Router() {
       </Route>
       <Route path="/caseload">
         {() => <ProtectedRoute component={CaseloadPage} />}
+      </Route>
+      <Route path="/behaviour">
+        {() => <ProtectedRoute component={BehaviourPage} />}
       </Route>
       <Route path="/settings">
         {() => <ProtectedRoute component={Settings} />}

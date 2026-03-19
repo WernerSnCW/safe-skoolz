@@ -1,198 +1,82 @@
-# Workspace
+# Overview
 
-## Overview
+This is a pnpm workspace monorepo using TypeScript, designed for a multi-role safeguarding and incident reporting platform for schools called SafeSchool. The project aims to provide a comprehensive solution for managing incidents, ensuring compliance with various safeguarding frameworks (LOPIVI, Convivèxit 2024, Machista Violence), and facilitating communication among pupils, parents, and staff.
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+Key capabilities include:
+- Role-based authentication and access control.
+- Incident reporting with detailed tracking and escalation tiers.
+- Compliance framework integration with delegated roles and annex templates.
+- Pattern detection alerts for recurring issues.
+- Structured risk assessment for safeguarding protocols.
+- Pupil and parent messaging systems.
+- SENCO caseload management.
+- Comprehensive analytics dashboards for staff.
 
-## Stack
+The project emphasizes a secure, privacy-conscious, and user-friendly experience to enhance child protection and school safety.
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
-- **Frontend**: React + Vite + TailwindCSS + Framer Motion
-- **Auth**: Custom JWT + bcrypt (NOT Replit Auth)
+# User Preferences
 
-## Structure
+- I prefer clear and concise communication.
+- I appreciate detailed explanations when new concepts or significant changes are introduced.
+- I expect iterative development with regular updates on progress.
+- Please ask for confirmation before making any major architectural changes or introducing new dependencies.
+- Ensure that all code adheres to TypeScript best practices and maintains type safety.
+- Prioritize security and data privacy in all implementations, especially concerning pupil data.
 
-```text
-artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   ├── api-server/         # Express API server (port 8080)
-│   └── safeschool/         # React+Vite frontend (SafeSchool app)
-├── lib/                    # Shared libraries
-│   ├── api-spec/           # OpenAPI spec + Orval codegen config
-│   ├── api-client-react/   # Generated React Query hooks + custom fetch with auth token injection
-│   ├── api-zod/            # Generated Zod schemas from OpenAPI
-│   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts
-├── pnpm-workspace.yaml     # pnpm workspace config
-├── tsconfig.base.json      # Shared TS options
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package
-```
+# System Architecture
 
-## SafeSchool App (v0.2.0)
+The project is structured as a pnpm workspace monorepo, separating deployable applications from shared libraries and utility scripts.
 
-Multi-role safeguarding and incident reporting platform for schools.
+**Monorepo Structure:**
+- `artifacts/`: Contains deployable applications like `api-server` (Express API) and `safeschool` (React+Vite frontend).
+- `lib/`: Houses shared libraries including `api-spec` (OpenAPI), `api-client-react` (generated React Query hooks), `api-zod` (generated Zod schemas), and `db` (Drizzle ORM schema).
+- `scripts/`: Holds various utility scripts.
 
-### Auth & Roles
-- JWT-based authentication (custom, bcrypt passwords/PINs)
-- Roles: pupil, parent, teacher, head_of_year, coordinator, head_teacher, senco, support_staff
-- Token stored in localStorage as `safeschool_token`
-- `customFetch` in `lib/api-client-react/src/custom-fetch.ts` auto-injects Bearer token
-- Staff visibility hierarchy:
-  - teacher → sees assigned class only
-  - head_of_year → sees all classes in assigned year group
-  - head_teacher / coordinator / senco → sees all classes in school
-  - support_staff → customised (className, yearGroup, or whole school)
+**Technical Stack:**
+- **Backend:** Node.js 24, Express 5, PostgreSQL with Drizzle ORM, Zod for validation, Orval for API codegen.
+- **Frontend:** React, Vite, TailwindCSS for styling, Framer Motion for animations.
+- **Authentication:** Custom JWT-based authentication with bcrypt for password hashing. Tokens are stored in `localStorage`.
+- **Build System:** esbuild for CJS bundles.
 
-### API Proxy
-- Vite dev server proxies `/api/*` to `http://localhost:8080`
-- API server mounts all routes at `/api` prefix
+**UI/UX Decisions:**
+- The SafeSchool frontend is a React+Vite application.
+- Role-specific dashboards and interfaces are provided for pupils, parents, teachers, and coordinators.
+- Quick Demo Login panel on the login page facilitates easy access for demonstrations.
+- Incident reporting forms adapt language based on the user's role (child-friendly for pupils, professional for staff).
+- Data visualization for analytics includes monthly trend line charts and bar charts.
+- Color-coded badges are used for protocol risk assessments.
+- Pupil search functionality includes truncated last names for privacy.
 
-### Database Schema
-- Core: schools, users, incidents, protocols, interviews, notifications, patternAlerts, auditLog, messages, sencoCaseload, sencoTracking
-- Compliance: delegatedRoles, annexTemplates, referralBodies, caseTasks
-- Protocols extended with: riskFactors (jsonb), protectiveFactors (jsonb), familyContext (jsonb), externalReferralBodyId
-- All in `lib/db/src/schema/index.ts`
+**Feature Specifications & System Design:**
+- **Auth & Roles:** JWT-based custom authentication with bcrypt. Supports various roles (pupil, parent, teacher, head_of_year, coordinator, head_teacher, senco, support_staff) with a defined visibility hierarchy.
+- **API Proxy:** Vite development server proxies `/api/*` requests to the Express API server running on port 8080.
+- **Database Schema:** Core entities include schools, users, incidents, protocols, interviews, notifications, pattern alerts, audit logs, messages, SENCO caseload, and tracking. Compliance-related tables manage delegated roles, annex templates, and referral bodies. Protocols can include JSONB fields for risk/protective factors and family context.
+- **Compliance Frameworks:** Supports LOPIVI, Convivèxit 2024, and Machista Violence protocols, with dedicated tables for delegated roles, annex templates, and referral bodies.
+- **Incident Management:**
+    - Incident reporting captures emotional state and incorporates safeguarding checks.
+    - Person identification supports searching by name and structured descriptions for unknown individuals, stored as JSONB.
+    - Escalation tiers (tier1, tier2, tier3) categorize incidents based on severity.
+    - Robust incident filtering by various criteria (child, year group, class, category, status).
+    - Teacher assessment workflow allows staff to add notes, witness statements (JSONB array with timestamps), and parent summaries, with role-based visibility controls.
+- **Messaging System:**
+    - Pupil messaging with dynamic safe contacts, priority flags, and urgent help features.
+    - Staff messaging inbox with conversation threads.
+    - Parent messaging allows communication with school staff, listing child's teachers first.
+- **SENCO Caseload Tracker:** Dedicated page for SENCOs to manage pupil caseloads, track progress, feelings, and attitudes, with a timeline history.
+- **Behaviour Escalation Tracker:** Points-based system with 7 escalation levels (Good Standing → Warning → Formal Warning → Suspension Risk → Suspended → Term Exclusion → Full Exclusion). Staff can issue points by category, view school-wide summary. Pupils and parents see their own record with visual gauge and escalation ladder. DB: `behaviour_points`. Routes: `/api/behaviour/*`. Page: `/behaviour`.
+- **Analytics:** Anonymized school-wide analytics for parents and detailed staff dashboards with incident statistics, trends, and hotspots.
+- **TypeScript & Composite Projects:** The monorepo leverages TypeScript with composite projects and project references for efficient type-checking and build processes.
 
-### Compliance Frameworks
-- **LOPIVI**: Protection delegate governance via delegated_roles, duty to report, safe environment assessments
-- **Convivèxit 2024**: Anti-bullying protocol with 7 annexes (ANNEX-I through ANNEX-VII) in annex_templates
-- **Machista Violence (CAIB)**: Gender-based violence protocol with 4 annexes (MV-I through MV-IV), risk/protective factors on protocols
-- Delegated role types: lopivi_delegate, convivexit_coordinator, machista_protocol_lead, safeguarding_governor, senco_lead
-- Referral body types: ib_dona, municipal_services, policia_nacional, guardia_civil, fiscalia_menores, servicios_sociales, salud_mental, caib_education
+# External Dependencies
 
-### Seed Data
-- 1 school: Morna
-- 8 pupils: Boy A–D, Girl A–D (PIN: 1234)
-- 8 staff: Coordinator A, Head Teacher A, Teacher A (head_of_year Y6), Teacher B–D, Support Staff A, SENCO A (password: password123)
-- 2 parents: Parent A, Parent B (password: parent123)
-- Run: `pnpm --filter @workspace/scripts run seed`
-- Compliance data: 15 annex templates, 10 referral bodies, 4 delegated role appointments
-- Run: `pnpm --filter @workspace/scripts run seed-compliance`
-
-### Demo Credentials
-- Coordinator A: coordinator@safeschool.dev / password123
-- Head Teacher A: head@safeschool.dev / password123
-- Teacher A (Head of Year Y6): teacher@safeschool.dev / password123
-- Teacher B: teacher2@safeschool.dev / password123
-- Teacher C: teacher3@safeschool.dev / password123
-- Teacher D: teacher4@safeschool.dev / password123
-- Support Staff A: support@safeschool.dev / password123
-- SENCO A: senco@safeschool.dev / password123
-- Parent A: parent.a@safeschool.dev / parent123
-- Parent B: parent.b@safeschool.dev / parent123
-- Pupils: Boy A, Boy B, Boy C, Boy D, Girl A, Girl B, Girl C, Girl D → PIN 1234
-
-### Key Features
-- Role-based login (pupil selector, staff/parent email login)
-- **Quick Demo Login** panel on login page with instant one-click access for every role
-- Incident reporting with emotional state tracking (multi-select), safeguarding checks (staff)
-- **Person identification**: Pupil search-as-you-type for victims/perpetrators/witnesses + "I don't know their name" toggle showing structured description builder (gender, year, age relation, staff/pupil, physical description, friends, location seen, count). Descriptions tagged with roleInIncident (victim/perpetrator)
-- **Unknown person descriptions** stored as JSONB on incidents (`unknownPersonDescriptions`), displayed on incident detail page with role badges
-- Escalation tiers: sexual/coercive→tier3, physical/psychological/online→tier2, others→tier1
-- **Incident filtering**: by child, year group, class, category, status
-- Victim/perpetrator names shown on incident cards
-- Pattern detection alerts (async, post-incident)
-- **Protocol risk assessment**: Structured risk level (low/medium/high/critical) selector, fixed-category risk factor checkboxes (8 options), protective factor checkboxes (4 options), additional risk notes. All displayed on protocol detail page with color-coded badges
-- **Teacher assessment workflow**: Staff can assess incidents (add to pupil file, write staff notes, multi-witness statements with timestamps, parent summary). Toggle to share with parents. Role-based response filtering: parents see only curated parent summary (no other children's names/details); pupils see basic info; staff see full details. Authorization: teachers can only assess incidents involving their class pupils
-- **Multi-witness statements**: witnessStatements stored as JSONB array on incidents. Each entry: { witnessId?, witnessName, statement, recordedAt, recordedBy? }. Assessment panel has add/remove buttons per witness. Display shows individual statements with name, timestamp. Timestamps enable response-time KPI tracking
-- Safeguarding protocols management
-- Notifications with acknowledgment
-- Audit logging
-- Coordinator dashboard with stats
-- **Pupil messaging system**: Dynamic safe contacts (form tutor first, then staff), send messages with priority flags (green/amber/red), request a chat, quick phrases, urgent help button with location, message confirmation. Staff inbox at `/messages` with conversation threads and reply capability
-- **Parent messaging**: Parents can message school staff from `/messages`. "New Message" button loads child's teachers/staff via `/api/parent-contacts` (sorted: child's class teacher first, then head of year, then other staff). Parents can send messages, view conversations, and receive replies. Navigation includes Messages link for parent role
-- **Parent school overview analytics**: Expandable "School Overview" section on parent dashboard showing anonymised school-wide macro stats — total reports, resolution rate, pupils enrolled, resolved cases, monthly trend line chart, report types bar chart, location hotspots, severity levels. No individual names exposed. Endpoint: `GET /api/dashboard/school-overview`
-- **SENCO caseload tracker**: `/caseload` page for SENCO role — add/remove pupils to personal caseload, track progress (1-5), feelings (1-5 emoji scale), attitude to learning (1-5), attitude to others (1-5), free-text notes. Expandable pupil cards with tracking history timeline. Add pupil dialog with search. Only shows pupils the SENCO is actively supporting, not all pupils. DB: senco_caseload + senco_tracking tables. API: GET/POST/DELETE `/api/senco/caseload`, GET/POST `/api/senco/caseload/:id/tracking`, GET `/api/senco/pupils-available`
-- Messages table: id, schoolId, senderId, recipientId, senderRole, priority (normal/important/urgent), type (message/chat_request/urgent_help), body, location, readAt, parentMessageId
-
-### Demo Incidents (seed-demo)
-- 11 pre-seeded incidents across all categories and escalation tiers (child-friendly language throughout)
-- Boy B appears in 4 incidents involving Boy A (repeated unkind behaviour pattern)
-- Girl B: welfare concern (teacher noticed she needs extra support)
-- Girl C: tier 3 safeguarding case (LOPIVI protocol)
-- Girl D: feeling left out (exclusion)
-- Boy D: being made fun of in class (anonymous report)
-- Run: `pnpm --filter @workspace/scripts run seed-demo`
-- Historical: 44 incidents spanning 6 months (Boy A→Boy B pattern: 8 incidents, Girl A: 4 incidents, plus random incidents across all pupils, many shared with parents)
-- Run: `pnpm --filter @workspace/scripts run seed-history`
-- Full platform seed (protocols, alerts, notifications, tasks, interviews, messages, audit log — all linked to demo incidents):
-- Run: `pnpm --filter @workspace/scripts run seed-full` (requires seed-demo to be run first)
-- Creates: 2 protocols (Convivèxit + LOPIVI), 3 pattern alerts, 17 notifications, 7 case tasks, 4 interviews, 13 messages, 5 audit log entries, parent-visible assessed incidents
-
-### Frontend Pages
-- `/login` - Multi-tab login (pupil/staff/parent) + Quick Demo Login panel
-- `/` - Dashboard (role-specific: pupil→speak up, teacher→action cards + recent incidents, parent→child reports/analytics/history with time filters, coordinator→stats overview)
-- `/report` - Report incident form (role-aware language: staff see "Log a Safeguarding Incident" with professional labels, awareness checkboxes, staff safeguarding checks; pupils see child-friendly "Tell us what happened" with emotions and anonymity option)
-- `/class` - My Class / My Year Group / All Pupils (role-scoped, with "View incidents" per pupil)
-- `/incidents` - Incidents list with filters (category, status, year, class, pupil) — accessible to coordinator, head_teacher, senco, head_of_year, teacher
-- `/incidents/:id` - Incident detail (role-scoped access, actions: status change, open protocol, teacher assessment panel)
-- `/protocols` - Protocols list (coordinator, head_teacher, senco)
-- `/protocols/new` - Open formal protocol form (pre-fills from linked incident)
-- `/protocols/:id` - Protocol detail view
-- `/alerts` - Pattern alerts
-- `/notifications` - Notifications
-- `/messages` - Staff messages inbox (conversation list + threaded replies, auto-marks as read)
-- `/caseload` - SENCO caseload tracker (add/remove pupils, track progress/feelings/attitudes, observation history)
-- `/settings` - Edit profile (name, email for staff, avatar for pupils)
-
-### API Routes (all under /api)
-- `GET /healthz` - Health check
-- `POST /auth/pupil/login` - Pupil login
-- `POST /auth/staff/login` - Staff login
-- `POST /auth/parent/login` - Parent login
-- `GET /auth/me` - Current user (auth required)
-- `GET /schools` - List schools (public)
-- `GET /schools/:id/pupils` - List pupils for login (public, last names truncated)
-- `GET /schools/:id/staff` - List staff (coordinator/head_teacher only)
-- `GET /my-pupils` - Role-scoped pupil list (teacher→class, head_of_year→year, head_teacher→school, support_staff→customised)
-- `GET /pupils/search?q=name` - Search pupils by name (staff + pupil roles only, returns first/last name, yearGroup, className)
-- `PATCH /auth/profile` - Update profile (name, email, avatar)
-- `PATCH /incidents/:id/assess` - Teacher assessment (teacher, head_of_year, coordinator, head_teacher, senco; sets staffNotes, witnessStatements, parentSummary, addedToFile, parentVisible, assessedBy/At)
-- CRUD for incidents, protocols, alerts, notifications, dashboard
-- `GET /delegated-roles` - Governance appointments (coordinator/head_teacher)
-- `POST /delegated-roles` - Create appointment
-- `PATCH /delegated-roles/:id/revoke` - Revoke appointment
-- `GET /annex-templates` - List all annex templates
-- `GET /annex-templates/:framework` - Filter by framework
-- `POST /annex-templates` - Create template
-- `GET /referral-bodies` - External referral contacts
-- `POST /referral-bodies` - Add referral body
-- `PATCH /referral-bodies/:id` - Update referral body
-- `GET /case-tasks` - Protocol task list (filterable by protocolId, status)
-- `POST /case-tasks` - Create task
-- `PATCH /case-tasks/:id` - Update/complete task
-- `GET /dashboard/analytics` - Analytics data: incidents by type, year group, status, location, escalation tier, monthly trend, top victims/perpetrators (coordinator, head_teacher, senco)
-- `GET /safe-contacts` - Pupil safe contacts (pupil only; returns staff sorted by form tutor first, includes displayRole, isFormTutor)
-- `POST /messages` - Send message (auth required; recipientId, body, priority, type, location)
-- `GET /messages` - List messages (auth; optional contactId filter)
-- `PATCH /messages/:id/read` - Mark message read (recipient only)
-- `GET /messages/conversations` - Staff conversations summary (staff only; groups by contact, unread counts)
-
-## TypeScript & Composite Projects
-
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references.
-
-- **Always typecheck from the root** — run `pnpm run typecheck`
-- **`emitDeclarationOnly`** — only `.d.ts` files emitted during typecheck
-- **Project references** — packages declare dependencies via `references` array
-
-## Root Scripts
-
-- `pnpm run build` — typecheck + recursive build
-- `pnpm run typecheck` — `tsc --build --emitDeclarationOnly`
-
-## Important Notes
-
-- bcrypt added to `onlyBuiltDependencies` in pnpm-workspace.yaml
-- `useQueryClient` must be imported from `@tanstack/react-query`, NOT from `@workspace/api-client-react`
-- Public pupil endpoint returns truncated last names (first initial only) for privacy
+- **Database:** PostgreSQL
+- **ORM:** Drizzle ORM
+- **API Framework:** Express (Node.js)
+- **Frontend Framework:** React
+- **Build Tool:** Vite, esbuild
+- **Styling:** TailwindCSS
+- **Animation Library:** Framer Motion
+- **Validation:** Zod
+- **API Code Generation:** Orval (from OpenAPI specification)
+- **Authentication Hashing:** bcrypt
+- **Query Management:** TanStack React Query (specifically `@tanstack/react-query`)

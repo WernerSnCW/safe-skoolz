@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { 
   ShieldCheck, Home, AlertTriangle, FileText, Shield,
-  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList
+  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge
 } from "lucide-react";
 import { useListNotifications } from "@workspace/api-client-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,6 +31,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       return [
         ...base,
         { name: "Report Incident", href: "/report", icon: AlertTriangle },
+        { name: "My Behaviour", href: "/behaviour", icon: Gauge },
         { name: "Learn", href: "/education", icon: BookOpen },
         { name: "My Settings", href: "/settings", icon: Settings },
       ];
@@ -40,6 +41,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       return [
         ...base,
         { name: "Report Incident", href: "/report", icon: AlertTriangle },
+        { name: "Behaviour", href: "/behaviour", icon: Gauge },
         { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Learn", href: "/education", icon: BookOpen },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
@@ -51,6 +53,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       return [
         ...base,
         { name: "Log Incident", href: "/report", icon: AlertTriangle },
+        { name: "Behaviour", href: "/behaviour", icon: Gauge },
         { name: user.role === "head_of_year" ? "My Year Group" : "My Class", href: "/class", icon: Users },
         { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Incidents", href: "/incidents", icon: FileText },
@@ -65,6 +68,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       return [
         ...base,
         { name: "Log Incident", href: "/report", icon: AlertTriangle },
+        { name: "Behaviour", href: "/behaviour", icon: Gauge },
         { name: "My Pupils", href: "/class", icon: Users },
         { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Learn", href: "/education", icon: BookOpen },
@@ -77,6 +81,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       return [
         ...base,
         { name: "My Caseload", href: "/caseload", icon: ClipboardList },
+        { name: "Behaviour", href: "/behaviour", icon: Gauge },
         { name: "Log Incident", href: "/report", icon: AlertTriangle },
         { name: "Incidents", href: "/incidents", icon: FileText },
         { name: "All Pupils", href: "/class", icon: Users },
@@ -92,6 +97,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     // Coordinator, Head Teacher
     return [
       ...base,
+      { name: "Behaviour", href: "/behaviour", icon: Gauge },
       { name: "Log Incident", href: "/report", icon: AlertTriangle },
       { name: "Incidents", href: "/incidents", icon: FileText },
       { name: "All Pupils", href: "/class", icon: Users },

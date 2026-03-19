@@ -13,6 +13,7 @@ import referralBodiesRouter from "./referralBodies";
 import caseTasksRouter from "./caseTasks";
 import messagesRouter from "./messages";
 import sencoRouter from "./senco";
+import behaviourRouter from "./behaviour";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(referralBodiesRouter);
 router.use(caseTasksRouter);
 router.use(messagesRouter);
 router.use(sencoRouter);
+router.use(behaviourRouter);
 
 export default router;

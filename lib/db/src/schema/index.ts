@@ -12,3 +12,4 @@ export * from "./referralBodies";
 export * from "./caseTasks";
 export * from "./messages";
 export * from "./sencoCaseload";
+export * from "./behaviourPoints";
