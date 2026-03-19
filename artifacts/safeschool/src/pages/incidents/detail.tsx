@@ -427,7 +427,7 @@ export default function IncidentDetail() {
                         desc.roleInIncident === "perpetrator" ? "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" :
                         "bg-gray-100 text-gray-700"
                       }`}>
-                        {desc.roleInIncident}
+                        {desc.roleInIncident === "perpetrator" ? "involved" : desc.roleInIncident}
                       </span>
                     )}
                   </div>

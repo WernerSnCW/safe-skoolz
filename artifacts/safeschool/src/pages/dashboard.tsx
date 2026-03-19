@@ -829,7 +829,7 @@ function CoordinatorDashboardView() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Users size={18} className="text-amber-500" />
-                  Students with Repeated Behaviour (Perpetrators)
+                  Students with Repeated Behaviour
                 </CardTitle>
               </CardHeader>
               <CardContent>

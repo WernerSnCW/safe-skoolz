@@ -226,7 +226,7 @@ function StaffContent() {
                   <li>Promise confidentiality — you may need to share the information</li>
                   <li>Ask leading questions or investigate yourself</li>
                   <li>Show shock, disgust, or disbelief</li>
-                  <li>Confront the alleged perpetrator</li>
+                  <li>Confront the person accused</li>
                   <li>Share with colleagues who don't need to know</li>
                   <li>Delay — report concerns the same day</li>
                 </ul>
@@ -243,7 +243,7 @@ function StaffContent() {
             <li><strong>Notify:</strong> Inform the Safeguarding Coordinator same day</li>
             <li><strong>Risk assessment:</strong> Complete the structured risk assessment (low/medium/high/critical) with risk and protective factors</li>
             <li><strong>Formal protocol:</strong> If escalation is needed, open a formal protocol linking to the incident</li>
-            <li><strong>Parent notification:</strong> Inform parents of both victim and perpetrator as appropriate</li>
+            <li><strong>Parent notification:</strong> Inform parents of both the affected child and the child responsible as appropriate</li>
             <li><strong>Follow-up:</strong> Monitor through case tasks and review at agreed intervals</li>
           </ol>
         </AccordionItem>
