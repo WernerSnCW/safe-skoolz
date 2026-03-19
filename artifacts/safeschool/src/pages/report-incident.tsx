@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Card, CardContent, Button, Input, Label } from "@/components/ui-polished";
-import { AlertTriangle, CheckCircle2, ShieldCheck, Info, Search, X, UserPlus, HelpCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ShieldCheck, Info, Search, X, UserPlus, HelpCircle, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EMOTIONS = [
@@ -151,8 +151,10 @@ function PupilSearchPicker({
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PupilResult[]>([]);
+  const [allPupils, setAllPupils] = useState<PupilResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [allLoaded, setAllLoaded] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const containerRef = useRef<HTMLDivElement>(null);
   const fetchIdRef = useRef(0);
@@ -167,6 +169,10 @@ function PupilSearchPicker({
       });
       if (res.ok && fetchId === fetchIdRef.current) {
         const data = await res.json();
+        if (isPupil && searchQuery === "") {
+          setAllPupils(data);
+          setAllLoaded(true);
+        }
         setResults(data.filter((p: PupilResult) => !selectedIds.some(s => s.id === p.id)));
       }
     } catch {}
@@ -174,9 +180,24 @@ function PupilSearchPicker({
   };
 
   useEffect(() => {
+    if (isPupil && allLoaded) {
+      const filtered = query.trim()
+        ? allPupils.filter(p =>
+            `${p.firstName} ${p.lastName}`.toLowerCase().includes(query.toLowerCase())
+          )
+        : allPupils;
+      setResults(filtered.filter(p => !selectedIds.some(s => s.id === p.id)));
+      return;
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => fetchPupils(query), query.length > 0 ? 250 : 0);
-  }, [query, selectedIds]);
+  }, [query, selectedIds, allLoaded]);
+
+  useEffect(() => {
+    if (isPupil && !allLoaded) {
+      fetchPupils("");
+    }
+  }, [isPupil]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -205,14 +226,18 @@ function PupilSearchPicker({
         </div>
       )}
       <div className="relative mt-1">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        {isPupil ? (
+          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+        ) : (
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        )}
         <input
           type="text"
           value={query}
           onChange={(e) => { setQuery(e.target.value); setShowResults(true); }}
-          onFocus={() => { setShowResults(true); if (results.length === 0 && !isSearching) fetchPupils(query); }}
-          placeholder={isPupil ? "Tap here to pick a name..." : "Search for a pupil by name..."}
-          className="w-full h-10 rounded-xl border border-input bg-background pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          onFocus={() => { setShowResults(true); if (!isPupil && results.length === 0 && !isSearching) fetchPupils(query); }}
+          placeholder={isPupil ? "Pick a name from the list..." : "Search for a pupil by name..."}
+          className={`w-full h-10 rounded-xl border border-input bg-background pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 ${isPupil ? "pl-4 cursor-pointer" : "pl-10"}`}
         />
         <AnimatePresence>
           {showResults && (
@@ -220,11 +245,11 @@ function PupilSearchPicker({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute z-20 top-full mt-1 left-0 right-0 bg-white dark:bg-zinc-900 border border-border rounded-xl shadow-lg max-h-48 overflow-y-auto"
+              className="absolute z-20 top-full mt-1 left-0 right-0 bg-white dark:bg-zinc-900 border border-border rounded-xl shadow-lg max-h-56 overflow-y-auto"
             >
-              {isSearching && <p className="p-3 text-sm text-muted-foreground">Searching...</p>}
+              {isSearching && <p className="p-3 text-sm text-muted-foreground">{isPupil ? "Loading names..." : "Searching..."}</p>}
               {!isSearching && results.length === 0 && (
-                <p className="p-3 text-sm text-muted-foreground">No pupils found</p>
+                <p className="p-3 text-sm text-muted-foreground">{isPupil ? "No one left to pick" : "No pupils found"}</p>
               )}
               {results.map((p) => (
                 <button
@@ -745,7 +770,7 @@ export default function ReportIncident() {
                       onClick={() => setShowDescribePerp(!showDescribePerp)}
                       className={`text-sm font-medium transition-colors ${showDescribePerp ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
                     >
-                      {isPupil ? "I don't know their name" : "Describe unknown perpetrator(s)"}
+                      {isPupil ? "I don't know their name" : "Describe unknown person(s)"}
                     </button>
                   </div>
                   <AnimatePresence>
