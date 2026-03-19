@@ -49,7 +49,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     if (user.role === "teacher" || user.role === "head_of_year") {
       return [
         ...base,
-        { name: "Report Incident", href: "/report", icon: AlertTriangle },
+        { name: "Log Incident", href: "/report", icon: AlertTriangle },
         { name: user.role === "head_of_year" ? "My Year Group" : "My Class", href: "/class", icon: Users },
         { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Incidents", href: "/incidents", icon: FileText },
@@ -63,7 +63,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     if (user.role === "support_staff") {
       return [
         ...base,
-        { name: "Report Incident", href: "/report", icon: AlertTriangle },
+        { name: "Log Incident", href: "/report", icon: AlertTriangle },
         { name: "My Pupils", href: "/class", icon: Users },
         { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Learn", href: "/education", icon: BookOpen },
@@ -75,7 +75,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     // Coordinator, Head Teacher, SENCO
     return [
       ...base,
-      { name: "Report Incident", href: "/report", icon: AlertTriangle },
+      { name: "Log Incident", href: "/report", icon: AlertTriangle },
       { name: "Incidents", href: "/incidents", icon: FileText },
       { name: "All Pupils", href: "/class", icon: Users },
       { name: "Messages", href: "/messages", icon: MessageCircle },

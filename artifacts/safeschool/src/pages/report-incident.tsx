@@ -18,54 +18,62 @@ const EMOTIONS = [
   { id: "okay", emoji: "\u{1F610}", label: "Okay" }
 ];
 
-const CATEGORIES: { id: string; label: string; pupilLabel: string; hint: string }[] = [
+const CATEGORIES: { id: string; label: string; pupilLabel: string; hint: string; staffHint: string }[] = [
   {
     id: "physical",
     label: "Physical",
     pupilLabel: "Physical",
-    hint: "Hitting, pushing, kicking, throwing things at someone, or hurting someone\u2019s body."
+    hint: "Hitting, pushing, kicking, throwing things at someone, or hurting someone\u2019s body.",
+    staffHint: "Physical aggression: hitting, pushing, kicking, throwing objects, or any deliberate physical harm."
   },
   {
     id: "verbal",
     label: "Verbal",
     pupilLabel: "Verbal",
-    hint: "Name-calling, shouting, saying mean or hurtful things to someone."
+    hint: "Name-calling, shouting, saying mean or hurtful things to someone.",
+    staffHint: "Verbal abuse: name-calling, insults, shouting, or persistent derogatory language directed at a pupil."
   },
   {
     id: "psychological",
     label: "Psychological",
     pupilLabel: "Mind games",
-    hint: "Making someone feel scared, worthless, or confused on purpose \u2014 like threatening, ignoring, or playing mind games."
+    hint: "Making someone feel scared, worthless, or confused on purpose \u2014 like threatening, ignoring, or playing mind games.",
+    staffHint: "Psychological harm: intimidation, threats, deliberate exclusion, manipulation, or sustained behaviour causing emotional distress."
   },
   {
     id: "sexual",
     label: "Sexual",
     pupilLabel: "My body, my rules",
-    hint: "Someone touched you in a way you didn\u2019t like, showed you something that made you uncomfortable, or asked you to do something that didn\u2019t feel right. Your body belongs to you."
+    hint: "Someone touched you in a way you didn\u2019t like, showed you something that made you uncomfortable, or asked you to do something that didn\u2019t feel right. Your body belongs to you.",
+    staffHint: "Sexual misconduct: inappropriate touching, exposure, sexual language, sharing indecent images, or any conduct of a sexual nature involving a minor."
   },
   {
     id: "relational",
     label: "Relational",
     pupilLabel: "Leaving out",
-    hint: "Deliberately leaving someone out, spreading rumours, or turning friends against someone."
+    hint: "Deliberately leaving someone out, spreading rumours, or turning friends against someone.",
+    staffHint: "Relational aggression: deliberate social exclusion, rumour-spreading, or orchestrated peer rejection."
   },
   {
     id: "coercive",
     label: "Coercive",
     pupilLabel: "Pressure / control",
-    hint: "Forcing or pressuring someone to do things they don\u2019t want to, controlling who they can talk to, or making threats."
+    hint: "Forcing or pressuring someone to do things they don\u2019t want to, controlling who they can talk to, or making threats.",
+    staffHint: "Coercive control: forcing or pressuring a pupil into actions against their will, controlling social contacts, or persistent threats."
   },
   {
     id: "property",
     label: "Property",
     pupilLabel: "Property",
-    hint: "Breaking, stealing, hiding or damaging someone\u2019s belongings on purpose."
+    hint: "Breaking, stealing, hiding or damaging someone\u2019s belongings on purpose.",
+    staffHint: "Property damage/theft: deliberate destruction, theft, or concealment of a pupil\u2019s belongings."
   },
   {
     id: "online",
     label: "Online",
     pupilLabel: "Online",
-    hint: "Cyberbullying, mean messages, sharing private photos, or being cruel on social media or chat."
+    hint: "Cyberbullying, mean messages, sharing private photos, or being cruel on social media or chat.",
+    staffHint: "Online/cyber: cyberbullying, abusive messages, non-consensual image sharing, or harassment via digital platforms."
   }
 ];
 
@@ -324,9 +332,9 @@ function UnknownPersonBuilder({
                   className="w-full h-9 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   <option value="">Not sure</option>
-                  <option value="older">Older than me</option>
-                  <option value="same">About the same age</option>
-                  <option value="younger">Younger than me</option>
+                  <option value="older">{isPupil ? "Older than me" : "Older than the victim"}</option>
+                  <option value="same">{isPupil ? "About the same age" : "Same age group"}</option>
+                  <option value="younger">{isPupil ? "Younger than me" : "Younger than the victim"}</option>
                 </select>
               </div>
               <div>
@@ -416,6 +424,8 @@ const formSchema = z.object({
   anonymous: z.boolean().default(false),
   childrenSeparated: z.boolean().optional(),
   coordinatorNotified: z.boolean().optional(),
+  toldByChild: z.boolean().optional(),
+  iSawIt: z.boolean().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -430,6 +440,8 @@ export default function ReportIncident() {
   const [selectedPerps, setSelectedPerps] = useState<PupilResult[]>([]);
   const [selectedWitnesses, setSelectedWitnesses] = useState<PupilResult[]>([]);
 
+  const isPupil = user?.role === "pupil";
+
   const [showDescribeVictim, setShowDescribeVictim] = useState(false);
   const [showDescribePerp, setShowDescribePerp] = useState(false);
   const [unknownVictimDescs, setUnknownVictimDescs] = useState<UnknownPersonDesc[]>([emptyDesc()]);
@@ -441,13 +453,11 @@ export default function ReportIncident() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       categories: [],
-      happeningToMe: true,
+      happeningToMe: isPupil,
       anonymous: false,
       incidentDate: new Date().toISOString().split('T')[0]
     }
   });
-
-  const isPupil = user?.role === "pupil";
   const watchCategories = watch("categories") || [];
   const watchEmotions = watch("emotions") || [];
   const [openHint, setOpenHint] = useState<string | null>(null);
@@ -478,6 +488,8 @@ export default function ReportIncident() {
           anonymous: data.anonymous,
           childrenSeparated: data.childrenSeparated,
           coordinatorNotified: data.coordinatorNotified,
+          toldByChild: data.toldByChild,
+          iSawIt: data.iSawIt,
           unknownPersonDescriptions: allUnknownDescs.length > 0 ? allUnknownDescs : undefined,
         }
       });
@@ -494,10 +506,11 @@ export default function ReportIncident() {
           <div className="w-24 h-24 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/30">
             <CheckCircle2 size={48} />
           </div>
-          <h2 className="text-3xl font-display font-bold mb-4">Report Submitted</h2>
+          <h2 className="text-3xl font-display font-bold mb-4">{isPupil ? "Report Submitted" : "Incident Logged"}</h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Thank you for speaking up. We take every report seriously and will review it immediately.
-            You are safe.
+            {isPupil
+              ? "Thank you for speaking up. We take every report seriously and will review it immediately. You are safe."
+              : "The incident has been recorded and assigned a reference number. The safeguarding team will be notified if escalation is required."}
           </p>
           <Button size="lg" onClick={() => setLocation("/")}>Return to Dashboard</Button>
         </Card>
@@ -508,11 +521,11 @@ export default function ReportIncident() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold">Report an Incident</h1>
+        <h1 className="text-3xl font-display font-bold">{isPupil ? "Report a Concern" : "Log a Safeguarding Incident"}</h1>
         <p className="text-muted-foreground mt-2">
           {isPupil 
             ? "Tell us what happened. You don't have to share your name if you don't want to." 
-            : "Complete the safeguarding incident report. Ensure all immediate risks are handled."}
+            : "Record an incident involving a pupil. You are reporting on behalf of a child, not about yourself."}
         </p>
       </div>
 
@@ -522,7 +535,7 @@ export default function ReportIncident() {
             
             <div className="space-y-6">
               <div>
-                <Label className="text-base mb-3">What kind of incident is this? <span className="text-muted-foreground font-normal text-sm">(select all that apply)</span></Label>
+                <Label className="text-base mb-3">{isPupil ? "What happened?" : "Incident category"} <span className="text-muted-foreground font-normal text-sm">(select all that apply)</span></Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {CATEGORIES.map(cat => {
                     const isSelected = watchCategories.includes(cat.id);
@@ -560,7 +573,7 @@ export default function ReportIncident() {
                             exit={{ opacity: 0, y: -4 }}
                             className="absolute z-10 top-full mt-2 left-0 right-0 p-3 rounded-xl bg-white border border-border shadow-lg text-xs text-foreground leading-relaxed"
                           >
-                            {cat.hint}
+                            {isPupil ? cat.hint : cat.staffHint}
                           </motion.div>
                         )}
                       </AnimatePresence>
@@ -574,45 +587,77 @@ export default function ReportIncident() {
                 {errors.categories && <p className="text-destructive text-sm mt-2">{errors.categories.message}</p>}
               </div>
 
-              {isPupil && (
-                <div>
-                  <Label className="text-base mb-3">How are you feeling about it? <span className="text-muted-foreground font-normal text-sm">(pick all that fit)</span></Label>
-                  <div className="flex flex-wrap gap-3">
-                    {EMOTIONS.map(emo => {
-                      const isSelected = watchEmotions.includes(emo.id);
-                      return (
-                        <button
-                          key={emo.id}
-                          type="button"
-                          onClick={() => {
-                            const updated = isSelected
-                              ? watchEmotions.filter((e: string) => e !== emo.id)
-                              : [...watchEmotions, emo.id];
-                            setValue("emotions", updated);
-                          }}
-                          className={`flex flex-col items-center p-3 rounded-xl border-2 min-w-[80px] transition-all ${
-                            isSelected
-                              ? "border-secondary bg-secondary/10"
-                              : "border-border hover:bg-muted"
-                          }`}
-                        >
-                          <span className="text-3xl mb-1">{emo.emoji}</span>
-                          <span className="text-xs font-bold text-foreground">{emo.label}</span>
-                        </button>
-                      );
-                    })}
+              <div>
+                <Label className="text-base mb-3">
+                  {isPupil 
+                    ? "How are you feeling about it?" 
+                    : "How was the child feeling? (if known)"}
+                  {" "}<span className="text-muted-foreground font-normal text-sm">(pick all that fit)</span>
+                </Label>
+                <div className="flex flex-wrap gap-3">
+                  {EMOTIONS.map(emo => {
+                    const isSelected = watchEmotions.includes(emo.id);
+                    return (
+                      <button
+                        key={emo.id}
+                        type="button"
+                        onClick={() => {
+                          const updated = isSelected
+                            ? watchEmotions.filter((e: string) => e !== emo.id)
+                            : [...watchEmotions, emo.id];
+                          setValue("emotions", updated);
+                        }}
+                        className={`flex flex-col items-center p-3 rounded-xl border-2 min-w-[80px] transition-all ${
+                          isSelected
+                            ? "border-secondary bg-secondary/10"
+                            : "border-border hover:bg-muted"
+                        }`}
+                      >
+                        <span className="text-3xl mb-1">{emo.emoji}</span>
+                        <span className="text-xs font-bold text-foreground">{emo.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {!isPupil && (
+                <div className="p-5 rounded-xl bg-blue-50/50 dark:bg-blue-950/10 border border-blue-200/50 dark:border-blue-800/30 space-y-4">
+                  <h4 className="font-bold text-foreground flex items-center gap-2">
+                    <Info size={18} className="text-blue-600 dark:text-blue-400"/>
+                    How did you become aware of this?
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                      { val: true, label: "A child told me directly", field: "toldByChild" as const },
+                      { val: true, label: "I witnessed it myself", field: "iSawIt" as const },
+                    ].map(item => (
+                      <label key={item.field} className="flex items-center gap-3 p-3 rounded-xl bg-background border border-border cursor-pointer hover:border-primary/30 transition-colors">
+                        <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary" {...register(item.field)} />
+                        <span className="text-sm font-medium">{item.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium block mb-1">Other source (parent report, another staff member, etc.)</label>
+                    <input
+                      type="text"
+                      {...register("personInvolvedText")}
+                      placeholder="e.g. Parent reported via phone call, lunchtime supervisor observed..."
+                      className="w-full h-10 rounded-xl border border-input bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
                   </div>
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="date">When did it happen?</Label>
+                  <Label htmlFor="date">{isPupil ? "When did it happen?" : "Date of incident"}</Label>
                   <Input id="date" type="date" {...register("incidentDate")} />
                   {errors.incidentDate && <p className="text-destructive text-sm mt-1">{errors.incidentDate.message}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="location">Where did it happen? (optional)</Label>
+                  <Label htmlFor="location">{isPupil ? "Where did it happen? (optional)" : "Location (optional)"}</Label>
                   <select
                     value={locationChoice}
                     onChange={(e) => {
@@ -729,13 +774,13 @@ export default function ReportIncident() {
               </Card>
 
               <div>
-                <Label htmlFor="desc">Can you tell us what happened?</Label>
+                <Label htmlFor="desc">{isPupil ? "Can you tell us what happened?" : "Description of the incident"}</Label>
                 <textarea 
                   id="desc"
                   {...register("description")}
                   rows={4}
                   className="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all resize-none"
-                  placeholder="Type your message here..."
+                  placeholder={isPupil ? "Tell us what happened in your own words..." : "Describe what happened, who reported it, and any actions already taken..."}
                 ></textarea>
               </div>
 
@@ -771,7 +816,7 @@ export default function ReportIncident() {
 
             <div className="pt-4 flex justify-end">
               <Button type="submit" size="lg" isLoading={createMutation.isPending} className="w-full md:w-auto">
-                Submit Report securely
+                {isPupil ? "Submit Report securely" : "Log Incident securely"}
               </Button>
             </div>
           </form>
