@@ -110,6 +110,7 @@ Multi-role safeguarding and incident reporting platform for schools.
 - Audit logging
 - Coordinator dashboard with stats
 - **Pupil messaging system**: Dynamic safe contacts (form tutor first, then staff), send messages with priority flags (green/amber/red), request a chat, quick phrases, urgent help button with location, message confirmation. Staff inbox at `/messages` with conversation threads and reply capability
+- **Parent messaging**: Parents can message school staff from `/messages`. "New Message" button loads child's teachers/staff via `/api/parent-contacts` (sorted: child's class teacher first, then head of year, then other staff). Parents can send messages, view conversations, and receive replies. Navigation includes Messages link for parent role
 - Messages table: id, schoolId, senderId, recipientId, senderRole, priority (normal/important/urgent), type (message/chat_request/urgent_help), body, location, readAt, parentMessageId
 
 ### Demo Incidents (seed-demo)

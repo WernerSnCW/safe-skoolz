@@ -40,6 +40,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       return [
         ...base,
         { name: "Report Incident", href: "/report", icon: AlertTriangle },
+        { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Learn", href: "/education", icon: BookOpen },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
         { name: "Settings", href: "/settings", icon: Settings },

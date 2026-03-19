@@ -7,6 +7,66 @@ const router: IRouter = Router();
 
 const ALL_STAFF_ROLES = ["coordinator", "head_teacher", "teacher", "head_of_year", "senco", "support_staff"] as const;
 
+router.get("/parent-contacts", authMiddleware, requireRole("parent"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+
+  const [parent] = await db.select({ id: usersTable.id, parentOf: usersTable.parentOf }).from(usersTable).where(eq(usersTable.id, user.userId));
+  if (!parent) { res.status(404).json({ error: "User not found" }); return; }
+
+  const childIds = parent.parentOf || [];
+  const children = childIds.length > 0
+    ? await db.select({
+        id: usersTable.id,
+        className: usersTable.className,
+        yearGroup: usersTable.yearGroup,
+      }).from(usersTable).where(
+        and(eq(usersTable.schoolId, user.schoolId), eq(usersTable.role, "pupil"), inArray(usersTable.id, childIds))
+      )
+    : [];
+
+  const childClasses = [...new Set(children.map(c => c.className).filter(Boolean))];
+  const childYears = [...new Set(children.map(c => c.yearGroup).filter(Boolean))];
+
+  const contacts = await db.select({
+    id: usersTable.id,
+    firstName: usersTable.firstName,
+    lastName: usersTable.lastName,
+    role: usersTable.role,
+    className: usersTable.className,
+    yearGroup: usersTable.yearGroup,
+  }).from(usersTable).where(
+    and(
+      eq(usersTable.schoolId, user.schoolId),
+      eq(usersTable.active, true),
+      inArray(usersTable.role, ["teacher", "head_of_year", "senco", "coordinator", "head_teacher", "support_staff"]),
+    )
+  );
+
+  const sorted = contacts.sort((a, b) => {
+    const aIsClassTeacher = childClasses.includes(a.className || "") ? 1 : 0;
+    const bIsClassTeacher = childClasses.includes(b.className || "") ? 1 : 0;
+    if (aIsClassTeacher !== bIsClassTeacher) return bIsClassTeacher - aIsClassTeacher;
+    const aIsYearHead = a.role === "head_of_year" && childYears.includes(a.yearGroup || "") ? 1 : 0;
+    const bIsYearHead = b.role === "head_of_year" && childYears.includes(b.yearGroup || "") ? 1 : 0;
+    if (aIsYearHead !== bIsYearHead) return bIsYearHead - aIsYearHead;
+    const roleOrder: Record<string, number> = { teacher: 0, head_of_year: 1, senco: 2, support_staff: 3, coordinator: 4, head_teacher: 5 };
+    return (roleOrder[a.role || ""] ?? 99) - (roleOrder[b.role || ""] ?? 99);
+  });
+
+  const result = sorted.map(c => ({
+    ...c,
+    isChildsTeacher: childClasses.includes(c.className || ""),
+    displayRole: c.role === "teacher" ? "Class Teacher" :
+      c.role === "head_of_year" ? "Head of Year" :
+      c.role === "senco" ? "SENCO" :
+      c.role === "support_staff" ? "Support Staff" :
+      c.role === "coordinator" ? "Safeguarding Coordinator" :
+      c.role === "head_teacher" ? "Head Teacher" : "Staff",
+  }));
+
+  res.json(result);
+});
+
 router.get("/safe-contacts", authMiddleware, requireRole("pupil"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
 
@@ -74,10 +134,10 @@ router.post("/messages", authMiddleware, async (req, res): Promise<void> => {
     return;
   }
 
-  if (user.role === "pupil") {
+  if (user.role === "pupil" || user.role === "parent") {
     const staffRoles = ["teacher", "head_of_year", "senco", "coordinator", "head_teacher", "support_staff"];
     if (!staffRoles.includes(recipient.role || "")) {
-      res.status(403).json({ error: "Pupils can only message staff members" });
+      res.status(403).json({ error: user.role === "pupil" ? "Pupils can only message staff members" : "Parents can only message staff members" });
       return;
     }
   }
@@ -117,7 +177,7 @@ router.post("/messages", authMiddleware, async (req, res): Promise<void> => {
   await db.insert(notificationsTable).values({
     schoolId: user.schoolId,
     recipientId,
-    trigger: msgType === "urgent_help" ? "urgent_help_request" : msgType === "chat_request" ? "chat_request" : "pupil_message",
+    trigger: msgType === "urgent_help" ? "urgent_help_request" : msgType === "chat_request" ? "chat_request" : user.role === "parent" ? "parent_message" : "pupil_message",
     subject: notifSubject,
     body: notifBody,
     channel: "in_app",
@@ -202,7 +262,7 @@ router.patch("/messages/:id/read", authMiddleware, async (req, res): Promise<voi
   res.json({ success: true });
 });
 
-router.get("/messages/conversations", authMiddleware, requireRole(...ALL_STAFF_ROLES), async (req, res): Promise<void> => {
+router.get("/messages/conversations", authMiddleware, requireRole(...ALL_STAFF_ROLES, "parent"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
 
   const allMessages = await db.select().from(messagesTable)

@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
-import { MessageCircle, Send, ArrowLeft, Zap, AlertTriangle, MapPin, Clock } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, Zap, AlertTriangle, MapPin, Clock, UserPlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
+
+type ContactInfo = { id: string; firstName: string; lastName: string; role: string; displayRole: string; isChildsTeacher?: boolean; className?: string | null };
 
 function ConversationList({ onSelect, selectedId }: { onSelect: (id: string) => void; selectedId: string | null }) {
   const { data: conversations, isLoading } = useQuery({
@@ -187,26 +189,145 @@ function ConversationThread({ contactId }: { contactId: string }) {
   );
 }
 
+function NewParentMessage({ onStartConversation }: { onStartConversation: (contactId: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<ContactInfo | null>(null);
+  const [body, setBody] = useState("");
+  const [sending, setSending] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: contacts } = useQuery<ContactInfo[]>({
+    queryKey: ["/api/parent-contacts"],
+    queryFn: async () => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch("/api/parent-contacts", { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: open,
+  });
+
+  const [error, setError] = useState("");
+
+  const handleSend = async () => {
+    if (!selectedContact || !body.trim()) return;
+    setSending(true);
+    setError("");
+    try {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ recipientId: selectedContact.id, body: body.trim(), priority: "normal", type: "message" }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Failed to send message. Please try again.");
+        return;
+      }
+      queryClient.invalidateQueries({ queryKey: ["/api/messages/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+      setOpen(false);
+      setBody("");
+      setSelectedContact(null);
+      onStartConversation(selectedContact.id);
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (!open) {
+    return (
+      <Button onClick={() => setOpen(true)} className="gap-2">
+        <UserPlus size={16} />
+        New Message
+      </Button>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setOpen(false)}>
+      <Card className="w-full max-w-md" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+        <CardHeader className="border-b border-border/50">
+          <CardTitle className="text-lg">New Message</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 space-y-4">
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1">Send to</label>
+            <select
+              value={selectedContact?.id || ""}
+              onChange={(e) => {
+                const contact = contacts?.find(c => c.id === e.target.value);
+                setSelectedContact(contact || null);
+              }}
+              className="w-full h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="" disabled>Choose a staff member...</option>
+              {contacts?.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.firstName} {c.lastName} — {c.displayRole}{c.isChildsTeacher ? " (your child's teacher)" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1">Message</label>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              rows={4}
+              placeholder="Write your message..."
+              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+          {error && (
+            <p className="text-sm text-destructive bg-destructive/10 rounded-lg p-2">{error}</p>
+          )}
+          <div className="flex gap-2">
+            <Button onClick={handleSend} disabled={!selectedContact || !body.trim() || sending} className="flex-1 gap-2">
+              <Send size={14} />
+              {sending ? "Sending..." : "Send Message"}
+            </Button>
+            <Button variant="ghost" onClick={() => { setOpen(false); setSelectedContact(null); setBody(""); setError(""); }}>
+              Cancel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function MessagesPage() {
   const { user } = useAuth();
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
 
   if (!user) return null;
 
-  const staffRoles = ["teacher", "head_of_year", "senco", "coordinator", "head_teacher", "support_staff"];
-  if (!staffRoles.includes(user.role || "")) {
+  const allowedRoles = ["teacher", "head_of_year", "senco", "coordinator", "head_teacher", "support_staff", "parent"];
+  if (!allowedRoles.includes(user.role || "")) {
     return (
       <div className="p-8 text-center">
-        <p className="text-muted-foreground">Messages are available for staff members.</p>
+        <p className="text-muted-foreground">Messages are available for staff and parents.</p>
       </div>
     );
   }
 
+  const isParent = user.role === "parent";
+  const isStaff = !isParent;
+
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-display font-bold text-foreground">Messages</h1>
-        <p className="text-muted-foreground mt-1">View and respond to pupil messages</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-display font-bold text-foreground">Messages</h1>
+          <p className="text-muted-foreground mt-1">{isParent ? "Message your child's teachers and school staff" : "View and respond to messages"}</p>
+        </div>
+        {isParent && (
+          <NewParentMessage onStartConversation={(contactId) => setSelectedContactId(contactId)} />
+        )}
       </div>
 
       <Card className="overflow-hidden">
@@ -229,7 +350,9 @@ export default function MessagesPage() {
                 <div>
                   <MessageCircle size={48} className="mx-auto text-muted-foreground/30 mb-3" />
                   <p className="text-muted-foreground font-medium">Select a conversation</p>
-                  <p className="text-sm text-muted-foreground/70 mt-1">Choose a pupil from the list to view their messages</p>
+                  <p className="text-sm text-muted-foreground/70 mt-1">
+                    {isParent ? "Choose a staff member or start a new message" : "Choose a contact from the list to view their messages"}
+                  </p>
                 </div>
               </div>
             )}
