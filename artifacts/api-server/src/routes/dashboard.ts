@@ -465,4 +465,88 @@ router.get("/dashboard/child/:id", authMiddleware, requireRole("coordinator", "s
   });
 });
 
+router.get("/dashboard/school-overview", authMiddleware, requireRole("parent"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+
+  const allIncidents = await db.select({
+    id: incidentsTable.id,
+    category: incidentsTable.category,
+    status: incidentsTable.status,
+    escalationTier: incidentsTable.escalationTier,
+    incidentDate: incidentsTable.incidentDate,
+    location: incidentsTable.location,
+  }).from(incidentsTable).where(eq(incidentsTable.schoolId, user.schoolId));
+
+  const totalPupils = await db.select({ count: sql<number>`count(*)` })
+    .from(usersTable)
+    .where(and(eq(usersTable.schoolId, user.schoolId), eq(usersTable.role, "pupil"), eq(usersTable.active, true)));
+
+  const byCategory: Record<string, number> = {};
+  const byMonth: Record<string, number> = {};
+  const byLocation: Record<string, number> = {};
+  const byEscalationTier: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
+  let resolvedCount = 0;
+
+  for (const inc of allIncidents) {
+    const cats = (inc.category || "").split(",").map(c => c.trim()).filter(Boolean);
+    for (const cat of cats) {
+      byCategory[cat] = (byCategory[cat] || 0) + 1;
+    }
+
+    const month = inc.incidentDate ? inc.incidentDate.substring(0, 7) : "Unknown";
+    byMonth[month] = (byMonth[month] || 0) + 1;
+
+    if (inc.location) {
+      byLocation[inc.location] = (byLocation[inc.location] || 0) + 1;
+    }
+
+    byEscalationTier[inc.escalationTier || 1] = (byEscalationTier[inc.escalationTier || 1] || 0) + 1;
+
+    if (inc.status === "closed" || inc.status === "resolved") resolvedCount++;
+  }
+
+  const locationLabels: Record<string, string> = {
+    playground: "Playground", classroom: "Classroom", corridor: "Corridor",
+    forest: "Forest", stage_amphitheatre: "Stage", tires: "Tires area",
+    play_park: "Play park", cafeteria_buffet: "Cafeteria", picnic_area: "Picnic area",
+    eating_caravan: "Eating caravan", basketball_court: "Basketball court",
+    football_pitch: "Football pitch", library: "Library", entrance_gate: "Entrance",
+    toilets: "Toilets", cloakroom: "Cloakroom", online: "Online",
+  };
+
+  const categoryLabels: Record<string, string> = {
+    verbal: "Verbal", physical: "Physical", psychological: "Psychological",
+    online: "Online", sexual: "Sexual", exclusion: "Exclusion",
+    neglect: "Neglect", coercive: "Coercive control",
+  };
+
+  const monthlyTrend = Object.entries(byMonth)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([month, count]) => ({ month, count }));
+
+  const topLocations = Object.entries(byLocation)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([loc, count]) => ({ name: locationLabels[loc] || loc, count }));
+
+  const categoryBreakdown = Object.entries(byCategory)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => ({ name: categoryLabels[name] || name, count }));
+
+  const resolutionRate = allIncidents.length > 0
+    ? Math.round((resolvedCount / allIncidents.length) * 100)
+    : 0;
+
+  res.json({
+    totalIncidents: allIncidents.length,
+    totalPupils: Number(totalPupils[0]?.count || 0),
+    resolutionRate,
+    resolvedCount,
+    byCategory: categoryBreakdown,
+    byEscalationTier: Object.entries(byEscalationTier).map(([tier, count]) => ({ name: `Level ${tier}`, count })),
+    monthlyTrend,
+    topLocations,
+  });
+});
+
 export default router;

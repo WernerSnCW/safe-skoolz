@@ -1198,6 +1198,20 @@ function ParentDashboard({ user }: { user: any }) {
     },
   });
 
+  const [showSchoolOverview, setShowSchoolOverview] = useState(false);
+  const { data: schoolData } = useQuery({
+    queryKey: ["/api/dashboard/school-overview"],
+    queryFn: async () => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch("/api/dashboard/school-overview", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to load school overview");
+      return res.json();
+    },
+    enabled: showSchoolOverview,
+  });
+
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - periodDays);
   const cutoffStr = cutoff.toISOString().split("T")[0];
@@ -1407,6 +1421,151 @@ function ParentDashboard({ user }: { user: any }) {
           </Card>
         )}
       </div>
+
+      <Card className="border-primary/20">
+        <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <BarChart3 size={18} /> School Overview
+            </CardTitle>
+            <Button
+              variant={showSchoolOverview ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowSchoolOverview(!showSchoolOverview)}
+            >
+              {showSchoolOverview ? "Hide" : "View School Analytics"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            See how the school is handling safeguarding overall — no individual names shown.
+          </p>
+        </CardHeader>
+        <AnimatePresence>
+          {showSchoolOverview && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{ overflow: "hidden" }}
+            >
+              <CardContent className="p-6 space-y-6">
+                {!schoolData ? (
+                  <div className="h-48 bg-muted animate-pulse rounded-xl" />
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center p-4 rounded-xl bg-muted/50">
+                        <p className="text-2xl font-bold text-primary">{schoolData.totalIncidents}</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-1">Total Reports</p>
+                      </div>
+                      <div className="text-center p-4 rounded-xl bg-muted/50">
+                        <p className="text-2xl font-bold text-green-600">{schoolData.resolutionRate}%</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-1">Resolution Rate</p>
+                      </div>
+                      <div className="text-center p-4 rounded-xl bg-muted/50">
+                        <p className="text-2xl font-bold text-secondary">{schoolData.totalPupils}</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-1">Pupils Enrolled</p>
+                      </div>
+                      <div className="text-center p-4 rounded-xl bg-muted/50">
+                        <p className="text-2xl font-bold text-amber-600">{schoolData.resolvedCount}</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-1">Cases Resolved</p>
+                      </div>
+                    </div>
+
+                    {schoolData.monthlyTrend?.length > 1 && (
+                      <div>
+                        <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                          <TrendingUp size={14} /> School-Wide Trend
+                        </h3>
+                        <ResponsiveContainer width="100%" height={200}>
+                          <LineChart data={schoolData.monthlyTrend}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                            <XAxis
+                              dataKey="month"
+                              tick={{ fontSize: 10 }}
+                              tickFormatter={(m: string) => {
+                                const [y, mo] = m.split("-");
+                                const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                                return `${months[parseInt(mo) - 1]}`;
+                              }}
+                            />
+                            <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                            <Tooltip
+                              labelFormatter={(m: string) => {
+                                const [y, mo] = m.split("-");
+                                const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+                                return `${months[parseInt(mo) - 1]} ${y}`;
+                              }}
+                            />
+                            <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={{ r: 3 }} name="Reports" />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {schoolData.byCategory?.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                            <PieChartIcon size={14} /> Report Types
+                          </h3>
+                          <ResponsiveContainer width="100%" height={200}>
+                            <BarChart data={schoolData.byCategory} layout="vertical" margin={{ left: 10 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                              <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
+                              <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={90} />
+                              <Tooltip />
+                              <Bar dataKey="count" fill="#6366f1" radius={[0, 6, 6, 0]} name="Reports" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
+
+                      {schoolData.topLocations?.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                            <MapPin size={14} /> Where Reports Happen
+                          </h3>
+                          <ResponsiveContainer width="100%" height={200}>
+                            <BarChart data={schoolData.topLocations} layout="vertical" margin={{ left: 10 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                              <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
+                              <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={90} />
+                              <Tooltip />
+                              <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name="Reports" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
+                    </div>
+
+                    {schoolData.byEscalationTier?.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                          <Shield size={14} /> Severity Levels
+                        </h3>
+                        <div className="grid grid-cols-3 gap-3">
+                          {schoolData.byEscalationTier.map((tier: any) => (
+                            <div key={tier.name} className={`text-center p-3 rounded-xl ${
+                              tier.name === "Level 3" ? "bg-destructive/10 text-destructive" :
+                              tier.name === "Level 2" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400" :
+                              "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                            }`}>
+                              <p className="text-xl font-bold">{tier.count}</p>
+                              <p className="text-xs font-medium mt-0.5">{tier.name}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Card>
 
       <Card>
         <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
