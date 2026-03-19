@@ -12,6 +12,7 @@ import annexTemplatesRouter from "./annexTemplates";
 import referralBodiesRouter from "./referralBodies";
 import caseTasksRouter from "./caseTasks";
 import messagesRouter from "./messages";
+import sencoRouter from "./senco";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(annexTemplatesRouter);
 router.use(referralBodiesRouter);
 router.use(caseTasksRouter);
 router.use(messagesRouter);
+router.use(sencoRouter);
 
 export default router;

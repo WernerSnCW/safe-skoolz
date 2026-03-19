@@ -58,7 +58,7 @@ Multi-role safeguarding and incident reporting platform for schools.
 - API server mounts all routes at `/api` prefix
 
 ### Database Schema
-- Core: schools, users, incidents, protocols, interviews, notifications, patternAlerts, auditLog, messages
+- Core: schools, users, incidents, protocols, interviews, notifications, patternAlerts, auditLog, messages, sencoCaseload, sencoTracking
 - Compliance: delegatedRoles, annexTemplates, referralBodies, caseTasks
 - Protocols extended with: riskFactors (jsonb), protectiveFactors (jsonb), familyContext (jsonb), externalReferralBodyId
 - All in `lib/db/src/schema/index.ts`
@@ -112,6 +112,7 @@ Multi-role safeguarding and incident reporting platform for schools.
 - **Pupil messaging system**: Dynamic safe contacts (form tutor first, then staff), send messages with priority flags (green/amber/red), request a chat, quick phrases, urgent help button with location, message confirmation. Staff inbox at `/messages` with conversation threads and reply capability
 - **Parent messaging**: Parents can message school staff from `/messages`. "New Message" button loads child's teachers/staff via `/api/parent-contacts` (sorted: child's class teacher first, then head of year, then other staff). Parents can send messages, view conversations, and receive replies. Navigation includes Messages link for parent role
 - **Parent school overview analytics**: Expandable "School Overview" section on parent dashboard showing anonymised school-wide macro stats — total reports, resolution rate, pupils enrolled, resolved cases, monthly trend line chart, report types bar chart, location hotspots, severity levels. No individual names exposed. Endpoint: `GET /api/dashboard/school-overview`
+- **SENCO caseload tracker**: `/caseload` page for SENCO role — add/remove pupils to personal caseload, track progress (1-5), feelings (1-5 emoji scale), attitude to learning (1-5), attitude to others (1-5), free-text notes. Expandable pupil cards with tracking history timeline. Add pupil dialog with search. Only shows pupils the SENCO is actively supporting, not all pupils. DB: senco_caseload + senco_tracking tables. API: GET/POST/DELETE `/api/senco/caseload`, GET/POST `/api/senco/caseload/:id/tracking`, GET `/api/senco/pupils-available`
 - Messages table: id, schoolId, senderId, recipientId, senderRole, priority (normal/important/urgent), type (message/chat_request/urgent_help), body, location, readAt, parentMessageId
 
 ### Demo Incidents (seed-demo)
@@ -141,6 +142,7 @@ Multi-role safeguarding and incident reporting platform for schools.
 - `/alerts` - Pattern alerts
 - `/notifications` - Notifications
 - `/messages` - Staff messages inbox (conversation list + threaded replies, auto-marks as read)
+- `/caseload` - SENCO caseload tracker (add/remove pupils, track progress/feelings/attitudes, observation history)
 - `/settings` - Edit profile (name, email for staff, avatar for pupils)
 
 ### API Routes (all under /api)

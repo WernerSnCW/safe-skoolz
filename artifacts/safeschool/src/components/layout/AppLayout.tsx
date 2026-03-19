@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { 
   ShieldCheck, Home, AlertTriangle, FileText, Shield,
-  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle
+  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList
 } from "lucide-react";
 import { useListNotifications } from "@workspace/api-client-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -73,7 +73,23 @@ export function AppLayout({ children }: AppLayoutProps) {
       ];
     }
 
-    // Coordinator, Head Teacher, SENCO
+    if (user.role === "senco") {
+      return [
+        ...base,
+        { name: "My Caseload", href: "/caseload", icon: ClipboardList },
+        { name: "Log Incident", href: "/report", icon: AlertTriangle },
+        { name: "Incidents", href: "/incidents", icon: FileText },
+        { name: "All Pupils", href: "/class", icon: Users },
+        { name: "Messages", href: "/messages", icon: MessageCircle },
+        { name: "Protocols", href: "/protocols", icon: Shield },
+        { name: "Alerts", href: "/alerts", icon: Activity },
+        { name: "Learn", href: "/education", icon: BookOpen },
+        { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
+        { name: "Settings", href: "/settings", icon: Settings },
+      ];
+    }
+
+    // Coordinator, Head Teacher
     return [
       ...base,
       { name: "Log Incident", href: "/report", icon: AlertTriangle },
