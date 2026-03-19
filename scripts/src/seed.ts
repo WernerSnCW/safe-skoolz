@@ -90,7 +90,7 @@ async function seed() {
 
   const parents = [
     { firstName: "Parent", lastName: "A", email: "parent.a@safeschool.dev", childIndex: 0 },
-    { firstName: "Parent", lastName: "B", email: "parent.b@safeschool.dev", childIndex: 2 },
+    { firstName: "Parent", lastName: "B", email: "parent.b@safeschool.dev", childIndex: 1 },
   ];
 
   for (const p of parents) {

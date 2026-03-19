@@ -11,9 +11,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { 
   AlertTriangle, ShieldAlert, HeartHandshake, Bell,
-  ArrowRight, FileText, Activity, TrendingUp, Users, BarChart3, PieChart as PieChartIcon, Eye
+  ArrowRight, FileText, Activity, TrendingUp, Users, BarChart3, PieChart as PieChartIcon, Eye,
+  MapPin, Clock, Calendar, UserCheck, ChevronDown, ChevronUp, Shield
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -590,9 +591,192 @@ const PARENT_CATEGORY_LABELS: Record<string, string> = {
   online: "Online",
   neglect: "Welfare",
   safeguarding: "Safeguarding",
+  relational: "Friendship issues",
+  sexual: "Safeguarding concern",
   "verbal,physical": "Unkind words & physical",
   "verbal,psychological": "Unkind words & emotional",
 };
+
+const PARENT_EMOTION_LABELS: Record<string, { label: string; emoji: string }> = {
+  scared: { label: "Scared", emoji: "\u{1F628}" },
+  sad: { label: "Sad", emoji: "\u{1F622}" },
+  angry: { label: "Angry", emoji: "\u{1F620}" },
+  worried: { label: "Worried", emoji: "\u{1F61F}" },
+  confused: { label: "Confused", emoji: "\u{1F615}" },
+  okay: { label: "Okay", emoji: "\u{1F610}" },
+};
+
+const PARENT_LOCATION_LABELS: Record<string, string> = {
+  playground: "Playground",
+  classroom: "Classroom",
+  corridor: "Corridor",
+  canteen: "Canteen / Dining hall",
+  toilets: "Toilets",
+  sports_field: "Sports field",
+  changing_rooms: "Changing rooms",
+  bus_stop: "Bus stop / Pick-up area",
+  online: "Online / Social media",
+  off_site: "Off school grounds",
+  other: "Other",
+};
+
+const PARENT_TIER_LABELS: Record<number, { label: string; color: string }> = {
+  1: { label: "Low level", color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" },
+  2: { label: "Moderate", color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" },
+  3: { label: "Serious", color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" },
+};
+
+function ParentReportCard({ inc }: { inc: any }) {
+  const [expanded, setExpanded] = useState(false);
+  const emotion = inc.emotionalState ? PARENT_EMOTION_LABELS[inc.emotionalState] : null;
+  const tierInfo = inc.escalationTier ? PARENT_TIER_LABELS[inc.escalationTier] : null;
+
+  return (
+    <div className="p-4 hover:bg-muted/20 transition-colors">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="w-full text-left"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-mono text-xs text-muted-foreground">{inc.referenceNumber}</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                inc.status === "closed" ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" :
+                inc.status === "investigating" ? "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" :
+                "bg-warning/20 text-warning"
+              }`}>
+                {PARENT_STATUS_LABELS[inc.status] || inc.status}
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground">
+                {PARENT_CATEGORY_LABELS[inc.category] || inc.category}
+              </span>
+              {tierInfo && (
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${tierInfo.color}`}>
+                  {tierInfo.label}
+                </span>
+              )}
+              {inc.addedToFile && (
+                <span className="px-2 py-0.5 rounded-full text-xs bg-secondary/10 text-secondary font-bold">
+                  On File
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
+              <span className="flex items-center gap-1">
+                <Calendar size={12} />
+                {formatDate(inc.incidentDate)}
+              </span>
+              {inc.incidentTime && (
+                <span className="flex items-center gap-1">
+                  <Clock size={12} />
+                  {inc.incidentTime}
+                </span>
+              )}
+              {inc.location && (
+                <span className="flex items-center gap-1">
+                  <MapPin size={12} />
+                  {PARENT_LOCATION_LABELS[inc.location] || inc.location.replace(/_/g, " ")}
+                </span>
+              )}
+              {emotion && (
+                <span className="flex items-center gap-1">
+                  {emotion.emoji} {emotion.label}
+                </span>
+              )}
+              <span className="flex items-center gap-1 font-medium text-foreground/70">
+                {inc.childName}
+              </span>
+            </div>
+
+            {inc.description && (
+              <p className="text-sm text-foreground mt-2 line-clamp-2">{inc.description}</p>
+            )}
+          </div>
+          <div className="mt-1 text-muted-foreground">
+            {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </div>
+        </div>
+      </button>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3 pt-3 border-t border-border/50 space-y-3">
+              {inc.description && (
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-xs font-bold text-muted-foreground mb-1 uppercase tracking-wider">School's Summary</p>
+                  <p className="text-sm text-foreground leading-relaxed">{inc.description}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="bg-muted/20 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground font-medium">Child</p>
+                  <p className="text-sm font-bold mt-0.5">{inc.childName}</p>
+                  {inc.childYearGroup && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{inc.childYearGroup} · {inc.childClassName}</p>
+                  )}
+                </div>
+                <div className="bg-muted/20 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground font-medium">Date & Time</p>
+                  <p className="text-sm font-bold mt-0.5">{formatDate(inc.incidentDate)}</p>
+                  {inc.incidentTime && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{inc.incidentTime}</p>
+                  )}
+                </div>
+                {inc.location && (
+                  <div className="bg-muted/20 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground font-medium">Where</p>
+                    <p className="text-sm font-bold mt-0.5">{PARENT_LOCATION_LABELS[inc.location] || inc.location.replace(/_/g, " ")}</p>
+                  </div>
+                )}
+                <div className="bg-muted/20 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground font-medium">Type</p>
+                  <p className="text-sm font-bold mt-0.5">{PARENT_CATEGORY_LABELS[inc.category] || inc.category}</p>
+                </div>
+                {emotion && (
+                  <div className="bg-muted/20 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground font-medium">How they felt</p>
+                    <p className="text-sm font-bold mt-0.5">{emotion.emoji} {emotion.label}</p>
+                  </div>
+                )}
+                <div className="bg-muted/20 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground font-medium">Current Status</p>
+                  <p className="text-sm font-bold mt-0.5">{PARENT_STATUS_LABELS[inc.status] || inc.status}</p>
+                </div>
+              </div>
+
+              {(inc.assessedBy || inc.assessedAt) && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-primary/5 rounded-lg p-3">
+                  <UserCheck size={14} className="text-primary" />
+                  <span>
+                    Reviewed by <strong className="text-foreground">{inc.assessedBy || "Staff"}</strong>
+                    {inc.assessedAt && <> on {formatDate(inc.assessedAt)}</>}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                <span>Reported: {formatDate(inc.createdAt)}</span>
+                {inc.updatedAt && inc.updatedAt !== inc.createdAt && (
+                  <span>· Last updated: {formatDate(inc.updatedAt)}</span>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function ParentDashboard({ user }: { user: any }) {
   const [periodDays, setPeriodDays] = useState(180);
@@ -638,7 +822,12 @@ function ParentDashboard({ user }: { user: any }) {
   const statusData = Object.entries(filteredByStatus)
     .map(([name, count]) => ({ name: PARENT_STATUS_LABELS[name] || name, count }));
 
-  const childName = parentData?.children?.[0]?.firstName || "your child";
+  const childrenList = parentData?.children || [];
+  const childName = childrenList.length === 1
+    ? `${childrenList[0].firstName} ${childrenList[0].lastName}`
+    : childrenList.length > 1
+    ? childrenList.map((c: any) => c.firstName).join(" & ")
+    : "your child";
 
   if (isLoading) {
     return <div className="animate-pulse h-96 bg-muted rounded-2xl m-8"></div>;
@@ -822,6 +1011,7 @@ function ParentDashboard({ user }: { user: any }) {
           <CardTitle className="text-lg flex items-center gap-2">
             <FileText size={18} /> Report History
           </CardTitle>
+          <p className="text-xs text-muted-foreground mt-1">Tap any report to see full details</p>
         </CardHeader>
         <CardContent className="p-0">
           {filteredIncidents.length === 0 ? (
@@ -831,32 +1021,7 @@ function ParentDashboard({ user }: { user: any }) {
           ) : (
             <div className="divide-y divide-border">
               {filteredIncidents.map((inc: any) => (
-                <div key={inc.id} className="p-4 hover:bg-muted/20 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-xs text-muted-foreground">{inc.referenceNumber}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                          inc.status === "closed" ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" :
-                          inc.status === "investigating" ? "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" :
-                          "bg-warning/20 text-warning"
-                        }`}>
-                          {PARENT_STATUS_LABELS[inc.status] || inc.status}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground">
-                          {PARENT_CATEGORY_LABELS[inc.category] || inc.category}
-                        </span>
-                      </div>
-                      {inc.description && (
-                        <p className="text-sm text-foreground mt-2 line-clamp-2">{inc.description}</p>
-                      )}
-                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                        <span>{formatDate(inc.incidentDate)}</span>
-                        {inc.location && <span className="capitalize">{inc.location.replace(/_/g, " ")}</span>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <ParentReportCard key={inc.id} inc={inc} />
               ))}
             </div>
           )}

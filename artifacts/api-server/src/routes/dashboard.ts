@@ -284,6 +284,19 @@ router.get("/dashboard/parent", authMiddleware, requireRole("parent"), async (re
   const byStatusList = Object.entries(byStatus)
     .map(([name, count]) => ({ name, count }));
 
+  const allUserIds = new Set<string>();
+  for (const inc of childIncidents) {
+    if (inc.assessedBy) allUserIds.add(inc.assessedBy);
+    if (inc.reporterId) allUserIds.add(inc.reporterId);
+  }
+  let staffMap: Record<string, string> = {};
+  const userIdArr = [...allUserIds];
+  if (userIdArr.length > 0) {
+    const staffRows = await db.select({ id: usersTable.id, firstName: usersTable.firstName, lastName: usersTable.lastName, role: usersTable.role })
+      .from(usersTable).where(inArray(usersTable.id, userIdArr));
+    for (const s of staffRows) staffMap[s.id] = `${s.firstName} ${s.lastName}`;
+  }
+
   const parentIncidents = childIncidents.map((inc) => {
     const childMatch = children.find(c => (inc.victimIds || []).includes(c.id));
     return {
@@ -291,12 +304,20 @@ router.get("/dashboard/parent", authMiddleware, requireRole("parent"), async (re
       referenceNumber: inc.referenceNumber,
       category: inc.category,
       incidentDate: inc.incidentDate,
+      incidentTime: inc.incidentTime || null,
       location: inc.location,
       status: inc.status,
+      escalationTier: inc.escalationTier,
       description: inc.parentSummary || null,
-      childName: childMatch ? childMatch.firstName : "Your child",
-      createdAt: inc.createdAt.toISOString(),
+      emotionalState: inc.emotionalState || null,
+      childName: childMatch ? `${childMatch.firstName} ${childMatch.lastName}` : "Your child",
+      childYearGroup: childMatch?.yearGroup || null,
+      childClassName: childMatch?.className || null,
+      addedToFile: inc.addedToFile || false,
+      assessedBy: inc.assessedBy ? staffMap[inc.assessedBy] || "Staff member" : null,
       assessedAt: inc.assessedAt ? inc.assessedAt.toISOString() : null,
+      createdAt: inc.createdAt.toISOString(),
+      updatedAt: inc.updatedAt ? inc.updatedAt.toISOString() : null,
     };
   });
 

@@ -207,14 +207,14 @@ async function seedHistory() {
   }
 
   const boyABoyBPattern = [
-    { daysAgo: 150, cat: "verbal", desc: "Someone in my class keeps calling me unkind names. It has been happening for a while now." },
-    { daysAgo: 130, cat: "verbal,physical", desc: "The same person pushed me today and called me a name. I told my teacher." },
-    { daysAgo: 110, cat: "physical", desc: "I got pushed again at break. I'm starting to feel really worried about going to school." },
-    { daysAgo: 90, cat: "verbal", desc: "They said something really mean to me today. I don't understand why they keep doing it." },
-    { daysAgo: 75, cat: "exclusion", desc: "Now they are telling other people not to play with me. I feel really lonely." },
-    { daysAgo: 55, cat: "verbal,physical", desc: "It happened again today. They pushed me and said unkind words. I feel scared and sad." },
-    { daysAgo: 40, cat: "physical", desc: "They tripped me up in the corridor. A teacher saw and came to help me." },
-    { daysAgo: 25, cat: "verbal", desc: "They were whispering about me and laughing. When I asked what was funny they said 'nothing'." },
+    { daysAgo: 150, cat: "verbal", desc: "Someone in my class keeps calling me unkind names. It has been happening for a while now.", time: "10:15" },
+    { daysAgo: 130, cat: "verbal,physical", desc: "The same person pushed me today and called me a name. I told my teacher.", time: "11:30" },
+    { daysAgo: 110, cat: "physical", desc: "I got pushed again at break. I'm starting to feel really worried about going to school.", time: "10:45" },
+    { daysAgo: 90, cat: "verbal", desc: "They said something really mean to me today. I don't understand why they keep doing it.", time: "13:00" },
+    { daysAgo: 75, cat: "exclusion", desc: "Now they are telling other people not to play with me. I feel really lonely.", time: "12:30" },
+    { daysAgo: 55, cat: "verbal,physical", desc: "It happened again today. They pushed me and said unkind words. I feel scared and sad.", time: "10:00" },
+    { daysAgo: 40, cat: "physical", desc: "They tripped me up in the corridor. A teacher saw and came to help me.", time: "14:10" },
+    { daysAgo: 25, cat: "verbal", desc: "They were whispering about me and laughing. When I asked what was funny they said 'nothing'.", time: "11:15" },
   ];
 
   for (const pattern of boyABoyBPattern) {
@@ -228,6 +228,7 @@ async function seedHistory() {
       escalationTier: pattern.cat.includes("physical") ? 2 : 1,
       safeguardingTrigger: false,
       incidentDate: dateAgo(pattern.daysAgo),
+      incidentTime: pattern.time,
       location: pick(LOCATIONS),
       description: pattern.desc,
       victimIds: [boyA.id],
@@ -245,11 +246,49 @@ async function seedHistory() {
     });
   }
 
+  const boyBIncidents = [
+    { daysAgo: 160, cat: "verbal", desc: "Some older children in the playground called me names. It made me feel really sad.", emotion: "sad", time: "10:30" },
+    { daysAgo: 125, cat: "physical", desc: "Someone kicked my bag across the floor and everyone laughed. I didn't do anything wrong.", emotion: "angry", time: "12:45" },
+    { daysAgo: 95, cat: "exclusion", desc: "Nobody picked me for their team again today. They always leave me until last.", emotion: "sad,lonely", time: "11:00" },
+    { daysAgo: 68, cat: "verbal,psychological", desc: "Someone keeps saying I'm stupid. They say it quietly so the teacher can't hear.", emotion: "worried,confused", time: "14:15" },
+    { daysAgo: 50, cat: "online", desc: "People posted a photo of me on a group chat and wrote mean things underneath it.", emotion: "scared,angry", time: "16:00" },
+    { daysAgo: 35, cat: "physical", desc: "I got pushed into the wall at break time. My arm really hurt but I didn't tell anyone until now.", emotion: "scared", time: "10:45" },
+  ];
+
+  for (const inc of boyBIncidents) {
+    incidents.push({
+      referenceNumber: refNum(),
+      schoolId: school,
+      reporterId: boyB.id,
+      reporterRole: "pupil",
+      anonymous: false,
+      category: inc.cat,
+      escalationTier: inc.cat.includes("physical") || inc.cat.includes("online") ? 2 : 1,
+      safeguardingTrigger: false,
+      incidentDate: dateAgo(inc.daysAgo),
+      incidentTime: inc.time,
+      location: pick(LOCATIONS),
+      description: inc.desc,
+      victimIds: [boyB.id],
+      perpetratorIds: [pick(pupils.filter((p) => p.id !== boyB.id)).id],
+      emotionalState: inc.emotion,
+      happeningToMe: true,
+      happeningToSomeoneElse: false,
+      iSawIt: false,
+      status: inc.daysAgo > 80 ? "closed" : "investigating",
+      parentVisible: true,
+      addedToFile: inc.daysAgo < 100,
+      parentSummary: pick(PARENT_SUMMARIES),
+      assessedBy: teacherA.id,
+      assessedAt: new Date(new Date().setDate(new Date().getDate() - inc.daysAgo + 1)),
+    });
+  }
+
   const girlAIncidents = [
-    { daysAgo: 140, cat: "online", desc: "Someone sent me unkind messages in our class group chat. I showed my mum.", emotion: "worried,confused" },
-    { daysAgo: 100, cat: "exclusion", desc: "The other girls won't let me play with them. They keep running away from me.", emotion: "sad,lonely" },
-    { daysAgo: 70, cat: "verbal", desc: "Someone said something really horrible about my family. I felt really upset.", emotion: "sad,angry" },
-    { daysAgo: 45, cat: "physical", desc: "Someone pushed me off my chair on purpose. The teacher didn't see.", emotion: "scared,angry" },
+    { daysAgo: 140, cat: "online", desc: "Someone sent me unkind messages in our class group chat. I showed my mum.", emotion: "worried,confused", time: "16:30" },
+    { daysAgo: 100, cat: "exclusion", desc: "The other girls won't let me play with them. They keep running away from me.", emotion: "sad,lonely", time: "10:30" },
+    { daysAgo: 70, cat: "verbal", desc: "Someone said something really horrible about my family. I felt really upset.", emotion: "sad,angry", time: "13:15" },
+    { daysAgo: 45, cat: "physical", desc: "Someone pushed me off my chair on purpose. The teacher didn't see.", emotion: "scared,angry", time: "09:45" },
   ];
 
   for (const inc of girlAIncidents) {
@@ -263,6 +302,7 @@ async function seedHistory() {
       escalationTier: inc.cat.includes("physical") || inc.cat.includes("online") ? 2 : 1,
       safeguardingTrigger: false,
       incidentDate: dateAgo(inc.daysAgo),
+      incidentTime: inc.time,
       location: pick(LOCATIONS),
       description: inc.desc,
       victimIds: [girlA.id],

@@ -19,7 +19,7 @@ const STAFF_ACCOUNTS = [
 
 const PARENT_ACCOUNTS = [
   { label: "Parent A", subtitle: "Parent of Boy A", email: "parent.a@safeschool.dev", password: "parent123" },
-  { label: "Parent B", subtitle: "Parent of Girl A", email: "parent.b@safeschool.dev", password: "parent123" },
+  { label: "Parent B", subtitle: "Parent of Boy B", email: "parent.b@safeschool.dev", password: "parent123" },
 ];
 
 export default function Login() {
