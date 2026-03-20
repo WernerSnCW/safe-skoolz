@@ -26,7 +26,10 @@ async function seed() {
 
   console.log(`Created school: ${school.name} (${school.id})`);
 
-  const pinHash = await bcrypt.hash("1234", BCRYPT_ROUNDS);
+  function generateRandomPin(): string {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  }
+
   const staffPassword = await bcrypt.hash("password123", BCRYPT_ROUNDS);
   const parentPassword = await bcrypt.hash("parent123", BCRYPT_ROUNDS);
 
@@ -41,8 +44,11 @@ async function seed() {
     { firstName: "Girl", lastName: "D", yearGroup: "Y3", className: "3A", avatarType: "animal", avatarValue: "\uD83D\uDC3A" },
   ];
 
+  const pupilPins: { name: string; pin: string }[] = [];
   const pupilRecords = [];
   for (const p of pupils) {
+    const pin = generateRandomPin();
+    const pinHash = await bcrypt.hash(pin, BCRYPT_ROUNDS);
     const [record] = await db
       .insert(usersTable)
       .values({
@@ -59,7 +65,8 @@ async function seed() {
       })
       .returning();
     pupilRecords.push(record);
-    console.log(`  Pupil: ${p.firstName} ${p.lastName} (PIN: 1234)`);
+    pupilPins.push({ name: `${p.firstName} ${p.lastName}`, pin });
+    console.log(`  Pupil: ${p.firstName} ${p.lastName} (PIN: ${pin})`);
   }
 
   const staffMembers = [
@@ -119,7 +126,7 @@ async function seed() {
   console.log("  SENCO: senco@safeschool.dev / password123");
   console.log("  Parent A: parent.a@safeschool.dev / parent123");
   console.log("  Parent B: parent.b@safeschool.dev / parent123");
-  console.log("  Pupil: Select school, select name (Boy A, Girl A, etc.), PIN: 1234");
+  console.log("  Pupils: Each pupil has a unique random PIN (see above). Staff can reset PINs from the My Class page.");
 
   process.exit(0);
 }

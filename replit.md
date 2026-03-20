@@ -48,7 +48,7 @@ The project is structured as a pnpm workspace monorepo, separating deployable ap
 - Pupil search functionality includes truncated last names for privacy.
 
 **Feature Specifications & System Design:**
-- **Auth & Roles:** JWT-based custom authentication with bcrypt. Supports various roles (pupil, parent, teacher, head_of_year, coordinator, head_teacher, senco, support_staff) with a defined visibility hierarchy.
+- **Auth & Roles:** JWT-based custom authentication with bcrypt. Supports various roles (pupil, parent, teacher, head_of_year, coordinator, head_teacher, senco, support_staff) with a defined visibility hierarchy. Pupil PINs are unique random 4-digit numbers (not shared). Staff can reset PINs individually or in bulk from the My Class page, with printable PIN slips.
 - **API Proxy:** Vite development server proxies `/api/*` requests to the Express API server running on port 8080.
 - **Database Schema:** Core entities include schools, users, incidents, protocols, interviews, notifications, pattern alerts, audit logs, messages, SENCO caseload, and tracking. Compliance-related tables manage delegated roles, annex templates, and referral bodies. Protocols can include JSONB fields for risk/protective factors and family context.
 - **Compliance Frameworks:** Supports LOPIVI, Convivèxit 2024, and Machista Violence protocols, with dedicated tables for delegated roles, annex templates, and referral bodies.

@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, inArray, ilike, or, sql } from "drizzle-orm";
 import { db, schoolsTable, usersTable } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import bcrypt from "bcrypt";
 
 const TEACHING_ROLES = ["teacher", "head_of_year"];
 const ALL_STAFF_ROLES = ["teacher", "head_of_year", "coordinator", "head_teacher", "senco", "support_staff"];
@@ -220,6 +221,109 @@ router.get("/pupils/search", authMiddleware, requireRole(...ALL_STAFF_ROLES, "pu
     .limit(15);
 
   res.json(pupils);
+});
+
+const BCRYPT_ROUNDS = 12;
+
+function generateRandomPin(): string {
+  const pin = Math.floor(1000 + Math.random() * 9000).toString();
+  return pin;
+}
+
+router.post("/pupils/reset-pin/:pupilId", authMiddleware, requireRole("teacher", "head_of_year", "coordinator", "head_teacher"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+  const pupilId = Array.isArray(req.params.pupilId) ? req.params.pupilId[0] : req.params.pupilId;
+
+  const [pupil] = await db.select().from(usersTable).where(
+    and(eq(usersTable.id, pupilId), eq(usersTable.schoolId, user.schoolId), eq(usersTable.role, "pupil"))
+  );
+
+  if (!pupil) {
+    res.status(404).json({ error: "Pupil not found" });
+    return;
+  }
+
+  const [me] = await db.select().from(usersTable).where(eq(usersTable.id, user.userId));
+  if (me && (me.role === "teacher" || me.role === "head_of_year")) {
+    if (me.role === "teacher" && me.className !== pupil.className) {
+      res.status(403).json({ error: "You can only reset PINs for pupils in your class" });
+      return;
+    }
+    if (me.role === "head_of_year" && me.yearGroup !== pupil.yearGroup) {
+      res.status(403).json({ error: "You can only reset PINs for pupils in your year group" });
+      return;
+    }
+  }
+
+  const newPin = generateRandomPin();
+  const pinHash = await bcrypt.hash(newPin, BCRYPT_ROUNDS);
+
+  await db.update(usersTable).set({ pinHash }).where(eq(usersTable.id, pupilId));
+
+  res.json({
+    pupilId: pupil.id,
+    firstName: pupil.firstName,
+    lastName: pupil.lastName,
+    newPin,
+  });
+});
+
+router.post("/pupils/bulk-reset-pins", authMiddleware, requireRole("teacher", "head_of_year", "coordinator", "head_teacher"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+  const { className, yearGroup } = req.body as { className?: string; yearGroup?: string };
+
+  const [me] = await db.select().from(usersTable).where(eq(usersTable.id, user.userId));
+  if (!me) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  let conditions: any[] = [
+    eq(usersTable.schoolId, user.schoolId),
+    eq(usersTable.role, "pupil"),
+    eq(usersTable.active, true),
+  ];
+
+  if (me.role === "teacher") {
+    if (!me.className) { res.status(400).json({ error: "No class assigned" }); return; }
+    conditions.push(eq(usersTable.className, me.className));
+  } else if (me.role === "head_of_year") {
+    const targetClass = className;
+    const targetYear = yearGroup || me.yearGroup;
+    if (targetClass) {
+      conditions.push(eq(usersTable.className, targetClass));
+    } else if (targetYear) {
+      conditions.push(eq(usersTable.yearGroup, targetYear));
+    }
+  } else {
+    if (className) {
+      conditions.push(eq(usersTable.className, className));
+    } else if (yearGroup) {
+      conditions.push(eq(usersTable.yearGroup, yearGroup));
+    } else {
+      res.status(400).json({ error: "Specify className or yearGroup" });
+      return;
+    }
+  }
+
+  const pupils = await db.select().from(usersTable).where(and(...conditions));
+
+  const results = [];
+  for (const pupil of pupils) {
+    const newPin = generateRandomPin();
+    const pinHash = await bcrypt.hash(newPin, BCRYPT_ROUNDS);
+    await db.update(usersTable).set({ pinHash }).where(eq(usersTable.id, pupil.id));
+    results.push({
+      pupilId: pupil.id,
+      firstName: pupil.firstName,
+      lastName: pupil.lastName,
+      className: pupil.className,
+      yearGroup: pupil.yearGroup,
+      newPin,
+    });
+  }
+
+  res.json({ count: results.length, pupils: results });
 });
 
 export default router;

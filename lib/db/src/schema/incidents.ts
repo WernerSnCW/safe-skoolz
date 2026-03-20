@@ -42,7 +42,7 @@ export const incidentsTable = pgTable("incidents", {
   status: varchar("status", { length: 30 }).default("submitted").notNull(),
   protocolId: uuid("protocol_id"),
   addedToFile: boolean("added_to_file").default(false).notNull(),
-  parentVisible: boolean("parent_visible").default(false).notNull(),
+  parentVisible: boolean("parent_visible").default(true).notNull(),
   staffNotes: text("staff_notes"),
   witnessStatements: jsonb("witness_statements"),
   parentSummary: text("parent_summary"),

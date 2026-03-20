@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, Button } from "@/components/ui-polished";
-import { Users, GraduationCap, School, ChevronDown, ChevronUp, ShieldAlert } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
+import { Users, GraduationCap, School, ChevronDown, ChevronUp, ShieldAlert, Key, RefreshCw, Printer, Copy, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Pupil {
@@ -101,6 +101,8 @@ export default function MyClass() {
         </div>
       </div>
 
+      <PinManagement classes={data.classes} scope={data.scope} />
+
       {classNames.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
@@ -165,6 +167,200 @@ export default function MyClass() {
         </div>
       )}
     </div>
+  );
+}
+
+interface PinResult {
+  pupilId: string;
+  firstName: string;
+  lastName: string;
+  className?: string;
+  yearGroup?: string;
+  newPin: string;
+}
+
+function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; scope: string }) {
+  const { user } = useAuth();
+  const [generatedPins, setGeneratedPins] = useState<PinResult[]>([]);
+  const [resettingPupilId, setResettingPupilId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showPins, setShowPins] = useState(false);
+
+  const canManagePins = ["teacher", "head_of_year", "coordinator", "head_teacher"].includes(user?.role || "");
+
+  const resetSinglePin = useMutation({
+    mutationFn: async (pupilId: string) => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch(`/api/pupils/reset-pin/${pupilId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("Failed to reset PIN");
+      return res.json();
+    },
+    onSuccess: (data: PinResult) => {
+      setGeneratedPins(prev => {
+        const filtered = prev.filter(p => p.pupilId !== data.pupilId);
+        return [...filtered, data];
+      });
+      setResettingPupilId(null);
+    },
+  });
+
+  const bulkResetPins = useMutation({
+    mutationFn: async (params: { className?: string; yearGroup?: string }) => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch("/api/pupils/bulk-reset-pins", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(params),
+      });
+      if (!res.ok) throw new Error("Failed to reset PINs");
+      return res.json();
+    },
+    onSuccess: (data: { count: number; pupils: PinResult[] }) => {
+      setGeneratedPins(data.pupils);
+      setShowPins(true);
+    },
+  });
+
+  if (!canManagePins) return null;
+
+  const allPupils = Object.values(classes).flat();
+  const classNames = Object.keys(classes).sort();
+
+  const handleCopyPin = (pupilId: string, pin: string) => {
+    navigator.clipboard.writeText(pin);
+    setCopiedId(pupilId);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handlePrint = () => {
+    const printContent = generatedPins.map(p =>
+      `${p.firstName} ${p.lastName} (${p.className || ""}) - PIN: ${p.newPin}`
+    ).join("\n");
+
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(`
+        <html><head><title>PIN Slips - SafeSchool</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { font-size: 18px; margin-bottom: 10px; }
+          .slip { border: 1px dashed #ccc; padding: 12px 16px; margin: 8px 0; page-break-inside: avoid; }
+          .name { font-weight: bold; font-size: 14px; }
+          .pin { font-size: 24px; letter-spacing: 8px; font-weight: bold; margin-top: 4px; }
+          .note { font-size: 10px; color: #666; margin-top: 4px; }
+          @media print { .no-print { display: none; } }
+        </style></head><body>
+        <h1>SafeSchool Login PINs</h1>
+        <p class="no-print" style="font-size:12px;color:#666;">Print this page and cut along the dashed lines. Give each pupil their slip privately.</p>
+        ${generatedPins.map(p => `
+          <div class="slip">
+            <div class="name">${p.firstName} ${p.lastName} ${p.className ? `(${p.className})` : ""}</div>
+            <div class="pin">${p.newPin}</div>
+            <div class="note">This is your secret PIN for SafeSchool. Do not share it with anyone.</div>
+          </div>
+        `).join("")}
+        </body></html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  return (
+    <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/10">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg flex items-center gap-2 text-amber-700 dark:text-amber-400">
+          <Key size={20} />
+          PIN Management
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Generate unique secret PINs for pupils. Each pupil gets their own PIN — no shared passwords.
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          {classNames.length === 1 ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => bulkResetPins.mutate({ className: classNames[0] })}
+              disabled={bulkResetPins.isPending}
+              className="border-amber-300 hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/30"
+            >
+              <RefreshCw size={14} className={bulkResetPins.isPending ? "animate-spin" : ""} />
+              {bulkResetPins.isPending ? "Generating..." : `Generate New PINs for Class ${classNames[0]}`}
+            </Button>
+          ) : (
+            classNames.map(cn => (
+              <Button
+                key={cn}
+                variant="outline"
+                size="sm"
+                onClick={() => bulkResetPins.mutate({ className: cn })}
+                disabled={bulkResetPins.isPending}
+                className="border-amber-300 hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/30"
+              >
+                <RefreshCw size={14} className={bulkResetPins.isPending ? "animate-spin" : ""} />
+                {bulkResetPins.isPending ? "..." : `Class ${cn}`}
+              </Button>
+            ))
+          )}
+        </div>
+
+        {generatedPins.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                {generatedPins.length} PIN{generatedPins.length !== 1 ? "s" : ""} generated
+              </p>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowPins(!showPins)}>
+                  {showPins ? "Hide PINs" : "Show PINs"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={handlePrint}>
+                  <Printer size={14} />
+                  Print PIN Slips
+                </Button>
+              </div>
+            </div>
+
+            {showPins && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                {generatedPins.map(p => (
+                  <div key={p.pupilId} className="flex items-center justify-between bg-white dark:bg-gray-900 rounded-lg border border-amber-200/50 dark:border-amber-800/30 px-3 py-2">
+                    <div>
+                      <p className="text-sm font-bold">{p.firstName} {p.lastName}</p>
+                      <p className="text-lg font-mono font-bold tracking-widest text-amber-700 dark:text-amber-400">{p.newPin}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleCopyPin(p.pupilId, p.newPin)}
+                    >
+                      {copiedId === p.pupilId ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-amber-600/70 dark:text-amber-400/50">
+              PINs are shown once. Print or copy them now — they cannot be retrieved later, only reset.
+            </p>
+          </motion.div>
+        )}
+
+        {!generatedPins.length && (
+          <div className="text-xs text-muted-foreground">
+            Or reset individual pupil PINs by clicking the key icon on their card below.
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
