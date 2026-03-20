@@ -1,0 +1,573 @@
+{
+  "app": {
+    "name": "SafeSchool",
+    "version": "0.2.0",
+    "description": "Multi-role safeguarding and incident reporting platform for Morna International College. Child-led development with child-friendly language throughout. Compliant with LOPIVI, Convivèxit, and Machista Violence protocols (Balearic Islands legislation).",
+    "stack": {
+      "frontend": "React + Vite + TypeScript + TailwindCSS + shadcn/ui + Framer Motion + Recharts",
+      "backend": "Express.js + TypeScript",
+      "database": "PostgreSQL + Drizzle ORM",
+      "auth": "JWT + bcrypt (staff/parent email+password, pupil PIN-based)",
+      "monorepo": "pnpm workspaces"
+    }
+  },
+
+  "roles": [
+    {
+      "id": "pupil",
+      "label": "Pupil",
+      "description": "School children who can report concerns, send messages, view their own behaviour, and access educational content.",
+      "loginMethod": "School selector + name picker + 4-digit PIN",
+      "capabilities": [
+        "Report incidents via child-friendly form with emotion picker",
+        "Send messages to safe contacts (staff)",
+        "Send urgent help / panic button alerts",
+        "Request a chat with a trusted adult",
+        "View own behaviour record and escalation ladder",
+        "Browse educational safeguarding content",
+        "Customise animal avatar"
+      ]
+    },
+    {
+      "id": "parent",
+      "label": "Parent / Carer",
+      "description": "Parents who can monitor their child's wellbeing, view incidents, behaviour, emergency alerts, and communicate with school staff.",
+      "loginMethod": "Email + password",
+      "capabilities": [
+        "View child's incident reports (parent-visible only, full detail)",
+        "View child's behaviour standing with points, level, and progress",
+        "See child's emergency/urgent help alerts sent to staff",
+        "Report concerns on behalf of their child",
+        "Message staff directly (teachers, SENCO, coordinator, head)",
+        "View parent dashboard with trend analytics and stats",
+        "View school overview (safeguarding info, staffing)",
+        "Browse educational resources for parents",
+        "Receive in-app notifications"
+      ]
+    },
+    {
+      "id": "teacher",
+      "label": "Teacher",
+      "description": "Class teachers who manage their class, log incidents, assess reports, view behaviour, and communicate with pupils/parents.",
+      "loginMethod": "Email + password",
+      "capabilities": [
+        "Log professional incident reports",
+        "View and assess incidents involving class pupils",
+        "Issue behaviour points to pupils",
+        "View class pupil list with incident/behaviour data",
+        "Reply to pupil messages and urgent help requests",
+        "View pattern alerts relevant to their pupils",
+        "View teacher analytics (location charts, type charts, trends)",
+        "Access to alert-linked incidents outside normal scope"
+      ]
+    },
+    {
+      "id": "head_of_year",
+      "label": "Head of Year",
+      "description": "Year group leads with all teacher capabilities plus year-wide oversight.",
+      "loginMethod": "Email + password",
+      "capabilities": [
+        "All teacher capabilities",
+        "View incidents across entire year group (not just own class)",
+        "View all pupils in year group",
+        "Broader pattern alert access"
+      ]
+    },
+    {
+      "id": "coordinator",
+      "label": "Safeguarding Coordinator",
+      "description": "Safeguarding lead with full school-wide access, protocol management, and compliance tools.",
+      "loginMethod": "Email + password",
+      "capabilities": [
+        "Full school-wide incident oversight",
+        "Manage formal protocols (Convivèxit, LOPIVI, Machista Violence)",
+        "Conduct and record interviews",
+        "Manage case tasks",
+        "View KPI dashboard with school-wide analytics",
+        "Manage pattern alerts (acknowledge, dismiss, escalate)",
+        "Manage delegated roles",
+        "Manage annex templates and referral bodies",
+        "Change incident status (open, under review, close)",
+        "View audit log"
+      ]
+    },
+    {
+      "id": "head_teacher",
+      "label": "Head Teacher",
+      "description": "Highest authority with full oversight, governance, and external referral capabilities.",
+      "loginMethod": "Email + password",
+      "capabilities": [
+        "All coordinator capabilities",
+        "External referral management",
+        "Governance oversight",
+        "Delegated role management"
+      ]
+    },
+    {
+      "id": "senco",
+      "label": "SENCO (Special Educational Needs Coordinator)",
+      "description": "Focused on vulnerable pupils with dedicated caseload tracking and progress monitoring.",
+      "loginMethod": "Email + password",
+      "capabilities": [
+        "All coordinator-level incident/protocol access",
+        "Manage SENCO caseload (add/remove pupils)",
+        "Track pupil progress with observation forms (feelings, attitudes, notes, ratings)",
+        "View tracking history timeline per pupil",
+        "Search and add pupils to caseload"
+      ]
+    },
+    {
+      "id": "support_staff",
+      "label": "Support Staff",
+      "description": "Support workers who can log incidents, communicate with pupils, and view assigned pupil data.",
+      "loginMethod": "Email + password",
+      "capabilities": [
+        "Log incidents",
+        "View assigned pupil information",
+        "Communicate with pupils via messaging",
+        "Issue behaviour points"
+      ]
+    }
+  ],
+
+  "features": {
+    "incident_reporting": {
+      "name": "Incident Reporting & Management",
+      "description": "Dual-mode incident reporting with child-friendly and professional forms, escalation tiers, and full lifecycle management.",
+      "subfeatures": [
+        {
+          "name": "Child-Friendly Report Form",
+          "description": "Emotion picker, visual location selector, 'Unknown Person Builder' for describing unidentified individuals, anonymous reporting option"
+        },
+        {
+          "name": "Professional Staff Report Form",
+          "description": "Detailed incident logging with categories, victim/perpetrator selection, witness tracking, and immediate action fields"
+        },
+        {
+          "name": "Automatic Escalation",
+          "description": "3-tier escalation system (Tier 1: Monitor, Tier 2: Review within 24h, Tier 3: Immediate response). Auto-detects safeguarding triggers"
+        },
+        {
+          "name": "Incident Assessment",
+          "description": "Staff can add internal notes, witness statements, parent summary, mark as added to pupil file, toggle parent visibility"
+        },
+        {
+          "name": "Status Lifecycle",
+          "description": "Incidents flow through: submitted → open → under_review → investigating → escalated → resolved → closed"
+        },
+        {
+          "name": "Parent Incident View",
+          "description": "Full incident reports for parents with status card, details, emotional state, school response section, privacy-protected (other children shown as 'Another pupil')"
+        }
+      ]
+    },
+
+    "protocol_management": {
+      "name": "Formal Protocol Management",
+      "description": "Structured workflows for Balearic Islands safeguarding frameworks.",
+      "subfeatures": [
+        {
+          "name": "Convivèxit Protocol",
+          "description": "Anti-bullying protocol with structured phases, risk assessment, and intervention tracking"
+        },
+        {
+          "name": "LOPIVI Protocol",
+          "description": "General child protection protocol compliant with Spanish organic law"
+        },
+        {
+          "name": "Machista Violence Protocol",
+          "description": "Gender-based violence protocol with specific reporting and intervention requirements"
+        },
+        {
+          "name": "Interview Management",
+          "description": "Record and manage interviews linked to protocols"
+        },
+        {
+          "name": "Case Tasks",
+          "description": "Create and track action items associated with protocols"
+        },
+        {
+          "name": "Annex Templates",
+          "description": "Pre-built compliance document templates per framework"
+        },
+        {
+          "name": "Risk Assessment",
+          "description": "Structured risk evaluation within protocol workflows"
+        }
+      ]
+    },
+
+    "safe_messaging": {
+      "name": "Safe Messaging System",
+      "description": "Secure, role-appropriate communication between all users.",
+      "subfeatures": [
+        {
+          "name": "Pupil-to-Staff Messaging",
+          "description": "Pupils message 'safe contacts' (trusted adults). Sorted by form tutor first"
+        },
+        {
+          "name": "Urgent Help / Panic Button",
+          "description": "One-tap urgent help request with location. Creates immediate notification for staff"
+        },
+        {
+          "name": "Chat Request",
+          "description": "Pupils can request a face-to-face chat with a trusted adult"
+        },
+        {
+          "name": "Parent-to-Staff Messaging",
+          "description": "Parents message teachers, SENCO, coordinator, head. Contacts sorted by child's teacher first"
+        },
+        {
+          "name": "Parent Emergency Alerts",
+          "description": "Parents see all urgent help messages their child has sent to staff, with message content, location, recipient, and timestamp"
+        },
+        {
+          "name": "Conversation Threads",
+          "description": "Threaded conversations with read receipts and unread counts"
+        },
+        {
+          "name": "Priority System",
+          "description": "Messages tagged as normal, important, or urgent with visual indicators"
+        }
+      ]
+    },
+
+    "pattern_detection": {
+      "name": "Automated Pattern Detection & Alerts",
+      "description": "System-generated alerts when concerning patterns are detected across incidents.",
+      "subfeatures": [
+        {
+          "name": "Repeat Perpetrator Detection",
+          "description": "Flags when the same child is named as perpetrator in multiple incidents"
+        },
+        {
+          "name": "Multi-Victim Alerts",
+          "description": "Alerts when incidents involve multiple victims"
+        },
+        {
+          "name": "Welfare Concern Patterns",
+          "description": "Detects welfare-related patterns across time"
+        },
+        {
+          "name": "Alert Severity Levels",
+          "description": "Amber and Red alert levels based on pattern severity"
+        },
+        {
+          "name": "Alert-Linked Incident Access",
+          "description": "Staff can view incidents linked to alerts even outside their normal year/class scope"
+        }
+      ]
+    },
+
+    "behaviour_tracking": {
+      "name": "Behaviour Escalation Tracker",
+      "description": "Points-based behaviour system with 7 escalation levels and role-specific views.",
+      "subfeatures": [
+        {
+          "name": "7-Level Escalation System",
+          "description": "Good Standing (0-3), Warning (4-6), Formal Warning (7-9), Suspension Risk (10-14), Suspended (15-19), Term Exclusion (20-24), Full Exclusion (25+)"
+        },
+        {
+          "name": "Point Issuance",
+          "description": "Staff issue points by category (disruption, bullying, physical, verbal, attendance, online, other) with notes"
+        },
+        {
+          "name": "Pupil View",
+          "description": "Visual gauge showing current level, escalation ladder with all levels, point history"
+        },
+        {
+          "name": "Parent View",
+          "description": "See child's behaviour standing on dashboard (colour-coded card with progress bar) and full record on behaviour page"
+        },
+        {
+          "name": "Staff View",
+          "description": "School-wide behaviour list with all pupils, search, issue points dialog"
+        }
+      ]
+    },
+
+    "senco_caseload": {
+      "name": "SENCO Caseload Tracker",
+      "description": "Dedicated caseload management for SENCO with progress tracking and observations.",
+      "subfeatures": [
+        {
+          "name": "Caseload Management",
+          "description": "Add/remove pupils to SENCO caseload with reason and priority"
+        },
+        {
+          "name": "Observation Forms",
+          "description": "Track progress, feelings, attitudes, and notes with 1-5 visual rating scales"
+        },
+        {
+          "name": "Tracking Timeline",
+          "description": "Chronological history of all observations per pupil"
+        },
+        {
+          "name": "Expandable Pupil Cards",
+          "description": "Card-based UI with quick access to tracking history and new observation entry"
+        }
+      ]
+    },
+
+    "dashboards_analytics": {
+      "name": "Role-Specific Dashboards & Analytics",
+      "description": "Customised dashboard views with charts, KPIs, and quick actions per role.",
+      "subfeatures": [
+        {
+          "name": "Coordinator/Head Dashboard",
+          "description": "School-wide KPIs, incident stats, active alerts, protocol status, trend charts"
+        },
+        {
+          "name": "Teacher Dashboard",
+          "description": "Class overview, recent incidents, location analytics (bar chart), type distribution (bar chart), monthly trend (line chart)"
+        },
+        {
+          "name": "Parent Dashboard",
+          "description": "Child behaviour standing card, incident stats, monthly trend chart, category breakdown, notification count, school overview"
+        },
+        {
+          "name": "Pupil Dashboard",
+          "description": "Quick report button, urgent help button, chat request button, safe contacts"
+        }
+      ]
+    },
+
+    "notifications": {
+      "name": "In-App Notification System",
+      "description": "Real-time notifications for incidents, messages, alerts, and protocol updates.",
+      "subfeatures": [
+        {
+          "name": "Trigger-Based Notifications",
+          "description": "Auto-generated for: new incidents, urgent help requests, chat requests, tier escalations, protocol updates, parent messages"
+        },
+        {
+          "name": "Acknowledgement",
+          "description": "Users can acknowledge/dismiss notifications"
+        },
+        {
+          "name": "Unread Badge",
+          "description": "Badge count shown in sidebar navigation"
+        }
+      ]
+    },
+
+    "education": {
+      "name": "Educational Resource Library",
+      "description": "Safeguarding educational content tailored for pupils, parents, and staff.",
+      "subfeatures": [
+        {
+          "name": "Role-Filtered Content",
+          "description": "Content filtered by audience (pupil, parent, staff)"
+        },
+        {
+          "name": "Topic Categories",
+          "description": "Resources organised by safeguarding topics"
+        }
+      ]
+    },
+
+    "compliance_governance": {
+      "name": "Compliance & Governance Tools",
+      "description": "Tools for managing safeguarding compliance, delegated roles, and external referrals.",
+      "subfeatures": [
+        {
+          "name": "Delegated Roles",
+          "description": "Manage LOPIVI delegate and other statutory role assignments"
+        },
+        {
+          "name": "Annex Templates",
+          "description": "Pre-built document templates per compliance framework"
+        },
+        {
+          "name": "Referral Bodies",
+          "description": "Directory of external referral organisations (IB Dona, Fiscalía de Menores, IMAS, etc.)"
+        },
+        {
+          "name": "Audit Log",
+          "description": "Compliance trail of all safeguarding-related actions"
+        }
+      ]
+    },
+
+    "user_management": {
+      "name": "User & Profile Management",
+      "description": "Profile customisation and pupil management tools.",
+      "subfeatures": [
+        {
+          "name": "Pupil Avatars",
+          "description": "Animal avatar picker for pupils (visual identity without photos)"
+        },
+        {
+          "name": "My Class / My Year Group",
+          "description": "Staff view of assigned pupils with links to incident and behaviour data"
+        },
+        {
+          "name": "Pupil Search",
+          "description": "Search pupils across the school for incident reporting, caseload, or behaviour"
+        }
+      ]
+    }
+  },
+
+  "pages": [
+    { "path": "/", "name": "Login / Dashboard", "description": "Multi-tab login (Pupil/Staff/Parent) or role-specific dashboard when authenticated" },
+    { "path": "/report", "name": "Report Incident", "description": "Incident reporting form (child-friendly or professional depending on role)" },
+    { "path": "/incidents", "name": "Incidents List", "description": "Searchable, filterable list of incidents. Parents see 'Your Child's Incident Reports'" },
+    { "path": "/incidents/:id", "name": "Incident Detail", "description": "Full incident view with assessment tools (staff) or detailed parent report" },
+    { "path": "/protocols", "name": "Protocols List", "description": "List of formal safeguarding protocols (coordinator/head/SENCO only)" },
+    { "path": "/protocols/new", "name": "New Protocol", "description": "Create new Convivèxit, LOPIVI, or Machista Violence protocol" },
+    { "path": "/protocols/:id", "name": "Protocol Detail", "description": "Protocol management with phases, interviews, risk assessment, case tasks" },
+    { "path": "/alerts", "name": "Pattern Alerts", "description": "System-generated alerts with linked incidents and severity levels" },
+    { "path": "/messages", "name": "Messages", "description": "Threaded messaging inbox. Parents also see child emergency alerts section" },
+    { "path": "/notifications", "name": "Notifications", "description": "In-app notification centre with acknowledgement" },
+    { "path": "/class", "name": "My Class / All Pupils", "description": "Pupil list scoped by role (class, year, or school-wide)" },
+    { "path": "/behaviour", "name": "Behaviour", "description": "Behaviour tracking — pupil gauge view, parent child record, staff overview" },
+    { "path": "/caseload", "name": "SENCO Caseload", "description": "SENCO-only caseload management with tracking forms" },
+    { "path": "/education", "name": "Learn", "description": "Educational safeguarding resources" },
+    { "path": "/settings", "name": "Settings", "description": "Profile and avatar management" }
+  ],
+
+  "api_routes": {
+    "auth": [
+      { "method": "POST", "path": "/api/auth/pupil/login", "roles": "public", "description": "Pupil login with school ID, user ID, and PIN" },
+      { "method": "POST", "path": "/api/auth/staff/login", "roles": "public", "description": "Staff login with email and password" },
+      { "method": "POST", "path": "/api/auth/parent/login", "roles": "public", "description": "Parent login with email and password" },
+      { "method": "GET", "path": "/api/auth/me", "roles": "authenticated", "description": "Get current user profile" },
+      { "method": "PATCH", "path": "/api/auth/profile", "roles": "authenticated", "description": "Update profile (avatar, preferences)" }
+    ],
+    "incidents": [
+      { "method": "GET", "path": "/api/incidents", "roles": "coordinator, head_teacher, senco, head_of_year, teacher, parent", "description": "List incidents (scoped by role; parents see child's parentVisible incidents)" },
+      { "method": "POST", "path": "/api/incidents", "roles": "authenticated", "description": "Create new incident report" },
+      { "method": "GET", "path": "/api/incidents/:id", "roles": "authenticated", "description": "Get incident detail (access scoped by role and child relationship)" },
+      { "method": "PATCH", "path": "/api/incidents/:id/status", "roles": "coordinator, head_teacher, senco", "description": "Update incident status" },
+      { "method": "PATCH", "path": "/api/incidents/:id/assess", "roles": "coordinator, head_teacher, senco, teacher, head_of_year", "description": "Add assessment (staff notes, witness statements, parent summary)" }
+    ],
+    "protocols": [
+      { "method": "GET", "path": "/api/protocols", "roles": "coordinator, head_teacher, senco", "description": "List formal protocols" },
+      { "method": "POST", "path": "/api/protocols", "roles": "coordinator, head_teacher, senco", "description": "Create new protocol (Convivèxit/LOPIVI/Machista)" },
+      { "method": "GET", "path": "/api/protocols/:id", "roles": "coordinator, head_teacher, senco", "description": "Get protocol detail with interviews and tasks" },
+      { "method": "PATCH", "path": "/api/protocols/:id", "roles": "coordinator, head_teacher, senco", "description": "Update protocol (phase, status, risk assessment)" }
+    ],
+    "messages": [
+      { "method": "GET", "path": "/api/messages", "roles": "authenticated", "description": "List messages (filtered by contact)" },
+      { "method": "POST", "path": "/api/messages", "roles": "authenticated", "description": "Send a message (normal, chat_request, or urgent_help)" },
+      { "method": "GET", "path": "/api/messages/conversations", "roles": "staff, parent", "description": "List conversation threads with unread counts" },
+      { "method": "PATCH", "path": "/api/messages/:id/read", "roles": "authenticated", "description": "Mark message as read" },
+      { "method": "GET", "path": "/api/messages/child-alerts", "roles": "parent", "description": "Get child's urgent help messages (emergency alerts for parent)" },
+      { "method": "GET", "path": "/api/safe-contacts", "roles": "pupil", "description": "Get list of safe adults for pupil messaging" },
+      { "method": "GET", "path": "/api/parent-contacts", "roles": "parent", "description": "Get staff contacts for parent messaging" }
+    ],
+    "alerts": [
+      { "method": "GET", "path": "/api/alerts", "roles": "coordinator, head_teacher, teacher, head_of_year, senco", "description": "List pattern detection alerts" },
+      { "method": "PATCH", "path": "/api/alerts/:id", "roles": "coordinator", "description": "Update alert (acknowledge, dismiss, escalate)" }
+    ],
+    "behaviour": [
+      { "method": "GET", "path": "/api/behaviour/levels", "roles": "public", "description": "Get all 7 behaviour escalation levels" },
+      { "method": "GET", "path": "/api/behaviour/pupil/:pupilId", "roles": "authenticated", "description": "Get pupil behaviour record (points, level, history)" },
+      { "method": "GET", "path": "/api/behaviour/summary", "roles": "staff", "description": "Get school-wide behaviour summary" },
+      { "method": "POST", "path": "/api/behaviour/points", "roles": "staff", "description": "Issue behaviour points to a pupil" },
+      { "method": "GET", "path": "/api/behaviour/my-record", "roles": "pupil", "description": "Get own behaviour record" }
+    ],
+    "senco": [
+      { "method": "GET", "path": "/api/senco/caseload", "roles": "senco", "description": "Get SENCO's caseload pupils" },
+      { "method": "POST", "path": "/api/senco/caseload", "roles": "senco", "description": "Add pupil to caseload" },
+      { "method": "DELETE", "path": "/api/senco/caseload/:id", "roles": "senco", "description": "Remove pupil from caseload" },
+      { "method": "GET", "path": "/api/senco/caseload/:id/tracking", "roles": "senco", "description": "Get tracking history for caseload pupil" },
+      { "method": "POST", "path": "/api/senco/caseload/:id/tracking", "roles": "senco", "description": "Add tracking observation" },
+      { "method": "GET", "path": "/api/senco/pupils-available", "roles": "senco", "description": "Search pupils not yet on caseload" }
+    ],
+    "dashboards": [
+      { "method": "GET", "path": "/api/dashboard/coordinator", "roles": "coordinator, head_teacher, senco", "description": "KPI dashboard data" },
+      { "method": "GET", "path": "/api/dashboard/analytics", "roles": "coordinator, head_teacher, senco", "description": "School-wide analytics data" },
+      { "method": "GET", "path": "/api/dashboard/teacher-analytics", "roles": "teacher, head_of_year, support_staff", "description": "Class/year analytics (location, type, trends)" },
+      { "method": "GET", "path": "/api/dashboard/parent", "roles": "parent", "description": "Parent dashboard data (child incidents, trends)" },
+      { "method": "GET", "path": "/api/dashboard/child/:id", "roles": "coordinator, senco", "description": "Individual child profile data" },
+      { "method": "GET", "path": "/api/dashboard/school-overview", "roles": "parent", "description": "Public school safeguarding overview" }
+    ],
+    "schools_users": [
+      { "method": "GET", "path": "/api/schools", "roles": "public", "description": "List schools" },
+      { "method": "GET", "path": "/api/schools/:id/pupils", "roles": "public", "description": "List pupils for login selector" },
+      { "method": "GET", "path": "/api/my-pupils", "roles": "staff", "description": "Get pupils assigned to current staff member" },
+      { "method": "GET", "path": "/api/schools/:id/staff", "roles": "coordinator, head_teacher", "description": "List all staff" },
+      { "method": "POST", "path": "/api/users/:id/avatar", "roles": "authenticated", "description": "Update user avatar" },
+      { "method": "GET", "path": "/api/pupils/search", "roles": "staff, pupil", "description": "Search pupils by name" }
+    ],
+    "notifications": [
+      { "method": "GET", "path": "/api/notifications", "roles": "authenticated", "description": "List notifications" },
+      { "method": "PATCH", "path": "/api/notifications/:id/acknowledge", "roles": "authenticated", "description": "Acknowledge notification" }
+    ],
+    "compliance": [
+      { "method": "GET", "path": "/api/delegated-roles", "roles": "coordinator, head_teacher", "description": "List delegated safeguarding roles" },
+      { "method": "POST", "path": "/api/delegated-roles", "roles": "coordinator, head_teacher", "description": "Assign delegated role" },
+      { "method": "PATCH", "path": "/api/delegated-roles/:id/revoke", "roles": "coordinator, head_teacher", "description": "Revoke delegated role" },
+      { "method": "GET", "path": "/api/annex-templates", "roles": "authenticated", "description": "List annex templates" },
+      { "method": "GET", "path": "/api/annex-templates/:framework", "roles": "authenticated", "description": "Get templates by framework" },
+      { "method": "POST", "path": "/api/annex-templates", "roles": "coordinator, head_teacher", "description": "Create annex template" },
+      { "method": "GET", "path": "/api/referral-bodies", "roles": "authenticated", "description": "List external referral bodies" },
+      { "method": "POST", "path": "/api/referral-bodies", "roles": "coordinator, head_teacher", "description": "Add referral body" },
+      { "method": "PATCH", "path": "/api/referral-bodies/:id", "roles": "coordinator, head_teacher", "description": "Update referral body" }
+    ],
+    "case_tasks": [
+      { "method": "GET", "path": "/api/case-tasks", "roles": "coordinator, head_teacher, senco", "description": "List case tasks" },
+      { "method": "POST", "path": "/api/case-tasks", "roles": "coordinator, head_teacher, senco", "description": "Create case task" },
+      { "method": "PATCH", "path": "/api/case-tasks/:id", "roles": "coordinator, head_teacher, senco", "description": "Update case task" }
+    ]
+  },
+
+  "database_tables": [
+    { "name": "schools", "description": "School entities with name and settings" },
+    { "name": "users", "description": "All users (pupils, staff, parents) with role, credentials, year/class, parentOf links, avatar" },
+    { "name": "incidents", "description": "Core incident records: categories, escalation tiers, victim/perpetrator IDs, emotional state, location, status lifecycle, parent visibility, assessment data" },
+    { "name": "protocols", "description": "Formal safeguarding protocols (Convivèxit, LOPIVI, Machista Violence) with phases, risk assessment, status" },
+    { "name": "interviews", "description": "Interview records linked to protocols" },
+    { "name": "case_tasks", "description": "Action items linked to protocols with assignee and status" },
+    { "name": "messages", "description": "Direct messages between users with type (message, chat_request, urgent_help), priority, location" },
+    { "name": "notifications", "description": "In-app notifications with trigger type, subject, body, delivery and acknowledgement status" },
+    { "name": "pattern_alerts", "description": "System-generated pattern detection alerts with severity, linked incident IDs, acknowledgement" },
+    { "name": "behaviour_points", "description": "Behaviour point entries with category, points value, reason, issued by, and pupil reference" },
+    { "name": "senco_caseload", "description": "SENCO caseload entries linking SENCO to pupils with reason, priority, and active status" },
+    { "name": "senco_tracking", "description": "Progress tracking observations for SENCO caseload (progress, feelings, attitudes ratings, notes)" },
+    { "name": "audit_log", "description": "Compliance audit trail of safeguarding actions" },
+    { "name": "delegated_roles", "description": "Statutory safeguarding role assignments (e.g. LOPIVI delegate)" },
+    { "name": "annex_templates", "description": "Document templates per compliance framework" },
+    { "name": "referral_bodies", "description": "External referral organisations (IB Dona, Fiscalía de Menores, IMAS, etc.)" }
+  ],
+
+  "seed_credentials": {
+    "pupils": {
+      "PIN": "1234",
+      "note": "All pupils use PIN 1234. Select school 'Morna' then pick name from dropdown."
+    },
+    "staff": [
+      { "email": "teacher@safeschool.dev", "password": "password123", "role": "head_of_year", "yearGroup": "Y6", "class": "6A" },
+      { "email": "teacher2@safeschool.dev", "password": "password123", "role": "teacher" },
+      { "email": "teacher3@safeschool.dev", "password": "password123", "role": "teacher" },
+      { "email": "teacher4@safeschool.dev", "password": "password123", "role": "teacher" },
+      { "email": "coordinator@safeschool.dev", "password": "password123", "role": "coordinator" },
+      { "email": "head@safeschool.dev", "password": "password123", "role": "head_teacher" },
+      { "email": "senco@safeschool.dev", "password": "password123", "role": "senco" },
+      { "email": "support@safeschool.dev", "password": "password123", "role": "support_staff" }
+    ],
+    "parents": [
+      { "email": "parent.a@safeschool.dev", "password": "parent123", "childName": "Boy A" }
+    ]
+  },
+
+  "compliance_frameworks": [
+    {
+      "name": "LOPIVI",
+      "fullName": "Ley Orgánica de Protección Integral a la Infancia y la Adolescencia frente a la Violencia",
+      "description": "Spanish organic law for comprehensive child protection against violence"
+    },
+    {
+      "name": "Convivèxit",
+      "fullName": "Protocol de prevenció, detecció i intervenció de l'assetjament escolar",
+      "description": "Balearic Islands anti-bullying protocol for prevention, detection and intervention"
+    },
+    {
+      "name": "Machista Violence",
+      "fullName": "Protocol contra la violència masclista en l'àmbit educatiu",
+      "description": "Balearic Islands protocol against gender-based violence in educational settings"
+    }
+  ]
+}

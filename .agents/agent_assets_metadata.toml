@@ -6,3 +6,9 @@ id = "l_BoBrvgtbbEy8pe92VLl"
 uri = "file://safeschool-features-v0.2.0.json"
 type = "unspecified"
 title = "SafeSchool v0.2.0 — Complete Feature List"
+
+[[outputs]]
+id = "ILz7rYSUShn5NQbUW703l"
+uri = "file://safeschool-features.json"
+type = "unspecified"
+title = "SafeSchool v0.2.0 — Complete Feature Review JSON"
