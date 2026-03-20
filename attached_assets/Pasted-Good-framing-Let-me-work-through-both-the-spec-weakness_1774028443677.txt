@@ -1,0 +1,42 @@
+Good framing. Let me work through both — the spec weaknesses first, then what a pilot actually requires in practice.
+
+Weaknesses in the spec
+Authentication is the biggest risk for a pilot
+The pupil login model — school selector, name picker, 4-digit PIN — is fine in theory but fragile in a shared iPad environment with 44 children. A 4-digit PIN gives 10,000 combinations but in practice children will use 1234, 0000, or their birth year. More importantly, on a shared device a child can trivially scroll through the name list and log in as another child. There is no session isolation, no device binding, and no teacher-mediated login flow. For a safeguarding tool handling sensitive disclosures this is a serious vulnerability. You need either a teacher-issued single-use token per session, a QR code flow, or a supervised login model where a staff member initiates the session.
+The panic button needs a physical hardware consideration
+An in-app panic button only works if the child has the app open. In the scenarios that matter most — surrounded in the forest, cornered in a corridor — a child is unlikely to have a device in hand and unlocked. The spec does not address this. For the pilot you either scope the panic button as a desktop/classroom feature only, or you flag it clearly as a future mobile phase.
+No offline capability
+The spec does not mention offline support. Ibiza has good connectivity but school grounds — especially outdoor areas like the forest where the 12 March incident occurred — may have poor wifi. If the incident logging app requires a live connection it will fail at the worst moments. For the pilot this needs to be either scoped out explicitly or addressed with a queue-and-sync model.
+The pattern detection rules are not defined
+The spec names the features — repeat perpetrator detection, multi-victim alerts, welfare concern patterns — but does not define the trigger rules. How many incidents over what time period before an amber alert fires? What combination triggers red? Without these rules specified the feature cannot be built consistently. This was partially addressed in v0.1 (the 3-incidents-in-30-days rule) but v0.2 does not carry it forward. Werner needs a rules table before he can build this.
+Parent visibility toggle is under-specified
+The spec says staff can toggle parent visibility on incidents. But it does not define the default state, who can override it, or what happens when a parent submits a report about an incident the school has marked non-visible. In a safeguarding context the wrong default here has legal implications — LOPIVI requires parents to be notified when a protocol is opened. A visibility toggle that defaults to hidden could be used to circumvent that obligation.
+The interview management module is named but not designed
+Protocols include interview management as a sub-feature but there is no detail on what an interview record contains, who can create one, whether it requires a witness signature, or how it links to the protocol timeline. Under Convivèxit, interviews must be conducted by the same designated person, separately, in a defined order. The spec does not encode any of this. For compliance this needs a proper workflow, not just a record field.
+No data residency specification
+The spec names PostgreSQL and Replit but does not specify where data is hosted. LOPIVI and GDPR both require that personal data of minors is stored within the EU. Replit's default infrastructure may not guarantee EU hosting. This needs to be confirmed and documented before any pilot involving real children's data.
+The educational resource library is a placeholder
+It is listed as a feature with role-filtered content and topic categories but there is no content, no content management system, and no governance for who can add resources. For a pilot this can be deprioritised but should be explicitly scoped out rather than left as an empty feature.
+Seed credentials are production-visible
+The spec includes hardcoded seed credentials including passwords in plain text. These need to be removed from any document that goes outside the development team and replaced with an onboarding process.
+
+What you need to organise a pilot across two Year 6 classes, 44 pupils
+Data and legal
+A data processing agreement between the school and the company — required under GDPR before any personal data of children is processed. This needs to name the data controller (the school), the data processor (your company), specify what data is held, where it is stored, how long it is retained, and how it is deleted. Without this the pilot cannot legally start.
+A parental consent form for every one of the 44 pupils — active opt-in, not opt-out, because the data subjects are minors. The form needs to explain what the app does, what data is collected, who can see it, and how to withdraw consent. Allow two weeks for this process.
+A staff data processing notice for the teachers and coordinator involved.
+Confirmation of EU data residency for the Replit deployment.
+Technical
+A closed pilot environment — separate from any production instance, with seed data only, no real pupil names until consent is confirmed.
+A class list import process — you need a structured way to load the 44 pupil names, year group, class, and parent email addresses without manual entry errors.
+A PIN issuance process — either randomly generated PINs issued on paper to each child by the class teacher, or a supervised first-login flow where the teacher is present. The current spec does not have this.
+Device decision — shared iPads, personal devices, or classroom desktop? Each has different implications for the login model and session management. For 44 pupils across two classes the most practical pilot model is two or three shared iPads per class used for supervised reporting sessions, plus staff on their own devices.
+A testing week before go-live — Werner and Roy need to run the full flow with dummy accounts, test the pattern detection triggers, confirm the notification chain works, and verify the parent visibility defaults are correct.
+Operational
+One named coordinator at the school — Bernie has confirmed Fiona Robertson leads safeguarding. She needs a coordinator account, a training session covering the protocol management module, and a clear escalation contact at your end if anything goes wrong.
+A staff training session for the two class teachers — 45 minutes, covering incident logging, the behaviour tracker, and how to respond to a pupil panic button or chat request.
+A pupil introduction session — 20 minutes per class, age-appropriate, covering what the app is for, how to report, what happens when they do, and the avatar setup. This is important. If children do not trust the tool they will not use it.
+A parent information session or letter — explaining the app, what parents can see, what they cannot see, and how to access their parent account. Given the current climate at Morna this will be scrutinised closely. The letter needs to be clear that the school does not see the parent messaging thread unless the parent initiates contact.
+A pilot review date — agree with the school at the outset that you will review after six weeks. Collect: number of reports submitted, number of pattern alerts triggered, staff satisfaction with the interface, and at least one pupil focus group.
+MVP scope for the pilot
+Not everything in the spec needs to be live for the pilot to work and generate useful data. The features that matter most for the pilot are incident reporting, pattern detection, the coordinator protocol module, parent visibility of their child's reports, and the behaviour tracker. The features that can wait are the educational resource library, the full SENCO caseload tracker, the referral body directory, and the annex templates. The panic button should be included but scoped to classroom/supervised use only with a clear explanation to pupils.
