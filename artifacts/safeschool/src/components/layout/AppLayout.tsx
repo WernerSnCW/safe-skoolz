@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { 
   ShieldCheck, Home, AlertTriangle, FileText, Shield,
-  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge
+  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, GraduationCap
 } from "lucide-react";
 import { useListNotifications } from "@workspace/api-client-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,6 +32,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         ...base,
         { name: "Report Incident", href: "/report", icon: AlertTriangle },
         { name: "My Behaviour", href: "/behaviour", icon: Gauge },
+        { name: "Training", href: "/training", icon: GraduationCap },
         { name: "Learn", href: "/education", icon: BookOpen },
         { name: "My Settings", href: "/settings", icon: Settings },
       ];
@@ -44,6 +45,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: "Incidents", href: "/incidents", icon: FileText },
         { name: "Behaviour", href: "/behaviour", icon: Gauge },
         { name: "Messages", href: "/messages", icon: MessageCircle },
+        { name: "Training", href: "/training", icon: GraduationCap },
         { name: "Learn", href: "/education", icon: BookOpen },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
         { name: "Settings", href: "/settings", icon: Settings },
@@ -59,6 +61,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Incidents", href: "/incidents", icon: FileText },
         { name: "Alerts", href: "/alerts", icon: Activity },
+        { name: "Training", href: "/training", icon: GraduationCap },
         { name: "Learn", href: "/education", icon: BookOpen },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
         { name: "Settings", href: "/settings", icon: Settings },
@@ -72,6 +75,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: "Behaviour", href: "/behaviour", icon: Gauge },
         { name: "My Pupils", href: "/class", icon: Users },
         { name: "Messages", href: "/messages", icon: MessageCircle },
+        { name: "Training", href: "/training", icon: GraduationCap },
         { name: "Learn", href: "/education", icon: BookOpen },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
         { name: "Settings", href: "/settings", icon: Settings },
@@ -89,6 +93,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Protocols", href: "/protocols", icon: Shield },
         { name: "Alerts", href: "/alerts", icon: Activity },
+        { name: "Training", href: "/training", icon: GraduationCap },
         { name: "Learn", href: "/education", icon: BookOpen },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
         { name: "Settings", href: "/settings", icon: Settings },
@@ -105,6 +110,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       { name: "Messages", href: "/messages", icon: MessageCircle },
       { name: "Protocols", href: "/protocols", icon: Shield },
       { name: "Alerts", href: "/alerts", icon: Activity },
+      { name: "Training", href: "/training", icon: GraduationCap },
       { name: "Learn", href: "/education", icon: BookOpen },
       { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
       { name: "Settings", href: "/settings", icon: Settings },

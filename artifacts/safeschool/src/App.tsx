@@ -24,6 +24,7 @@ import Education from "@/pages/education";
 import MessagesPage from "@/pages/messages";
 import CaseloadPage from "@/pages/caseload";
 import BehaviourPage from "@/pages/behaviour";
+import TrainingPage from "@/pages/training";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -99,6 +100,9 @@ function Router() {
       </Route>
       <Route path="/behaviour">
         {() => <ProtectedRoute component={BehaviourPage} />}
+      </Route>
+      <Route path="/training">
+        {() => <ProtectedRoute component={TrainingPage} />}
       </Route>
       <Route path="/settings">
         {() => <ProtectedRoute component={Settings} />}
