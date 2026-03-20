@@ -333,4 +333,57 @@ router.get("/messages/conversations", authMiddleware, requireRole(...ALL_STAFF_R
   res.json(conversations);
 });
 
+router.get("/messages/child-alerts", authMiddleware, requireRole("parent"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+
+  const [parentRecord] = await db.select().from(usersTable).where(eq(usersTable.id, user.userId));
+  const childIds: string[] = parentRecord?.parentOf || [];
+
+  if (childIds.length === 0) {
+    res.json([]);
+    return;
+  }
+
+  const alerts = await db.select().from(messagesTable)
+    .where(
+      and(
+        eq(messagesTable.schoolId, user.schoolId),
+        inArray(messagesTable.senderId, childIds),
+        eq(messagesTable.type, "urgent_help"),
+      )
+    )
+    .orderBy(desc(messagesTable.createdAt))
+    .limit(50);
+
+  const userIds = new Set<string>();
+  for (const m of alerts) {
+    userIds.add(m.senderId);
+    userIds.add(m.recipientId);
+  }
+
+  let userMap: Record<string, { firstName: string; lastName: string; role: string | null }> = {};
+  if (userIds.size > 0) {
+    const users = await db.select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      role: usersTable.role,
+    }).from(usersTable).where(inArray(usersTable.id, [...userIds]));
+    for (const u of users) userMap[u.id] = { firstName: u.firstName, lastName: u.lastName, role: u.role };
+  }
+
+  const result = alerts.map(m => ({
+    id: m.id,
+    childName: userMap[m.senderId] ? `${userMap[m.senderId].firstName} ${userMap[m.senderId].lastName}` : "Your child",
+    recipientName: userMap[m.recipientId] ? `${userMap[m.recipientId].firstName} ${userMap[m.recipientId].lastName}` : "Staff member",
+    recipientRole: userMap[m.recipientId]?.role || null,
+    body: m.body,
+    location: m.location,
+    createdAt: m.createdAt.toISOString(),
+    readAt: m.readAt ? m.readAt.toISOString() : null,
+  }));
+
+  res.json(result);
+});
+
 export default router;

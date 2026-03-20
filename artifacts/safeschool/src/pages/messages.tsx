@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
-import { MessageCircle, Send, ArrowLeft, Zap, AlertTriangle, MapPin, Clock, UserPlus } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, Zap, AlertTriangle, MapPin, Clock, UserPlus, ShieldAlert, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
 
@@ -300,6 +300,99 @@ function NewParentMessage({ onStartConversation }: { onStartConversation: (conta
   );
 }
 
+function ChildEmergencyAlerts() {
+  const [expanded, setExpanded] = useState(true);
+
+  const { data: alerts, isLoading } = useQuery<any[]>({
+    queryKey: ["/api/messages/child-alerts"],
+    queryFn: async () => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch("/api/messages/child-alerts", { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+
+  if (isLoading || !alerts || alerts.length === 0) return null;
+
+  const roleLabels: Record<string, string> = {
+    teacher: "Teacher",
+    head_of_year: "Head of Year",
+    senco: "SENCO",
+    coordinator: "Safeguarding Coordinator",
+    head_teacher: "Head Teacher",
+    support_staff: "Support Staff",
+  };
+
+  const formatDateTime = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) + " at " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  };
+
+  return (
+    <Card className="border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 mb-6">
+      <CardHeader className="border-b border-red-200/50 dark:border-red-800/50 bg-red-50 dark:bg-red-950/30 pb-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg flex items-center gap-2 text-red-700 dark:text-red-400">
+            <ShieldAlert size={20} />
+            Emergency Alerts ({alerts.length})
+          </CardTitle>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 dark:text-red-400">
+            {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </Button>
+        </div>
+        <p className="text-sm text-red-600/80 dark:text-red-400/80 mt-1">
+          Urgent help requests your child has sent to school staff
+        </p>
+      </CardHeader>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <CardContent className="p-4 space-y-3">
+              {alerts.map((alert: any) => (
+                <div
+                  key={alert.id}
+                  className="bg-white dark:bg-gray-900 border border-red-200/50 dark:border-red-800/30 rounded-xl p-4 space-y-2"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-red-100 dark:bg-red-950/50 rounded-full flex items-center justify-center">
+                        <Zap size={14} className="text-red-600 dark:text-red-400" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">{alert.childName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Sent to {alert.recipientName}{alert.recipientRole ? ` (${roleLabels[alert.recipientRole] || alert.recipientRole})` : ""}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">{formatDateTime(alert.createdAt)}</span>
+                  </div>
+                  <p className="text-sm bg-red-50 dark:bg-red-950/20 rounded-lg p-3 text-red-800 dark:text-red-200 border border-red-100 dark:border-red-900/50">
+                    "{alert.body}"
+                  </p>
+                  {alert.location && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <MapPin size={12} />
+                      <span className="capitalize">{alert.location.replace(/_/g, " ")}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Card>
+  );
+}
+
 export default function MessagesPage() {
   const { user } = useAuth();
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
@@ -329,6 +422,8 @@ export default function MessagesPage() {
           <NewParentMessage onStartConversation={(contactId) => setSelectedContactId(contactId)} />
         )}
       </div>
+
+      {isParent && <ChildEmergencyAlerts />}
 
       <Card className="overflow-hidden">
         <div className="flex h-[600px]">
