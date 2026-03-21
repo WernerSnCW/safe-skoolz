@@ -17,3 +17,4 @@ export * from "./pta";
 export * from "./newsletter";
 export * from "./diagnostics";
 export * from "./diary";
+export * from "./teacherPosts";

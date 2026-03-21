@@ -31,6 +31,7 @@ import NewsletterSignUp from "@/pages/newsletter";
 import Diagnostics from "@/pages/diagnostics";
 import DiagnosticsResults from "@/pages/diagnostics-results";
 import DiaryPage from "@/pages/diary";
+import LearningsPage from "@/pages/learnings";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -119,6 +120,9 @@ function Router() {
       </Route>
       <Route path="/diary">
         {() => <ProtectedRoute component={DiaryPage} />}
+      </Route>
+      <Route path="/learnings">
+        {() => <ProtectedRoute component={LearningsPage} />}
       </Route>
       <Route path="/diagnostics">
         {() => <ProtectedRoute component={Diagnostics} />}
