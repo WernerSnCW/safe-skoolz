@@ -10,31 +10,18 @@ const ALL_STAFF_ROLES = ["teacher", "head_of_year", "coordinator", "head_teacher
 
 const router: IRouter = Router();
 
-router.get("/schools", authMiddleware, async (_req, res): Promise<void> => {
+router.get("/schools", async (_req, res): Promise<void> => {
   const schools = await db.select().from(schoolsTable).where(eq(schoolsTable.active, true));
   res.json(
     schools.map((s) => ({
       id: s.id,
       name: s.name,
-      legalEntity: s.legalEntity,
-      cif: s.cif,
-      address: s.address,
-      country: s.country,
-      region: s.region,
-      active: s.active,
     }))
   );
 });
 
-router.get("/schools/:schoolId/pupils", authMiddleware, async (req, res): Promise<void> => {
-  const user = (req as any).user as JwtPayload;
+router.get("/schools/:schoolId/pupils", async (req, res): Promise<void> => {
   const schoolId = Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId;
-
-  if (user.schoolId !== schoolId) {
-    res.status(403).json({ error: "Access denied: cross-school access not permitted" });
-    return;
-  }
-
   const className = req.query.className as string | undefined;
 
   let conditions: any[] = [eq(usersTable.schoolId, schoolId), eq(usersTable.role, "pupil"), eq(usersTable.active, true)];

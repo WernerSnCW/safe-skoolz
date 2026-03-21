@@ -6,9 +6,12 @@ import {
   ptaPolicyAcknowledgementsTable, ptaCodesignResponsesTable, ptaAnnualReportsTable,
 } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { ptaPiiMiddleware } from "../lib/ptaPiiMiddleware";
 import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
+
+router.use("/pta", authMiddleware, ptaPiiMiddleware);
 
 router.get("/pta/dashboard", authMiddleware, requireRole("pta"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;

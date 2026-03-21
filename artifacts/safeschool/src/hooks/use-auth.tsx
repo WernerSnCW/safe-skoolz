@@ -1,5 +1,8 @@
-import { createContext, useContext, ReactNode, useState, useEffect } from "react";
+import { createContext, useContext, ReactNode, useState, useEffect, useCallback, useRef } from "react";
 import { useGetCurrentUser, User, usePupilLogin, useStaffLogin, useParentLogin } from "@workspace/api-client-react";
+
+const PUPIL_INACTIVITY_TIMEOUT_MS = 90 * 1000;
+const ACTIVITY_EVENTS = ["mousedown", "mousemove", "keydown", "touchstart", "scroll"] as const;
 
 interface AuthContextType {
   user: User | null;
@@ -13,36 +16,64 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState<string | null>(() => localStorage.getItem("safeschool_token"));
+  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Store token in localStorage and update state
   const setToken = (newToken: string) => {
     localStorage.setItem("safeschool_token", newToken);
     setTokenState(newToken);
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("safeschool_token");
     setTokenState(null);
+    if (inactivityTimer.current) {
+      clearTimeout(inactivityTimer.current);
+      inactivityTimer.current = null;
+    }
     window.location.href = "/login";
-  };
+  }, []);
 
-  // We only fetch the current user if we have a token
   const { data: user, isLoading: isUserLoading, isError } = useGetCurrentUser({
     query: {
       enabled: !!token,
       retry: false,
     },
-    // Mock passing the token to customFetch via headers if supported, 
-    // but typically customFetch reads localStorage directly.
     request: { headers: { Authorization: `Bearer ${token}` } } as any 
   });
 
   useEffect(() => {
     if (isError) {
-      // Token might be invalid or expired
       logout();
     }
   }, [isError]);
+
+  useEffect(() => {
+    if (!user || user.role !== "pupil") return;
+
+    const resetTimer = () => {
+      if (inactivityTimer.current) {
+        clearTimeout(inactivityTimer.current);
+      }
+      inactivityTimer.current = setTimeout(() => {
+        logout();
+      }, PUPIL_INACTIVITY_TIMEOUT_MS);
+    };
+
+    resetTimer();
+
+    for (const event of ACTIVITY_EVENTS) {
+      window.addEventListener(event, resetTimer, { passive: true });
+    }
+
+    return () => {
+      if (inactivityTimer.current) {
+        clearTimeout(inactivityTimer.current);
+      }
+      for (const event of ACTIVITY_EVENTS) {
+        window.removeEventListener(event, resetTimer);
+      }
+    };
+  }, [user, logout]);
 
   return (
     <AuthContext.Provider

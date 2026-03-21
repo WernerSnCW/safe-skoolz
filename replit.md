@@ -132,3 +132,38 @@ The following 15 priority fixes from the CRAFT review have been implemented:
 **Architecture (T011):**
 - Dashboard split from 1857-line monolith into 4 sub-components: PupilDashboard, CoordinatorDashboard, TeacherDashboard, ParentDashboard
 - Main dashboard.tsx reduced to ~40-line role router
+
+## Spec Compliance Enhancements (Post-CRAFT)
+
+**Pattern Detection — All 6 Rules (spec-complete):**
+- `sexual_any` — Red alert on any sexual/sexualised category, notifies coordinator + head_teacher
+- `same_victim_3_incidents` — Amber alert for 3+ incidents same victim in 30 days
+- `same_pair_escalating` — Red alert if 3+ incidents across 2+ categories
+- `group_targeting` — Red alert for same victim targeted by 3+ distinct perpetrators in 14 days
+- `location_hotspot` — Amber alert for 3+ incidents at same location in 14 days
+- `repeat_perpetrator` — Amber alert for 3+ incidents by same perpetrator in 30 days
+- `emotional_distress_pattern` — Amber alert for 3+ distress reports in 30 days, notifies coordinator + SENCO
+- Scheduled cron scan runs every 60 minutes across all schools
+- Alert deduplication: `createAlert()` checks for existing open alerts with same rule + school + victim before inserting; notifications only sent for new alerts (idempotent)
+
+**Pupil Session Timeout (90 seconds):**
+- Inactivity auto-logout for pupil role only (mousedown, mousemove, keydown, touchstart, scroll events)
+- Non-pupil roles unaffected (no timeout)
+- Implemented in AuthProvider via useEffect with cleanup
+
+**Schools/Pupils Endpoints — Public for Login:**
+- `GET /schools` returns only id + name (minimal data for login selector)
+- `GET /schools/:schoolId/pupils` returns truncated names for pupil login name picker
+- No sensitive fields (email, address, CIF, legal entity) exposed on public endpoints
+
+**PTA PII Middleware:**
+- Dedicated `ptaPiiMiddleware.ts` intercepts all `/pta/*` responses for PTA role users
+- Comprehensive PII field set (40+ fields): names, emails, IDs, phone, address, DOB, victim/perpetrator/witness identifiers
+- Applied as Express middleware on the PTA route group — defense-in-depth alongside query-level anonymisation
+- Recursively strips PII from nested objects and arrays
+
+**Audit Log Immutability:**
+- PostgreSQL BEFORE trigger `audit_log_no_update` blocks all UPDATE and DELETE on audit_log table
+- Raises exception: "audit_log is append-only: UPDATE and DELETE operations are not permitted"
+- Database-level enforcement — cannot be bypassed by application code
+- Trigger auto-applied on API server startup via `ensureAuditLogImmutability()` in index.ts
