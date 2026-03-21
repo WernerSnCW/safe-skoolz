@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { usePupilLogin, useStaffLogin, useParentLogin, useListSchools, useListPupilsBySchool } from "@workspace/api-client-react";
 import { Button, Input, Label, Card, CardContent } from "@/components/ui-polished";
@@ -345,9 +345,16 @@ export default function Login() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Protected by SafeSchool. Your reports are confidential.
-        </p>
+        <div className="text-center mt-6 space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Protected by SafeSchool. Your reports are confidential.
+          </p>
+          <p className="text-sm">
+            <Link href="/newsletter" className="text-primary hover:underline font-medium">
+              Schools & authorities — register your interest
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

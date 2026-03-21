@@ -27,6 +27,7 @@ import CaseloadPage from "@/pages/caseload";
 import BehaviourPage from "@/pages/behaviour";
 import TrainingPage from "@/pages/training";
 import PtaPortal from "@/pages/pta";
+import NewsletterSignUp from "@/pages/newsletter";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
+      <Route path="/newsletter" component={NewsletterSignUp} />
       <Route path="/">
         {() => <ProtectedRoute component={Dashboard} />}
       </Route>

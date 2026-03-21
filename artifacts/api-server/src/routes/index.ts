@@ -15,10 +15,12 @@ import messagesRouter from "./messages";
 import sencoRouter from "./senco";
 import behaviourRouter from "./behaviour";
 import ptaRouter from "./pta";
+import newsletterRouter from "./newsletter";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(newsletterRouter);
 router.use(authRouter);
 router.use(schoolsRouter);
 router.use(incidentsRouter);
