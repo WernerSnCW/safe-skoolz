@@ -1,0 +1,625 @@
+# SafeSchool — Full Product Specification v0.3
+> Paste this file into Replit as the authoritative product spec. All features, roles, API routes, database tables, and compliance frameworks are defined here.
+
+---
+
+## Overview
+
+**SafeSchool** is a multi-role safeguarding and incident reporting platform built for international and private schools operating under Spanish/Balearic Islands child protection legislation. It was developed in response to real safeguarding failures at Morna International College, Ibiza.
+
+- **Version:** 0.3.0
+- **Compliance:** LOPIVI (Ley Orgánica 8/2021), Convivèxit (Balearic anti-bullying protocol), Machista Violence Protocol (Balearic, 2022)
+- **Stack:** React + Vite + TypeScript + TailwindCSS + shadcn/ui + Framer Motion + Recharts (frontend) / Express.js + TypeScript / PostgreSQL + Drizzle ORM / JWT + bcrypt / pnpm workspaces
+
+---
+
+## What's New in v0.3
+
+- **PTA role** added as a full user role with its own portal, dashboard, governance tools, and onboarding flow
+- **PTA onboarding module** added to the White Glove implementation workflow
+- **PTA portal** with anonymised school-wide safeguarding health dashboard, annual report generation, and coordinator communication channel
+- **PTA co-design workshop** tooling for pre-launch configuration input
+- **PTA governance** — formal annual review, anonymised trend data, policy acknowledgement trail
+
+---
+
+## Roles
+
+### 1. Pupil
+- **Login:** School selector → name picker → 4-digit PIN
+- **Capabilities:**
+  - Report incidents via child-friendly form with emotion picker
+  - Send messages to safe contacts (trusted adults)
+  - Send urgent help / panic button alerts
+  - Request a face-to-face chat with a trusted adult
+  - View own behaviour record and escalation ladder
+  - Browse educational safeguarding content
+  - Customise animal avatar (12 options) or face builder
+
+### 2. Parent / Carer
+- **Login:** Email + password
+- **Capabilities:**
+  - View child's incident reports (full detail, parent-visible only)
+  - View child's behaviour standing (points, level, progress bar)
+  - See child's urgent help alerts sent to staff
+  - Report concerns on behalf of their child
+  - Message staff directly (teachers, SENCO, coordinator, head)
+  - View parent dashboard with trend analytics
+  - View school overview (safeguarding info, staffing)
+  - Browse educational resources for parents
+  - Receive in-app notifications
+
+### 3. PTA (Parent Teacher Association)
+- **Login:** Email + password (PTA chair and nominated PTA members)
+- **Access scope:** Anonymised, aggregated school-wide data only. No individual pupil records. No personally identifiable information.
+- **Capabilities:**
+  - View PTA safeguarding health dashboard (anonymised school-wide KPIs)
+  - View monthly and termly trend charts (incident volumes by category, behaviour levels, protocol status)
+  - Access and download the anonymised annual safeguarding report
+  - Send and receive messages in the PTA–coordinator communication channel
+  - View and acknowledge the school's safeguarding policy commitments (zero tolerance framework, escalation ladder)
+  - View the school's formal protocol count (open / closed / overdue) without case detail
+  - Submit PTA observations or concerns to the coordinator via a structured form
+  - Access the PTA onboarding co-design workspace during implementation phase
+  - View the PTA resource library (LOPIVI guides, rights documents, template letters)
+
+> **Privacy note:** The PTA role has zero access to individual pupil records, incident details, parent communications, or any personally identifiable data. All dashboard data is aggregated and anonymised. This must be enforced at the API layer, not just the UI layer.
+
+### 4. Teacher
+- **Login:** Email + password
+- **Capabilities:**
+  - Log professional incident reports
+  - View and assess incidents involving class pupils
+  - Issue behaviour points to pupils
+  - View class pupil list with incident/behaviour data
+  - Reply to pupil messages and urgent help requests
+  - View pattern alerts relevant to their pupils
+  - View teacher analytics (location charts, type charts, trends)
+  - Access alert-linked incidents outside normal scope
+
+### 5. Head of Year
+- **Login:** Email + password
+- **Capabilities:** All teacher capabilities plus:
+  - View incidents across entire year group
+  - View all pupils in year group
+  - Broader pattern alert access
+
+### 6. Safeguarding Coordinator
+- **Login:** Email + password
+- **Capabilities:**
+  - Full school-wide incident oversight
+  - Manage formal protocols (Convivèxit, LOPIVI, Machista Violence)
+  - Conduct and record interviews
+  - Manage case tasks
+  - View KPI dashboard with school-wide analytics
+  - Manage pattern alerts (acknowledge, dismiss, escalate)
+  - Manage delegated roles
+  - Manage annex templates and referral bodies
+  - Change incident status (open → under review → investigating → escalated → resolved → closed)
+  - View audit log
+  - Communicate with PTA chair via PTA–coordinator channel
+  - Generate anonymised annual safeguarding report for PTA
+
+### 7. Head Teacher
+- **Login:** Email + password
+- **Capabilities:** All coordinator capabilities plus:
+  - External referral management
+  - Governance oversight
+  - Delegated role management
+
+### 8. SENCO
+- **Login:** Email + password
+- **Capabilities:**
+  - All coordinator-level incident/protocol access
+  - Manage SENCO caseload (add/remove pupils)
+  - Track pupil progress with observation forms (feelings, attitudes, notes, ratings 1–5)
+  - View tracking history timeline per pupil
+  - Search and add pupils to caseload
+
+### 9. Support Staff
+- **Login:** Email + password
+- **Capabilities:**
+  - Log incidents
+  - View assigned pupil information
+  - Communicate with pupils via messaging
+  - Issue behaviour points
+
+---
+
+## Features
+
+### Incident Reporting & Management
+Dual-mode incident reporting with child-friendly and professional forms, 3-tier escalation, and full lifecycle management.
+
+- **Child-Friendly Report Form:** Emotion picker (7 emotions), visual location selector, Unknown Person Builder for describing unidentified individuals, anonymous reporting option
+- **Professional Staff Report Form:** Detailed logging with categories, victim/perpetrator selection, witness tracking, immediate action fields
+- **Automatic Escalation:** Tier 1 (Monitor), Tier 2 (Review within 24h), Tier 3 (Immediate response). Auto-detects safeguarding triggers including any sexual category
+- **Incident Assessment:** Staff add internal notes, witness statements, parent summary, mark as added to pupil file, toggle parent visibility
+- **Status Lifecycle:** submitted → open → under_review → investigating → escalated → resolved → closed
+- **Parent Incident View:** Full report for parents, status card, school response section. Other children shown as "Another pupil"
+
+### Protocol Management
+Structured workflows for all three Balearic Islands safeguarding frameworks.
+
+- **Convivèxit Protocol:** Anti-bullying with structured phases, risk assessment, intervention tracking
+- **LOPIVI Protocol:** General child protection compliant with Spanish organic law
+- **Machista Violence Protocol:** Gender-based violence with specific reporting requirements
+- **Interview Management:** Record and manage interviews linked to protocols. Interviews must be conducted by the same designated person, separately, in defined order per Convivèxit requirements
+- **Case Tasks:** Create and track action items linked to protocols
+- **Annex Templates:** Pre-built compliance document templates per framework
+- **Risk Assessment:** Structured risk evaluation within protocol workflows
+
+### Pattern Detection & Alerts
+Automated system-generated alerts when concerning patterns are detected.
+
+**Alert rules (must be hard-coded, not configurable):**
+- `same_victim_3_incidents`: Same child named as victim 3+ times in 30 days → Amber alert
+- `sexual_any`: Any incident with sexual category → Red alert, immediate coordinator + head notification
+- `group_targeting`: Same victim in incidents involving 3+ different perpetrators in 14 days → Red alert
+- `location_hotspot`: 3+ incidents at same location in 14 days → Amber alert to duty coordinator
+- `repeat_perpetrator`: Same child named as perpetrator 3+ times in 30 days → Amber alert
+- `emotional_distress_pattern`: Same child submits 3+ distress-state reports (Scared/Sad/Worried) in 30 days → Amber alert to coordinator + SENCO
+
+Alert severity levels: Amber (review required) and Red (immediate response required).
+
+### Safe Messaging System
+Secure, role-appropriate communication between all users.
+
+- **Pupil-to-Staff:** Pupils message safe contacts (trusted adults). Form tutor shown first
+- **Panic Button / Urgent Help:** One-tap with location. Immediate staff notification. Creates in-app alert and notification
+- **Chat Request:** Pupils request face-to-face with trusted adult
+- **Parent-to-Staff:** Parents message teachers, SENCO, coordinator, head. Child's teacher shown first
+- **Parent Emergency Alerts:** Parents see all urgent help messages their child has sent to staff
+- **PTA–Coordinator Channel:** Dedicated secure channel between PTA chair/members and coordinator. Separate from parent messaging. Visible to coordinator and head only on school side
+- **Conversation Threads:** Threaded with read receipts and unread counts
+- **Priority System:** Normal, important, urgent with visual indicators
+
+### PTA Portal
+> New in v0.3. All data served to the PTA portal must be anonymised and aggregated at the API layer before transmission. No raw pupil or incident records are exposed.
+
+**PTA Dashboard — Safeguarding Health:**
+- Total incidents this term vs last term (count only, no detail)
+- Breakdown by category (Physical / Verbal / Psychological / Sexual / Relational / Coercive / Property / Online) — counts only
+- Behaviour level distribution across school — how many pupils at each of the 7 levels (no names)
+- Open protocols count — total open, total closed this term, total overdue
+- Pattern alerts count — total amber, total red, total resolved this term
+- Monthly trend line chart — incident volume over rolling 12 months
+
+**PTA Annual Report:**
+- Auto-generated from platform data at the end of each academic year
+- Covers: incident counts by category and term, protocol outcomes (opened/closed/referred), behaviour level changes across cohort, pattern alert summary, policy commitments status
+- Downloadable as PDF
+- Coordinator reviews and approves before PTA can access
+- Once approved, PTA chair can download and distribute to PTA membership
+
+**PTA–Coordinator Communication:**
+- Threaded message channel between PTA chair (and nominated PTA members) and the school coordinator
+- PTA can submit structured concern forms (category: policy, incident pattern, communication, resources, other) — these go to the coordinator as a formal record
+- Coordinator can send policy updates, framework changes, and safeguarding news to all PTA members via this channel
+
+**PTA Policy Acknowledgement:**
+- PTA chair can view the school's current zero tolerance policy and behaviour framework
+- Coordinator marks policy as published; PTA chair acknowledges receipt — creates an audit trail entry
+- PTA chair can flag disagreement with the published policy — this creates a formal record visible to coordinator and head
+
+**PTA Co-Design Workspace (implementation phase only):**
+- Activated during White Glove onboarding, deactivated after go-live
+- PTA representatives complete a structured preference form: preferred parent notification language, dashboard layout preferences, which incident categories should generate parent alerts, parent information evening format
+- Responses fed into coordinator's configuration checklist
+- Workspace archived (read-only) after go-live as a record of PTA input
+
+**PTA Resource Library:**
+- LOPIVI plain English guide (what the law requires)
+- Convivèxit parent guide (what happens when a protocol is opened)
+- Template letter: requesting coordinator identification from headteacher
+- Template letter: requesting subject access information about your child
+- Template letter: requesting a formal written safeguarding response
+- PTA rights checklist: what the PTA is entitled to ask for
+- Annual report template (blank, for PTAs without SafeSchool)
+
+### Behaviour Escalation Tracker
+Points-based system with 7 escalation levels.
+
+| Level | Name | Points |
+|-------|------|--------|
+| 1 | Good Standing | 0–3 |
+| 2 | Warning | 4–6 |
+| 3 | Formal Warning | 7–9 |
+| 4 | Suspension Risk | 10–14 |
+| 5 | Suspended | 15–19 |
+| 6 | Term Exclusion | 20–24 |
+| 7 | Full Exclusion | 25+ |
+
+Point categories: disruption, bullying, physical, verbal, attendance, online, other.
+Staff issue points with category, value, and mandatory note.
+Pupil view: visual gauge, escalation ladder, point history.
+Parent view: colour-coded card with progress bar on dashboard + full record.
+Staff view: school-wide list, search, issue points dialog.
+
+### SENCO Caseload Tracker
+- Add/remove pupils to caseload with reason and priority
+- Observation forms: progress, feelings, attitudes, notes, 1–5 visual rating scales
+- Tracking timeline: chronological history per pupil
+- Expandable pupil cards with quick access to history and new observation entry
+
+### Dashboards & Analytics
+
+| Role | Dashboard content |
+|------|-------------------|
+| Coordinator / Head | School-wide KPIs, incident stats, active alerts, protocol status, trend charts |
+| Teacher | Class overview, recent incidents, location analytics (bar), type distribution (bar), monthly trend (line) |
+| SENCO | Caseload summary, welfare alerts, protocol involvement |
+| Parent | Child behaviour card, incident stats, monthly trend, category breakdown, notification count, school overview |
+| Pupil | Quick report, urgent help, chat request, safe contacts |
+| **PTA** | **Anonymised school-wide KPIs, trend charts, protocol counts, annual report access** |
+
+### Notifications
+Auto-generated for: new incidents, urgent help requests, chat requests, tier escalations, protocol updates, parent messages, PTA concern submissions (to coordinator).
+Users can acknowledge/dismiss. Badge count in sidebar.
+
+### Educational Resource Library
+Role-filtered content (pupil / parent / staff / PTA). Resources organised by safeguarding topic.
+
+### Compliance & Governance
+- Delegated roles (LOPIVI delegate and other statutory assignments)
+- Annex templates per framework
+- Referral body directory: IB Dona, Fiscalía de Menores, IMAS, Conselleria d'Educació, Education Inspectorate, Policia Nacional
+- Audit log — append-only, no UPDATE or DELETE permitted
+- PTA policy acknowledgement trail
+
+---
+
+## Pages / Routes
+
+| Path | Name | Description |
+|------|------|-------------|
+| `/` | Login / Dashboard | Multi-tab login (Pupil/Staff/Parent/PTA) or role-specific dashboard when authenticated |
+| `/report` | Report Incident | Child-friendly or professional form depending on role |
+| `/incidents` | Incidents List | Searchable, filterable. Parents see child's incidents. PTA has no access |
+| `/incidents/:id` | Incident Detail | Full view with assessment tools (staff) or parent report. PTA has no access |
+| `/protocols` | Protocols | Coordinator/Head/SENCO only |
+| `/protocols/new` | New Protocol | Create Convivèxit / LOPIVI / Machista Violence protocol |
+| `/protocols/:id` | Protocol Detail | Phases, interviews, risk assessment, case tasks |
+| `/alerts` | Pattern Alerts | System-generated alerts with linked incidents |
+| `/messages` | Messages | Threaded inbox. Parents see child emergency alerts section |
+| `/notifications` | Notifications | In-app notification centre |
+| `/class` | My Class / All Pupils | Scoped by role |
+| `/behaviour` | Behaviour | Pupil gauge, parent record, staff overview |
+| `/caseload` | SENCO Caseload | SENCO only |
+| `/education` | Learn | Educational resources |
+| `/pta` | PTA Portal | PTA role only. Anonymised dashboard, annual report, coordinator channel, co-design workspace, resource library |
+| `/pta/dashboard` | PTA Dashboard | Safeguarding health KPIs |
+| `/pta/report` | PTA Annual Report | View, approve (coordinator), download |
+| `/pta/messages` | PTA–Coordinator Channel | Dedicated channel |
+| `/pta/policy` | Policy Acknowledgement | View and acknowledge school policy |
+| `/pta/codesign` | Co-Design Workspace | Implementation phase only |
+| `/pta/resources` | PTA Resource Library | Template letters, guides, checklists |
+| `/settings` | Settings | Profile and avatar management |
+
+---
+
+## API Routes
+
+### Auth
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| POST | `/api/auth/pupil/login` | public | Pupil login with school ID, user ID, PIN |
+| POST | `/api/auth/staff/login` | public | Staff login with email + password |
+| POST | `/api/auth/parent/login` | public | Parent login with email + password |
+| POST | `/api/auth/pta/login` | public | PTA login with email + password |
+| GET | `/api/auth/me` | authenticated | Get current user profile |
+| PATCH | `/api/auth/profile` | authenticated | Update profile (avatar, preferences) |
+
+### Incidents
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/incidents` | coordinator, head_teacher, senco, head_of_year, teacher, parent | List incidents (scoped by role) |
+| POST | `/api/incidents` | authenticated (not pta) | Create incident report |
+| GET | `/api/incidents/:id` | authenticated (not pta) | Get incident detail |
+| PATCH | `/api/incidents/:id/status` | coordinator, head_teacher, senco | Update status |
+| PATCH | `/api/incidents/:id/assess` | coordinator, head_teacher, senco, teacher, head_of_year | Add assessment |
+
+### Protocols
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/protocols` | coordinator, head_teacher, senco | List protocols |
+| POST | `/api/protocols` | coordinator, head_teacher, senco | Create protocol |
+| GET | `/api/protocols/:id` | coordinator, head_teacher, senco | Protocol detail |
+| PATCH | `/api/protocols/:id` | coordinator, head_teacher, senco | Update protocol |
+
+### Messages
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/messages` | authenticated | List messages |
+| POST | `/api/messages` | authenticated | Send message |
+| GET | `/api/messages/conversations` | staff, parent, pta | List threads with unread counts |
+| PATCH | `/api/messages/:id/read` | authenticated | Mark read |
+| GET | `/api/messages/child-alerts` | parent | Child's urgent help messages |
+| GET | `/api/safe-contacts` | pupil | Safe adults for pupil messaging |
+| GET | `/api/parent-contacts` | parent | Staff contacts for parent messaging |
+| GET | `/api/pta/messages` | pta, coordinator, head_teacher | PTA–coordinator channel messages |
+| POST | `/api/pta/messages` | pta, coordinator, head_teacher | Send PTA–coordinator message |
+
+### Alerts
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/alerts` | coordinator, head_teacher, teacher, head_of_year, senco | List pattern alerts |
+| PATCH | `/api/alerts/:id` | coordinator | Acknowledge / dismiss / escalate |
+
+### Behaviour
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/behaviour/levels` | public | All 7 escalation levels |
+| GET | `/api/behaviour/pupil/:pupilId` | authenticated (not pta) | Pupil behaviour record |
+| GET | `/api/behaviour/summary` | staff | School-wide behaviour summary |
+| POST | `/api/behaviour/points` | staff | Issue behaviour points |
+| GET | `/api/behaviour/my-record` | pupil | Own behaviour record |
+
+### SENCO
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/senco/caseload` | senco | Caseload pupils |
+| POST | `/api/senco/caseload` | senco | Add pupil |
+| DELETE | `/api/senco/caseload/:id` | senco | Remove pupil |
+| GET | `/api/senco/caseload/:id/tracking` | senco | Tracking history |
+| POST | `/api/senco/caseload/:id/tracking` | senco | Add observation |
+| GET | `/api/senco/pupils-available` | senco | Search pupils not on caseload |
+
+### Dashboards & Analytics
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/dashboard/coordinator` | coordinator, head_teacher, senco | KPI dashboard |
+| GET | `/api/dashboard/analytics` | coordinator, head_teacher, senco | School-wide analytics |
+| GET | `/api/dashboard/teacher-analytics` | teacher, head_of_year, support_staff | Class/year analytics |
+| GET | `/api/dashboard/parent` | parent | Parent dashboard data |
+| GET | `/api/dashboard/child/:id` | coordinator, senco | Individual child profile |
+| GET | `/api/dashboard/school-overview` | parent | School safeguarding overview |
+| GET | `/api/dashboard/pta` | pta | **Anonymised school-wide KPIs for PTA** |
+
+### PTA Portal
+> All PTA API routes must return anonymised, aggregated data only. Server must strip all PII before responding. These constraints must be enforced in middleware, not just route handlers.
+
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/pta/dashboard` | pta | Anonymised safeguarding health KPIs and trend data |
+| GET | `/api/pta/report/latest` | pta | Latest approved annual report |
+| GET | `/api/pta/report/generate` | coordinator, head_teacher | Generate draft annual report |
+| POST | `/api/pta/report/approve` | coordinator, head_teacher | Approve report for PTA access |
+| GET | `/api/pta/policy` | pta, coordinator, head_teacher | Current policy commitments |
+| POST | `/api/pta/policy/acknowledge` | pta | Record PTA acknowledgement |
+| POST | `/api/pta/policy/flag` | pta | Raise formal disagreement with policy |
+| GET | `/api/pta/codesign` | pta, coordinator | Co-design workspace (active during onboarding) |
+| POST | `/api/pta/codesign/response` | pta | Submit co-design preferences |
+| GET | `/api/pta/concerns` | coordinator, head_teacher | List PTA-submitted concerns |
+| POST | `/api/pta/concerns` | pta | Submit structured concern to coordinator |
+| GET | `/api/pta/resources` | pta | PTA resource library documents |
+
+### Notifications
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/notifications` | authenticated | List notifications |
+| PATCH | `/api/notifications/:id/acknowledge` | authenticated | Acknowledge notification |
+
+### Compliance
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/delegated-roles` | coordinator, head_teacher | List delegated roles |
+| POST | `/api/delegated-roles` | coordinator, head_teacher | Assign role |
+| PATCH | `/api/delegated-roles/:id/revoke` | coordinator, head_teacher | Revoke role |
+| GET | `/api/annex-templates` | authenticated | List templates |
+| GET | `/api/annex-templates/:framework` | authenticated | Templates by framework |
+| POST | `/api/annex-templates` | coordinator, head_teacher | Create template |
+| GET | `/api/referral-bodies` | authenticated | List referral bodies |
+| POST | `/api/referral-bodies` | coordinator, head_teacher | Add referral body |
+| PATCH | `/api/referral-bodies/:id` | coordinator, head_teacher | Update referral body |
+| GET | `/api/audit-log` | coordinator, head_teacher | View audit log |
+
+### Case Tasks
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/case-tasks` | coordinator, head_teacher, senco | List tasks |
+| POST | `/api/case-tasks` | coordinator, head_teacher, senco | Create task |
+| PATCH | `/api/case-tasks/:id` | coordinator, head_teacher, senco | Update task |
+
+### Schools & Users
+| Method | Path | Roles | Description |
+|--------|------|-------|-------------|
+| GET | `/api/schools` | public | List schools |
+| GET | `/api/schools/:id/pupils` | public | Pupil list for login selector |
+| GET | `/api/my-pupils` | staff | Assigned pupils |
+| GET | `/api/schools/:id/staff` | coordinator, head_teacher | All staff |
+| POST | `/api/users/:id/avatar` | authenticated | Update avatar |
+| GET | `/api/pupils/search` | staff | Search pupils by name |
+
+---
+
+## Database Tables
+
+| Table | Description |
+|-------|-------------|
+| `schools` | School entities with name and settings |
+| `users` | All users (pupils, staff, parents, PTA members) with role, credentials, year/class, parentOf links, avatar, ptaSchoolId |
+| `incidents` | Core incident records: categories, escalation tiers, victim/perpetrator IDs, emotional state, location, status lifecycle, parent visibility, assessment data |
+| `protocols` | Formal protocols (Convivèxit, LOPIVI, Machista Violence) with phases, risk assessment, status |
+| `interviews` | Interview records linked to protocols |
+| `case_tasks` | Action items linked to protocols with assignee and status |
+| `messages` | Direct messages with type (message, chat_request, urgent_help, pta_concern), priority, location |
+| `pta_messages` | Dedicated PTA–coordinator channel messages (separate table for clean access control) |
+| `pta_concerns` | Structured concern submissions from PTA to coordinator |
+| `pta_policy_acknowledgements` | Audit trail of PTA policy acknowledgements and flags |
+| `pta_codesign_responses` | PTA co-design workspace responses (archived after go-live) |
+| `pta_annual_reports` | Generated annual reports with approval status and access timestamp |
+| `notifications` | In-app notifications with trigger type, subject, body, delivery and acknowledgement status |
+| `pattern_alerts` | System-generated alerts with severity, linked incident IDs, acknowledgement |
+| `behaviour_points` | Behaviour point entries with category, value, reason, issuer, pupil reference |
+| `senco_caseload` | SENCO caseload entries with reason, priority, active status |
+| `senco_tracking` | Progress tracking observations (progress, feelings, attitudes ratings, notes) |
+| `audit_log` | **Append-only compliance trail. NO UPDATE or DELETE permitted on this table under any circumstances.** |
+| `delegated_roles` | Statutory role assignments |
+| `annex_templates` | Document templates per compliance framework |
+| `referral_bodies` | External referral organisations |
+
+---
+
+## Pattern Detection — Rule Definitions
+
+These rules must be implemented as background jobs running on every incident INSERT and on a scheduled cron (every 60 minutes).
+
+```
+RULE: same_victim_3_incidents
+  Trigger: INSERT on incidents
+  Condition: COUNT(incidents WHERE victimId = NEW.victimId AND createdAt > NOW() - 30 days) >= 3
+  Action: CREATE pattern_alert (severity=AMBER, rule=same_victim_3_incidents, linkedIds=[...])
+  Notify: coordinator
+
+RULE: sexual_any
+  Trigger: INSERT on incidents
+  Condition: NEW.category IN ('sexual', 'sexualised')
+  Action: CREATE pattern_alert (severity=RED, rule=sexual_any, linkedIds=[NEW.id])
+  Notify: coordinator + head_teacher (immediate push + email)
+  Flag: protocol_must_open = true
+
+RULE: group_targeting
+  Trigger: INSERT on incidents
+  Condition: COUNT(DISTINCT perpetratorId WHERE victimId = NEW.victimId AND createdAt > NOW() - 14 days) >= 3
+  Action: CREATE pattern_alert (severity=RED, rule=group_targeting)
+  Notify: coordinator
+
+RULE: location_hotspot
+  Trigger: INSERT on incidents
+  Condition: COUNT(incidents WHERE location = NEW.location AND createdAt > NOW() - 14 days) >= 3
+  Action: CREATE pattern_alert (severity=AMBER, rule=location_hotspot)
+  Notify: coordinator + duty staff
+
+RULE: repeat_perpetrator
+  Trigger: INSERT on incidents
+  Condition: COUNT(incidents WHERE perpetratorId = NEW.perpetratorId AND createdAt > NOW() - 30 days) >= 3
+  Action: CREATE pattern_alert (severity=AMBER, rule=repeat_perpetrator)
+  Notify: coordinator
+
+RULE: emotional_distress_pattern
+  Trigger: INSERT on incidents (pupil-submitted only)
+  Condition: COUNT(incidents WHERE submittedById = NEW.submittedById AND emotionalState IN ('scared','sad','worried') AND createdAt > NOW() - 30 days) >= 3
+  Action: CREATE pattern_alert (severity=AMBER, rule=emotional_distress_pattern)
+  Notify: coordinator + senco
+```
+
+---
+
+## PTA Onboarding Flow (White Glove Implementation)
+
+The PTA onboarding runs in parallel with the standard White Glove school implementation. It has five stages:
+
+### Stage 1 — Co-Design Workshop (pre-launch, 0.5 day)
+- PTA chair and 2–3 nominated PTA representatives attend
+- Facilitated by SafeSchool implementation lead
+- Covers: what the PTA portal shows, what it does not show, privacy protections, preferred language for parent-facing communications, which incident categories generate parent alerts, parent information evening format preferences
+- Responses captured in the co-design workspace and fed into coordinator configuration checklist
+
+### Stage 2 — PTA Account Setup
+- PTA chair and up to 3 nominated PTA members receive PTA role accounts
+- Walk-through of the PTA portal, dashboard, and resource library
+- Demonstration of the annual report generation and approval flow
+- Demonstration of the PTA–coordinator channel
+
+### Stage 3 — Policy Acknowledgement Baseline
+- Coordinator publishes the school's zero tolerance policy and behaviour framework to the PTA portal
+- PTA chair formally acknowledges receipt — this creates the first audit trail entry
+- This establishes the governance baseline before the platform goes live
+
+### Stage 4 — Parent Information Evening (co-presented)
+- PTA chair co-presents the SafeSchool launch to the full parent body alongside the school coordinator
+- PTA chair speaks to the parent-facing experience and the PTA's role in governance
+- Framing: "We asked for this. We were involved in designing it. We can see the school-wide data."
+- Q&A facilitated jointly
+
+### Stage 5 — Co-Design Workspace Archive
+- After go-live the co-design workspace is locked to read-only
+- PTA chair receives a PDF summary of their input and how it was applied in the final configuration
+- This is kept as a permanent record of PTA involvement in the implementation
+
+---
+
+## Compliance Frameworks
+
+### LOPIVI (Ley Orgánica 8/2021)
+Spanish organic law for comprehensive child protection against violence. Requires every school to designate a Coordinador/a de Bienestar y Protección del Alumnado. Mandatory reporting to Fiscalía de Menores where conduct may constitute a criminal offence. Applies regardless of school ownership or age of children involved.
+
+### Convivèxit
+Balearic Islands anti-bullying protocol. Mandatory since 2016. Requires: formal case registration when bullying identified; same designated person to conduct all interviews; separate interviews with victim, alleged bullies, and witnesses; notification to Fiscalía de Menores where bullying confirmed.
+
+### Machista Violence Protocol
+Balearic Islands protocol against gender-based violence in educational settings. In force since 2022/2023. Any sexualised behaviour between pupils — regardless of age — triggers mandatory obligations under this protocol. Immediate separation, same-day coordinator notification, formal protocol opening, same-day parental notification.
+
+---
+
+## Authentication Notes
+
+### Pupil Login Security
+The current PIN model (school selector + name picker + 4-digit PIN) is vulnerable on shared devices. Implementation must include:
+- Session timeout after 90 seconds of inactivity on shared iPads
+- Screen clears immediately on logout — no cached names or states
+- Teacher-issued PIN flow: PIN is randomly generated per pupil (not 1234) and issued on paper by the class teacher at first use
+- Supervised first-login: teacher is present when each pupil sets their PIN
+- Consider QR code session initiation for supervised reporting sessions
+
+### Data Residency
+All data must be stored within the EU. Replit deployment must use EU hosting. This must be confirmed and documented before any pilot involving real children's data. Required under LOPIVI and GDPR for personal data of minors.
+
+### PTA Role Security
+PTA accounts must be provisioned by the coordinator only — no self-registration. PTA role permissions must be enforced at the API middleware layer. If a PTA user somehow obtains a coordinator-level token, the PTA anonymisation middleware must still strip PII before any data is returned.
+
+---
+
+## Seed Credentials (Development Only — Remove Before Pilot)
+
+> ⚠️ These credentials must be removed from all documentation shared outside the development team. Replace with a secure onboarding process before pilot.
+
+**Pupils:** All use PIN `1234`. Select school "Morna" then pick name.
+
+**Staff:**
+- `teacher@safeschool.dev` / `password123` — Head of Year, Y6 6A
+- `teacher2@safeschool.dev` / `password123` — Teacher
+- `coordinator@safeschool.dev` / `password123` — Coordinator
+- `head@safeschool.dev` / `password123` — Head Teacher
+- `senco@safeschool.dev` / `password123` — SENCO
+- `support@safeschool.dev` / `password123` — Support Staff
+
+**Parents:**
+- `parent.a@safeschool.dev` / `parent123` — Parent of Boy A
+
+**PTA (new in v0.3):**
+- `pta.chair@safeschool.dev` / `pta123` — PTA Chair
+- `pta.member1@safeschool.dev` / `pta123` — PTA Member
+
+---
+
+## Build Priority for Pilot (Two Year 6 Classes, 44 Pupils)
+
+### MVP — Must be live before pilot starts
+1. Pupil incident reporting (child-friendly form)
+2. Staff incident logging (professional form)
+3. Pattern detection (all 6 rules)
+4. Coordinator protocol module (Convivèxit + Machista Violence)
+5. Behaviour tracker (7 levels, point issuance, pupil + parent view)
+6. Parent incident visibility (parent portal, child's reports only)
+7. PTA portal — dashboard and coordinator channel only (co-design workspace for pre-pilot phase)
+8. Notifications (tier escalation, urgent help, sexual_any immediate alert)
+9. Audit log
+
+### Phase 2 — Before wider rollout
+- SENCO caseload tracker
+- Full messaging system (panic button scoped to classroom/supervised use in pilot)
+- Annual report generation
+- Referral body directory
+- Annex templates
+
+### Defer to Phase 3
+- Educational resource library (content needed)
+- PTA resource library (content needed)
+- External referral management
+- Multi-school / MAT features
+
+---
+
+*SafeSchool v0.3 — Built for Morna International College, Ibiza. Compliant with LOPIVI, Convivèxit, and Balearic Machista Violence Protocol.*
