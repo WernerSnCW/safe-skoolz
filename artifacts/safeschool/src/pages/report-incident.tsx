@@ -480,6 +480,7 @@ export default function ReportIncident() {
   const [_, setLocation] = useLocation();
   const createMutation = useCreateIncident();
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const [selectedVictims, setSelectedVictims] = useState<PupilResult[]>([]);
   const [selectedPerps, setSelectedPerps] = useState<PupilResult[]>([]);
@@ -539,8 +540,10 @@ export default function ReportIncident() {
         }
       });
       setIsSuccess(true);
+      setSubmitError("");
     } catch (error) {
       console.error(error);
+      setSubmitError("Something went wrong submitting your report. Please try again.");
     }
   };
 
@@ -855,6 +858,14 @@ export default function ReportIncident() {
                     <Label htmlFor="coord" className="mb-0 cursor-pointer">Has the Safeguarding Coordinator been notified?</Label>
                     <input type="checkbox" id="coord" className="w-5 h-5 rounded" {...register("coordinatorNotified")} />
                   </div>
+                </div>
+              )}
+            </div>
+
+            <div role="alert" aria-live="assertive" aria-atomic="true">
+              {submitError && (
+                <div className="p-4 rounded-xl bg-destructive/10 text-destructive text-sm font-semibold flex items-center gap-2 mb-4">
+                  {submitError}
                 </div>
               )}
             </div>

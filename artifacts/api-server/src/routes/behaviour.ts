@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import { db, behaviourPointsTable, usersTable, BEHAVIOUR_LEVELS, POINT_CATEGORIES, getLevelForPoints } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
 
@@ -148,6 +149,16 @@ router.post("/behaviour/points", authMiddleware, requireRole(...STAFF_ROLES), as
 
   const totalPoints = allPoints[0]?.total || 0;
   const level = getLevelForPoints(totalPoints);
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "behaviour_points_issued",
+    actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
+    targetType: "behaviour_points",
+    targetId: entry.id,
+    details: { pupilId, points, category, totalPoints, level: level.level },
+    req,
+  });
 
   res.status(201).json({
     entry,

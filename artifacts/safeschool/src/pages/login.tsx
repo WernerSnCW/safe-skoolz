@@ -170,7 +170,7 @@ export default function Login() {
         </motion.div>
 
         <Card className="shadow-2xl shadow-primary/5 border-border/50 bg-background/80 backdrop-blur-xl">
-          <div className="flex p-2 gap-2 border-b border-border/50 bg-muted/30">
+          <div className="flex p-2 gap-2 border-b border-border/50 bg-muted/30" role="tablist" aria-label="Login type">
             {[
               { id: "pupil" as const, label: "I'm a Pupil", icon: User },
               { id: "staff" as const, label: "I'm Staff", icon: GraduationCap },
@@ -179,6 +179,9 @@ export default function Login() {
             ].map((tab) => (
               <button
                 key={tab.id}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`tabpanel-${tab.id}`}
                 onClick={() => { setActiveTab(tab.id); setError(""); setSelectedStaffEmail(""); }}
                 className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
                   activeTab === tab.id
@@ -186,20 +189,22 @@ export default function Login() {
                     : "text-muted-foreground hover:bg-black/5"
                 }`}
               >
-                <tab.icon size={16} />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <tab.icon size={16} aria-hidden="true" />
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
 
           <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-5">
-              {error && (
-                <div className="p-4 rounded-xl bg-destructive/10 text-destructive text-sm font-semibold flex items-center gap-2">
-                  <AlertTriangle size={16} />
-                  {error}
-                </div>
-              )}
+              <div role="alert" aria-live="assertive" aria-atomic="true">
+                {error && (
+                  <div className="p-4 rounded-xl bg-destructive/10 text-destructive text-sm font-semibold flex items-center gap-2">
+                    <AlertTriangle size={16} aria-hidden="true" />
+                    {error}
+                  </div>
+                )}
+              </div>
 
               {activeTab === "pupil" ? (
                 <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">

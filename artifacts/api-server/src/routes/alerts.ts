@@ -14,12 +14,34 @@ router.get("/alerts", authMiddleware, requireRole("coordinator", "head_teacher",
   const limit = query.success ? (query.data.limit ?? 20) : 20;
   const offset = (page - 1) * limit;
 
+  let scopedVictimIds: string[] | null = null;
+  if (user.role === "teacher" || user.role === "head_of_year") {
+    const [me] = await db.select().from(usersTable).where(eq(usersTable.id, user.userId));
+    if (me) {
+      let pupilConditions: any[] = [eq(usersTable.schoolId, user.schoolId), eq(usersTable.role, "pupil"), eq(usersTable.active, true)];
+      if (me.role === "teacher" && me.className) {
+        pupilConditions.push(eq(usersTable.className, me.className));
+      } else if (me.role === "head_of_year" && me.yearGroup) {
+        pupilConditions.push(eq(usersTable.yearGroup, me.yearGroup));
+      }
+      const myPupils = await db.select({ id: usersTable.id }).from(usersTable).where(and(...pupilConditions));
+      scopedVictimIds = myPupils.map(p => p.id);
+    }
+  }
+
   let conditions: any[] = [eq(patternAlertsTable.schoolId, user.schoolId)];
   if (query.success && query.data.level) {
     conditions.push(eq(patternAlertsTable.alertLevel, query.data.level));
   }
   if (query.success && query.data.status) {
     conditions.push(eq(patternAlertsTable.status, query.data.status));
+  }
+  if (scopedVictimIds !== null) {
+    if (scopedVictimIds.length === 0) {
+      res.json({ data: [], total: 0, page, limit });
+      return;
+    }
+    conditions.push(inArray(patternAlertsTable.victimId, scopedVictimIds));
   }
 
   const whereClause = conditions.length === 1 ? conditions[0] : and(...conditions);
@@ -39,6 +61,8 @@ router.get("/alerts", authMiddleware, requireRole("coordinator", "head_teacher",
     for (const u of users) victimMap[u.id] = `${u.firstName} ${u.lastName}`;
   }
 
+  const isFullAccess = ["coordinator", "head_teacher", "senco"].includes(user.role);
+
   res.json({
     data: alerts.map((a) => ({
       id: a.id,
@@ -54,7 +78,7 @@ router.get("/alerts", authMiddleware, requireRole("coordinator", "head_teacher",
       reviewedBy: a.reviewedBy,
       status: a.status,
       notes: a.notes,
-      victimName: a.victimId ? (victimMap[a.victimId] || null) : null,
+      victimName: isFullAccess && a.victimId ? (victimMap[a.victimId] || null) : null,
     })),
     total: Number(countResult[0]?.count || 0),
     page,

@@ -222,6 +222,11 @@ router.patch("/auth/profile", authMiddleware, async (req, res): Promise<void> =>
 });
 
 router.post("/auth/demo-login", async (req, res): Promise<void> => {
+  if (process.env.DEMO_MODE !== "true") {
+    res.status(403).json({ error: "Demo login is disabled in this environment." });
+    return;
+  }
+
   const { role } = req.body;
   if (!role || !["pupil", "staff", "parent", "pta"].includes(role)) {
     res.status(400).json({ error: "Invalid role. Must be pupil, staff, parent, or pta." });

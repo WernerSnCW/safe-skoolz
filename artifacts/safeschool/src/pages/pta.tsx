@@ -91,10 +91,13 @@ export default function PtaPortal() {
         </p>
       </div>
 
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2" role="tablist" aria-label="PTA portal sections">
         {TABS.map((tab) => (
           <button
             key={tab.id}
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            aria-controls={`tabpanel-pta-${tab.id}`}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
               activeTab === tab.id
@@ -102,7 +105,7 @@ export default function PtaPortal() {
                 : "bg-muted/50 text-muted-foreground hover:bg-muted"
             }`}
           >
-            <tab.icon size={16} />
+            <tab.icon size={16} aria-hidden="true" />
             {tab.label}
           </button>
         ))}

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, timestamp, date, time, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, boolean, timestamp, date, time, integer, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { schoolsTable } from "./schools";
@@ -49,7 +49,12 @@ export const incidentsTable = pgTable("incidents", {
   assessedBy: uuid("assessed_by").references(() => usersTable.id),
   assessedAt: timestamp("assessed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_incidents_school_id").on(table.schoolId),
+  index("idx_incidents_status").on(table.status),
+  index("idx_incidents_created_at").on(table.createdAt),
+  index("idx_incidents_school_status").on(table.schoolId, table.status),
+]);
 
 export const insertIncidentSchema = createInsertSchema(incidentsTable).omit({ id: true, createdAt: true, referenceNumber: true });
 export type InsertIncident = z.infer<typeof insertIncidentSchema>;

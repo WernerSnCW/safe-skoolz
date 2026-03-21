@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "safeschool-dev-secret-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required. Server cannot start without it.");
+}
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "8h";
 
 export interface JwtPayload {

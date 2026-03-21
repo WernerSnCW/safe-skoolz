@@ -330,7 +330,7 @@ router.get("/pta/report/latest", authMiddleware, requireRole("pta"), async (req,
   res.json({ report });
 });
 
-router.get("/pta/report/generate", authMiddleware, requireRole("coordinator", "head_teacher"), async (req, res): Promise<void> => {
+router.post("/pta/report/generate", authMiddleware, requireRole("coordinator", "head_teacher"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
   const now = new Date();
   const academicYearStart = now.getMonth() >= 8

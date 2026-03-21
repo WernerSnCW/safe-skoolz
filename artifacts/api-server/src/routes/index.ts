@@ -16,6 +16,7 @@ import sencoRouter from "./senco";
 import behaviourRouter from "./behaviour";
 import ptaRouter from "./pta";
 import newsletterRouter from "./newsletter";
+import dataRetentionRouter from "./dataRetention";
 
 const router: IRouter = Router();
 
@@ -36,5 +37,6 @@ router.use(messagesRouter);
 router.use(sencoRouter);
 router.use(behaviourRouter);
 router.use(ptaRouter);
+router.use(dataRetentionRouter);
 
 export default router;

@@ -202,8 +202,13 @@ export function AppLayout({ children }: AppLayoutProps) {
           <ShieldCheck className="text-primary" size={24} />
           <span className="font-display font-bold text-lg">SafeSchool</span>
         </div>
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-foreground">
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 text-foreground"
+          aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={isMobileMenuOpen}
+        >
+          {isMobileMenuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
         </button>
       </header>
 

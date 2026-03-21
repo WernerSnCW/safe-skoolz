@@ -2908,7 +2908,7 @@ export const generatePtaReport = async (
 ): Promise<GeneratePtaReport201> => {
   return customFetch<GeneratePtaReport201>(getGeneratePtaReportUrl(), {
     ...options,
-    method: "GET",
+    method: "POST",
   });
 };
 

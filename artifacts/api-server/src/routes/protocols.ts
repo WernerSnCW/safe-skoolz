@@ -5,6 +5,7 @@ import { CreateProtocolBody, UpdateProtocolBody, ListProtocolsQueryParams } from
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { generateProtocolRef } from "../lib/referenceNumber";
 import { writeAudit } from "../lib/auditHelper";
+import { checkMandatoryReferral, determineEscalationTier } from "../lib/escalation";
 
 const router: IRouter = Router();
 
@@ -50,6 +51,23 @@ router.post("/protocols", authMiddleware, requireRole("coordinator", "head_teach
 
   const data = parsed.data;
 
+  let linkedCategory = data.protocolType;
+  if (data.linkedIncidentIds && data.linkedIncidentIds.length > 0) {
+    const linkedIncidents = await db.select({ category: incidentsTable.category })
+      .from(incidentsTable)
+      .where(and(inArray(incidentsTable.id, data.linkedIncidentIds), eq(incidentsTable.schoolId, user.schoolId)));
+    if (linkedIncidents.length > 0) {
+      linkedCategory = linkedIncidents.map(i => i.category).join(",");
+    }
+  }
+
+  const tier = determineEscalationTier(linkedCategory);
+  const referralCheck = checkMandatoryReferral({ category: linkedCategory, escalationTier: tier });
+
+  const forceReferral = referralCheck.required;
+  const effectiveReferralRequired = forceReferral || (data.externalReferralRequired ?? false);
+  const effectiveReferralBody = data.externalReferralBody || referralCheck.suggestedBody || null;
+
   let protocol: any;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -72,8 +90,8 @@ router.post("/protocols", authMiddleware, requireRole("coordinator", "head_teach
           riskFactors: data.riskFactors || [],
           protectiveFactors: data.protectiveFactors || [],
           protectiveMeasures: data.protectiveMeasures || [],
-          externalReferralRequired: data.externalReferralRequired ?? false,
-          externalReferralBody: data.externalReferralBody || null,
+          externalReferralRequired: effectiveReferralRequired,
+          externalReferralBody: effectiveReferralBody,
           status: "open",
         })
         .returning();
@@ -99,7 +117,7 @@ router.post("/protocols", authMiddleware, requireRole("coordinator", "head_teach
       await db
         .update(incidentsTable)
         .set({ status: "protocol_open", protocolId: protocol.id })
-        .where(eq(incidentsTable.id, incId));
+        .where(and(eq(incidentsTable.id, incId), eq(incidentsTable.schoolId, user.schoolId)));
     }
   }
 
@@ -109,12 +127,20 @@ router.post("/protocols", authMiddleware, requireRole("coordinator", "head_teach
     actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
     targetType: "protocol",
     targetId: protocol.id,
-    details: { referenceNumber: protocol.referenceNumber, protocolType: data.protocolType },
+    details: {
+      referenceNumber: protocol.referenceNumber,
+      protocolType: data.protocolType,
+      mandatoryReferral: forceReferral ? referralCheck : undefined,
+    },
     req,
   });
 
   const enriched = await enrichProtocols([protocol]);
-  res.status(201).json(enriched[0]);
+  const response: any = enriched[0];
+  if (forceReferral) {
+    response.mandatoryReferral = referralCheck;
+  }
+  res.status(201).json(response);
 });
 
 router.get("/protocols/:id", authMiddleware, requireRole("coordinator", "head_teacher", "senco"), async (req, res): Promise<void> => {
@@ -237,8 +263,20 @@ router.patch("/protocols/:id", authMiddleware, requireRole("coordinator", "head_
     return;
   }
 
-  const updates: Record<string, any> = {};
   const data = parsed.data;
+
+  if (data.status === "closed") {
+    const [existing] = await db.select().from(protocolsTable)
+      .where(and(eq(protocolsTable.id, id), eq(protocolsTable.schoolId, user.schoolId)));
+    if (existing && existing.externalReferralRequired && !existing.externalReferralAt) {
+      res.status(400).json({
+        error: "Cannot close protocol: mandatory external referral has not been completed. Record the referral before closing.",
+      });
+      return;
+    }
+  }
+
+  const updates: Record<string, any> = {};
   if (data.status !== undefined && data.status !== null) updates.status = data.status;
   if (data.riskAssessment !== undefined) updates.riskAssessment = data.riskAssessment;
   if (data.protectiveMeasures) updates.protectiveMeasures = data.protectiveMeasures;

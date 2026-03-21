@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, inArray, ilike, or, sql } from "drizzle-orm";
 import { db, schoolsTable, usersTable } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { writeAudit } from "../lib/auditHelper";
 import bcrypt from "bcrypt";
 
 const TEACHING_ROLES = ["teacher", "head_of_year"];
@@ -9,7 +10,7 @@ const ALL_STAFF_ROLES = ["teacher", "head_of_year", "coordinator", "head_teacher
 
 const router: IRouter = Router();
 
-router.get("/schools", async (_req, res): Promise<void> => {
+router.get("/schools", authMiddleware, async (_req, res): Promise<void> => {
   const schools = await db.select().from(schoolsTable).where(eq(schoolsTable.active, true));
   res.json(
     schools.map((s) => ({
@@ -25,8 +26,15 @@ router.get("/schools", async (_req, res): Promise<void> => {
   );
 });
 
-router.get("/schools/:schoolId/pupils", async (req, res): Promise<void> => {
+router.get("/schools/:schoolId/pupils", authMiddleware, async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
   const schoolId = Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId;
+
+  if (user.schoolId !== schoolId) {
+    res.status(403).json({ error: "Access denied: cross-school access not permitted" });
+    return;
+  }
+
   const className = req.query.className as string | undefined;
 
   let conditions: any[] = [eq(usersTable.schoolId, schoolId), eq(usersTable.role, "pupil"), eq(usersTable.active, true)];
@@ -121,7 +129,13 @@ router.get("/my-pupils", authMiddleware, requireRole("teacher", "head_of_year", 
 });
 
 router.get("/schools/:schoolId/staff", authMiddleware, requireRole("coordinator", "head_teacher"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
   const schoolId = Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId;
+
+  if (user.schoolId !== schoolId) {
+    res.status(403).json({ error: "Access denied: you can only view staff at your own school" });
+    return;
+  }
 
   const staff = await db
     .select()
@@ -260,6 +274,16 @@ router.post("/pupils/reset-pin/:pupilId", authMiddleware, requireRole("teacher",
 
   await db.update(usersTable).set({ pinHash, failedLoginAttempts: 0, lockedUntil: null }).where(eq(usersTable.id, pupilId));
 
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "pin_reset",
+    actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
+    targetType: "user",
+    targetId: pupilId,
+    details: { pupilName: `${pupil.firstName} ${pupil.lastName}` },
+    req,
+  });
+
   res.json({
     pupilId: pupil.id,
     firstName: pupil.firstName,
@@ -322,6 +346,15 @@ router.post("/pupils/bulk-reset-pins", authMiddleware, requireRole("teacher", "h
       newPin,
     });
   }
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "bulk_pin_reset",
+    actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
+    targetType: "user",
+    details: { count: results.length, className, yearGroup },
+    req,
+  });
 
   res.json({ count: results.length, pupils: results });
 });

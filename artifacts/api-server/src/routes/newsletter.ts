@@ -35,7 +35,7 @@ router.post("/newsletter/subscribe", async (req, res): Promise<void> => {
     .limit(1);
 
   if (existing.length > 0) {
-    res.status(409).json({ error: "This email is already registered." });
+    res.status(201).json({ message: "Thank you for registering! We'll be in touch soon." });
     return;
   }
 

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { schoolsTable } from "./schools";
@@ -18,7 +18,11 @@ export const patternAlertsTable = pgTable("pattern_alerts", {
   reviewedBy: uuid("reviewed_by").references(() => usersTable.id),
   status: varchar("status", { length: 20 }).default("open").notNull(),
   notes: text("notes"),
-});
+}, (table) => [
+  index("idx_pattern_alerts_school_id").on(table.schoolId),
+  index("idx_pattern_alerts_status").on(table.status),
+  index("idx_pattern_alerts_triggered_at").on(table.triggeredAt),
+]);
 
 export const insertPatternAlertSchema = createInsertSchema(patternAlertsTable).omit({ id: true, triggeredAt: true });
 export type InsertPatternAlert = z.infer<typeof insertPatternAlertSchema>;

@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, desc, inArray } from "drizzle-orm";
 import { db, sencoCaseloadTable, sencoTrackingTable, usersTable } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
 
@@ -76,6 +77,16 @@ router.post("/senco/caseload", authMiddleware, requireRole("senco"), async (req,
     reason: reason || null,
   }).returning();
 
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "senco_caseload_added",
+    actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
+    targetType: "senco_caseload",
+    targetId: entry.id,
+    details: { pupilId, reason },
+    req,
+  });
+
   res.status(201).json(entry);
 });
 
@@ -86,6 +97,15 @@ router.delete("/senco/caseload/:id", authMiddleware, requireRole("senco"), async
   await db.update(sencoCaseloadTable)
     .set({ active: false })
     .where(and(eq(sencoCaseloadTable.id, id), eq(sencoCaseloadTable.sencoId, user.userId), eq(sencoCaseloadTable.schoolId, user.schoolId)));
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "senco_caseload_removed",
+    actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
+    targetType: "senco_caseload",
+    targetId: id,
+    req,
+  });
 
   res.json({ success: true });
 });
@@ -130,6 +150,16 @@ router.post("/senco/caseload/:id/tracking", authMiddleware, requireRole("senco")
     attitudeToOthers: attitudeToOthers ?? null,
     notes: notes || null,
   }).returning();
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "senco_tracking_recorded",
+    actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
+    targetType: "senco_tracking",
+    targetId: record.id,
+    details: { caseloadId: id, pupilId: entry.pupilId, progressRating, feelingsRating },
+    req,
+  });
 
   res.status(201).json({ ...record, recordedAt: record.recordedAt.toISOString() });
 });

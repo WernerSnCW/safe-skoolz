@@ -771,7 +771,7 @@ paths:
                     $ref: "#/components/schemas/PtaAnnualReport"
 
   /pta/report/generate:
-    get:
+    post:
       operationId: generatePtaReport
       tags: [pta]
       summary: Generate draft annual report

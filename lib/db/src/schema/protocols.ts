@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, boolean, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { schoolsTable } from "./schools";
@@ -34,7 +34,11 @@ export const protocolsTable = pgTable("protocols", {
   resolutionNotes: text("resolution_notes"),
   closedAt: timestamp("closed_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+}, (table) => [
+  index("idx_protocols_school_id").on(table.schoolId),
+  index("idx_protocols_status").on(table.status),
+  index("idx_protocols_school_status").on(table.schoolId, table.status),
+]);
 
 export const insertProtocolSchema = createInsertSchema(protocolsTable).omit({ id: true, openedAt: true, referenceNumber: true, updatedAt: true });
 export type InsertProtocol = z.infer<typeof insertProtocolSchema>;

@@ -446,7 +446,7 @@ router.patch("/incidents/:id/assess", authMiddleware, requireRole("coordinator",
         );
 
       for (const parent of parents) {
-        const parentChildIds = (parent as any).childIds || [];
+        const parentChildIds: string[] = parent.parentOf || [];
         const isLinked = victimIds.some((vid: string) => parentChildIds.includes(vid));
         if (isLinked) {
           await db.insert(notificationsTable).values({

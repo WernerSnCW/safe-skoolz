@@ -82,3 +82,53 @@ The project is structured as a pnpm workspace monorepo, separating deployable ap
 - **API Code Generation:** Orval (from OpenAPI specification)
 - **Authentication Hashing:** bcrypt
 - **Query Management:** TanStack React Query (specifically `@tanstack/react-query`)
+- **Rate Limiting:** express-rate-limit (auth and newsletter endpoints)
+
+# v0.3.0 CRAFT Security & Architecture Fixes
+
+The following 15 priority fixes from the CRAFT review have been implemented:
+
+**Security (T001):**
+- Demo login gated behind `DEMO_MODE=true` env var
+- JWT secret fails startup if missing (no hardcoded fallback)
+- `GET /schools` and `GET /schools/:schoolId/pupils` require auth + cross-school IDOR check
+- Newsletter subscribe always returns 200 (no email existence leak)
+- CORS restricted to dev domain
+- Cross-tenant incident/protocol updates blocked by schoolId enforcement
+
+**Data Integrity (T002):**
+- Parent notification uses correct `parentOf` field (not `childIds`)
+- Alert scope filtered to teacher/head_of_year's own pupils
+
+**Rate Limiting (T003):**
+- Auth endpoints: 10 req/15min per IP
+- Newsletter: 5 req/hour per IP
+
+**Safeguarding (T004):**
+- Mandatory referral engine in escalation.ts for Tier 3/sexual/coercive incidents
+- Protocol close blocked if mandatory referral not recorded
+
+**Database (T005):**
+- Indexes on schoolId, status, createdAt for incidents, protocols, pattern_alerts, audit_log, users, behaviour_points
+
+**Audit (T006):**
+- Audit logging for PIN reset, bulk PIN reset, behaviour points, SENCO caseload changes, message send
+
+**API Contract (T007-T008):**
+- api-zod duplicate export conflict resolved (single barrel export from generated/api)
+- PTA report generation changed from GET to POST in OpenAPI, generated client, and backend
+
+**Accessibility (T009):**
+- Login tabs: role="tablist/tab", aria-selected, aria-live error banner
+- AppLayout mobile menu: aria-label, aria-expanded
+- Report incident: submit error state with aria-live
+- Dashboard/PTA tabs: full ARIA tab semantics
+- Charts wrapped with role="img" and descriptive aria-labels
+
+**Data Retention (T010):**
+- `GET /api/data-retention/policy` endpoint (coordinator/head_teacher/senco/pta only)
+- 8 data categories with retention periods and LOPIVI legal bases
+
+**Architecture (T011):**
+- Dashboard split from 1857-line monolith into 4 sub-components: PupilDashboard, CoordinatorDashboard, TeacherDashboard, ParentDashboard
+- Main dashboard.tsx reduced to ~40-line role router

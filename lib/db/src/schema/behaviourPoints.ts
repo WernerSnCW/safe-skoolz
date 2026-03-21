@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, integer, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, integer, timestamp, boolean, index } from "drizzle-orm/pg-core";
 import { schoolsTable } from "./schools";
 import { usersTable } from "./users";
 
@@ -13,7 +13,11 @@ export const behaviourPointsTable = pgTable("behaviour_points", {
   issuedBy: uuid("issued_by").references(() => usersTable.id).notNull(),
   issuedAt: timestamp("issued_at", { withTimezone: true }).notNull().defaultNow(),
   note: text("note"),
-});
+}, (table) => [
+  index("idx_behaviour_points_school_id").on(table.schoolId),
+  index("idx_behaviour_points_pupil_id").on(table.pupilId),
+  index("idx_behaviour_points_issued_at").on(table.issuedAt),
+]);
 
 export const BEHAVIOUR_LEVELS = [
   { level: 1, name: "Good Standing", minPoints: 0, maxPoints: 3, color: "green", description: "No concerns — keep it up!" },

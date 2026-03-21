@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, or, desc, inArray, isNull } from "drizzle-orm";
 import { db, messagesTable, usersTable, notificationsTable } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
 
@@ -182,6 +183,16 @@ router.post("/messages", authMiddleware, async (req, res): Promise<void> => {
     body: notifBody,
     channel: "in_app",
     delivered: false,
+  });
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "message_sent",
+    actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
+    targetType: "message",
+    targetId: message.id,
+    details: { recipientId, type: msgType, priority: msgPriority },
+    req,
   });
 
   res.status(201).json(message);
