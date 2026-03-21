@@ -392,7 +392,18 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
   const stopDemo = useCallback(() => {
     setIsActive(false);
     setCurrentStep(0);
+    sessionStorage.removeItem("safeschool_start_demo");
   }, []);
+
+  useEffect(() => {
+    if (user && steps.length > 0 && sessionStorage.getItem("safeschool_start_demo") === "true") {
+      sessionStorage.removeItem("safeschool_start_demo");
+      const timer = setTimeout(() => {
+        startDemo();
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [user, steps.length]);
 
   const nextStep = useCallback(() => {
     if (currentStep < steps.length - 1) {

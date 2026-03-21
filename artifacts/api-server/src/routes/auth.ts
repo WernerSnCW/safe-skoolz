@@ -221,6 +221,47 @@ router.patch("/auth/profile", authMiddleware, async (req, res): Promise<void> =>
   res.json(formatUser(updated));
 });
 
+router.post("/auth/demo-login", async (req, res): Promise<void> => {
+  const { role } = req.body;
+  if (!role || !["pupil", "staff", "parent"].includes(role)) {
+    res.status(400).json({ error: "Invalid role. Must be pupil, staff, or parent." });
+    return;
+  }
+
+  let user;
+  if (role === "pupil") {
+    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "pupil"), eq(usersTable.active, true)));
+  } else if (role === "parent") {
+    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "parent"), eq(usersTable.active, true)));
+  } else {
+    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "teacher"), eq(usersTable.active, true)));
+  }
+
+  if (!user) {
+    res.status(404).json({ error: "No demo account available for this role." });
+    return;
+  }
+
+  const token = signToken({
+    userId: user.id,
+    schoolId: user.schoolId,
+    role: user.role,
+    email: user.email || undefined,
+  });
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "demo_login",
+    actor: { userId: user.id, schoolId: user.schoolId, role: user.role },
+    targetType: "user",
+    targetId: user.id,
+    details: { demoRole: role },
+    req,
+  });
+
+  res.json({ token, user: formatUser(user) });
+});
+
 router.get("/auth/me", authMiddleware, async (req, res): Promise<void> => {
   const jwtUser = (req as any).user as JwtPayload;
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, jwtUser.userId));
