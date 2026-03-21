@@ -1,8 +1,8 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, Play, SkipForward } from "lucide-react";
+import { motion } from "framer-motion";
+import { X, ChevronRight, ChevronLeft, Play } from "lucide-react";
 import { Button } from "@/components/ui-polished";
 
 interface DemoStep {
@@ -453,7 +453,6 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
 export function DemoOverlay() {
   const { isActive, currentStep, totalSteps, currentStepData, nextStep, prevStep, stopDemo } = useDemo();
   const [navRect, setNavRect] = useState<DOMRect | null>(null);
-  const highlightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isActive || !currentStepData?.navHighlight) {
@@ -464,12 +463,14 @@ export function DemoOverlay() {
       const links = document.querySelectorAll("aside a");
       for (const link of links) {
         if (link.textContent?.trim().includes(currentStepData.navHighlight!)) {
-          setNavRect(link.getBoundingClientRect());
+          const rect = link.getBoundingClientRect();
+          setNavRect(rect);
+          link.scrollIntoView({ behavior: "smooth", block: "nearest" });
           return;
         }
       }
       setNavRect(null);
-    }, 300);
+    }, 400);
     return () => clearTimeout(timer);
   }, [isActive, currentStepData, currentStep]);
 
@@ -480,131 +481,86 @@ export function DemoOverlay() {
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100]"
-      >
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={stopDemo} />
-
-        {navRect && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="absolute pointer-events-none"
-            style={{
-              top: navRect.top - 4,
-              left: navRect.left - 4,
-              width: navRect.width + 8,
-              height: navRect.height + 8,
-            }}
-          >
-            <div className="w-full h-full rounded-xl border-2 border-primary bg-primary/10 shadow-lg shadow-primary/30 animate-pulse" />
-          </motion.div>
-        )}
-
+    <>
+      {navRect && (
         <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.95 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-lg z-[101]"
+          key={`highlight-${currentStep}`}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="fixed pointer-events-none z-[90]"
+          style={{
+            top: navRect.top - 4,
+            left: navRect.left - 4,
+            width: navRect.width + 8,
+            height: navRect.height + 8,
+          }}
         >
-          <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-primary to-primary/80 px-6 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
-                  {currentStep + 1}
-                </div>
-                <div>
-                  <p className="text-white/70 text-xs font-medium">Step {currentStep + 1} of {totalSteps}</p>
-                  <h3 className="text-white font-bold text-lg leading-tight">{currentStepData.title}</h3>
-                </div>
-              </div>
-              <button onClick={stopDemo} className="text-white/70 hover:text-white transition-colors p-1">
-                <X size={20} />
-              </button>
-            </div>
+          <div className="w-full h-full rounded-xl border-2 border-primary bg-primary/10 shadow-lg shadow-primary/30 animate-pulse" />
+        </motion.div>
+      )}
 
-            <div className="w-full h-1 bg-primary/20">
-              <motion.div
-                className="h-full bg-white/50"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.3 }}
-              />
-            </div>
+      <motion.div
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 100, opacity: 0 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        className="fixed bottom-0 left-0 right-0 md:left-64 z-[100]"
+      >
+        <div className="w-full h-1 bg-muted">
+          <motion.div
+            className="h-full bg-primary"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
 
-            <div className="p-6 space-y-4">
-              <p className="text-foreground leading-relaxed">{currentStepData.description}</p>
-
-              <div className="bg-primary/5 border border-primary/20 rounded-xl px-4 py-3">
-                <p className="text-sm font-bold text-primary flex items-center gap-2">
-                  <span className="shrink-0">Why it matters:</span>
-                </p>
-                <p className="text-sm text-primary/80 mt-1">{currentStepData.benefit}</p>
+        <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+          <div className="max-w-4xl mx-auto px-4 py-3">
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm mt-0.5">
+                {currentStep + 1}
               </div>
 
-              {currentStepData.navHighlight && (
-                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                  <ChevronRight size={12} />
-                  Find this under <span className="font-bold text-foreground">"{currentStepData.navHighlight}"</span> in the sidebar
-                </p>
-              )}
-            </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h3 className="font-bold text-foreground text-sm">{currentStepData.title}</h3>
+                  <span className="text-xs text-muted-foreground shrink-0">{currentStep + 1}/{totalSteps}</span>
+                </div>
+                <p className="text-sm text-muted-foreground leading-snug">{currentStepData.description}</p>
+                <p className="text-xs text-primary font-medium mt-1">{currentStepData.benefit}</p>
+              </div>
 
-            <div className="px-6 pb-5 flex items-center justify-between">
-              <div className="flex gap-2">
+              <div className="shrink-0 flex items-center gap-1.5 mt-0.5">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={prevStep}
                   disabled={isFirst}
-                  className="gap-1"
+                  className="h-8 w-8 p-0"
                 >
-                  <ChevronLeft size={14} />
-                  Back
-                </Button>
-              </div>
-
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={stopDemo}
-                  className="text-muted-foreground gap-1"
-                >
-                  <SkipForward size={14} />
-                  End tour
+                  <ChevronLeft size={16} />
                 </Button>
                 <Button
                   size="sm"
                   onClick={nextStep}
-                  className="gap-1"
+                  className="h-8 gap-1 px-3"
                 >
-                  {isLast ? "Finish" : "Next"}
+                  {isLast ? "Done" : "Next"}
                   {!isLast && <ChevronRight size={14} />}
                 </Button>
+                <button
+                  onClick={stopDemo}
+                  className="h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-md"
+                >
+                  <X size={16} />
+                </button>
               </div>
             </div>
-
-            <div className="px-6 pb-4 flex justify-center gap-1.5">
-              {Array.from({ length: totalSteps }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === currentStep ? "w-6 bg-primary" : i < currentStep ? "w-1.5 bg-primary/40" : "w-1.5 bg-border"
-                  }`}
-                />
-              ))}
-            </div>
           </div>
-        </motion.div>
+        </div>
       </motion.div>
-    </AnimatePresence>
+    </>
   );
 }
 
