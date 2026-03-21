@@ -9,6 +9,35 @@ import {
 import { useListNotifications } from "@workspace/api-client-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const MOBILE_PRIORITY_HREFS: Record<string, string[]> = {
+  pupil: ["/", "/report", "/education", "/settings"],
+  parent: ["/", "/report", "/messages", "/notifications"],
+  teacher: ["/", "/report", "/class", "/messages"],
+  head_of_year: ["/", "/report", "/class", "/messages"],
+  support_staff: ["/", "/report", "/class", "/messages"],
+  senco: ["/", "/caseload", "/incidents", "/messages"],
+  coordinator: ["/", "/incidents", "/protocols", "/alerts"],
+  head_teacher: ["/", "/incidents", "/protocols", "/alerts"],
+  pta: ["/", "/pta", "/education", "/notifications"],
+};
+
+function getMobileNavItems(navItems: any[], role: string) {
+  const priorityHrefs = MOBILE_PRIORITY_HREFS[role] || MOBILE_PRIORITY_HREFS.teacher;
+  const result: any[] = [];
+  for (const href of priorityHrefs) {
+    const item = navItems.find(n => n.href === href);
+    if (item) result.push(item);
+  }
+  if (result.length < 4) {
+    for (const item of navItems) {
+      if (!result.includes(item) && result.length < 4) {
+        result.push(item);
+      }
+    }
+  }
+  return result.slice(0, 5);
+}
+
 interface AppLayoutProps {
   children: ReactNode;
 }
@@ -23,6 +52,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   const unreadCount = notificationsData?.data.filter(n => !n.acknowledgedAt).length || 0;
 
   if (!user) return <>{children}</>;
+
+  const role = user.role;
 
   const getNavItems = () => {
     const base = [{ name: "Dashboard", href: "/", icon: Home }];
@@ -255,10 +286,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         </div>
       </main>
 
-      {/* Mobile Bottom Nav (Pupils/Parents generally prefer bottom nav) */}
+      {/* Mobile Bottom Nav — role-specific priority items */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 glass-panel border-t border-border/50 pb-safe z-30">
         <div className="flex justify-around items-center h-16 px-2">
-          {navItems.slice(0, 4).map((item) => {
+          {getMobileNavItems(navItems, role).map((item) => {
             const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
             return (
               <Link key={item.name} href={item.href} className="flex-1 h-full flex flex-col items-center justify-center relative">

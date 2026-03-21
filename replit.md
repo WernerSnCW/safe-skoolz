@@ -167,3 +167,31 @@ The following 15 priority fixes from the CRAFT review have been implemented:
 - Raises exception: "audit_log is append-only: UPDATE and DELETE operations are not permitted"
 - Database-level enforcement — cannot be bypassed by application code
 - Trigger auto-applied on API server startup via `ensureAuditLogImmutability()` in index.ts
+
+## UX Improvements (Post-CRAFT)
+
+**Demo Account Gating:**
+- Staff/parent/PTA demo account lists and "Show me around" button gated behind `IS_DEMO` flag
+- `IS_DEMO = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === "true"` — visible in dev, hidden in production unless explicitly enabled
+- When not in demo mode, login shows only email/password manual entry (no account selector)
+
+**Dark Mode Toggle:**
+- Settings page includes Appearance section with Light/Dark/System toggle buttons
+- Theme preference persisted to localStorage (`safeschool_theme` key)
+- System option listens to `prefers-color-scheme` media query and auto-switches
+- Inline script in `index.html` applies theme before React mounts (prevents flash of wrong theme)
+- Full dark theme CSS variables defined in `.dark` class in `index.css`
+
+**Smart Mobile Bottom Navigation:**
+- Replaced arbitrary `navItems.slice(0,4)` with role-specific priority item selection
+- `MOBILE_PRIORITY_HREFS` map defines most important nav items per role (e.g., pupils get Dashboard/Report/Education/Settings, coordinators get Dashboard/Incidents/Protocols/Alerts)
+- Falls back to filling remaining slots from full nav list if fewer than 4 priority items match
+
+**Skeleton Loaders & Error States:**
+- TeacherDashboard: shimmer skeleton during data load, error state with refresh button if both queries fail
+- ParentDashboard: structured skeleton matching dashboard layout (4 stat cards + content blocks)
+- Loading state uses proper `isLoading` query flags (not data presence checks) to avoid premature skeleton dismissal
+
+**Form Accessibility:**
+- `autoComplete` attributes on login form: PIN (`one-time-code`), password (`current-password`), email (`email`)
+- Unicode emoji escapes fixed to actual emoji characters in report-incident.tsx, ParentDashboard.tsx

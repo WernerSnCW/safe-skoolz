@@ -47,12 +47,12 @@ const PARENT_CATEGORY_LABELS: Record<string, string> = {
 };
 
 const PARENT_EMOTION_LABELS: Record<string, { label: string; emoji: string }> = {
-  scared: { label: "Scared", emoji: "\u{1F628}" },
-  sad: { label: "Sad", emoji: "\u{1F622}" },
-  angry: { label: "Angry", emoji: "\u{1F620}" },
-  worried: { label: "Worried", emoji: "\u{1F61F}" },
-  confused: { label: "Confused", emoji: "\u{1F615}" },
-  okay: { label: "Okay", emoji: "\u{1F610}" },
+  scared: { label: "Scared", emoji: "😨" },
+  sad: { label: "Sad", emoji: "😢" },
+  angry: { label: "Angry", emoji: "😠" },
+  worried: { label: "Worried", emoji: "😟" },
+  confused: { label: "Confused", emoji: "😕" },
+  okay: { label: "Okay", emoji: "😐" },
 };
 
 const PARENT_LOCATION_LABELS: Record<string, string> = {
@@ -313,7 +313,21 @@ export default function ParentDashboard({ user }: { user: any }) {
     : "your child";
 
   if (isLoading) {
-    return <div className="animate-pulse h-96 bg-muted rounded-2xl m-8"></div>;
+    return (
+      <div className="space-y-8 max-w-5xl mx-auto animate-pulse">
+        <div>
+          <div className="h-9 bg-muted rounded-lg w-64 mb-2" />
+          <div className="h-5 bg-muted rounded w-56" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="h-28 bg-muted rounded-2xl" />
+          ))}
+        </div>
+        <div className="h-64 bg-muted rounded-2xl" />
+        <div className="h-48 bg-muted rounded-2xl" />
+      </div>
+    );
   }
 
   return (

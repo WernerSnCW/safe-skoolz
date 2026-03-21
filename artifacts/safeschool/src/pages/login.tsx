@@ -6,7 +6,9 @@ import { Button, Input, Label, Card, CardContent } from "@/components/ui-polishe
 import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck, Building2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
-const STAFF_ACCOUNTS = [
+const IS_DEMO = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === "true";
+
+const STAFF_ACCOUNTS = IS_DEMO ? [
   { label: "Coordinator A", subtitle: "Coordinator", email: "coordinator@safeschool.dev", password: "password123" },
   { label: "Head Teacher A", subtitle: "Head Teacher", email: "head@safeschool.dev", password: "password123" },
   { label: "Teacher A", subtitle: "Head of Year · Y6 · 6A", email: "teacher@safeschool.dev", password: "password123" },
@@ -15,17 +17,17 @@ const STAFF_ACCOUNTS = [
   { label: "Teacher D", subtitle: "Teacher · 3A", email: "teacher4@safeschool.dev", password: "password123" },
   { label: "SENCO A", subtitle: "SENCO", email: "senco@safeschool.dev", password: "password123" },
   { label: "Support Staff A", subtitle: "Support Staff", email: "support@safeschool.dev", password: "password123" },
-];
+] : [];
 
-const PARENT_ACCOUNTS = [
+const PARENT_ACCOUNTS = IS_DEMO ? [
   { label: "Parent A", subtitle: "Parent of Boy A", email: "parent.a@safeschool.dev", password: "parent123" },
   { label: "Parent B", subtitle: "Parent of Boy B", email: "parent.b@safeschool.dev", password: "parent123" },
-];
+] : [];
 
-const PTA_ACCOUNTS = [
+const PTA_ACCOUNTS = IS_DEMO ? [
   { label: "PTA Chair A", subtitle: "PTA Chair", email: "pta.chair@safeschool.dev", password: "pta123" },
   { label: "PTA Member 1", subtitle: "PTA Member", email: "pta.member1@safeschool.dev", password: "pta123" },
-];
+] : [];
 
 export default function Login() {
   const [_, setLocation] = useLocation();
@@ -251,6 +253,7 @@ export default function Login() {
                       value={pin}
                       onChange={e => setPin(e.target.value)}
                       required
+                      autoComplete="one-time-code"
                       className="tracking-widest text-center text-xl font-bold"
                     />
                   </div>
@@ -260,28 +263,31 @@ export default function Login() {
                   {(() => {
                     const accounts = activeTab === "parent" ? PARENT_ACCOUNTS : activeTab === "pta" ? PTA_ACCOUNTS : STAFF_ACCOUNTS;
                     const selectedAccount = accounts.find(a => a.email === selectedStaffEmail);
+                    const hasAccounts = accounts.length > 0;
                     return (
                       <>
-                        <div>
-                          <Label htmlFor="staffSelect">My Name</Label>
-                          <select
-                            id="staffSelect"
-                            value={selectedStaffEmail}
-                            onChange={e => {
-                              setSelectedStaffEmail(e.target.value);
-                              setEmail("");
-                              setPassword("");
-                            }}
-                            className="w-full h-12 rounded-xl border border-input bg-background px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
-                          >
-                            <option value="">Find my name...</option>
-                            {accounts.map(a => (
-                              <option key={a.email} value={a.email}>
-                                {a.label} — {a.subtitle}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                        {hasAccounts && (
+                          <div>
+                            <Label htmlFor="staffSelect">My Name</Label>
+                            <select
+                              id="staffSelect"
+                              value={selectedStaffEmail}
+                              onChange={e => {
+                                setSelectedStaffEmail(e.target.value);
+                                setEmail("");
+                                setPassword("");
+                              }}
+                              className="w-full h-12 rounded-xl border border-input bg-background px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            >
+                              <option value="">Find my name...</option>
+                              {accounts.map(a => (
+                                <option key={a.email} value={a.email}>
+                                  {a.label} — {a.subtitle}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
                         {selectedAccount ? (
                           <div className="p-3 rounded-xl bg-muted/50 border border-border">
                             <p className="text-sm font-bold">{selectedAccount.label}</p>
@@ -289,11 +295,13 @@ export default function Login() {
                           </div>
                         ) : (
                           <>
-                            <div className="flex items-center gap-3 text-muted-foreground text-xs">
-                              <div className="flex-1 h-px bg-border" />
-                              <span>or enter manually</span>
-                              <div className="flex-1 h-px bg-border" />
-                            </div>
+                            {hasAccounts && (
+                              <div className="flex items-center gap-3 text-muted-foreground text-xs">
+                                <div className="flex-1 h-px bg-border" />
+                                <span>or enter manually</span>
+                                <div className="flex-1 h-px bg-border" />
+                              </div>
+                            )}
                             <div>
                               <Label htmlFor="email">Email Address</Label>
                               <Input
@@ -302,6 +310,7 @@ export default function Login() {
                                 placeholder="name@school.edu"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
+                                autoComplete="email"
                               />
                             </div>
                             <div>
@@ -312,6 +321,7 @@ export default function Login() {
                                 placeholder="Enter your password"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
+                                autoComplete="current-password"
                               />
                             </div>
                           </>
@@ -327,26 +337,28 @@ export default function Login() {
               </Button>
             </form>
 
-            <div className="mt-4 pt-4 border-t border-border/50">
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                disabled={!!demoLoading}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50"
-              >
-                {demoLoading ? (
-                  <>
-                    <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
-                    Starting demo...
-                  </>
-                ) : (
-                  <>
-                    <Play size={16} className="fill-primary/20" />
-                    {activeTab === "pupil" ? "Show me around" : activeTab === "parent" ? "Show me around as a parent" : activeTab === "pta" ? "Show me around as PTA" : "Show me around as staff"}
-                  </>
-                )}
-              </button>
-            </div>
+            {IS_DEMO && (
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <button
+                  type="button"
+                  onClick={handleDemoLogin}
+                  disabled={!!demoLoading}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50"
+                >
+                  {demoLoading ? (
+                    <>
+                      <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                      Starting demo...
+                    </>
+                  ) : (
+                    <>
+                      <Play size={16} className="fill-primary/20" />
+                      {activeTab === "pupil" ? "Show me around" : activeTab === "parent" ? "Show me around as a parent" : activeTab === "pta" ? "Show me around as PTA" : "Show me around as staff"}
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </CardContent>
         </Card>
 

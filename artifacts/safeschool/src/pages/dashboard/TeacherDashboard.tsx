@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useListIncidents } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-polished";
+import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import {
   AlertTriangle, FileText, TrendingUp, Users,
   BarChart3, MapPin, ArrowRight
@@ -13,7 +13,7 @@ import {
 } from "recharts";
 
 export default function TeacherDashboard({ user }: { user: any }) {
-  const { data: pupilData } = useQuery<any>({
+  const { data: pupilData, isLoading: pupilLoading, isError: pupilError } = useQuery<any>({
     queryKey: ["/api/my-pupils"],
     queryFn: async () => {
       const token = localStorage.getItem("safeschool_token");
@@ -25,7 +25,7 @@ export default function TeacherDashboard({ user }: { user: any }) {
     },
   });
 
-  const { data: incidentsData } = useListIncidents({ limit: 5 });
+  const { data: incidentsData, isLoading: incidentsLoading, isError: incidentsError } = useListIncidents({ limit: 5 });
   const incidents = incidentsData?.data || [];
 
   const { data: analyticsData } = useQuery<any>({
@@ -43,6 +43,36 @@ export default function TeacherDashboard({ user }: { user: any }) {
   const totalPupils = pupilData ? Object.values(pupilData.classes as Record<string, any[]>).reduce((sum: number, arr: any[]) => sum + arr.length, 0) : 0;
   const scopeLabel = pupilData?.scopeLabel || "";
   const isHoY = user.role === "head_of_year";
+
+  const isDataLoading = pupilLoading || incidentsLoading;
+
+  if (isDataLoading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div>
+          <div className="h-9 bg-muted rounded-lg w-72 mb-2" />
+          <div className="h-5 bg-muted rounded w-48" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1,2,3].map(i => (
+            <div key={i} className="h-40 bg-muted rounded-2xl" />
+          ))}
+        </div>
+        <div className="h-64 bg-muted rounded-2xl" />
+      </div>
+    );
+  }
+
+  if (pupilError && incidentsError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <AlertTriangle size={48} className="text-destructive mb-4" />
+        <h2 className="text-xl font-bold mb-2">Unable to load dashboard</h2>
+        <p className="text-muted-foreground mb-4">Something went wrong loading your data. Please try refreshing.</p>
+        <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

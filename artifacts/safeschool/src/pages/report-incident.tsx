@@ -10,12 +10,12 @@ import { AlertTriangle, CheckCircle2, ShieldCheck, Info, Search, X, UserPlus, He
 import { motion, AnimatePresence } from "framer-motion";
 
 const EMOTIONS = [
-  { id: "scared", emoji: "\u{1F628}", label: "Scared" },
-  { id: "sad", emoji: "\u{1F622}", label: "Sad" },
-  { id: "angry", emoji: "\u{1F620}", label: "Angry" },
-  { id: "worried", emoji: "\u{1F61F}", label: "Worried" },
-  { id: "confused", emoji: "\u{1F615}", label: "Confused" },
-  { id: "okay", emoji: "\u{1F610}", label: "Okay" }
+  { id: "scared", emoji: "😨", label: "Scared" },
+  { id: "sad", emoji: "😢", label: "Sad" },
+  { id: "angry", emoji: "😠", label: "Angry" },
+  { id: "worried", emoji: "😟", label: "Worried" },
+  { id: "confused", emoji: "😕", label: "Confused" },
+  { id: "okay", emoji: "😐", label: "Okay" }
 ];
 
 const CATEGORIES: { id: string; label: string; pupilLabel: string; hint: string; staffHint: string }[] = [

@@ -1,9 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, Button, Input, Label } from "@/components/ui-polished";
-import { User, Save, CheckCircle2, Mail, BookOpen, GraduationCap } from "lucide-react";
+import { User, Save, CheckCircle2, Mail, BookOpen, GraduationCap, Moon, Sun, Monitor } from "lucide-react";
 import { motion } from "framer-motion";
+
+type ThemePref = "light" | "dark" | "system";
+
+function useTheme() {
+  const [pref, setPrefState] = useState<ThemePref>(() => {
+    return (localStorage.getItem("safeschool_theme") as ThemePref) || "system";
+  });
+
+  useEffect(() => {
+    const apply = (p: ThemePref) => {
+      const isDark = p === "dark" || (p === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.classList.toggle("dark", isDark);
+    };
+    apply(pref);
+    if (pref === "system") {
+      const mq = window.matchMedia("(prefers-color-scheme: dark)");
+      const handler = () => apply("system");
+      mq.addEventListener("change", handler);
+      return () => mq.removeEventListener("change", handler);
+    }
+  }, [pref]);
+
+  const setPref = (p: ThemePref) => {
+    localStorage.setItem("safeschool_theme", p);
+    setPrefState(p);
+  };
+
+  return { pref, setPref };
+}
 
 const ANIMAL_AVATARS = [
   { value: "\uD83E\uDD8A", label: "Fox" },
@@ -34,6 +63,7 @@ export default function Settings() {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const { pref: themePref, setPref: setThemePref } = useTheme();
 
   const isPupil = user?.role === "pupil";
 
@@ -199,6 +229,34 @@ export default function Settings() {
                 </>
               )}
             </Button>
+          </div>
+
+          <div className="pt-4 border-t border-border">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              {themePref === "dark" ? <Moon size={20} className="text-primary" /> : <Sun size={20} className="text-primary" />}
+              Appearance
+            </h3>
+            <div className="flex gap-2">
+              {([
+                { value: "light" as ThemePref, label: "Light", icon: Sun },
+                { value: "dark" as ThemePref, label: "Dark", icon: Moon },
+                { value: "system" as ThemePref, label: "System", icon: Monitor },
+              ]).map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setThemePref(opt.value)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition-all ${
+                    themePref === opt.value
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground hover:border-primary/30"
+                  }`}
+                >
+                  <opt.icon size={16} />
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="pt-4 border-t border-border">
