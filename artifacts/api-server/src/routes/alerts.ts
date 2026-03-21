@@ -62,7 +62,7 @@ router.get("/alerts", authMiddleware, requireRole("coordinator", "head_teacher",
   });
 });
 
-router.patch("/alerts/:id", authMiddleware, requireRole("coordinator"), async (req, res): Promise<void> => {
+router.patch("/alerts/:id", authMiddleware, requireRole("coordinator", "head_teacher"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 

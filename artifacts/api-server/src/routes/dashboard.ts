@@ -422,7 +422,7 @@ router.get("/dashboard/parent", authMiddleware, requireRole("parent"), async (re
   });
 });
 
-router.get("/dashboard/child/:id", authMiddleware, requireRole("coordinator", "senco"), async (req, res): Promise<void> => {
+router.get("/dashboard/child/:id", authMiddleware, requireRole("coordinator", "head_teacher", "senco"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
   const childId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
