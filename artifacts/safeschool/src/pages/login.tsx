@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { usePupilLogin, useStaffLogin, useParentLogin, useListSchools, useListPupilsBySchool } from "@workspace/api-client-react";
 import { Button, Input, Label, Card, CardContent } from "@/components/ui-polished";
-import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck } from "lucide-react";
+import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck, Building2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 const STAFF_ACCOUNTS = [
@@ -345,16 +345,29 @@ export default function Login() {
           </CardContent>
         </Card>
 
-        <div className="text-center mt-6 space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Protected by SafeSchool. Your reports are confidential.
-          </p>
-          <p className="text-sm">
-            <Link href="/newsletter" className="text-primary hover:underline font-medium">
-              Schools & authorities — register your interest
-            </Link>
-          </p>
-        </div>
+        <Link href="/newsletter">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-6 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 p-5 text-white shadow-lg shadow-teal-200/50 cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Building2 size={24} className="text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-base">Bring SafeSchool to your school</p>
+                <p className="text-sm text-teal-100 mt-0.5">Schools & authorities — sign up to our newsletter and register your interest</p>
+              </div>
+              <ChevronRight size={20} className="text-teal-200 flex-shrink-0" />
+            </div>
+          </motion.div>
+        </Link>
+
+        <p className="text-center text-sm text-muted-foreground mt-4">
+          Protected by SafeSchool. Your reports are confidential.
+        </p>
       </div>
     </div>
   );
