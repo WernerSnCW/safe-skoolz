@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
   useGetCoordinatorDashboard, 
@@ -1801,6 +1801,16 @@ function ParentDashboard({ user }: { user: any }) {
   );
 }
 
+function PtaDashboardRedirect() {
+  const [_, setLocation] = useLocation();
+  useEffect(() => { setLocation("/pta"); }, []);
+  return (
+    <div className="max-w-3xl mx-auto py-12 text-center">
+      <h1 className="text-2xl font-bold">Redirecting to PTA Portal...</h1>
+    </div>
+  );
+}
+
 // --- Main Switcher ---
 export default function Dashboard() {
   const { user } = useAuth();
@@ -1812,6 +1822,8 @@ export default function Dashboard() {
         <PupilDashboard user={user} />
       ) : user.role === "parent" ? (
         <ParentDashboard user={user} />
+      ) : user.role === "pta" ? (
+        <PtaDashboardRedirect />
       ) : user.role === "coordinator" || user.role === "head_teacher" || user.role === "senco" ? (
         <CoordinatorDashboardView />
       ) : user.role === "teacher" || user.role === "head_of_year" || user.role === "support_staff" ? (

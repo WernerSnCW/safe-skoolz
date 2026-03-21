@@ -32,6 +32,7 @@ async function seed() {
 
   const staffPassword = await bcrypt.hash("password123", BCRYPT_ROUNDS);
   const parentPassword = await bcrypt.hash("parent123", BCRYPT_ROUNDS);
+  const ptaPassword = await bcrypt.hash("pta123", BCRYPT_ROUNDS);
 
   const pupils = [
     { firstName: "Boy", lastName: "A", yearGroup: "Y6", className: "6A", avatarType: "animal", avatarValue: "\uD83E\uDD8A" },
@@ -114,6 +115,24 @@ async function seed() {
     console.log(`  Parent: ${p.firstName} ${p.lastName} (password: parent123, child: ${pupils[p.childIndex].firstName} ${pupils[p.childIndex].lastName})`);
   }
 
+  const ptaMembers = [
+    { firstName: "PTA Chair", lastName: "A", email: "pta.chair@safeschool.dev" },
+    { firstName: "PTA Member", lastName: "1", email: "pta.member1@safeschool.dev" },
+  ];
+
+  for (const p of ptaMembers) {
+    await db.insert(usersTable).values({
+      schoolId: school.id,
+      role: "pta",
+      firstName: p.firstName,
+      lastName: p.lastName,
+      email: p.email,
+      passwordHash: ptaPassword,
+      active: true,
+    });
+    console.log(`  PTA: ${p.firstName} ${p.lastName} (password: pta123)`);
+  }
+
   console.log("\nSeed complete!");
   console.log("\nLogin credentials:");
   console.log("  Coordinator: coordinator@safeschool.dev / password123");
@@ -126,6 +145,8 @@ async function seed() {
   console.log("  SENCO: senco@safeschool.dev / password123");
   console.log("  Parent A: parent.a@safeschool.dev / parent123");
   console.log("  Parent B: parent.b@safeschool.dev / parent123");
+  console.log("  PTA Chair: pta.chair@safeschool.dev / pta123");
+  console.log("  PTA Member 1: pta.member1@safeschool.dev / pta123");
   console.log("  Pupils: Each pupil has a unique random PIN (see above). Staff can reset PINs from the My Class page.");
 
   process.exit(0);

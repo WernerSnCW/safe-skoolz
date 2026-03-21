@@ -17,11 +17,7 @@ export interface CreateProtocolBody {
   victimId: string;
   allegedPerpetratorIds?: string[];
   /** @nullable */
-  riskLevel?: string | null;
-  /** @nullable */
   riskAssessment?: string | null;
-  riskFactors?: string[];
-  protectiveFactors?: string[];
   protectiveMeasures?: string[];
   externalReferralRequired?: boolean;
   /** @nullable */

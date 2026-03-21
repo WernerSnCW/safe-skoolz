@@ -26,6 +26,7 @@ import MessagesPage from "@/pages/messages";
 import CaseloadPage from "@/pages/caseload";
 import BehaviourPage from "@/pages/behaviour";
 import TrainingPage from "@/pages/training";
+import PtaPortal from "@/pages/pta";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -104,6 +105,9 @@ function Router() {
       </Route>
       <Route path="/training">
         {() => <ProtectedRoute component={TrainingPage} />}
+      </Route>
+      <Route path="/pta">
+        {() => <ProtectedRoute component={PtaPortal} />}
       </Route>
       <Route path="/settings">
         {() => <ProtectedRoute component={Settings} />}

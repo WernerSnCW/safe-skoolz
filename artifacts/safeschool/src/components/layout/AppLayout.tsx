@@ -100,6 +100,17 @@ export function AppLayout({ children }: AppLayoutProps) {
       ];
     }
 
+    if (user.role === "pta") {
+      return [
+        ...base,
+        { name: "PTA Portal", href: "/pta", icon: Users },
+        { name: "Training", href: "/training", icon: GraduationCap },
+        { name: "Learn", href: "/education", icon: BookOpen },
+        { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
+        { name: "Settings", href: "/settings", icon: Settings },
+      ];
+    }
+
     // Coordinator, Head Teacher
     return [
       ...base,

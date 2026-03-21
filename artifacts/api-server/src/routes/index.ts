@@ -14,6 +14,7 @@ import caseTasksRouter from "./caseTasks";
 import messagesRouter from "./messages";
 import sencoRouter from "./senco";
 import behaviourRouter from "./behaviour";
+import ptaRouter from "./pta";
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use(caseTasksRouter);
 router.use(messagesRouter);
 router.use(sencoRouter);
 router.use(behaviourRouter);
+router.use(ptaRouter);
 
 export default router;

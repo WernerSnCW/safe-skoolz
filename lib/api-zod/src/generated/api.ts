@@ -286,8 +286,9 @@ export const CreateIncidentBody = zod.object({
   description: zod.string().nullish(),
   victimIds: zod.array(zod.string()).optional(),
   perpetratorIds: zod.array(zod.string()).optional(),
-  unknownPersonDescriptions: zod.array(zod.any()).optional(),
+  personInvolvedText: zod.string().nullish(),
   witnessIds: zod.array(zod.string()).optional(),
+  witnessText: zod.string().nullish(),
   emotionalState: zod.string().nullish(),
   emotionalFreetext: zod.string().nullish(),
   happeningToMe: zod.boolean().optional(),
@@ -333,7 +334,9 @@ export const GetIncidentResponse = zod.object({
   description: zod.string().nullish(),
   victimIds: zod.array(zod.string()).optional(),
   perpetratorIds: zod.array(zod.string()).optional(),
+  personInvolvedText: zod.string().nullish(),
   witnessIds: zod.array(zod.string()).optional(),
+  witnessText: zod.string().nullish(),
   emotionalState: zod.string().nullish(),
   emotionalFreetext: zod.string().nullish(),
   happeningToMe: zod.boolean().optional(),
@@ -368,21 +371,6 @@ export const UpdateIncidentStatusBody = zod.object({
   note: zod.string().nullish(),
 });
 
-export const AssessIncidentBody = zod.object({
-  addedToFile: zod.boolean().optional(),
-  parentVisible: zod.boolean().optional(),
-  staffNotes: zod.string().nullish(),
-  witnessStatements: zod.array(zod.object({
-    witnessId: zod.string().nullish(),
-    witnessName: zod.string(),
-    statement: zod.string(),
-    recordedAt: zod.string(),
-    recordedBy: zod.string().nullish(),
-  })).nullish(),
-  parentSummary: zod.string().nullish(),
-  status: zod.string().optional(),
-});
-
 export const UpdateIncidentStatusResponse = zod.object({
   id: zod.string(),
   referenceNumber: zod.string(),
@@ -399,7 +387,66 @@ export const UpdateIncidentStatusResponse = zod.object({
   description: zod.string().nullish(),
   victimIds: zod.array(zod.string()).optional(),
   perpetratorIds: zod.array(zod.string()).optional(),
+  personInvolvedText: zod.string().nullish(),
   witnessIds: zod.array(zod.string()).optional(),
+  witnessText: zod.string().nullish(),
+  emotionalState: zod.string().nullish(),
+  emotionalFreetext: zod.string().nullish(),
+  happeningToMe: zod.boolean().optional(),
+  happeningToSomeoneElse: zod.boolean().optional(),
+  iSawIt: zod.boolean().optional(),
+  childrenSeparated: zod.boolean().nullish(),
+  coordinatorNotified: zod.boolean().nullish(),
+  immediateActionTaken: zod.string().nullish(),
+  partOfKnownPattern: zod.boolean().nullish(),
+  toldByChild: zod.boolean().nullish(),
+  childConsentToShare: zod.boolean().nullish(),
+  formalResponseRequested: zod.boolean().optional(),
+  requestExternalReferral: zod.boolean().optional(),
+  confidentialFlag: zod.boolean().optional(),
+  status: zod.string(),
+  protocolId: zod.string().nullish(),
+  createdAt: zod.string(),
+  reporterName: zod.string().nullish(),
+  victimNames: zod.array(zod.string()).optional(),
+  perpetratorNames: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary Add assessment to incident
+ */
+export const AssessIncidentParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AssessIncidentBody = zod.object({
+  staffNotes: zod.string().optional(),
+  witnessStatements: zod.string().optional(),
+  parentSummary: zod.string().optional(),
+  addedToFile: zod.boolean().optional(),
+  parentVisible: zod.boolean().optional(),
+  status: zod.string().optional(),
+});
+
+export const AssessIncidentResponse = zod.object({
+  id: zod.string(),
+  referenceNumber: zod.string(),
+  schoolId: zod.string(),
+  reporterId: zod.string().nullish(),
+  reporterRole: zod.string(),
+  anonymous: zod.boolean(),
+  category: zod.string(),
+  escalationTier: zod.number(),
+  safeguardingTrigger: zod.boolean(),
+  incidentDate: zod.string(),
+  incidentTime: zod.string().nullish(),
+  location: zod.string().nullish(),
+  description: zod.string().nullish(),
+  victimIds: zod.array(zod.string()).optional(),
+  perpetratorIds: zod.array(zod.string()).optional(),
+  personInvolvedText: zod.string().nullish(),
+  witnessIds: zod.array(zod.string()).optional(),
+  witnessText: zod.string().nullish(),
   emotionalState: zod.string().nullish(),
   emotionalFreetext: zod.string().nullish(),
   happeningToMe: zod.boolean().optional(),
@@ -485,10 +532,7 @@ export const CreateProtocolBody = zod.object({
   linkedIncidentIds: zod.array(zod.string()).optional(),
   victimId: zod.string(),
   allegedPerpetratorIds: zod.array(zod.string()).optional(),
-  riskLevel: zod.string().nullish(),
   riskAssessment: zod.string().nullish(),
-  riskFactors: zod.array(zod.string()).optional(),
-  protectiveFactors: zod.array(zod.string()).optional(),
   protectiveMeasures: zod.array(zod.string()).optional(),
   externalReferralRequired: zod
     .boolean()
@@ -958,4 +1002,231 @@ export const GetChildDashboardResponse = zod.object({
       victimName: zod.string().nullish(),
     }),
   ),
+});
+
+/**
+ * @summary Anonymised PTA safeguarding health dashboard
+ */
+export const GetPtaDashboardResponse = zod.object({
+  incidentsThisTerm: zod.number(),
+  incidentsLastTerm: zod.number(),
+  categoryBreakdown: zod.array(
+    zod.object({
+      category: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+  protocols: zod.object({
+    open: zod.number().optional(),
+    closedThisTerm: zod.number().optional(),
+  }),
+  alerts: zod.object({
+    amber: zod.number().optional(),
+    red: zod.number().optional(),
+    resolvedThisTerm: zod.number().optional(),
+  }),
+  monthlyTrend: zod.array(
+    zod.object({
+      month: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+  behaviourDistribution: zod.array(
+    zod.object({
+      level: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+});
+
+/**
+ * @summary List PTA-coordinator channel messages
+ */
+export const ListPtaMessagesResponse = zod.object({
+  data: zod
+    .array(
+      zod.object({
+        id: zod.string(),
+        senderId: zod.string(),
+        body: zod.string(),
+        readAt: zod.string().nullish(),
+        createdAt: zod.string(),
+        senderFirstName: zod.string(),
+        senderLastName: zod.string(),
+        senderRole: zod.string(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Send a PTA-coordinator message
+ */
+export const SendPtaMessageBody = zod.object({
+  body: zod.string(),
+});
+
+/**
+ * @summary List PTA-submitted concerns (coordinator view)
+ */
+export const ListPtaConcernsResponse = zod.object({
+  data: zod
+    .array(
+      zod.object({
+        id: zod.string(),
+        category: zod.string(),
+        subject: zod.string(),
+        body: zod.string(),
+        status: zod.string(),
+        coordinatorResponse: zod.string().nullish(),
+        respondedAt: zod.string().nullish(),
+        createdAt: zod.string(),
+        submitterFirstName: zod.string().optional(),
+        submitterLastName: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Submit a structured concern
+ */
+export const SubmitPtaConcernBody = zod.object({
+  category: zod.string(),
+  subject: zod.string(),
+  body: zod.string(),
+});
+
+/**
+ * @summary Get policy commitments and acknowledgements
+ */
+export const GetPtaPolicyResponse = zod.object({
+  currentPolicy: zod
+    .object({
+      version: zod.string().optional(),
+      title: zod.string().optional(),
+      framework: zod.string().optional(),
+      lastUpdated: zod.string().optional(),
+      sections: zod.array(zod.string()).optional(),
+    })
+    .optional(),
+  acknowledgements: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        policyVersion: zod.string().optional(),
+        actionType: zod.string().optional(),
+        comment: zod.string().nullish(),
+        createdAt: zod.string().optional(),
+        userFirstName: zod.string().optional(),
+        userLastName: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Acknowledge policy receipt
+ */
+export const AcknowledgePtaPolicyBody = zod.object({
+  policyVersion: zod.string(),
+  comment: zod.string().optional(),
+});
+
+/**
+ * @summary Flag policy disagreement
+ */
+export const FlagPtaPolicyBody = zod.object({
+  policyVersion: zod.string(),
+  comment: zod.string(),
+});
+
+/**
+ * @summary Get latest approved annual report
+ */
+export const GetLatestPtaReportResponse = zod.object({
+  report: zod
+    .object({
+      id: zod.string(),
+      academicYear: zod.string(),
+      reportData: zod.object({}).passthrough(),
+      status: zod.string(),
+      approvedAt: zod.string().nullish(),
+      accessedByPtaAt: zod.string().nullish(),
+      createdAt: zod.string(),
+    })
+    .optional(),
+});
+
+/**
+ * @summary Approve annual report for PTA access
+ */
+export const ApprovePtaReportBody = zod.object({
+  reportId: zod.string(),
+});
+
+export const ApprovePtaReportResponse = zod.object({
+  report: zod
+    .object({
+      id: zod.string(),
+      academicYear: zod.string(),
+      reportData: zod.object({}).passthrough(),
+      status: zod.string(),
+      approvedAt: zod.string().nullish(),
+      accessedByPtaAt: zod.string().nullish(),
+      createdAt: zod.string(),
+    })
+    .optional(),
+});
+
+/**
+ * @summary Get co-design workspace
+ */
+export const GetPtaCodesignResponse = zod.object({
+  questions: zod
+    .array(
+      zod.object({
+        key: zod.string().optional(),
+        label: zod.string().optional(),
+        type: zod.string().optional(),
+      }),
+    )
+    .optional(),
+  responses: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        questionKey: zod.string().optional(),
+        response: zod.string().optional(),
+        createdAt: zod.string().optional(),
+        submitterFirstName: zod.string().optional(),
+        submitterLastName: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Submit co-design preference
+ */
+export const SubmitPtaCodesignResponseBody = zod.object({
+  questionKey: zod.string(),
+  response: zod.string(),
+});
+
+/**
+ * @summary Get PTA resource library
+ */
+export const GetPtaResourcesResponse = zod.object({
+  resources: zod
+    .array(
+      zod.object({
+        id: zod.string(),
+        title: zod.string(),
+        description: zod.string(),
+        category: zod.string(),
+        type: zod.string(),
+      }),
+    )
+    .optional(),
 });

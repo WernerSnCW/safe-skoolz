@@ -48,7 +48,7 @@ The project is structured as a pnpm workspace monorepo, separating deployable ap
 - Pupil search functionality includes truncated last names for privacy.
 
 **Feature Specifications & System Design:**
-- **Auth & Roles:** JWT-based custom authentication with bcrypt. Supports various roles (pupil, parent, teacher, head_of_year, coordinator, head_teacher, senco, support_staff) with a defined visibility hierarchy. Pupil PINs are unique random 4-digit numbers (not shared). Staff can reset PINs individually or in bulk from the My Class page, with printable PIN slips.
+- **Auth & Roles:** JWT-based custom authentication with bcrypt. Supports various roles (pupil, parent, teacher, head_of_year, coordinator, head_teacher, senco, support_staff, pta) with a defined visibility hierarchy. Pupil PINs are unique random 4-digit numbers (not shared). Staff can reset PINs individually or in bulk from the My Class page, with printable PIN slips. PTA login uses staff login endpoint with role=pta.
 - **API Proxy:** Vite development server proxies `/api/*` requests to the Express API server running on port 8080.
 - **Database Schema:** Core entities include schools, users, incidents, protocols, interviews, notifications, pattern alerts, audit logs, messages, SENCO caseload, and tracking. Compliance-related tables manage delegated roles, annex templates, and referral bodies. Protocols can include JSONB fields for risk/protective factors and family context.
 - **Compliance Frameworks:** Supports LOPIVI, Convivèxit 2024, and Machista Violence protocols, with dedicated tables for delegated roles, annex templates, and referral bodies.
@@ -64,6 +64,7 @@ The project is structured as a pnpm workspace monorepo, separating deployable ap
     - Parent messaging allows communication with school staff, listing child's teachers first.
 - **SENCO Caseload Tracker:** Dedicated page for SENCOs to manage pupil caseloads, track progress, feelings, and attitudes, with a timeline history.
 - **Behaviour Escalation Tracker:** Points-based system with 7 escalation levels (Good Standing → Warning → Formal Warning → Suspension Risk → Suspended → Term Exclusion → Full Exclusion). Staff can issue points by category, view school-wide summary. Pupils and parents see their own record with visual gauge and escalation ladder. DB: `behaviour_points`. Routes: `/api/behaviour/*`. Page: `/behaviour`.
+- **PTA Portal (v0.3):** Full PTA portal at `/pta` with 6 sub-tabs: Dashboard (anonymised KPIs, category/trend/behaviour charts), Coordinator Channel (messaging between PTA and coordinator), Policy (acknowledge/flag current safeguarding policy), Annual Report (view approved reports), Co-Design (submit feedback on system design), Resources (LOPIVI guide, Convivèxit guide, templates, PTA rights checklist). DB tables: `pta_messages`, `pta_concerns`, `pta_policy_acknowledgements`, `pta_codesign_responses`, `pta_annual_reports`. All dashboard data is anonymised — no PII returned. Seed accounts: pta.chair@safeschool.dev / pta123, pta.member1@safeschool.dev / pta123.
 - **Analytics:** Anonymized school-wide analytics for parents and detailed staff dashboards with incident statistics, trends, and hotspots.
 - **TypeScript & Composite Projects:** The monorepo leverages TypeScript with composite projects and project references for efficient type-checking and build processes.
 

@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { usePupilLogin, useStaffLogin, useParentLogin, useListSchools, useListPupilsBySchool } from "@workspace/api-client-react";
 import { Button, Input, Label, Card, CardContent } from "@/components/ui-polished";
-import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play } from "lucide-react";
+import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 const STAFF_ACCOUNTS = [
@@ -22,10 +22,15 @@ const PARENT_ACCOUNTS = [
   { label: "Parent B", subtitle: "Parent of Boy B", email: "parent.b@safeschool.dev", password: "parent123" },
 ];
 
+const PTA_ACCOUNTS = [
+  { label: "PTA Chair A", subtitle: "PTA Chair", email: "pta.chair@safeschool.dev", password: "pta123" },
+  { label: "PTA Member 1", subtitle: "PTA Member", email: "pta.member1@safeschool.dev", password: "pta123" },
+];
+
 export default function Login() {
   const [_, setLocation] = useLocation();
   const { setToken } = useAuth();
-  const [activeTab, setActiveTab] = useState<"pupil" | "staff" | "parent">("pupil");
+  const [activeTab, setActiveTab] = useState<"pupil" | "staff" | "parent" | "pta">("pupil");
   const pupilLogin = usePupilLogin();
   const staffLogin = useStaffLogin();
   const parentLogin = useParentLogin();
@@ -74,7 +79,7 @@ export default function Login() {
         res = await staffLogin.mutateAsync({
           data: { email: loginEmail, password: loginPassword }
         });
-      } else {
+      } else if (activeTab === "parent") {
         const accounts = PARENT_ACCOUNTS;
         const selected = accounts.find(a => a.email === selectedStaffEmail);
         const loginEmail = selected?.email || email;
@@ -84,6 +89,18 @@ export default function Login() {
           return;
         }
         res = await parentLogin.mutateAsync({
+          data: { email: loginEmail, password: loginPassword }
+        });
+      } else {
+        const accounts = PTA_ACCOUNTS;
+        const selected = accounts.find(a => a.email === selectedStaffEmail);
+        const loginEmail = selected?.email || email;
+        const loginPassword = selected?.password || password;
+        if (!loginEmail || !loginPassword) {
+          setError("Please select your name or enter your credentials.");
+          return;
+        }
+        res = await staffLogin.mutateAsync({
           data: { email: loginEmail, password: loginPassword }
         });
       }
@@ -158,6 +175,7 @@ export default function Login() {
               { id: "pupil" as const, label: "I'm a Pupil", icon: User },
               { id: "staff" as const, label: "I'm Staff", icon: GraduationCap },
               { id: "parent" as const, label: "I'm a Parent", icon: Users },
+              { id: "pta" as const, label: "PTA", icon: UserCheck },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -235,7 +253,7 @@ export default function Login() {
               ) : (
                 <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                   {(() => {
-                    const accounts = activeTab === "parent" ? PARENT_ACCOUNTS : STAFF_ACCOUNTS;
+                    const accounts = activeTab === "parent" ? PARENT_ACCOUNTS : activeTab === "pta" ? PTA_ACCOUNTS : STAFF_ACCOUNTS;
                     const selectedAccount = accounts.find(a => a.email === selectedStaffEmail);
                     return (
                       <>
@@ -319,7 +337,7 @@ export default function Login() {
                 ) : (
                   <>
                     <Play size={16} className="fill-primary/20" />
-                    {activeTab === "pupil" ? "Show me around" : activeTab === "parent" ? "Show me around as a parent" : "Show me around as staff"}
+                    {activeTab === "pupil" ? "Show me around" : activeTab === "parent" ? "Show me around as a parent" : activeTab === "pta" ? "Show me around as PTA" : "Show me around as staff"}
                   </>
                 )}
               </button>

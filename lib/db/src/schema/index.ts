@@ -13,3 +13,4 @@ export * from "./caseTasks";
 export * from "./messages";
 export * from "./sencoCaseload";
 export * from "./behaviourPoints";
+export * from "./pta";

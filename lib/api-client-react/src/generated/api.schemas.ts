@@ -206,20 +206,11 @@ export interface UpdateIncidentStatusBody {
 }
 
 export interface AssessIncidentBody {
+  staffNotes?: string;
+  witnessStatements?: string;
+  parentSummary?: string;
   addedToFile?: boolean;
   parentVisible?: boolean;
-  /** @nullable */
-  staffNotes?: string | null;
-  /** @nullable */
-  witnessStatements?: Array<{
-    witnessId?: string | null;
-    witnessName: string;
-    statement: string;
-    recordedAt: string;
-    recordedBy?: string | null;
-  }> | null;
-  /** @nullable */
-  parentSummary?: string | null;
   status?: string;
 }
 
@@ -420,6 +411,129 @@ export interface ChildDashboard {
   patternAlerts: PatternAlert[];
 }
 
+export type PtaDashboardCategoryBreakdownItem = {
+  category: string;
+  count: number;
+};
+
+export type PtaDashboardProtocols = {
+  open?: number;
+  closedThisTerm?: number;
+};
+
+export type PtaDashboardAlerts = {
+  amber?: number;
+  red?: number;
+  resolvedThisTerm?: number;
+};
+
+export type PtaDashboardMonthlyTrendItem = {
+  month: string;
+  count: number;
+};
+
+export type PtaDashboardBehaviourDistributionItem = {
+  level: string;
+  count: number;
+};
+
+export interface PtaDashboard {
+  incidentsThisTerm: number;
+  incidentsLastTerm: number;
+  categoryBreakdown: PtaDashboardCategoryBreakdownItem[];
+  protocols: PtaDashboardProtocols;
+  alerts: PtaDashboardAlerts;
+  monthlyTrend: PtaDashboardMonthlyTrendItem[];
+  behaviourDistribution: PtaDashboardBehaviourDistributionItem[];
+}
+
+export interface PtaMessage {
+  id: string;
+  senderId: string;
+  body: string;
+  readAt?: string | null;
+  createdAt: string;
+  senderFirstName: string;
+  senderLastName: string;
+  senderRole: string;
+}
+
+export interface PtaConcern {
+  id: string;
+  category: string;
+  subject: string;
+  body: string;
+  status: string;
+  coordinatorResponse?: string | null;
+  respondedAt?: string | null;
+  createdAt: string;
+  submitterFirstName?: string;
+  submitterLastName?: string;
+}
+
+export type PtaPolicyDataCurrentPolicy = {
+  version?: string;
+  title?: string;
+  framework?: string;
+  lastUpdated?: string;
+  sections?: string[];
+};
+
+export type PtaPolicyDataAcknowledgementsItem = {
+  id?: string;
+  policyVersion?: string;
+  actionType?: string;
+  comment?: string | null;
+  createdAt?: string;
+  userFirstName?: string;
+  userLastName?: string;
+};
+
+export interface PtaPolicyData {
+  currentPolicy?: PtaPolicyDataCurrentPolicy;
+  acknowledgements?: PtaPolicyDataAcknowledgementsItem[];
+}
+
+export type PtaAnnualReportReportData = { [key: string]: unknown };
+
+export interface PtaAnnualReport {
+  id: string;
+  academicYear: string;
+  reportData: PtaAnnualReportReportData;
+  status: string;
+  approvedAt?: string | null;
+  accessedByPtaAt?: string | null;
+  createdAt: string;
+}
+
+export type PtaCodesignDataQuestionsItem = {
+  key?: string;
+  label?: string;
+  type?: string;
+};
+
+export type PtaCodesignDataResponsesItem = {
+  id?: string;
+  questionKey?: string;
+  response?: string;
+  createdAt?: string;
+  submitterFirstName?: string;
+  submitterLastName?: string;
+};
+
+export interface PtaCodesignData {
+  questions?: PtaCodesignDataQuestionsItem[];
+  responses?: PtaCodesignDataResponsesItem[];
+}
+
+export interface PtaResource {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  type: string;
+}
+
 export type ListPupilsBySchoolParams = {
   className?: string;
 };
@@ -450,4 +564,63 @@ export type ListAlertsParams = {
 export type ListNotificationsParams = {
   page?: number;
   limit?: number;
+};
+
+export type ListPtaMessages200 = {
+  data?: PtaMessage[];
+};
+
+export type SendPtaMessageBody = {
+  body: string;
+};
+
+export type ListPtaConcerns200 = {
+  data?: PtaConcern[];
+};
+
+export type SubmitPtaConcernBody = {
+  category: string;
+  subject: string;
+  body: string;
+};
+
+export type AcknowledgePtaPolicyBody = {
+  policyVersion: string;
+  comment?: string;
+};
+
+export type AcknowledgePtaPolicy201 = { [key: string]: unknown };
+
+export type FlagPtaPolicyBody = {
+  policyVersion: string;
+  comment: string;
+};
+
+export type FlagPtaPolicy201 = { [key: string]: unknown };
+
+export type GetLatestPtaReport200 = {
+  report?: PtaAnnualReport;
+};
+
+export type GeneratePtaReport201 = {
+  report?: PtaAnnualReport;
+};
+
+export type ApprovePtaReportBody = {
+  reportId: string;
+};
+
+export type ApprovePtaReport200 = {
+  report?: PtaAnnualReport;
+};
+
+export type SubmitPtaCodesignResponseBody = {
+  questionKey: string;
+  response: string;
+};
+
+export type SubmitPtaCodesignResponse201 = { [key: string]: unknown };
+
+export type GetPtaResources200 = {
+  resources?: PtaResource[];
 };
