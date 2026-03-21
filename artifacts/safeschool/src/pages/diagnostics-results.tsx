@@ -5,8 +5,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import {
   BarChart3, Users, TrendingUp, CheckCircle2,
-  ArrowLeft, Sparkles, Target, Plus, Trash2, Send, Shield, Eye,
-  MessageSquare, MessageCircle
+  ArrowLeft, ArrowRight, Sparkles, Target, Plus, Trash2, Send, Shield, Eye,
+  MessageSquare, MessageCircle, Database
 } from "lucide-react";
 import { Link } from "wouter";
 import {
@@ -45,6 +45,8 @@ export default function DiagnosticsResults() {
   const surveyId = params?.id;
   const isLeadership = user && ["coordinator", "head_teacher"].includes(user.role);
 
+  const queryClient = useQueryClient();
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["/api/diagnostics", surveyId, "results"],
     queryFn: async () => {
@@ -53,6 +55,20 @@ export default function DiagnosticsResults() {
       return res.json();
     },
     enabled: !!surveyId && !!isLeadership,
+  });
+
+  const seedMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetchWithAuth(`/api/diagnostics/${surveyId}/seed-demo`, { method: "POST" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Failed to seed" }));
+        throw new Error(err.error || "Failed to seed demo data");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/diagnostics", surveyId, "results"] });
+    },
   });
 
   if (!user) return null;
@@ -83,7 +99,7 @@ export default function DiagnosticsResults() {
     );
   }
 
-  const { survey, participation, categories, strengths, growthAreas, alignmentNotes, actions, totalResponses } = data;
+  const { survey, participation, categories, strengths, growthAreas, alignmentNotes, priorities, actions, totalResponses } = data;
 
   const radarData = categories
     .filter((c: any) => c.category !== "System Readiness")
@@ -114,9 +130,24 @@ export default function DiagnosticsResults() {
             {survey.status === "active" ? "Live results — responses are still coming in" : `Closed ${survey.closedAt ? new Date(survey.closedAt).toLocaleDateString() : ""}`}
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold">
-          <Eye size={14} />
-          Confidential — coordinator view only
+        <div className="flex items-center gap-3 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => seedMutation.mutate()}
+            disabled={seedMutation.isPending}
+            className="text-xs"
+          >
+            <Database size={14} className="mr-1.5" />
+            {seedMutation.isPending ? "Seeding..." : "Load Demo Data"}
+          </Button>
+          {seedMutation.isError && (
+            <span className="text-xs text-destructive">{(seedMutation.error as Error).message}</span>
+          )}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold">
+            <Eye size={14} />
+            Confidential — coordinator view only
+          </div>
         </div>
       </div>
 
@@ -157,6 +188,21 @@ export default function DiagnosticsResults() {
             <p className="text-muted-foreground">
               No one has completed the diagnostic yet. Share the link with your school community.
             </p>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => seedMutation.mutate()}
+              disabled={seedMutation.isPending}
+            >
+              <Database size={16} className="mr-2" />
+              {seedMutation.isPending ? "Seeding..." : "Load Demo Data"}
+            </Button>
+            {seedMutation.isError && (
+              <p className="text-sm text-destructive mt-2">{(seedMutation.error as Error).message}</p>
+            )}
+            {seedMutation.isSuccess && (
+              <p className="text-sm text-green-600 mt-2">Demo data loaded — refreshing results...</p>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -229,6 +275,89 @@ export default function DiagnosticsResults() {
                     </li>
                   ))}
                 </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {priorities && priorities.length > 0 && (
+            <Card className="border-violet-200 dark:border-violet-900/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target size={20} className="text-violet-500" />
+                  Priorities & KPIs
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Categories ranked by urgency. Each includes recommended KPIs and actions linked to what the diagnostic found.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {priorities.map((p: any) => {
+                  const urgencyStyles: Record<string, { bg: string; text: string; badge: string; label: string }> = {
+                    critical: { bg: "bg-red-50 dark:bg-red-950/20", text: "text-red-800 dark:text-red-300", badge: "bg-red-500 text-white", label: "Critical" },
+                    high: { bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-800 dark:text-amber-300", badge: "bg-amber-500 text-white", label: "High Priority" },
+                    moderate: { bg: "bg-blue-50 dark:bg-blue-950/20", text: "text-blue-800 dark:text-blue-300", badge: "bg-blue-500 text-white", label: "Moderate" },
+                    monitor: { bg: "bg-green-50 dark:bg-green-950/20", text: "text-green-800 dark:text-green-300", badge: "bg-green-600 text-white", label: "Strength" },
+                  };
+                  const style = urgencyStyles[p.urgency] || urgencyStyles.moderate;
+                  return (
+                    <details key={p.category} className={`rounded-xl border border-border overflow-hidden ${style.bg}`} open={p.urgency === "critical" || p.urgency === "high"}>
+                      <summary className="px-5 py-4 cursor-pointer select-none flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-bold text-muted-foreground">#{p.rank}</span>
+                          <div>
+                            <span className="font-bold text-sm">{p.category}</span>
+                            <span className="ml-2 text-xs text-muted-foreground">({p.overallAvg}/5)</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {p.perceptionGap !== null && p.perceptionGap >= 1.0 && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                              {p.perceptionGap}pt gap
+                            </span>
+                          )}
+                          <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${style.badge}`}>
+                            {style.label}
+                          </span>
+                        </div>
+                      </summary>
+                      <div className="px-5 pb-5 space-y-4 border-t border-border/50 pt-4">
+                        <p className={`text-sm ${style.text}`}>{p.rationale}</p>
+
+                        {p.kpis && p.kpis.length > 0 && (
+                          <div>
+                            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Recommended KPIs</h4>
+                            <div className="space-y-2">
+                              {p.kpis.map((kpi: any, ki: number) => (
+                                <div key={ki} className="bg-white dark:bg-card rounded-lg border border-border p-3">
+                                  <p className="text-sm font-medium">{kpi.metric}</p>
+                                  <div className="flex flex-wrap gap-4 mt-1.5 text-xs text-muted-foreground">
+                                    <span><strong>Baseline:</strong> {kpi.baseline}</span>
+                                    <span><strong>Target:</strong> {kpi.target}</span>
+                                    <span><strong>By:</strong> {kpi.timeframe}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {p.suggestedActions && p.suggestedActions.length > 0 && (
+                          <div>
+                            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Suggested Actions</h4>
+                            <ul className="space-y-1.5">
+                              {p.suggestedActions.map((a: string, ai: number) => (
+                                <li key={ai} className="flex items-start gap-2 text-sm">
+                                  <ArrowRight size={14} className="text-primary mt-0.5 shrink-0" />
+                                  <span>{a}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </details>
+                  );
+                })}
               </CardContent>
             </Card>
           )}

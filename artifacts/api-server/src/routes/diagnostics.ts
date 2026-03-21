@@ -489,6 +489,135 @@ router.get("/diagnostics/:id/results", authMiddleware, async (req: Request, res:
     alignmentNotes.push("Parent perspectives are still needed — their input will help round out the school view.");
   }
 
+  const KPI_MAP: Record<string, {
+    kpis: Array<{ metric: string; baseline: string; target: string; timeframe: string }>;
+    actions: string[];
+  }> = {
+    "Awareness & Prevalence": {
+      kpis: [
+        { metric: "% of pupils who can name 3+ forms of bullying", baseline: "Measure via follow-up survey", target: "85%+", timeframe: "6 months" },
+        { metric: "Anti-bullying awareness sessions delivered per term", baseline: "0", target: "2 per year group", timeframe: "Next term" },
+        { metric: "Staff confidence in identifying covert bullying", baseline: "Current diagnostic avg", target: "4.0+ avg", timeframe: "12 months" },
+      ],
+      actions: [
+        "Run age-appropriate assemblies on recognising bullying (physical, verbal, relational, online)",
+        "Add 'What counts as bullying?' quiz to pupil learning resources",
+        "Include real-scenario case studies in staff CPD sessions",
+      ],
+    },
+    "Trust & Reporting": {
+      kpis: [
+        { metric: "% of pupils who say they would tell an adult", baseline: "Current diagnostic avg", target: "4.0+ avg", timeframe: "12 months" },
+        { metric: "Monthly incident reports submitted (trend)", baseline: "Current count", target: "Upward trend in first 6 months (means more trust, not more bullying)", timeframe: "6 months" },
+        { metric: "Average time from report to first staff response", baseline: "Measure via system", target: "< 24 hours", timeframe: "3 months" },
+      ],
+      actions: [
+        "Publicise reporting channels (SafeSchool, trusted adults list) in every classroom",
+        "Run 'It's OK to tell' campaign — normalise reporting as caring, not snitching",
+        "Introduce anonymous reporting option and communicate it to pupils and parents",
+        "Share response-time data with staff to build accountability",
+      ],
+    },
+    "Culture & Wellbeing": {
+      kpis: [
+        { metric: "Pupil wellbeing diary avg mood (school-wide)", baseline: "Current diary avg", target: "3.5+ sustained", timeframe: "Ongoing" },
+        { metric: "% of pupils feeling 'safe and happy' (diagnostic Q)", baseline: "Current diagnostic avg", target: "4.0+", timeframe: "12 months" },
+        { metric: "Positive behaviour recognitions per term", baseline: "0", target: "5+ per class per term", timeframe: "Next term" },
+      ],
+      actions: [
+        "Launch daily wellbeing check-ins (diary feature) across all year groups",
+        "Train staff on restorative conversations (not just sanctions)",
+        "Create pupil wellbeing ambassadors programme",
+        "Review break/lunch supervision and inclusion practices",
+      ],
+    },
+    "Safeguarding Knowledge": {
+      kpis: [
+        { metric: "% of staff completing safeguarding refresher training", baseline: "Measure via HR", target: "100%", timeframe: "Next term" },
+        { metric: "Parent familiarity with anti-bullying policy", baseline: "Current diagnostic avg", target: "3.5+ avg", timeframe: "12 months" },
+        { metric: "% of staff confident in escalation procedures", baseline: "Current diagnostic avg", target: "4.0+", timeframe: "6 months" },
+      ],
+      actions: [
+        "Schedule termly safeguarding refresher for all staff (including non-teaching)",
+        "Send parent-friendly policy summary via school comms channel",
+        "Run scenario-based training: 'What would you do if...?'",
+        "Display escalation flowchart in staff room and on SafeSchool",
+      ],
+    },
+    "System Readiness": {
+      kpis: [
+        { metric: "DSL formally appointed and known to all staff", baseline: "Yes/No", target: "Yes — verified annually", timeframe: "Immediate" },
+        { metric: "Anti-bullying policy reviewed and current", baseline: "Last review date", target: "Reviewed annually", timeframe: "Before next term" },
+        { metric: "Reporting system accessible to all groups", baseline: "Assess via diagnostic", target: "100% of groups can access", timeframe: "3 months" },
+        { metric: "Parent communication channel established", baseline: "Assess", target: "Monthly safeguarding update to parents", timeframe: "Next term" },
+      ],
+      actions: [
+        "Confirm DSL appointment is documented, communicated, and displayed",
+        "Review and update anti-bullying policy against LOPIVI / Convivèxit requirements",
+        "Audit reporting system accessibility for pupils, staff, and parents",
+        "Set up termly parent safeguarding newsletter",
+      ],
+    },
+  };
+
+  const priorities: Array<{
+    rank: number;
+    category: string;
+    overallAvg: number;
+    urgency: string;
+    rationale: string;
+    kpis: Array<{ metric: string; baseline: string; target: string; timeframe: string }>;
+    suggestedActions: string[];
+    perceptionGap: number | null;
+  }> = [];
+
+  for (const c of categories) {
+    const allAvgs = Object.values(c.averages);
+    const overallAvg = allAvgs.reduce((a: number, b: number) => a + b, 0) / allAvgs.length;
+
+    let perceptionGap: number | null = null;
+    const groups = Object.keys(c.averages);
+    if (groups.length >= 2) {
+      const vals = Object.values(c.averages) as number[];
+      perceptionGap = Math.round((Math.max(...vals) - Math.min(...vals)) * 10) / 10;
+    }
+
+    let urgency = "monitor";
+    if (overallAvg <= 2.5) urgency = "critical";
+    else if (overallAvg <= 3.2) urgency = "high";
+    else if (overallAvg <= 3.8) urgency = "moderate";
+
+    if (perceptionGap && perceptionGap >= 1.5 && urgency === "monitor") urgency = "moderate";
+    if (perceptionGap && perceptionGap >= 1.5 && urgency === "moderate") urgency = "high";
+
+    const kpiData = KPI_MAP[c.category] || { kpis: [], actions: [] };
+
+    priorities.push({
+      rank: 0,
+      category: c.category,
+      overallAvg: Math.round(overallAvg * 10) / 10,
+      urgency,
+      rationale: urgency === "critical"
+        ? `Average score of ${overallAvg.toFixed(1)}/5 indicates significant gaps requiring immediate attention.`
+        : urgency === "high"
+          ? `Score of ${overallAvg.toFixed(1)}/5 ${perceptionGap && perceptionGap >= 1.5 ? `with a ${perceptionGap} point perception gap between groups` : ''} — this area would benefit from focused action this term.`
+          : urgency === "moderate"
+            ? `Score of ${overallAvg.toFixed(1)}/5 — solid foundation but room for improvement.`
+            : `Score of ${overallAvg.toFixed(1)}/5 — a strength to maintain and celebrate.`,
+      kpis: kpiData.kpis,
+      suggestedActions: kpiData.actions,
+      perceptionGap,
+    });
+  }
+
+  const urgencyOrder: Record<string, number> = { critical: 0, high: 1, moderate: 2, monitor: 3 };
+  priorities.sort((a, b) => {
+    const diff = urgencyOrder[a.urgency] - urgencyOrder[b.urgency];
+    if (diff !== 0) return diff;
+    return a.overallAvg - b.overallAvg;
+  });
+  priorities.forEach((p, i) => { p.rank = i + 1; });
+
   const actions = await db.select()
     .from(diagnosticActionsTable)
     .where(eq(diagnosticActionsTable.surveyId, surveyId))
@@ -501,6 +630,7 @@ router.get("/diagnostics/:id/results", authMiddleware, async (req: Request, res:
     strengths,
     growthAreas,
     alignmentNotes,
+    priorities,
     actions,
     totalResponses: responses.length,
     questionBank: QUESTION_BANK.map(q => ({ key: q.key, category: q.category })),
@@ -651,6 +781,106 @@ router.post("/diagnostics/:id/actions/publish", authMiddleware, async (req: Requ
     .returning();
 
   res.json({ published: updated.length });
+});
+
+router.post("/diagnostics/:id/seed-demo", authMiddleware, async (req: Request, res: Response) => {
+  const IS_DEMO = process.env.NODE_ENV !== "production";
+  if (!IS_DEMO) {
+    res.status(403).json({ error: "Demo seeding is only available in development mode" });
+    return;
+  }
+
+  const user = (req as any).user;
+  if (!["coordinator", "head_teacher"].includes(user.role)) {
+    res.status(403).json({ error: "Access denied" });
+    return;
+  }
+
+  const surveyId = req.params.id;
+  const [survey] = await db.select()
+    .from(diagnosticSurveysTable)
+    .where(and(
+      eq(diagnosticSurveysTable.id, surveyId),
+      eq(diagnosticSurveysTable.schoolId, user.schoolId),
+    ));
+
+  if (!survey) {
+    res.status(404).json({ error: "Survey not found" });
+    return;
+  }
+
+  const schoolUsers = await db.select({ id: usersTable.id, role: usersTable.role })
+    .from(usersTable)
+    .where(eq(usersTable.schoolId, user.schoolId));
+
+  const profilesByGroup: Record<string, Record<string, { mean: number; spread: number }>> = {
+    pupil: {
+      "Awareness & Prevalence": { mean: 3.2, spread: 1.2 },
+      "Trust & Reporting": { mean: 2.4, spread: 1.0 },
+      "Culture & Wellbeing": { mean: 3.8, spread: 0.8 },
+      "Safeguarding Knowledge": { mean: 2.8, spread: 1.1 },
+      "System Readiness": { mean: 3.0, spread: 1.0 },
+    },
+    staff: {
+      "Awareness & Prevalence": { mean: 4.1, spread: 0.6 },
+      "Trust & Reporting": { mean: 3.9, spread: 0.7 },
+      "Culture & Wellbeing": { mean: 3.5, spread: 0.9 },
+      "Safeguarding Knowledge": { mean: 4.2, spread: 0.5 },
+      "System Readiness": { mean: 3.3, spread: 1.0 },
+    },
+    parent: {
+      "Awareness & Prevalence": { mean: 3.0, spread: 1.0 },
+      "Trust & Reporting": { mean: 2.9, spread: 1.1 },
+      "Culture & Wellbeing": { mean: 3.6, spread: 0.8 },
+      "Safeguarding Knowledge": { mean: 2.3, spread: 0.9 },
+      "System Readiness": { mean: 3.0, spread: 1.0 },
+    },
+  };
+
+  function clampScore(mean: number, spread: number): number {
+    const raw = mean + (Math.random() - 0.5) * 2 * spread;
+    return Math.max(1, Math.min(5, Math.round(raw)));
+  }
+
+  const rows: Array<{
+    surveyId: string;
+    userId: string;
+    questionKey: string;
+    answer: number;
+    comment: string | null;
+  }> = [];
+
+  for (const u of schoolUsers) {
+    const group = getRoleGroup(u.role);
+    const questions = getQuestionsForRole(u.role);
+    const profile = profilesByGroup[group];
+    if (!profile) continue;
+
+    for (const q of questions) {
+      const catProfile = profile[q.category] || { mean: 3.0, spread: 1.0 };
+      rows.push({
+        surveyId,
+        userId: u.id,
+        questionKey: q.key,
+        answer: clampScore(catProfile.mean, catProfile.spread),
+        comment: null,
+      });
+    }
+  }
+
+  await db.transaction(async (tx) => {
+    await tx.delete(diagnosticResponsesTable)
+      .where(eq(diagnosticResponsesTable.surveyId, surveyId));
+
+    if (rows.length > 0) {
+      const BATCH_SIZE = 500;
+      for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+        await tx.insert(diagnosticResponsesTable).values(rows.slice(i, i + BATCH_SIZE));
+      }
+    }
+  });
+
+  res.json({ success: true, responsesSeeded: rows.length, usersIncluded: schoolUsers.length });
 });
 
 router.get("/diagnostics/:id/actions", authMiddleware, async (req: Request, res: Response) => {
