@@ -1,3 +1,9 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+<rect width="180" height="180" rx="36" fill="#0D9488"/>
+<path d="M90 25C90 25 35 45 35 85C35 125 60 155 90 166C120 155 145 125 145 85C145 45 90 25 90 25Z" fill="white" opacity="0.2"/>
+<path d="M90 25C90 25 35 45 35 85C35 125 60 155 90 166C120 155 145 125 145 85C145 45 90 25 90 25Z" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+<path d="M55 75C55 71 58 68 62 68H72V110H62C58 110 55 107 55 103V75Z" fill="white" opacity="0.9"/>
+<path d="M72 63L105 43V127L72 107V63Z" fill="white" opacity="0.9"/>
+<path d="M116 55C123 62 127 72 127 84C127 96 123 106 116 113" stroke="white" stroke-width="7" stroke-linecap="round" opacity="0.75"/>
+<path d="M116 72C119 75 120 80 120 84C120 88 119 93 116 96" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
 </svg>

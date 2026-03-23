@@ -3,7 +3,8 @@ import { useLocation, Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { usePupilLogin, useStaffLogin, useParentLogin, useListSchools, useListPupilsBySchool } from "@workspace/api-client-react";
 import { Button, Input, Label, Card, CardContent } from "@/components/ui-polished";
-import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck, Building2, ChevronRight } from "lucide-react";
+import { User, Users, GraduationCap, AlertTriangle, Play, UserCheck, Building2, ChevronRight } from "lucide-react";
+import { VoiceShieldIcon } from "@/components/VoiceShieldLogo";
 import { motion } from "framer-motion";
 
 const IS_DEMO = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === "true";
@@ -164,8 +165,8 @@ export default function Login() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-secondary shadow-xl shadow-primary/20 mb-6 text-white transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-            <ShieldCheck size={40} strokeWidth={2.5} />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white shadow-xl shadow-primary/20 mb-6 transform -rotate-3 hover:rotate-0 transition-transform duration-300 dark:bg-slate-800">
+            <VoiceShieldIcon size={48} />
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-foreground">SafeSkoolZ</h1>
           <p className="mt-3 text-muted-foreground text-lg">A safe space to speak up and seek help.</p>

@@ -28,6 +28,7 @@ The project is a pnpm workspace monorepo, separating deployable applications fro
 - **Build System:** esbuild.
 
 **UI/UX Decisions:**
+- **Voice Shield Branding:** Custom SVG logo component (`VoiceShieldLogo.tsx`) — a teal shield with white megaphone and sound wave arcs. Used on login, sidebar, newsletter, and favicon. Two variants: `VoiceShieldLogo` (outline, monochrome, uses `currentColor`) for inline contexts; `VoiceShieldIcon` (filled, hardcoded teal `#0D9488` + white) for badge/container contexts. Page title: "SafeSkoolZ — Speak up safely".
 - React+Vite frontend with role-specific dashboards.
 - Adaptive incident reporting forms (child-friendly vs. professional).
 - Data visualization with charts and color-coded badges.
