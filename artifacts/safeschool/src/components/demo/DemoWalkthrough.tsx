@@ -55,6 +55,13 @@ function getStepsForRole(role: string): DemoStep[] {
         benefit: "You control what to share. Anonymous reporting means you can speak up safely.",
       },
       {
+        page: "/diary",
+        navHighlight: "My Diary",
+        title: "Your Private Diary",
+        description: "Tap the diary cover to start writing. You can pick a mood emoji (Sad, Worried, Meh, Happy, Amazing) or just start writing straight away — the mood is optional. Your entries are private — only you and your parent can see them. Tap the palette icon at the top to switch between 6 diary styles: Classic, Ocean, Rose, Forest, Midnight, and Sunset. Each entry shows the date and time. You can delete old entries if you want to.",
+        benefit: "A safe, private space to write down your thoughts and feelings. The AI watches over entries to keep you safe — but nobody reads your diary.",
+      },
+      {
         page: "/behaviour",
         navHighlight: "My Behaviour",
         title: "Your Behaviour Record",
@@ -62,11 +69,25 @@ function getStepsForRole(role: string): DemoStep[] {
         benefit: "No surprises — you can always see exactly where you are and what the levels mean.",
       },
       {
+        page: "/learnings",
+        navHighlight: "School Updates",
+        title: "School Updates & News",
+        description: "Your teachers post updates here — school news, safeguarding reminders, event announcements, and important notices. New posts appear at the top. You can read through everything your school has shared.",
+        benefit: "Stay in the loop with what's happening at school.",
+      },
+      {
+        page: "/diagnostics",
+        navHighlight: "Diagnostic",
+        title: "Safeguarding Survey",
+        description: "When a survey is active, you'll answer questions about how safe you feel at school using emoji faces — from sad to happy. Questions cover: whether bullying happens, do you know how to report it, do you feel safe, and are people kind to each other. For questions about bad things (like 'does bullying happen?'), the happy face means 'not at all' — because no bullying is a good thing! Your answers help the school understand how everyone feels.",
+        benefit: "Your voice matters. The school uses your answers to make things better for everyone.",
+      },
+      {
         page: "/training",
         navHighlight: "Training",
-        title: "Messages & Urgent Help",
-        description: "From your dashboard, you can send a private message to any safe contact. The red 'Urgent Help' button sends an emergency alert to your form tutor and the safeguarding coordinator — use it if you feel unsafe right now. Chat requests let you ask for a private conversation without explaining why in writing. Your training guide here explains each feature step by step.",
-        benefit: "Three ways to reach out: message, urgent alert, or chat request — depending on how you feel.",
+        title: "How To Use SafeSkoolZ",
+        description: "Step-by-step guides explain every feature: how to report an incident, how to use your diary, how messages work, how to send an urgent help alert, and how the behaviour system works. Each guide has numbered steps you can follow along with.",
+        benefit: "If you're ever unsure how something works, the answer is here.",
       },
       {
         page: "/education",
@@ -74,6 +95,13 @@ function getStepsForRole(role: string): DemoStep[] {
         title: "Learn About Staying Safe",
         description: "Sections cover: What is bullying? (physical, verbal, cyber, exclusion), What to do if you're being bullied, How to help a friend who's being bullied, Your rights at school, Understanding your feelings, and Online safety. Each topic uses simple language and real examples.",
         benefit: "Understanding what's happening is the first step to feeling safe.",
+      },
+      {
+        page: "/notifications",
+        navHighlight: "Notifications",
+        title: "Your Notifications",
+        description: "Every important update appears here — when a teacher responds to your report, when you receive a message, when your behaviour record changes, or when there's something new to read. Unread notifications show a red badge on the bell icon in the sidebar. Tap any notification to go straight to the related page.",
+        benefit: "Never miss an important update. Everything is in one place.",
       },
       {
         page: "/settings",
@@ -90,8 +118,15 @@ function getStepsForRole(role: string): DemoStep[] {
       {
         page: "/",
         title: "Parent Dashboard",
-        description: "The top cards show your child's current behaviour level (Good Standing, Warning, Formal Warning, etc.), total incidents this term, and any unread notifications. Below, the monthly trend chart plots incidents over time so you can see if things are improving or worsening. Recent notifications list every update — new incidents, behaviour points, messages from staff, and status changes on existing cases.",
+        description: "The top cards show your child's current behaviour level (Good Standing, Warning, Formal Warning, etc.), total incidents this term, and any unread notifications. Below, the monthly trend chart plots incidents over time so you can see if things are improving or worsening. Recent notifications list every update — new incidents, behaviour points, messages from staff, and status changes on existing cases. You can also contact your PTA representatives directly from here.",
         benefit: "At a glance: is my child safe, and are things getting better or worse?",
+      },
+      {
+        page: "/report",
+        navHighlight: "Report Incident",
+        title: "Submit Your Own Concern",
+        description: "You can report a concern yourself — choose from the same 8 categories (physical, verbal, psychological, sexual, relational, coercive, property, online), describe what happened, name who was involved, and select the location. Your report goes to the school's safeguarding team and is treated with the same priority as any staff-reported incident.",
+        benefit: "Your concerns are formally recorded, tracked, and responded to — not lost in an email.",
       },
       {
         page: "/incidents",
@@ -108,6 +143,13 @@ function getStepsForRole(role: string): DemoStep[] {
         benefit: "Understand exactly where your child stands and what each level means before it escalates.",
       },
       {
+        page: "/learnings",
+        navHighlight: "School Updates",
+        title: "School Updates & News",
+        description: "Teachers post updates here — school news, safeguarding reminders, event announcements, and important notices. This is also where you'll find newsletters, policy updates, and information about upcoming events. New posts appear at the top.",
+        benefit: "Stay informed about what's happening at your child's school.",
+      },
+      {
         page: "/messages",
         navHighlight: "Messages",
         title: "Messages & Emergency Alerts",
@@ -115,11 +157,18 @@ function getStepsForRole(role: string): DemoStep[] {
         benefit: "Direct, private communication with staff — plus visibility when your child asks for urgent help.",
       },
       {
-        page: "/report",
-        navHighlight: "Report Incident",
-        title: "Submit Your Own Concern",
-        description: "You can report a concern yourself — choose from the same 8 categories (physical, verbal, psychological, sexual, relational, coercive, property, online), describe what happened, name who was involved, and select the location. Your report goes to the school's safeguarding team and is treated with the same priority as any staff-reported incident.",
-        benefit: "Your concerns are formally recorded, tracked, and responded to — not lost in an email.",
+        page: "/diagnostics",
+        navHighlight: "Diagnostic",
+        title: "Safeguarding Survey",
+        description: "When a survey is active, you'll answer questions about your perception of the school's safeguarding culture — how much of a problem you think bullying is, whether you believe your child feels safe, how confident you are in the reporting system, and how well the school communicates. Your responses are anonymous and help the school measure and improve its safeguarding climate.",
+        benefit: "Your voice shapes how the school improves. Honest answers lead to real action plans.",
+      },
+      {
+        page: "/training",
+        navHighlight: "Training",
+        title: "How To Use SafeSkoolZ",
+        description: "Step-by-step guides for every feature — viewing incidents, checking behaviour points and levels, messaging staff, reporting concerns, and reading your child's diary. Each guide has numbered steps you can follow along with.",
+        benefit: "Never feel lost — everything is explained here.",
       },
       {
         page: "/education",
@@ -129,11 +178,18 @@ function getStepsForRole(role: string): DemoStep[] {
         benefit: "Practical knowledge to support your child and understand how the school's safeguarding system works.",
       },
       {
-        page: "/training",
-        navHighlight: "Training",
-        title: "How To Use SafeSkoolZ",
-        description: "Step-by-step guides for every feature — viewing incidents, checking behaviour points and levels, messaging staff, and reporting concerns. Each guide has numbered steps you can follow along with.",
-        benefit: "Never feel lost — everything is explained here.",
+        page: "/notifications",
+        navHighlight: "Notifications",
+        title: "Your Notifications",
+        description: "Every important update appears here — new incidents involving your child, behaviour point changes, messages from staff, and survey invitations. Unread notifications show a red badge on the bell icon. Tap any notification to go straight to the related page.",
+        benefit: "Never miss an important update about your child.",
+      },
+      {
+        page: "/settings",
+        navHighlight: "Settings",
+        title: "Your Profile & Settings",
+        description: "Update your profile information and preferences. Manage your notification settings and account details.",
+        benefit: "Keep your profile up to date so staff can reach you when it matters.",
       },
     ];
   }
@@ -189,11 +245,39 @@ function getStepsForRole(role: string): DemoStep[] {
         benefit: "The system connects dots across hundreds of data points that no single teacher could track manually.",
       },
       {
+        page: "/learnings",
+        navHighlight: "School Updates",
+        title: "School Updates & Posts",
+        description: "Post updates for pupils and parents — school news, safeguarding reminders, event announcements, and important notices. Create new posts with a title and content. Your posts are visible to all pupils and parents in the school. You can delete your own posts if needed.",
+        benefit: "Keep the whole school community informed. One post reaches every pupil and parent.",
+      },
+      {
+        page: "/diagnostics",
+        navHighlight: "Diagnostics",
+        title: "Safeguarding Climate Survey",
+        description: "Launch diagnostic surveys to measure how pupils, staff, and parents perceive the school's safeguarding culture. Each role gets tailored questions about awareness, trust, reporting, wellbeing, and policy knowledge. View results with radar charts and bar charts showing scores by category and role group. Generate AI-powered action plans with KPIs, baselines, targets, and timeframes.",
+        benefit: "Data-driven safeguarding improvement. Measure what matters and track progress over time.",
+      },
+      {
         page: "/training",
         navHighlight: "Training",
         title: "Training & Help Guides",
         description: "Step-by-step guides for every feature: logging incidents, assessing reports, managing PINs and locked accounts, issuing behaviour points, understanding the 7-level escalation ladder, responding to urgent help alerts, and reading pattern alerts. Each guide has numbered steps you can follow along with.",
         benefit: "New staff can self-train. Experienced staff can look up any feature they haven't used recently.",
+      },
+      {
+        page: "/education",
+        navHighlight: "Learn",
+        title: "Safeguarding Education Hub",
+        description: "Educational resources about safeguarding, anti-bullying, child protection, and online safety. Age-appropriate materials you can use in lessons or recommend to pupils and parents.",
+        benefit: "Ready-made educational content to support safeguarding across the curriculum.",
+      },
+      {
+        page: "/notifications",
+        navHighlight: "Notifications",
+        title: "Your Notifications",
+        description: "Every important update — new incidents, behaviour alerts, messages, protocol updates, and urgent help requests. Unread notifications show a red badge on the bell icon. Tap any notification to go straight to the action needed.",
+        benefit: "Never miss a safeguarding action. Critical alerts rise to the top.",
       },
     ];
   }
@@ -309,11 +393,109 @@ function getStepsForRole(role: string): DemoStep[] {
         benefit: "Transparent, consistent discipline. Every level has clear thresholds, actions, and parent visibility.",
       },
       {
+        page: "/learnings",
+        navHighlight: "School Updates",
+        title: "School Updates & Posts",
+        description: "Post updates for the school community — news, safeguarding reminders, policy changes, and important notices. Create new posts visible to all pupils, parents, and staff.",
+        benefit: "One post reaches the entire school community. Keep everyone informed.",
+      },
+      {
+        page: "/diagnostics",
+        navHighlight: "Diagnostics",
+        title: "Safeguarding Climate Survey",
+        description: "Create and launch diagnostic surveys to measure how pupils, staff, and parents perceive the school's safeguarding culture. Each role gets tailored questions. View results with radar charts and bar charts. Generate AI-powered action plans with KPIs, baselines, targets, and timeframes aligned to LOPIVI and Convivèxit requirements.",
+        benefit: "Evidence-based safeguarding improvement. Measure, plan, and track progress systematically.",
+      },
+      {
         page: "/training",
         navHighlight: "Training",
         title: "Staff Training Resource",
         description: "Complete training guides for all features: incident logging, status management, protocol management, PIN management and printing, behaviour point system and the 7-level escalation ladder, pattern alerts, and dashboard analytics. Each guide has numbered steps you can follow along with.",
         benefit: "Onboard new staff quickly. Every procedure documented step-by-step.",
+      },
+      {
+        page: "/education",
+        navHighlight: "Learn",
+        title: "Safeguarding Education Hub",
+        description: "Educational resources for staff, pupils, and parents. Anti-bullying, child protection, online safety, and LOPIVI/Convivèxit guidance materials.",
+        benefit: "Ready-made educational content to support safeguarding across the school.",
+      },
+      {
+        page: "/notifications",
+        navHighlight: "Notifications",
+        title: "Your Notifications",
+        description: "Every important update — new incidents, protocol updates, urgent help alerts, behaviour escalations, and staff messages. Critical notifications surface first. Tap any notification to go straight to the action needed.",
+        benefit: "Never miss a safeguarding action. Everything that needs your attention in one place.",
+      },
+    ];
+  }
+
+  if (role === "pta") {
+    return [
+      {
+        page: "/pta",
+        title: "PTA Dashboard",
+        description: "Your PTA Portal home — KPI cards show the current safeguarding climate: total incidents this term (anonymised), active protocols, survey participation rates, and wellbeing trends. Charts show incident trends over time and category breakdowns. All data is anonymised — you never see individual pupil names.",
+        benefit: "Oversight without overstepping. See the big picture without compromising any child's privacy.",
+      },
+      {
+        page: "/pta",
+        title: "Coordinator Channel",
+        description: "Direct messaging channel to the school's Safeguarding Coordinator. Raise questions, flag concerns, or request updates. All messages are threaded and timestamped. You can also formally raise a concern through the 'Raise Concern' form — these are tracked separately and require a coordinator response.",
+        benefit: "Direct line to the safeguarding lead. Formal concerns are tracked and can't be ignored.",
+      },
+      {
+        page: "/pta",
+        title: "Policy Review",
+        description: "Review the school's current safeguarding and anti-bullying policy. You can acknowledge that you've read it, or flag specific sections you think need updating. Flagged items are sent to the coordinator for review. The policy review status shows which PTA members have acknowledged the current version.",
+        benefit: "Active PTA involvement in policy governance. Flag gaps before they become problems.",
+      },
+      {
+        page: "/pta",
+        title: "Annual Report & Co-Design",
+        description: "The Annual Report tab shows the school's anonymised safeguarding report — incident volumes, category trends, protocol outcomes, and action plan progress. You can approve or request changes. The Co-Design tab is a collaborative workspace where PTA members and staff can propose and vote on safeguarding improvements.",
+        benefit: "Genuine partnership. The PTA isn't just informed — they actively shape safeguarding policy.",
+      },
+      {
+        page: "/pta",
+        title: "Resources Library",
+        description: "Curated safeguarding resources organised by category: protocol guides (LOPIVI, Convivèxit), parent guides (how to talk to your child about bullying), training materials, and external links to official bodies. Documents, videos, and web links in one searchable library.",
+        benefit: "Everything a PTA member needs to understand the safeguarding landscape.",
+      },
+      {
+        page: "/learnings",
+        navHighlight: "School Updates",
+        title: "School Updates & News",
+        description: "School-wide updates from teachers and coordinators — news, safeguarding reminders, event announcements, and policy changes. Stay informed about what's happening across the school community.",
+        benefit: "Stay connected to the school's day-to-day safeguarding activity.",
+      },
+      {
+        page: "/diagnostics",
+        navHighlight: "Diagnostic",
+        title: "Safeguarding Survey",
+        description: "When a survey is active, you'll answer questions about the school's safeguarding culture from the PTA perspective — policy effectiveness, communication quality, trust in reporting systems, and overall safeguarding readiness. Your responses help shape the school's improvement plan.",
+        benefit: "Your expertise as a parent and PTA member directly influences school safeguarding priorities.",
+      },
+      {
+        page: "/training",
+        navHighlight: "Training",
+        title: "How To Use SafeSkoolZ",
+        description: "Step-by-step guides for every PTA feature: navigating the dashboard, messaging the coordinator, reviewing policy, accessing the annual report, using the co-design workspace, and understanding the resources library.",
+        benefit: "Get up to speed quickly. Every PTA feature explained step by step.",
+      },
+      {
+        page: "/education",
+        navHighlight: "Learn",
+        title: "Safeguarding Education",
+        description: "Guides on safeguarding, anti-bullying, child protection law, and online safety — written for parents and PTA members in plain language with practical steps.",
+        benefit: "Deepen your understanding of safeguarding to be a more effective PTA advocate.",
+      },
+      {
+        page: "/notifications",
+        navHighlight: "Notifications",
+        title: "Your Notifications",
+        description: "Updates about new survey invitations, coordinator responses to your concerns, policy changes, annual report availability, and co-design proposals. Tap any notification to go straight to the action.",
+        benefit: "Never miss an important PTA update.",
       },
     ];
   }

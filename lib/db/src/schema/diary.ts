@@ -6,7 +6,7 @@ export const pupilDiaryTable = pgTable("pupil_diary", {
   id: uuid("id").defaultRandom().primaryKey(),
   pupilId: uuid("pupil_id").notNull().references(() => usersTable.id),
   schoolId: uuid("school_id").notNull().references(() => schoolsTable.id),
-  mood: integer("mood").notNull(),
+  mood: integer("mood"),
   note: text("note"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [

@@ -1,0 +1,1299 @@
+
+
+
+
+
+
+
+View All
+
+
+Want to see what case studies, synthetic content, placeholders we should use - focus on primary age kids. Any ideas to enhance features or funciotnd welcome too { "platform": { "name": "SafeSkoolZ", "tagline": "A safe space to speak up and seek help", "poweredBy": "Cloudworkz", "school": "Morna International College, Ibiza", "compliance": [ "LOPIVI (Spain child protection)", "Convivèxit (Balearic anti-bullying protocol)", "Machista Violence protocols" ], "techStack": "React + Vite frontend, Express API, PostgreSQL, OpenAI AI scanning" }, "roles": [ { "id": "pupil", "label": "Pupil", "loginMethod": "School + Name + 4-digit PIN" }, { "id": "parent", "label": "Parent", "loginMethod": "Email + Password" }, { "id": "teacher", "label": "Teacher / Head of Year", "loginMethod": "Email + Password" }, { "id": "support_staff", "label": "Support Staff", "loginMethod": "Email + Password" }, { "id": "senco", "label": "SENCO (Special Educational Needs Coordinator)", "loginMethod": "Email + Password" }, { "id": "coordinator", "label": "Safeguarding Coordinator (DSL)", "loginMethod": "Email + Password" }, { "id": "head_teacher", "label": "Head Teacher", "loginMethod": "Email + Password" }, { "id": "pta", "label": "PTA Member/Chair", "loginMethod": "Email + Password" } ], "modules": { "authentication": { "description": "Multi-role login system with separate flows for pupils (PIN-based), staff (email/password), parents, and PTA members", "features": [ "Pupil PIN login with lockout after failed attempts", "Staff/Parent/PTA email login", "Demo mode with one-click role login", "JWT token auth", "Avatar/profile customisation", "PIN reset by teachers" ] }, "incidentReporting": { "description": "Core safeguarding feature — pupils, parents, and staff can report incidents with guided forms", "features": [ "Multi-step incident form with emotional state tracking", "Incident types: bullying, cyberbullying, physical, verbal, relational, sexual, discriminatory", "Who is involved: happening to me / someone else / I saw it", "Emotional state picker with freetext", "Anonymous reporting option", "File/evidence attachment support", "Automatic reference number generation", "Incident severity assessment by staff", "Status workflow: reported → under_review → investigating → resolved → closed", "Consent request/response flow (staff must get consent before viewing certain details)", "Parent notification of incidents involving their child" ] }, "protocols": { "description": "Formal safeguarding protocols triggered by serious incidents, compliant with LOPIVI/Convivèxit", "features": [ "Protocol creation linked to incidents", "Framework types: LOPIVI, Convivèxit, Machista Violence, Child Protection", "Protocol stages tracking", "Annex template system (structured legal documents per framework)", "Referral body management (external agencies, police, social services)", "Protocol status: open → active → monitoring → closed", "Interview records attached to protocols", "Case tasks for action tracking within protocols", "Delegated role assignments (temporary permissions)" ] }, "diary": { "description": "Private digital diary for pupils with physical notebook aesthetic", "features": [ "Leather-bound diary visual design with lined paper", "6 switchable themes: Classic, Ocean, Rose, Forest, Midnight, Sunset", "Standard Unicode emoji picker for expression", "Private entries — only visible to the pupil", "AI-powered safeguarding scanner (GPT-5-nano) — flags serious concerns", "AI flagging creates pattern alerts for welfare lead WITHOUT revealing diary content", "Parent view of child's diary (read-only)", "Entry deletion by pupil" ] }, "diagnostics": { "description": "Whole-school safeguarding climate survey with role-specific questions", "questionCategories": [ "Awareness & Prevalence (bullying awareness)", "Trust & Reporting (confidence in reporting systems)", "Culture & Wellbeing (feeling safe, kindness, inclusion)", "Safeguarding Knowledge (policy awareness, training adequacy)", "System Readiness (DSL appointment, policy currency, reporting systems)" ], "features": [ "Emoji-face Likert scale for pupils (with intelligent emoji reversal for negative questions)", "Standard Likert scale for staff/parents", "Role-specific question bank (pupils get simpler wording)", "Survey lifecycle: create → active → closed", "Results dashboard with radar charts, bar charts, participation stats", "AI-generated action plan from results", "Action plan with KPIs, baselines, targets, timeframes", "Publishable action plans", "Animated completion screen with role-specific messaging", "Multiple survey support" ] }, "behaviour": { "description": "Behaviour tracking system with points and levels", "features": [ "Behaviour point categories: Kindness, Respect, Teamwork, Effort, Leadership", "Levels: Bronze → Silver → Gold → Platinum → Diamond", "Staff can award points to pupils", "Pupil view of own behaviour record", "Parent view of child's behaviour", "Class behaviour summary for teachers" ] }, "messaging": { "description": "Secure in-app messaging between users", "features": [ "Direct messages between staff, parents, pupils", "Conversation threading", "Read receipts", "Parent-to-PTA messaging channel", "Safe contacts list (designated trusted adults)", "Child alert notifications for parents" ] }, "notifications": { "description": "System-wide notification centre", "features": [ "Push notifications for incidents, messages, protocol updates", "Acknowledgement tracking", "Unread badge counts in navigation", "Role-filtered notifications" ] }, "ptaPortal": { "description": "Dedicated portal for PTA members with governance tools", "tabs": ["Dashboard", "Coordinator Channel", "Policy", "Annual Report", "Co-Design", "Resources"], "features": [ "KPI dashboard with charts (incident trends, safeguarding metrics)", "Direct messaging channel to Safeguarding Coordinator", "Concern raising system", "Safeguarding policy review and acknowledgement", "Policy flagging (raise concerns about policy gaps)", "Auto-generated anonymised annual safeguarding report", "Report approval workflow", "Co-design workspace (collaborative policy improvement)", "Mood/wellbeing trend tracking", "Curated safeguarding resource library (documents, videos, links)", "Parent-to-PTA contact and messaging" ] }, "dashboards": { "description": "Role-specific dashboards with relevant data", "variants": { "pupil": "Quick actions (report, diary), recent behaviour points, wellbeing check", "parent": "Child overview cards, recent incidents, behaviour summary, PTA contact", "teacher": "Class overview, recent incidents, behaviour leaderboard, analytics", "coordinator": "School-wide stats, incident pipeline, protocol status, pattern alerts, analytics charts", "pta": "Redirects to PTA Portal dashboard" } }, "alerts": { "description": "Pattern detection and AI-generated alerts for safeguarding leads", "features": [ "AI diary content scanning (flags concerns without revealing content)", "Pattern alert types: frequency, pattern, ai_flag, manual", "Alert severity levels", "Alert acknowledgement and resolution workflow", "Linked to specific pupils with privacy protection" ] }, "sencoCaseload": { "description": "SENCO-specific caseload management for pupils with additional needs", "features": [ "Pupil caseload assignment", "Progress tracking entries per pupil", "Available pupils list for new assignments", "Caseload removal" ] }, "myClass": { "description": "Teacher's class management view", "features": [ "Pupil roster with avatars", "Pupil search", "PIN reset capability", "Bulk PIN reset", "Quick access to pupil behaviour and incident history" ] }, "education": { "description": "Safeguarding education content hub", "features": ["Educational resources about safeguarding", "Age-appropriate content", "Available to all roles"] }, "training": { "description": "Professional development and training module", "features": ["Training materials for staff", "Available to all roles including parents and PTA"] }, "schoolUpdates": { "description": "School-wide news and updates feed", "features": [ "Teacher/staff can create posts", "Post deletion by author", "Chronological feed visible to all roles" ] }, "newsletter": { "description": "Public-facing newsletter signup for prospective schools", "features": ["Email subscription", "Interest registration for schools/authorities"] }, "settings": { "description": "User preferences and profile management", "features": ["Avatar selection and customisation", "Profile updates"] }, "auditLog": { "description": "Comprehensive audit trail for compliance", "features": [ "All significant actions logged with actor, target, event type", "IP tracking", "Tamper-proof chronological log" ] }, "dataRetention": { "description": "Data retention policy management", "features": ["Configurable retention policies", "GDPR/LOPD compliance"] } }, "databaseTables": [ "users", "schools", "incidents", "protocols", "interviews", "messages", "notifications", "behaviour_points", "pupil_diary", "diagnostic_surveys", "diagnostic_responses", "diagnostic_actions", "pattern_alerts", "case_tasks", "delegated_roles", "annex_templates", "referral_bodies", "audit_log", "senco_caseload", "senco_tracking", "teacher_posts", "newsletter_subscribers", "pta_messages", "pta_concerns", "pta_policy_acknowledgements", "pta_codesign_responses", "pta_annual_reports" ], "aiFeatures": [ { "name": "Diary Safeguarding Scanner", "model": "gpt-5-nano", "trigger": "After each diary entry POST", "behaviour": "Scans for serious safeguarding concerns (abuse, self-harm, neglect, exploitation). If flagged, creates a pattern_alert for the welfare lead with a FIXED safe message — diary text is NEVER stored in alerts or logs." }, { "name": "Diagnostic Action Plan Generator", "model": "AI-powered", "trigger": "On demand from survey results", "behaviour": "Analyses survey responses across all roles and generates structured action plans with KPIs, baselines, targets, and timeframes aligned to LOPIVI/Convivèxit frameworks." } ] }
+Completed 1 step
+For primary-age pupils, I’d anchor everything around simple “feelings-first” journeys, cartoon-style placeholders, and very constrained language, while using parents/teachers/PTA case studies to show the heavier functionality.
+
+Below are concrete case study ideas, synthetic content patterns, and a few feature tweaks tailored to under‑11s.
+
+1. Primary-friendly pupil journeys
+A. “Something unkind happened” (incident reporting)
+
+Use a single recurring primary character (e.g. “Luna” / “Max”) and 2–3 classmates.
+
+Scenario titles:
+
+“Someone keeps leaving me out at playtime”
+
+“A boy in my class pushes me in the line”
+
+“Kids in my group made a mean WhatsApp name”
+
+Language on-screen:
+
+“What is happening?” → tiles: “Someone is unkind to me”, “Someone is unkind to another child”, “I saw something unkind”.
+
+Incident types simplified labels on top of your real taxonomy:
+
+Bullying → “Being unkind on purpose”
+
+Physical → “Hitting, kicking or pushing”
+
+Verbal → “Mean or rude words”
+
+Relational → “Leaving people out on purpose”
+
+Cyberbullying → “Unkind messages or pictures online”
+
+Emotional-state picker:
+
+5 faces: “Happy”, “OK”, “Worried”, “Sad”, “Very upset”.
+
+Short helper text: “Choose the face that feels most like you today.”
+
+Placeholders:
+
+Name fields prefilled with “Luna in Year 3”, “Sam in Class 4B”.
+
+Description examples:
+
+“Three boys keep calling me names at lunch time.”
+
+“My friend is being pushed in football and told to go away.”
+
+Use teachers’ view placeholders to show the same case classified correctly, severity set, and moved through the workflow.
+
+2. Diary examples and “AI scanner” narrative
+Make the diary feel like a safe emotional outlet, and show the AI as a “worry helper”, not a watcher.
+
+Normal diary entries:
+
+“Today we did painting. I felt proud of my picture.”
+
+“I was a bit nervous about reading aloud but it went okay.”
+
+Low-level concern:
+
+“Kids at football always laugh when I miss. I don’t want to go anymore.”
+
+High-concern (for demo only, no graphic detail):
+
+“I feel scared to go home. I don’t sleep well and cry most nights.”
+
+How you visually explain the scanner:
+
+Simple info bubble for kids: “If your diary shows big worries, a trusted adult may get a secret ‘please check on me’ message. They won’t see your diary page.”
+
+For staff demo: show a pattern_alert record with a fixed message like: “Diary scanner has noticed signs that [Pupil A] may need extra support. Please check in with this pupil.”
+
+This makes the AI function legible to parents and regulators while remaining non-intrusive for children.
+
+3. Diagnostics: primary pupil surveys
+Keep wording ultra-simple and concrete, using emoji faces.
+
+Question stems per category:
+
+Awareness & Prevalence: “If someone is unkind a lot, do adults in school find out?”
+
+Trust & Reporting: “If you tell an adult here a worry, do they listen and help?”
+
+Culture & Wellbeing: “Do you feel safe in school most days?”
+
+Safeguarding Knowledge: “Do you know which adult to talk to if something scares you?”
+
+Emoji Likert:
+
+Faces from very sad → very happy, with words: “Never”, “Sometimes”, “Lots of times”, “Always”.
+
+Placeholders:
+
+Sample radar chart for “Year 3–4 pupils” with one weak axis (e.g. Trust & Reporting), then an auto‑generated action plan showing 2–3 concrete actions:
+
+“More ‘who can I talk to?’ posters in classrooms.”
+
+“Circle time once a week about kindness and worries.”
+
+4. Behaviour and “kindness-first” framing
+Use behaviour tracking to reinforce pro‑social behaviour, not just compliance.
+
+Point events:
+
+“Helped a friend who was sad” → Kindness +2.
+
+“Included someone new in our game” → Teamwork +2.
+
+“Stayed calm when something went wrong” → Respect +1.
+
+Pupil-facing UI:
+
+“You reached Silver for kindness!”
+
+Simple progress bars per category (“You are close to Gold in Effort”).
+
+Class view:
+
+Leaderboard NOT by individuals only, but also “Class 3A kindness total this week”.
+
+This links directly to anti‑bullying culture and Convivèxit “convivencia” language without exposing real pupils.
+
+5. Role-based adult case studies
+Use composite, fully synthetic schools (e.g. “Sant Blai Primary, Mallorca”) and anonymised roles to model real LOPIVI/Convivèxit use without risk.
+
+A. DSL / Safeguarding Coordinator
+
+Use case:
+
+“After 3 low‑severity friendship issues and 1 diary alert for the same pupil, the system created an automatic pattern alert.”
+
+DSL creates a Convivèxit protocol linked to the core incident, records interviews, assigns tasks (call parent, observe playground, speak to class teacher).
+
+Artefacts (mocked):
+
+Protocol stages with dates and statuses.
+
+Annex template auto‑filled sections, showing how the system structures evidence.
+
+Audit log snippet showing “who saw what, when”.
+
+B. Teacher / Head of Year
+
+Use case:
+
+Class teacher receives multiple minor reports (“unchallenged name‑calling at lunch”).
+
+Teacher logs restorative actions, checks behaviour summary, adds a note to SENCO caseload if patterns persist.
+
+Artefacts:
+
+MyClass page with avatars and quick links.
+
+Incident list filtered to “Class 4B – last 30 days”.
+
+C. Parent / PTA
+
+Parent story:
+
+“Parent sees two low‑grade incident reports and a dip in behaviour points; uses messaging to contact the DSL, not the WhatsApp class group.”
+
+PTA story:
+
+PTA uses diagnostic results dashboard to flag that Year 5 pupils report low trust in adults, raises concern via PTA portal, co‑designs new parent workshop and playground charter.
+
+These case studies show how the system supports whole‑school culture, not just incident firefighting.
+
+6. Synthetic data patterns and placeholders
+You can pre‑load demo environments with:
+
+Pupil cohorts:
+
+2–3 classes (e.g. Year 3A, 4B, 5C) with 8–12 synthetic pupils each, gender‑balanced, international names to match Morna.
+
+Incident dataset:
+
+Mix of severities:
+
+Many low‑level “unkind” or “falling out” events.
+
+Fewer medium incidents (repeated name‑calling).
+
+Rare high severity triggering protocols.
+
+Time distribution:
+
+“Bullying” clustering around transitions (start of year, after holidays) to show trend charts.
+
+Survey data:
+
+Pupils rating “feeling safe” high, “knowing who to talk to” slightly lower, parents rating “communication about incidents” lower, staff rating “training adequacy” as medium.
+
+All of this can be procedurally generated and stored in a separate “demo_school” schema so you never risk mixing with production data.
+
+7. Feature/function ideas specifically for primary
+A. Pupil UX tweaks
+
+“Big button” home for pupils: 3 tiles only – “I’m worried”, “My diary”, “My points”.
+
+Trusted adult selector:
+
+Let pupils pre‑choose 1–3 trusted adults from a visual list (photos/avatars); incident forms default to sending to those.
+
+“Worries scale” daily check‑in:
+
+Optional 1‑tap daily check (“How are you feeling today?” with faces) feeding into alerts/analytics.
+
+B. Safeguarding / compliance enhancements
+
+Explicit “LOPIVI/Convivèxit wizard”:
+
+Question‑driven assistant that helps DSL choose the right protocol when an incident is escalated.
+
+DPIA / legal pack:
+
+Auto‑generated DPIA template from your audit_log and dataRetention configuration, to help schools evidence compliance to inspectors and families.
+
+Offline contingency:
+
+Simple “paper import” flow to log paper‑based incidents later so the digital picture remains complete.
+
+C. AI safety and explainability
+
+AI “explanation card” for adults:
+
+For each diary alert or diagnostic action plan, show “Why this was suggested” in plain language (patterns spotted, limitations, “human decision still needed”).
+
+AI configuration:
+
+School‑level toggles and thresholds for diary scanner sensitivity and who receives alerts, so different cultures/age phases can tune it.
+
+Would you like the first concrete output to be: (a) a set of fully written-out primary-friendly UI copy snippets for incident/diary/behaviour screens, or (b) 2–3 narrative case studies you can drop straight into decks and demo scripts?
+Each section populated
+Completed 2 steps
+I’ll treat “each section populated” as “fill out the sections you sketched last time”: primary‑friendly UI copy plus short narrative case studies, all tuned for primary age.
+
+I’ll keep it compact so you can drop straight into Figma / demo scripts.
+
+1. Pupil incident reporting – concrete copy
+Pupil home (primary)
+
+Big buttons:
+
+“I’m worried about something”
+
+“Write in my diary”
+
+“See my points”
+
+Subtext: “If something is worrying you, you can tell us here. An adult will listen and help.”
+
+Step 1 – What is happening?
+
+Title: “What do you want to tell us about?”
+
+Tiles (mapped to your types):
+
+“Someone is unkind to me” (bullying / verbal / physical / relational)
+
+“Someone is unkind to another child” (bullying / witness)
+
+“I saw something unkind online” (cyberbullying)
+
+“Something else is worrying me” (other / safeguarding)
+
+Helper text: “You can tell us even if you are not sure it is ‘bullying’. If it feels wrong or worrying, it matters.”
+
+Step 2 – Who is it about?
+
+Title: “Who is this happening to?”
+
+Options:
+
+“Me”
+
+“Another child”
+
+“A group of children”
+
+Helper: “Please do not write full names here. Adults in school will help work out who needs help.”
+
+Step 3 – Tell us a bit more
+
+Title: “What happened?”
+
+Textbox placeholder:
+
+“For example: ‘At playtime some children told me I can’t play and laughed at me.’”
+
+Time/place quick chips:
+
+“Today”, “This week”, “In the classroom”, “In the playground”, “On the bus”, “Online”.
+
+Optional attachment hint:
+
+“You can add a screenshot or photo if an adult has said it is okay.”
+
+Step 4 – How are you feeling? (emoji Likert)
+
+Title: “How do you feel about this?”
+
+5 faces with labels:
+
+“Okay”
+
+“A bit upset”
+
+“Worried”
+
+“Sad”
+
+“Very upset or scared”
+
+Helper: “Choose the face that feels most like you right now.”
+
+Step 5 – Name / anonymous
+
+Title: “Can we know who you are?”
+
+Options:
+
+“Yes, tell them my name (this helps them support me).”
+
+“No, I want to stay anonymous.”
+
+If named:
+
+Fields: “My first name”, “My class”.
+
+Placeholder: “Alex”, “Year 4B”.
+
+Child‑facing reassurance:
+
+“Adults will keep your information safe and will only tell other adults who need to know.”
+
+Success screen
+
+Message:
+
+“Thank you for telling us. A trusted adult in school will read this and decide how to help. If you feel very scared or unsafe right now, tell an adult you trust straight away.”
+
+Reference:
+
+“Your report number is: #A3F9. You don’t need to remember this, but you can show it to an adult if you like.”
+
+2. Diary – themes, entries, AI explainer
+Diary home
+
+Tagline at top: “Your private diary – a place for your thoughts and feelings.”
+
+Theme picker labels:
+
+“Classic”, “Ocean”, “Rose”, “Forest”, “Midnight”, “Sunset”.
+
+Helper text:
+
+“Only you can read your diary here. Grown‑ups cannot see your pages, unless you choose to show them.”
+
+New entry placeholders
+
+Title placeholder: “Today at school…”
+
+Body placeholders (rotate):
+
+“Today I felt proud when…”
+
+“Something that made me smile was…”
+
+“Something that worried me was…”
+
+Example safe content for demo:
+
+“Today we did painting. I felt proud of my picture and my friend said it was great.”
+
+“At lunch some children said I can’t sit with them. I felt left out and went to sit by myself.”
+
+“At night I find it hard to sleep and I feel scared. I don’t know why.”
+
+AI safeguarding scanner – child‑facing explainer
+
+Small info card above Save:
+
+Title: “About big worries”
+
+Text: “Your diary is private. If your diary shows big worries about being hurt or very sad, the system might send a secret ‘please check on me’ message to a trusted adult in school. They still cannot read your diary page.”
+
+You can add a tiny “Learn more” link for parents that opens the adult explanation.
+
+AI safeguarding scanner – adult explainer (modal / FAQ)
+
+Heading: “How the diary safeguarding scanner works”
+
+Bullets:
+
+“Diary entries are private to the pupil. Staff cannot read them here.”
+
+“An AI model scans entries for serious safeguarding concerns (for example: self‑harm, abuse, neglect, exploitation).”
+
+“If concerns are detected, the system creates a pattern alert for the designated safeguarding lead with a fixed safe message. The diary text is not shown or stored in the alert.”
+
+“The safeguarding lead decides what to do next. AI does not make decisions on its own.”
+
+3. Diagnostics – questions and action‑plan outputs
+Pupil survey questions (emoji Likert)
+
+Use “Never / Sometimes / Lots of times / Always” mapped to faces.
+
+Awareness & Prevalence:
+
+“If someone is unkind a lot, do adults at school usually find out?”
+
+Trust & Reporting:
+
+“If you tell an adult at school a worry, do they listen and try to help?”
+
+Culture & Wellbeing:
+
+“Do you feel safe at school most days?”
+
+Safeguarding Knowledge:
+
+“Do you know which adult to talk to if something is worrying you?”
+
+System Readiness (child‑friendly):
+
+“Do adults talk to your class about how to be kind and safe?”
+
+Staff survey sample items (Likert 1–5)
+
+“I know how and where to record a safeguarding concern in this school.”
+
+“I feel confident that leadership responds appropriately to safeguarding concerns.”
+
+“Training prepares me to recognise signs of bullying and abuse, including online.”
+
+AI action‑plan output (staff‑facing)
+
+From a radar with weak “Trust & Reporting” for Year 3–4 pupils:
+
+Goal 1:
+
+“Increase pupil confidence that adults will listen and help when they report worries.”
+
+Baseline: “42% of Year 3–4 pupils answered ‘Always’.”
+
+Target: “60% within 12 months.”
+
+Actions:
+
+“Weekly ‘worry box’ and check‑in time in each class.”
+
+“More visible posters in classrooms showing ‘Who can I talk to?’.”
+
+“Termly assemblies where DSL explains how reporting works in simple language.”
+
+Goal 2:
+
+“Ensure pupils know at least two trusted adults in school.”
+
+Baseline: “Only 55% of pupils can name two adults.”
+
+Actions:
+
+“Class activity for pupils to choose and record their trusted adults in SafeSkoolZ.”
+
+“Add trusted adult photos to classroom displays (where appropriate).”
+
+4. Behaviour – events and pupil views
+Behaviour point reasons (pre‑filled options)
+
+Kindness:
+
+“Helped a friend who was sad.”
+
+“Included someone new in a game.”
+
+Respect:
+
+“Used kind words even when upset.”
+
+“Listened carefully when others were speaking.”
+
+Teamwork:
+
+“Worked well in a group and shared turns.”
+
+Effort:
+
+“Kept trying even when work was tricky.”
+
+Leadership:
+
+“Helped the class line up calmly.”
+
+“Showed others how to follow the rules.”
+
+Pupil behaviour view
+
+Heading:
+
+“Your positive points”
+
+Cards:
+
+“Kindness: 14 points – You often help others. Keep going!”
+
+“Effort: 11 points – You keep trying with your learning.”
+
+Level banner:
+
+“You are at Silver level. One more week of kind choices could take you to Gold.”
+
+Timeline snippet example:
+
+“Today – Kindness +2 – Helped a classmate who was upset.”
+
+“Yesterday – Effort +1 – Finished a tricky maths task.”
+
+Teacher class summary
+
+Summary text:
+
+“This week Class 4B has earned 128 kindness points.”
+
+“Most points were given for ‘including others in games’.”
+
+Visual:
+
+Bar/row list of pupils by total positive points (option to hide names in demos).
+
+5. Narrative case studies (short, plug‑and‑play)
+Case Study 1 – Primary pupil “Luna” (Year 3)
+
+Story (for decks / demo script):
+
+“Luna, in Year 3, has started sitting alone at lunch. Over two weeks she writes in her SafeSkoolZ diary that some children tell her she can’t play with them and laugh when she comes near. She doesn’t feel brave enough to say this out loud.”
+
+“The diary safeguarding scanner notices repeated entries about feeling ‘left out’ and ‘sad at lunch’ and quietly creates a pattern alert for the safeguarding coordinator, without showing Luna’s diary pages.”
+
+“At the same time, three low‑severity incident reports are logged by different staff about minor playground fall‑outs involving the same group. SafeSkoolZ links these patterns. The coordinator arranges to observe lunchtime, speaks with Luna’s class teacher, and holds a small restorative meeting with the pupils involved. Within a month, new incidents drop and Luna’s diagnostic survey response changes from ‘Sometimes’ to ‘Always’ when asked if she feels safe at school.”
+
+Case Study 2 – Class teacher “Mr. Diego” (Year 4)
+
+Story:
+
+“Mr. Diego teaches Year 4. Using the My Class view, he spots that one pupil, Sam, has several low‑level reports about shouting at others during football, alongside a recent drop in kindness points.”
+
+“Instead of waiting for a serious incident, Mr. Diego logs a behaviour conversation, awards points when Sam plays fairly, and messages the SENCO through SafeSkoolZ to ask whether there might be underlying needs.”
+
+“Over the term, behaviour points for ‘Teamwork’ increase, and no new bullying‑type incidents are recorded for Sam. The DSL uses this as evidence of early intervention when reviewing safeguarding practice with leadership.”
+
+Case Study 3 – DSL / PTA working together
+
+Story:
+
+“Diagnostic survey results show that while most children say they ‘always’ feel safe, only just over half know which adults to talk to if they are worried. Parents rate ‘communication about incidents’ lower than other areas.”
+
+“The safeguarding coordinator shares the SafeSkoolZ dashboard with the PTA through the PTA portal. Together, they design a simple communication plan: termly safeguarding newsletters, a ‘Meet the Trusted Adults’ wall, and a parent workshop on how pupils can report worries using SafeSkoolZ.”
+
+“At the next survey cycle, pupil knowledge of trusted adults and parent confidence scores both rise, and the AI action‑plan generator records these actions as completed, updating baselines and targets for the following year.”
+
+6. Light feature tweaks embodied in the copy
+Trusted adults:
+
+Onboarding step: “Choose up to three trusted adults at school (for example: your class teacher, another teacher, or the safeguarding lead).”
+
+Daily check‑in:
+
+“Before you start your day, choose how you feel today” (faces). Alerts only on repeated “Very upset or scared”.
+
+AI transparency toggle for adults:
+
+On each AI suggestion (diary alert or action‑plan item), a small line: “Suggested by AI, to be checked by a human safeguarding lead.”
+
+Would it help if I now turn these into a short “demo_school” data spec (fake pupils, fake incidents, fake survey datapoints) that your team can seed into the DB for a live demo tenant?
+Yes
+Completed 1 step
+Here’s a concrete “demo_school” spec you can hand to devs to seed a SafeSkoolZ demo tenant, fully synthetic and primary‑phase.
+
+1. Demo school and structure
+School
+
+Name: “Morna Isla Primary (Demo)”
+
+Location: “Illes Balears, ES”
+
+Phases: “Year 3”, “Year 4”, “Year 5”
+
+Classes
+
+3A – “Year 3A Dolphins” (10 pupils)
+
+4B – “Year 4B Falcons” (10 pupils)
+
+5C – “Year 5C Dragons” (10 pupils)
+
+2. Users (roles) – example set
+You can scale counts easily; here’s a minimal but realistic roster.
+
+Pupils (per class, 10 each, first name + initial + class)
+
+3A: Luna K, Sam R, Aisha M, Diego L, Sofia P, Max J, Hana T, Leo C, Ines V, Omar D
+
+4B: Alex G, Marta S, Finn B, Noor H, Pablo R, Ella K, Hugo F, Sara N, Theo W, Lila D
+
+5C: Daniel P, Carla M, Jonas T, Mei L, Ruben S, Amira A, Oscar J, Nia C, Victor B, Alba R
+
+Staff
+
+Teachers:
+
+“Maria Torres” – Year 3A teacher (teacher)
+
+“Diego Alvarez” – Year 4B teacher (teacher)
+
+“Emma Collins” – Year 5C teacher (teacher)
+
+Support / SENCO:
+
+“Laura Garcia” – SENCO (senco)
+
+“Jordi Lopez” – Learning Support Assistant (support_staff)
+
+Safeguarding / SLT:
+
+“Ana Ruiz” – Designated Safeguarding Lead (coordinator)
+
+“James Miller” – Head Teacher (head_teacher)
+
+Parents (just a subset for demo)
+
+“Claudia King” – parent of Luna K (3A)
+
+“Carlos Ramirez” – parent of Sam R (3A)
+
+“Isabel Gomez” – parent of Alex G (4B)
+
+“Tom Becker” – parent of Carla M (5C)
+
+PTA
+
+“Claudia King” – PTA Chair (pta)
+
+“Rafael Diaz” – PTA member (pta)
+
+3. Behaviour points – seed data
+Give each class a different “profile”:
+
+3A – very kind, some low confidence
+
+High kindness, medium effort.
+
+Example entries:
+
+Luna K – Kindness +2 “Helped a friend who was sad at playtime.”
+
+Sam R – Effort +1 “Kept trying with tricky maths.”
+
+Class total this week:
+
+Kindness: 54 points
+
+Respect: 32
+
+Teamwork: 38
+
+Effort: 41
+
+Leadership: 18
+
+4B – good effort, some conflict
+
+Strong effort, lower kindness/teamwork.
+
+Example entries:
+
+Alex G – Effort +2, Teamwork +1
+
+Finn B – Teamwork − issue reflected in incident logs instead of negative points.
+
+Weekly totals:
+
+Kindness: 24
+
+Respect: 30
+
+Teamwork: 20
+
+Effort: 56
+
+Leadership: 15
+
+5C – mixed, older social dynamics
+
+Medium across the board; a couple of leadership standouts.
+
+Weekly totals:
+
+Kindness: 36
+
+Respect: 40
+
+Teamwork: 34
+
+Effort: 45
+
+Leadership: 28
+
+4. Incidents – realistic mix
+Aim for many low‑severity, few medium, 1–2 high that trigger protocols.
+
+Low / medium (playground / classroom)
+
+Incident 1:
+
+Pupil: Luna K (3A)
+
+Type: Relational bullying (“being left out on purpose”)
+
+Description: “Group of three girls regularly tells Luna she can’t join their game at lunch.”
+
+Severity: Medium
+
+Status: investigating → resolved
+
+Linked behaviour: kindness work in 3A.
+
+Incident 2:
+
+Pupil: Sam R (3A) – “shouting/rough play in football”
+
+Type: Physical / peer conflict (not labelled as bullying yet)
+
+Severity: Low
+
+Status: under_review → resolved with restorative chat.
+
+Incident 3:
+
+Pupil: Alex G (4B)
+
+Type: Verbal
+
+Description: “Repeated name‑calling of another pupil in class.”
+
+Severity: Medium
+
+Status: under_review → investigating.
+
+Incident 4:
+
+Pupil: Carla M (5C)
+
+Type: Cyberbullying
+
+Description: “Mean WhatsApp group name about a classmate; screenshot attached.”
+
+Severity: High
+
+Status: active; protocol triggered.
+
+High‑level incident triggering protocol
+
+Incident 5:
+
+Pupil: Jonas T (5C)
+
+Type: Safeguarding (possible emotional abuse at home)
+
+Source: staff concern + diary pattern alert
+
+Severity: High
+
+Status: investigating; protocol active
+
+5. Protocols – LOPIVI / Convivèxit
+Create 2–3 protocols to showcase the module.
+
+Protocol A – Convivèxit (bullying)
+
+Linked to: Incident 4 (Carla M – cyberbullying).
+
+Framework: Convivèxit – anti‑bullying.
+
+Stages:
+
+“Initial assessment” – completed
+
+“Information gathering” – active
+
+“Intervention plan” – not started
+
+“Monitoring” – not started
+
+Annex templates populated with synthetic dates, staff names, anonymised pupil labels (“Pupil 5C‑01”, “Pupil 5C‑02”).
+
+Referral bodies:
+
+“Convivèxit regional team”
+
+“Educational psychology service”
+
+Case tasks:
+
+“Parent meeting with Carla’s family – owner: Ana Ruiz – due Friday”
+
+“Class session on online kindness – owner: Emma Collins – due next week”
+
+Protocol B – Child protection (LOPIVI)
+
+Linked to: Incident 5 (Jonas T).
+
+Framework: LOPIVI – child protection.
+
+Stages:
+
+“Risk assessment” – active
+
+“Referral to external agency” – planned
+
+Referral bodies:
+
+“Social services – child protection”
+
+“Local health service”
+
+Interview records:
+
+“Pupil conversation (short, non‑leading)”
+
+“Parent phone call notes”
+
+Status: active → monitoring (for demo).
+
+6. Diary entries + pattern alerts
+Use 2–3 synthetic pupils with sequences over a few weeks.
+
+Pupil: Luna K (3A)
+
+Week 1 entries:
+
+“Today some girls said I can’t play with them again. I sat by myself. I felt sad.”
+
+Week 2:
+
+“Playtime was a bit better. I played with Sam. Still feel nervous at lunch.”
+
+Scanner behaviour:
+
+Several entries flagged as low‑to‑medium concern (social exclusion, sadness).
+
+Pattern alert:
+
+Type: frequency + pattern
+
+Message text (fixed): “The diary scanner has noticed that this pupil may be feeling repeatedly sad or excluded at school. Please check in with them.”
+
+Linked pupil: Luna K
+
+Severity: Medium
+
+Pupil: Jonas T (5C)
+
+Entries (no text stored in alert, just patterns in demo narrative):
+
+“I feel scared at home at night and don’t like being there.”
+
+“Sometimes I don’t want to go home after school.”
+
+Pattern alert:
+
+Type: ai_flag + pattern
+
+Severity: High
+
+Same fixed safe message (no diary content).
+
+7. Diagnostic survey data
+Run one historical survey “Autumn” and one “Spring” to show improvement.
+
+Pupil responses (aggregate, per phase)
+
+Autumn – Year 3–4:
+
+“Do you feel safe at school most days?” – 70% Always, 20% Lots of times, 10% Sometimes.
+
+“If you tell an adult a worry, do they listen and help?” – 42% Always, 35% Lots of times, 18% Sometimes, 5% Never.
+
+“Do you know which adult to talk to?” – 55% Yes (Always), 30% Sometimes, 15% No.
+
+Spring – after interventions:
+
+“Listen and help?” – 61% Always, 30% Lots of times, 8% Sometimes, 1% Never.
+
+“Know which adult?” – 72% Always, 20% Sometimes, 8% No.
+
+Parent responses (headline)
+
+Autumn:
+
+“I feel well informed about how the school deals with bullying” – average 2.9/5.
+
+Spring:
+
+Same item – 3.8/5 after PTA–DSL communication plan.
+
+These give you nice radar and bar charts plus AI action‑plan deltas.
+
+8. SENCO caseload
+Assign a small, realistic caseload.
+
+Pupils:
+
+Sam R (3A) – social communication / emotional regulation.
+
+Alex G (4B) – anxiety around performance.
+
+Jonas T (5C) – under child protection protocol.
+
+Tracking entries:
+
+“Playground observation – Sam joined football with adult support, no shouting observed.”
+
+“Check‑in with Alex before maths test; reported feeling ‘okay’.”
+
+9. PTA portal demo data
+Concerns:
+
+“PTA concern #1 – Parents feel they don’t always hear when low‑level bullying is addressed (status: resolved after communication plan).”
+
+Co‑design responses:
+
+“Idea: add ‘How to use SafeSkoolZ’ page to school website.”
+
+“Idea: annual parent workshop on digital kindness.”
+
+10. Technical seeding notes
+If you want to avoid any GDPR ambiguity and align with synthetic‑data guidance, flag this tenant as “synthetic only” and keep a visible banner in admin: “Demo environment – all names and data are artificial.”
+
+Do you want the next step to be a structured JSON/SQL-ish schema for seeding (e.g. sample rows per table: users, incidents, protocols, diagnostic_surveys), or is this level of spec already enough for your team?
+sure
+Completed 1 step
+Here’s a concrete, implementation‑ready seed you can adapt to your actual schema. It’s illustrative rather than exhaustive, but follows your tables and the “Morna Isla Primary (Demo)” design.
+
+I’ll show it as JSON “buckets” by table; your team can convert to SQL INSERTs or direct seeding.
+
+schools
+json
+[
+  {
+    "id": 1,
+    "name": "Morna Isla Primary (Demo)",
+    "address": "Illes Balears, ES",
+    "phase": "Primary",
+    "created_at": "2026-01-01T09:00:00Z"
+  }
+]
+users
+json
+[
+  { "id": 1, "school_id": 1, "role": "teacher", "name": "Maria Torres", "email": "maria.torres@example.edu", "class_code": "3A", "status": "active" },
+  { "id": 2, "school_id": 1, "role": "teacher", "name": "Diego Alvarez", "email": "diego.alvarez@example.edu", "class_code": "4B", "status": "active" },
+  { "id": 3, "school_id": 1, "role": "teacher", "name": "Emma Collins", "email": "emma.collins@example.edu", "class_code": "5C", "status": "active" },
+
+  { "id": 4, "school_id": 1, "role": "coordinator", "name": "Ana Ruiz", "email": "ana.ruiz@example.edu", "status": "active" },
+  { "id": 5, "school_id": 1, "role": "head_teacher", "name": "James Miller", "email": "james.miller@example.edu", "status": "active" },
+
+  { "id": 6, "school_id": 1, "role": "senco", "name": "Laura Garcia", "email": "laura.garcia@example.edu", "status": "active" },
+  { "id": 7, "school_id": 1, "role": "support_staff", "name": "Jordi Lopez", "email": "jordi.lopez@example.edu", "status": "active" },
+
+  { "id": 8, "school_id": 1, "role": "parent", "name": "Claudia King", "email": "claudia.king@example.com", "status": "active" },
+  { "id": 9, "school_id": 1, "role": "parent", "name": "Carlos Ramirez", "email": "carlos.ramirez@example.com", "status": "active" },
+  { "id": 10, "school_id": 1, "role": "parent", "name": "Isabel Gomez", "email": "isabel.gomez@example.com", "status": "active" },
+  { "id": 11, "school_id": 1, "role": "parent", "name": "Tom Becker", "email": "tom.becker@example.com", "status": "active" },
+
+  { "id": 12, "school_id": 1, "role": "pta", "name": "Claudia King", "email": "claudia.king+pta@example.com", "status": "active" },
+  { "id": 13, "school_id": 1, "role": "pta", "name": "Rafael Diaz", "email": "rafael.diaz@example.com", "status": "active" }
+]
+pupils as users + mapping
+If pupils are also in users, seed like:
+
+json
+[
+  { "id": 100, "school_id": 1, "role": "pupil", "name": "Luna K", "class_code": "3A", "pin": "1234", "status": "active" },
+  { "id": 101, "school_id": 1, "role": "pupil", "name": "Sam R", "class_code": "3A", "pin": "2345", "status": "active" },
+  { "id": 102, "school_id": 1, "role": "pupil", "name": "Aisha M", "class_code": "3A", "pin": "3456", "status": "active" },
+  { "id": 103, "school_id": 1, "role": "pupil", "name": "Diego L", "class_code": "3A", "pin": "4567", "status": "active" },
+  { "id": 104, "school_id": 1, "role": "pupil", "name": "Sofia P", "class_code": "3A", "pin": "5678", "status": "active" },
+
+  { "id": 110, "school_id": 1, "role": "pupil", "name": "Alex G", "class_code": "4B", "pin": "1357", "status": "active" },
+  { "id": 111, "school_id": 1, "role": "pupil", "name": "Marta S", "class_code": "4B", "pin": "2468", "status": "active" },
+
+  { "id": 120, "school_id": 1, "role": "pupil", "name": "Carla M", "class_code": "5C", "pin": "1122", "status": "active" },
+  { "id": 121, "school_id": 1, "role": "pupil", "name": "Jonas T", "class_code": "5C", "pin": "2211", "status": "active" }
+]
+You can map parents to children in a join table or an extra column, depending on your design.
+
+incidents
+json
+[
+  {
+    "id": 1,
+    "school_id": 1,
+    "reported_by_id": 100,
+    "pupil_id": 100,
+    "type": "relational_bullying",
+    "who_for": "me",
+    "description": "Group of girls regularly tells me I can't join their game at lunch.",
+    "location": "playground",
+    "severity": "medium",
+    "status": "investigating",
+    "emotional_state": "sad",
+    "anonymous": false,
+    "created_at": "2026-02-01T10:30:00Z"
+  },
+  {
+    "id": 2,
+    "school_id": 1,
+    "reported_by_id": 101,
+    "pupil_id": 101,
+    "type": "physical",
+    "who_for": "me",
+    "description": "Shouting and pushing during football at lunch.",
+    "location": "playground",
+    "severity": "low",
+    "status": "resolved",
+    "emotional_state": "a_bit_upset",
+    "anonymous": false,
+    "created_at": "2026-02-05T12:15:00Z"
+  },
+  {
+    "id": 3,
+    "school_id": 1,
+    "reported_by_id": 110,
+    "pupil_id": 110,
+    "type": "verbal",
+    "who_for": "another_child",
+    "description": "Repeated name-calling of another pupil in class.",
+    "location": "classroom",
+    "severity": "medium",
+    "status": "under_review",
+    "emotional_state": "worried",
+    "anonymous": false,
+    "created_at": "2026-02-10T09:05:00Z"
+  },
+  {
+    "id": 4,
+    "school_id": 1,
+    "reported_by_id": 120,
+    "pupil_id": 120,
+    "type": "cyberbullying",
+    "who_for": "another_child",
+    "description": "Mean WhatsApp group name about a classmate; screenshot attached.",
+    "location": "online",
+    "severity": "high",
+    "status": "investigating",
+    "emotional_state": "very_upset",
+    "anonymous": false,
+    "created_at": "2026-02-15T18:45:00Z"
+  },
+  {
+    "id": 5,
+    "school_id": 1,
+    "reported_by_id": 3,
+    "pupil_id": 121,
+    "type": "safeguarding",
+    "who_for": "pupil",
+    "description": "Pupil has disclosed feeling scared at home and reluctant to go home after school.",
+    "location": "other",
+    "severity": "high",
+    "status": "investigating",
+    "emotional_state": "very_upset",
+    "anonymous": false,
+    "created_at": "2026-02-20T11:00:00Z"
+  }
+]
+protocols
+json
+[
+  {
+    "id": 1,
+    "school_id": 1,
+    "incident_id": 4,
+    "framework": "Convivexit",
+    "type": "bullying",
+    "status": "active",
+    "stage": "information_gathering",
+    "created_by_id": 4,
+    "created_at": "2026-02-16T09:00:00Z"
+  },
+  {
+    "id": 2,
+    "school_id": 1,
+    "incident_id": 5,
+    "framework": "LOPIVI",
+    "type": "child_protection",
+    "status": "active",
+    "stage": "risk_assessment",
+    "created_by_id": 4,
+    "created_at": "2026-02-21T08:30:00Z"
+  }
+]
+behaviour_points
+json
+[
+  {
+    "id": 1,
+    "school_id": 1,
+    "pupil_id": 100,
+    "category": "kindness",
+    "points": 2,
+    "reason": "Helped a friend who was sad at playtime.",
+    "awarded_by_id": 1,
+    "created_at": "2026-02-03T11:10:00Z"
+  },
+  {
+    "id": 2,
+    "school_id": 1,
+    "pupil_id": 101,
+    "category": "effort",
+    "points": 1,
+    "reason": "Kept trying with tricky maths.",
+    "awarded_by_id": 1,
+    "created_at": "2026-02-04T10:05:00Z"
+  },
+  {
+    "id": 3,
+    "school_id": 1,
+    "pupil_id": 110,
+    "category": "effort",
+    "points": 2,
+    "reason": "Worked hard to finish writing task.",
+    "awarded_by_id": 2,
+    "created_at": "2026-02-06T09:40:00Z"
+  },
+  {
+    "id": 4,
+    "school_id": 1,
+    "pupil_id": 120,
+    "category": "leadership",
+    "points": 2,
+    "reason": "Helped class line up calmly after break.",
+    "awarded_by_id": 3,
+    "created_at": "2026-02-07T10:15:00Z"
+  }
+]
+pupil_diary
+json
+[
+  {
+    "id": 1,
+    "school_id": 1,
+    "pupil_id": 100,
+    "title": "Today at lunch",
+    "body": "Today some girls said I can't play with them again. I sat by myself. I felt sad.",
+    "theme": "Forest",
+    "created_at": "2026-02-01T19:00:00Z"
+  },
+  {
+    "id": 2,
+    "school_id": 1,
+    "pupil_id": 100,
+    "title": "Feeling a bit better",
+    "body": "Playtime was a bit better. I played with Sam. Still feel nervous at lunch.",
+    "theme": "Forest",
+    "created_at": "2026-02-08T19:00:00Z"
+  },
+  {
+    "id": 3,
+    "school_id": 1,
+    "pupil_id": 121,
+    "title": "Nights at home",
+    "body": "I feel scared at home at night and I don't like being there.",
+    "theme": "Midnight",
+    "created_at": "2026-02-18T20:30:00Z"
+  }
+]
+pattern_alerts (AI + patterns)
+json
+[
+  {
+    "id": 1,
+    "school_id": 1,
+    "pupil_id": 100,
+    "type": "pattern",
+    "source": "diary_scanner",
+    "severity": "medium",
+    "message": "The diary scanner has noticed that this pupil may be feeling repeatedly sad or excluded at school. Please check in with them.",
+    "created_at": "2026-02-09T08:00:00Z",
+    "status": "open",
+    "created_by_ai": true
+  },
+  {
+    "id": 2,
+    "school_id": 1,
+    "pupil_id": 121,
+    "type": "ai_flag",
+    "source": "diary_scanner",
+    "severity": "high",
+    "message": "The diary scanner has noticed that this pupil may be feeling very unsafe or distressed. Please check in with them urgently.",
+    "created_at": "2026-02-19T08:00:00Z",
+    "status": "open",
+    "created_by_ai": true
+  }
+]
+diagnostic_surveys and diagnostic_responses
+json
+[
+  {
+    "id": 1,
+    "school_id": 1,
+    "name": "Autumn Safeguarding Survey",
+    "target_roles": ["pupil", "parent", "staff"],
+    "status": "closed",
+    "created_at": "2025-10-01T09:00:00Z"
+  },
+  {
+    "id": 2,
+    "school_id": 1,
+    "name": "Spring Safeguarding Survey",
+    "target_roles": ["pupil", "parent", "staff"],
+    "status": "closed",
+    "created_at": "2026-03-01T09:00:00Z"
+  }
+]
+Example aggregated responses as “pseudo‑rows” (you might store at question level; this is schematic):
+
+json
+[
+  {
+    "id": 1000,
+    "survey_id": 1,
+    "role": "pupil",
+    "year_group": "3-4",
+    "question_code": "feel_safe_most_days",
+    "answer": "always",
+    "count": 70
+  },
+  {
+    "id": 1001,
+    "survey_id": 1,
+    "role": "pupil",
+    "year_group": "3-4",
+    "question_code": "feel_safe_most_days",
+    "answer": "lots_of_times",
+    "count": 20
+  },
+  {
+    "id": 1002,
+    "survey_id": 1,
+    "role": "pupil",
+    "year_group": "3-4",
+    "question_code": "feel_safe_most_days",
+    "answer": "sometimes",
+    "count": 10
+  }
+]
+audit_log (illustrative)
+json
+[
+  {
+    "id": 1,
+    "school_id": 1,
+    "actor_id": 4,
+    "event_type": "pattern_alert.viewed",
+    "target_type": "pattern_alert",
+    "target_id": 1,
+    "ip": "203.0.113.10",
+    "created_at": "2026-02-09T09:00:00Z"
+  },
+  {
+    "id": 2,
+    "school_id": 1,
+    "actor_id": 1,
+    "event_type": "incident.updated_status",
+    "target_type": "incident",
+    "target_id": 2,
+    "metadata": "{\"from\":\"under_review\",\"to\":\"resolved\"}",
+    "ip": "203.0.113.11",
+    "created_at": "2026-02-05T14:20:00Z"
+  }
+]
+I’ve also written a tiny starter JSON file into your environment as safeskoolz_demo_data.json with a skeleton structure you can expand on.
+
+Do you want a second pass that converts this into explicit SQL INSERT statements per table, or is JSON your team’s preferred seeding format?

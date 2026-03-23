@@ -277,10 +277,10 @@ export default function DiaryPage() {
   });
 
   useEffect(() => {
-    if (isWriting && selectedMood && textareaRef.current) {
+    if (isWriting && textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [isWriting, selectedMood]);
+  }, [isWriting]);
 
   const grouped = groupEntriesByDate(entries);
   const firstName = user?.firstName || "";
@@ -504,33 +504,25 @@ export default function DiaryPage() {
                 </AnimatePresence>
               </div>
 
-              <AnimatePresence>
-                {selectedMood !== null && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <p className="text-xs italic mb-2" style={{ color: t.text.faint }}>
-                      {currentPrompt}
-                    </p>
-                    <textarea
-                      ref={textareaRef}
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                      rows={6}
-                      maxLength={1000}
-                      className="diary-entry-text w-full bg-transparent border-none outline-none resize-none text-sm p-0"
-                      placeholder="Dear diary..."
-                    />
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="text-[10px]" style={{ color: t.text.faint }}>
-                        {note.length > 0 ? `${note.length}/1000` : ""}
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <div className="mt-1">
+                <p className="text-xs italic mb-2" style={{ color: t.text.faint }}>
+                  {currentPrompt}
+                </p>
+                <textarea
+                  ref={textareaRef}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={6}
+                  maxLength={1000}
+                  className="diary-entry-text w-full bg-transparent border-none outline-none resize-none text-sm p-0"
+                  placeholder="Dear diary..."
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-[10px]" style={{ color: t.text.faint }}>
+                    {note.length > 0 ? `${note.length}/1000` : ""}
+                  </p>
+                </div>
+              </div>
 
               <div className="flex gap-2 mt-4 pt-3" style={{ borderTop: `1px dashed ${t.paper.lines}` }}>
                 <button
@@ -548,7 +540,7 @@ export default function DiaryPage() {
                 </button>
                 <Button
                   onClick={() => createMutation.mutate()}
-                  disabled={!selectedMood || createMutation.isPending}
+                  disabled={(!selectedMood && !note.trim()) || createMutation.isPending}
                   size="sm"
                   className="flex-1 text-xs"
                   style={{ background: t.btn.bg, borderColor: t.btn.border }}
@@ -584,7 +576,7 @@ export default function DiaryPage() {
                 <div className="diary-date-tab mb-0 ml-4">{relDate}</div>
                 <div className="diary-paper pl-12 pr-5 py-4 space-y-4">
                   {dayEntries.map((entry: any) => {
-                    const moodInfo = getMoodInfo(entry.mood);
+                    const moodInfo = entry.mood ? getMoodInfo(entry.mood) : null;
                     const time = new Date(entry.createdAt).toLocaleTimeString("en-GB", {
                       hour: "2-digit", minute: "2-digit",
                     });
@@ -592,7 +584,8 @@ export default function DiaryPage() {
                     return (
                       <div key={entry.id} className="group">
                         <div className="flex items-start gap-2">
-                          <span className="text-lg mt-0.5">{moodInfo.emoji}</span>
+                          {moodInfo && <span className="text-lg mt-0.5">{moodInfo.emoji}</span>}
+                          {!moodInfo && <span className="text-lg mt-0.5">{"\u270D\uFE0F"}</span>}
                           <div className="flex-1 min-w-0">
                             <span className="text-[10px] block mb-0.5" style={{ color: t.text.faint }}>
                               {time}
@@ -603,7 +596,7 @@ export default function DiaryPage() {
                               </p>
                             ) : (
                               <p className="text-xs italic" style={{ color: t.text.faint }}>
-                                {moodInfo.label} — no note
+                                {moodInfo ? `${moodInfo.label} — no note` : "No note"}
                               </p>
                             )}
                           </div>

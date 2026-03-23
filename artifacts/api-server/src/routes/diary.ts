@@ -122,19 +122,20 @@ router.post(
     const user = (req as any).user as JwtPayload;
     const { mood, note } = req.body;
 
-    if (typeof mood !== "number" || mood < 1 || mood > 5) {
-      res.status(400).json({ error: "Mood must be a number between 1 and 5" });
+    const validMood = (typeof mood === "number" && mood >= 1 && mood <= 5) ? mood : null;
+    const trimmedNote = typeof note === "string" ? note.trim().slice(0, 1000) : null;
+
+    if (!validMood && !trimmedNote) {
+      res.status(400).json({ error: "Please write something or pick a mood" });
       return;
     }
-
-    const trimmedNote = typeof note === "string" ? note.trim().slice(0, 1000) : null;
 
     const [entry] = await db
       .insert(pupilDiaryTable)
       .values({
         pupilId: user.userId,
         schoolId: user.schoolId,
-        mood,
+        mood: validMood,
         note: trimmedNote || null,
       })
       .returning();
@@ -142,7 +143,7 @@ router.post(
     res.status(201).json(entry);
 
     if (trimmedNote && trimmedNote.length >= 10) {
-      scanDiaryEntry(entry.id, trimmedNote, mood, user.userId, user.schoolId).catch(() => {});
+      scanDiaryEntry(entry.id, trimmedNote, validMood || 3, user.userId, user.schoolId).catch(() => {});
     }
   }
 );
