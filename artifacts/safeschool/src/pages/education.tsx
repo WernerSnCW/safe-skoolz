@@ -317,6 +317,54 @@ function PupilContent() {
       </Card>
 
       <div className="space-y-3">
+        <AccordionItem title="What happens when you tell someone?" icon={Shield}>
+          <p>When you report something or an adult notices something is wrong, here is exactly what happens — step by step.</p>
+
+          <p className="font-bold mt-3">Step 1 — Someone listens</p>
+          <p>A trusted adult (your teacher, the school counsellor, or the Safeguarding Coordinator) will listen carefully to what you say. They won't judge you, rush you, or tell you off. They will write down what you told them so they don't forget anything.</p>
+
+          <p className="font-bold mt-3">Step 2 — They work out how serious it is</p>
+          <p>Not every problem needs the same response. The school uses a system to decide what to do:</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong>Green (low concern)</strong> — a one-off unkind moment. Your teacher will keep an eye on things and check in with you</li>
+            <li><strong>Amber (medium concern)</strong> — something that keeps happening, or something that really upset you. The Safeguarding Coordinator gets involved</li>
+            <li><strong>Red (serious concern)</strong> — bullying, someone hurting you, or anything that makes you feel unsafe. A formal plan is made to protect you</li>
+          </ul>
+
+          <p className="font-bold mt-3">Step 3 — A plan is made</p>
+          <p>For serious situations, the school follows official rules called <strong>protocols</strong>. These are legal rules that the school must follow:</p>
+          <div className="space-y-2 mt-2">
+            <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-950/20 dark:border-blue-800">
+              <p className="font-bold text-blue-700 dark:text-blue-400 text-xs uppercase tracking-wider mb-1">Convivèxit — Anti-Bullying Protocol</p>
+              <p className="text-sm">Used when someone is being bullied. The school investigates, talks to everyone involved, tries to fix the problem, and checks on you afterwards to make sure it stopped.</p>
+            </div>
+            <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 dark:bg-purple-950/20 dark:border-purple-800">
+              <p className="font-bold text-purple-700 dark:text-purple-400 text-xs uppercase tracking-wider mb-1">LOPIVI — Child Protection</p>
+              <p className="text-sm">Used when a child might be in danger — at school or at home. The school gets help from outside professionals (like social workers) to make sure you are safe.</p>
+            </div>
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 dark:bg-rose-950/20 dark:border-rose-800">
+              <p className="font-bold text-rose-700 dark:text-rose-400 text-xs uppercase tracking-wider mb-1">Machista Violence Protocol</p>
+              <p className="text-sm">Used when someone is being treated badly because of their gender. There are special rules and extra support for these situations.</p>
+            </div>
+          </div>
+
+          <p className="font-bold mt-3">Step 4 — You are kept safe</p>
+          <p>While the adults sort things out, your safety comes first. This might mean:</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Making sure you and the other person are kept apart</li>
+            <li>A teacher checking in with you every day</li>
+            <li>Changing seating plans or break-time arrangements</li>
+            <li>Your parents being told what is happening</li>
+          </ul>
+
+          <p className="font-bold mt-3">Step 5 — Someone checks on you afterwards</p>
+          <p>Even after things are sorted, the school will check on you again later to make sure the problem hasn't come back. If it does, they'll act again straight away.</p>
+
+          <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mt-3">
+            <p className="font-bold text-primary">The most important thing: you will never get in trouble for asking for help. Telling someone is always the right thing to do.</p>
+          </div>
+        </AccordionItem>
+
         <AccordionItem title="What is bullying?" icon={HelpCircle}>
           <p>Bullying is when someone keeps being unkind to you <strong>on purpose</strong>, and it happens <strong>more than once</strong>. It's not just falling out with a friend or having a bad day — it's a pattern of behaviour that makes you feel scared, sad, or alone.</p>
           <p>Bullying can look like:</p>
@@ -732,6 +780,75 @@ function ParentContent() {
       </AccordionItem>
 
       <div className="space-y-3">
+        <AccordionItem title="How concerns and bullying are handled — the protocols" icon={Shield}>
+          <p>The school is legally required to follow specific protocols when concerns are raised. Understanding these processes helps you know what to expect and how to engage effectively.</p>
+
+          <p className="font-bold mt-3">Initial response</p>
+          <p>When a concern is reported — whether by you, your child, a teacher, or another pupil — the school follows a structured process:</p>
+          <ol className="list-decimal pl-5 space-y-1">
+            <li>The concern is logged formally in SafeSkoolZ with date, time, people involved, and a description</li>
+            <li>An <strong>escalation tier</strong> is assigned automatically based on the type and severity of the concern</li>
+            <li>The Safeguarding Coordinator is notified immediately for medium and serious concerns</li>
+            <li>You will be contacted if your child is involved — either as the child who was hurt, a witness, or the child whose behaviour is being investigated</li>
+          </ol>
+
+          <p className="font-bold mt-3">The three protocols</p>
+          <p>Depending on the nature of the concern, one of three legally mandated protocols is activated:</p>
+
+          <div className="space-y-3 mt-2">
+            <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/20 dark:border-blue-800">
+              <p className="font-bold text-blue-700 dark:text-blue-400 mb-2">Convivèxit — Anti-Bullying Protocol</p>
+              <p className="text-sm mb-2">Required by Balearic Islands education law for all suspected bullying cases. This protocol has five phases:</p>
+              <ol className="list-decimal pl-5 space-y-1 text-sm">
+                <li><strong>Detection</strong> — the concern is identified and formally recorded</li>
+                <li><strong>Investigation</strong> — the school gathers evidence: interviews with pupils involved, witness statements, review of any previous incidents or patterns</li>
+                <li><strong>Mediation</strong> — where appropriate, a structured conversation between the children involved, facilitated by trained staff</li>
+                <li><strong>Resolution</strong> — agreed actions, consequences if necessary, and a support plan for all children involved</li>
+                <li><strong>Follow-up</strong> — the school checks back at set intervals to confirm the bullying has stopped and the child feels safe</li>
+              </ol>
+              <p className="text-sm mt-2"><strong>Your role:</strong> You will be informed at the start and updated at each phase. You have the right to contribute your perspective and to request a meeting with the Coordinator at any point.</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 dark:bg-purple-950/20 dark:border-purple-800">
+              <p className="font-bold text-purple-700 dark:text-purple-400 mb-2">LOPIVI — Child Protection (Ley Orgánica de Protección Integral a la Infancia y la Adolescencia)</p>
+              <p className="text-sm mb-2">Spain's comprehensive child protection law. Activated when there is a concern about a child's welfare or safety beyond bullying — including neglect, abuse, or harm. Five phases:</p>
+              <ol className="list-decimal pl-5 space-y-1 text-sm">
+                <li><strong>Initial concern</strong> — the concern is formally logged and risk-assessed</li>
+                <li><strong>Assessment</strong> — the school evaluates the severity using a likelihood × impact risk matrix</li>
+                <li><strong>Referral</strong> — if necessary, a referral is made to external agencies (social services, police, health professionals)</li>
+                <li><strong>Intervention</strong> — a coordinated support plan is put in place, potentially involving multiple agencies</li>
+                <li><strong>Review</strong> — the situation is monitored and the plan is adjusted as needed</li>
+              </ol>
+              <p className="text-sm mt-2"><strong>Your role:</strong> You will be contacted as early as possible unless doing so would put the child at further risk. You have the right to be involved in planning and to receive copies of any formal referrals.</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 dark:bg-rose-950/20 dark:border-rose-800">
+              <p className="font-bold text-rose-700 dark:text-rose-400 mb-2">Machista Violence Protocol</p>
+              <p className="text-sm mb-2">A specialised pathway for gender-based violence, harassment, or discrimination. This protocol recognises that gender-based incidents require specific expertise and additional protections:</p>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                <li>Immediate safety measures for the affected child</li>
+                <li>Specialist assessment by trained staff</li>
+                <li>Referral to gender violence support services where appropriate</li>
+                <li>Enhanced monitoring and follow-up</li>
+                <li>Education and awareness work with the wider school community</li>
+              </ul>
+              <p className="text-sm mt-2"><strong>Your role:</strong> You will be supported with access to specialist external resources. The school will coordinate with relevant agencies on your behalf.</p>
+            </div>
+          </div>
+
+          <p className="font-bold mt-3">What you can expect throughout</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Timely communication — the school must keep you informed at every stage</li>
+            <li>Confidentiality — details about your child will not be shared with other families</li>
+            <li>Documentation — every action, interview, and decision is recorded and auditable</li>
+            <li>Right to escalate — if you are unhappy with how a protocol is being managed, you can raise this with the Head Teacher, PTA, or the Balearic Islands Education Department</li>
+          </ul>
+
+          <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mt-3">
+            <p className="font-bold text-primary">All protocol activity is tracked in SafeSkoolZ. You can view incident updates, consent requests, and communications through your parent dashboard. If you have questions at any stage, message the Safeguarding Coordinator directly through the platform.</p>
+          </div>
+        </AccordionItem>
+
         <AccordionItem title="Signs your child might be experiencing bullying" icon={Eye}>
           <p>Children don't always tell their parents what's happening at school. Look out for:</p>
           <ul className="list-disc pl-5 space-y-1">
