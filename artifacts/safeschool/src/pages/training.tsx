@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-polish
 import {
   GraduationCap, AlertTriangle, FileText, MessageCircle, Shield,
   Users, Gauge, Bell, Key, ClipboardList, Activity, Eye, Home,
-  ChevronRight, CheckCircle2, Monitor
+  ChevronRight, CheckCircle2, Monitor, BookOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StartDemoButton } from "@/components/demo/DemoWalkthrough";
@@ -365,6 +365,55 @@ function StaffGuides({ role }: { role: string }) {
   );
 }
 
+function CaseStudies() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-600 flex items-center justify-center">
+          <BookOpen size={20} />
+        </div>
+        <div>
+          <h2 className="text-lg font-display font-bold">Case Studies</h2>
+          <p className="text-xs text-muted-foreground">Real-world scenarios showing how SafeSkoolZ supports safeguarding</p>
+        </div>
+      </div>
+
+      <GuideSection title='Luna (Year 3) — Early detection through diary and pattern alerts' icon={Eye} color="bg-pink-100 dark:bg-pink-950/50 text-pink-600">
+        <div className="space-y-3 text-muted-foreground">
+          <p>Luna, in Year 3, has started sitting alone at lunch. Over two weeks she writes in her SafeSkoolZ diary that some children tell her she can't play with them and laugh when she comes near. She doesn't feel brave enough to say this out loud.</p>
+          <p>The diary safeguarding scanner notices repeated entries about feeling "left out" and "sad at lunch" and quietly creates a pattern alert for the safeguarding coordinator, without showing Luna's diary pages.</p>
+          <p>At the same time, three low-severity incident reports are logged by different staff about minor playground fall-outs involving the same group. SafeSkoolZ links these patterns. The coordinator arranges to observe lunchtime, speaks with Luna's class teacher, and holds a small restorative meeting with the pupils involved.</p>
+          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+            <p className="font-bold text-green-700 dark:text-green-400 text-sm">Outcome: Within a month, new incidents drop and Luna's diagnostic survey response changes from "Sometimes" to "Always" when asked if she feels safe at school.</p>
+          </div>
+        </div>
+      </GuideSection>
+
+      <GuideSection title='Mr. Diego (Year 4 teacher) — Early intervention with behaviour data' icon={Activity} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600">
+        <div className="space-y-3 text-muted-foreground">
+          <p>Mr. Diego teaches Year 4. Using the My Class view, he spots that one pupil, Sam, has several low-level reports about shouting at others during football, alongside a recent drop in kindness points.</p>
+          <p>Instead of waiting for a serious incident, Mr. Diego logs a behaviour conversation, awards points when Sam plays fairly, and messages the SENCO through SafeSkoolZ to ask whether there might be underlying needs.</p>
+          <p>Over the term, behaviour points for "Teamwork" increase, and no new bullying-type incidents are recorded for Sam.</p>
+          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+            <p className="font-bold text-green-700 dark:text-green-400 text-sm">Outcome: The DSL uses this as evidence of early intervention when reviewing safeguarding practice with leadership.</p>
+          </div>
+        </div>
+      </GuideSection>
+
+      <GuideSection title="DSL & PTA — Data-driven safeguarding improvement" icon={Users} color="bg-violet-100 dark:bg-violet-950/50 text-violet-600">
+        <div className="space-y-3 text-muted-foreground">
+          <p>Diagnostic survey results show that while most children say they "always" feel safe, only just over half know which adults to talk to if they are worried. Parents rate "communication about incidents" lower than other areas.</p>
+          <p>The safeguarding coordinator shares the SafeSkoolZ dashboard with the PTA through the PTA portal. Together, they design a simple communication plan: termly safeguarding newsletters, a "Meet the Trusted Adults" wall, and a parent workshop on how pupils can report worries using SafeSkoolZ.</p>
+          <p>At the next survey cycle, pupil knowledge of trusted adults and parent confidence scores both rise, and the AI action-plan generator records these actions as completed, updating baselines and targets for the following year.</p>
+          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+            <p className="font-bold text-green-700 dark:text-green-400 text-sm">Outcome: Genuine PTA–school partnership drives measurable improvement in safeguarding culture.</p>
+          </div>
+        </div>
+      </GuideSection>
+    </div>
+  );
+}
+
 export default function TrainingPage() {
   const { user } = useAuth();
   if (!user) return null;
@@ -395,6 +444,8 @@ export default function TrainingPage() {
       {isPupil && <PupilGuides />}
       {isParent && <ParentGuides />}
       {isStaff && <StaffGuides role={user.role} />}
+
+      {isStaff && <CaseStudies />}
 
       <Card className="border-muted bg-muted/30">
         <CardContent className="p-6 text-center">

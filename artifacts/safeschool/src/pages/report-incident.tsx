@@ -557,7 +557,7 @@ export default function ReportIncident() {
           <h2 className="text-3xl font-display font-bold mb-4">{isPupil ? "Report Submitted" : "Incident Logged"}</h2>
           <p className="text-lg text-muted-foreground mb-8">
             {isPupil
-              ? "Thank you for speaking up. We take every report seriously and will review it immediately. You are safe."
+              ? "Thank you for telling us. A trusted adult in school will read this and decide how to help. If you feel very scared or unsafe right now, tell an adult you trust straight away. You are safe."
               : "The incident has been recorded and assigned a reference number. The safeguarding team will be notified if escalation is required."}
           </p>
           <Button size="lg" onClick={() => setLocation("/")}>Return to Dashboard</Button>
@@ -572,7 +572,7 @@ export default function ReportIncident() {
         <h1 className="text-3xl font-display font-bold">{isPupil ? "Report a Concern" : "Log a Safeguarding Incident"}</h1>
         <p className="text-muted-foreground mt-2">
           {isPupil 
-            ? "Tell us what happened. You don't have to share your name if you don't want to." 
+            ? "You can tell us even if you are not sure it is 'bullying'. If it feels wrong or worrying, it matters. You don't have to share your name if you don't want to." 
             : "Record an incident involving a pupil. You are reporting on behalf of a child, not about yourself."}
         </p>
       </div>
@@ -833,14 +833,17 @@ export default function ReportIncident() {
               </div>
 
               {isPupil && (
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 border border-border">
-                  <input 
-                    type="checkbox" 
-                    id="anon" 
-                    className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
-                    {...register("anonymous")} 
-                  />
-                  <Label htmlFor="anon" className="mb-0 cursor-pointer font-bold">Keep this report anonymous</Label>
+                <div className="p-4 rounded-xl bg-muted/50 border border-border space-y-2">
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="checkbox" 
+                      id="anon" 
+                      className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+                      {...register("anonymous")} 
+                    />
+                    <Label htmlFor="anon" className="mb-0 cursor-pointer font-bold">Keep this report anonymous</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-8">Adults will keep your information safe and will only tell other adults who need to know.</p>
                 </div>
               )}
 

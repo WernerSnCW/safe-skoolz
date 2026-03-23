@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui-polished";
-import { Trash2, Lock, Palette } from "lucide-react";
+import { Trash2, Lock, Palette, Info, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const MOODS = [
@@ -29,6 +29,9 @@ const PROMPTS = [
   "What are you looking forward to?",
   "Did something good happen?",
   "Is anything worrying you?",
+  "Today I felt proud when...",
+  "Something that made me smile was...",
+  "Something that worried me was...",
 ];
 
 type DiaryTheme = {
@@ -203,6 +206,7 @@ export default function DiaryPage() {
 
   const [themeId, setThemeId] = useState(getStoredTheme);
   const [showPicker, setShowPicker] = useState(false);
+  const [showAiInfo, setShowAiInfo] = useState(false);
   const [isWriting, setIsWriting] = useState(false);
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [note, setNote] = useState("");
@@ -396,7 +400,38 @@ export default function DiaryPage() {
             <div className="flex items-center gap-1.5 mt-1 text-xs" style={{ color: t.text.muted }}>
               <Lock size={11} />
               <span>Private — only you and your parent can see this</span>
+              <button
+                type="button"
+                onClick={() => setShowAiInfo(!showAiInfo)}
+                className="ml-1 inline-flex items-center gap-0.5 underline opacity-70 hover:opacity-100 transition-opacity"
+                style={{ color: t.text.muted }}
+              >
+                <Info size={10} />
+                <span>About big worries</span>
+              </button>
             </div>
+            <AnimatePresence>
+              {showAiInfo && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-2 p-3 rounded-xl text-xs leading-relaxed border" style={{ background: `${t.paper.bg}`, borderColor: t.paper.lines, color: t.text.primary }}>
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <p className="font-bold text-[11px]">🛡️ Your diary is private</p>
+                      <button type="button" onClick={() => setShowAiInfo(false)} className="opacity-50 hover:opacity-100">
+                        <X size={12} />
+                      </button>
+                    </div>
+                    <p style={{ color: t.text.muted }}>
+                      If your diary shows big worries about being hurt or very sad, the system might send a secret "please check on me" message to a trusted adult in school. They still cannot read your diary page.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <div className="relative" ref={pickerRef}>
             <button
