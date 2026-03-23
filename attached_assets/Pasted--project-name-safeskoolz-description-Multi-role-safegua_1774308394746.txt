@@ -1,0 +1,1453 @@
+
+
+
+{
+  "project": {
+    "name": "safeskoolz",
+    "description": "Multi-role safeguarding and incident reporting platform for schools, compliant with LOPIVI, Convivèxit 2024, and Machista Violence protocols. Powered by Cloudworkz.",
+    "branding": "safeskoolz (all lowercase)",
+    "targetSchool": "Morna International College, Ibiza",
+    "tagline": "A safe space to speak up and seek help."
+  },
+
+  "architecture": {
+    "type": "pnpm workspace monorepo",
+    "language": "TypeScript",
+    "structure": {
+      "artifacts/api-server": "Express 5 REST API backend",
+      "artifacts/safeschool": "React + Vite frontend SPA",
+      "lib/db": "Drizzle ORM schema + PostgreSQL connection",
+      "lib/api-spec": "OpenAPI specification",
+      "lib/api-client-react": "Generated React Query hooks (Orval)",
+      "lib/api-zod": "Generated Zod validators",
+      "scripts/src/seed.ts": "Database seeding script"
+    },
+    "stack": {
+      "backend": ["Node.js 24", "Express 5", "PostgreSQL", "Drizzle ORM", "Zod", "bcrypt", "jsonwebtoken"],
+      "frontend": ["React 19", "Vite", "TailwindCSS", "Framer Motion", "Recharts", "TanStack React Query", "Wouter"],
+      "auth": "Custom JWT (bcrypt password hashing, PIN-based for pupils)",
+      "build": "esbuild",
+      "ai": "OpenAI SDK via Replit AI Integrations (gpt-5-nano)"
+    }
+  },
+
+  "roles": [
+    { "role": "pupil", "loginMethod": "PIN (4-digit)", "capabilities": ["Report incidents (child-friendly form)", "Feelings diary (fully private)", "View behaviour record", "Send messages to safe contacts", "Urgent help button", "View school updates", "Take diagnostic survey", "Training guides"] },
+    { "role": "parent", "loginMethod": "Email + password", "capabilities": ["View children's incidents", "Approve/decline teacher consent", "Contact PTA", "View school analytics (anonymised)", "Message school staff", "Take diagnostic survey", "View diagnostic results summary", "View school updates"] },
+    { "role": "teacher", "loginMethod": "Email + password", "capabilities": ["Log incidents (professional form)", "View class pupils", "Reset pupil PINs", "Issue behaviour points", "View teacher analytics", "Broadcast school updates (Heads Up)", "Take diagnostic survey", "View diagnostic results summary"] },
+    { "role": "head_of_year", "loginMethod": "Email + password", "capabilities": ["All teacher capabilities", "View year group incidents", "Year group oversight"] },
+    { "role": "coordinator", "loginMethod": "Email + password", "capabilities": ["Full incident management", "Open/manage protocols", "View all alerts", "Full analytics dashboard", "Manage delegated roles", "Request teacher consent", "Generate/approve PTA annual reports", "Full diagnostic results + priorities/KPIs", "Manage annex templates", "Manage referral bodies", "View audit log"] },
+    { "role": "head_teacher", "loginMethod": "Email + password", "capabilities": ["Same as coordinator"] },
+    { "role": "senco", "loginMethod": "Email + password", "capabilities": ["SENCO caseload management", "Tracking & progress recording", "Case tasks", "View coordinator dashboard", "View alerts"] },
+    { "role": "support_staff", "loginMethod": "Email + password", "capabilities": ["Log incidents", "View assigned incidents", "School updates"] },
+    { "role": "pta", "loginMethod": "Email + password", "capabilities": ["PTA Dashboard (anonymised KPIs, mood trends)", "Messaging with coordinator", "Policy acknowledgment/flagging", "Annual report viewing", "Co-design feedback", "Resources library", "Concern submission"] }
+  ],
+
+  "features": {
+    "incidentManagement": {
+      "description": "Comprehensive incident reporting with role-adaptive forms",
+      "details": [
+        "Child-friendly form for pupils (emoji emotional state, simplified categories)",
+        "Professional form for staff (detailed categories, safeguarding checks, person identification)",
+        "Three escalation tiers",
+        "Emotional state capture (before/after incident)",
+        "Location tracking",
+        "Unknown person identification support",
+        "Per-incident teacher consent workflow (coordinator requests, parent approves/declines)",
+        "Redacted view for teachers until parent consent granted",
+        "Status workflow: open → under_investigation → resolved/escalated/closed",
+        "Reference number generation",
+        "Audit-trailed consent decisions"
+      ],
+      "categories": ["bullying", "cyberbullying", "physical", "verbal", "emotional", "sexual", "neglect", "discrimination", "safeguarding", "coercive_control", "other"]
+    },
+
+    "patternDetection": {
+      "description": "Automated pattern analysis with 8 detection rules",
+      "rules": [
+        { "name": "sexual_any", "description": "Any sexual incident triggers immediate red alert" },
+        { "name": "same_victim_3_incidents", "description": "Same victim in 3+ incidents" },
+        { "name": "same_pair_escalating", "description": "Same victim-perpetrator pair with escalating severity" },
+        { "name": "group_targeting", "description": "Multiple perpetrators targeting same victim" },
+        { "name": "location_hotspot", "description": "Multiple incidents at same location" },
+        { "name": "repeat_perpetrator", "description": "Same perpetrator in multiple incidents" },
+        { "name": "emotional_distress_pattern", "description": "Repeated high emotional distress in reports" },
+        { "name": "mood_decline", "description": "Sustained low mood (avg ≤2 over 5+ diary entries in 14 days) triggers amber alert to SENCO + coordinators" }
+      ],
+      "alertLevels": ["red", "amber"],
+      "execution": "Cron-scheduled every 60 minutes with deduplication"
+    },
+
+    "complianceFrameworks": {
+      "supported": ["LOPIVI", "Convivèxit 2024", "Machista Violence"],
+      "features": [
+        "Protocol management with framework assignment",
+        "Annex template library per framework",
+        "Mandatory referral engine for critical incidents",
+        "Referral body directory management",
+        "Delegated roles management"
+      ]
+    },
+
+    "protocols": {
+      "description": "Formal safeguarding protocol management",
+      "fields": ["framework", "status", "measures", "referral bodies", "timeline", "JSONB dynamic data"],
+      "statuses": ["open", "resolved", "closed"]
+    },
+
+    "behaviourTracker": {
+      "description": "Points-based behaviour escalation system",
+      "levels": 7,
+      "features": ["Staff issue points with reasons", "Pupil self-view", "Parent visibility", "Linked to incidents", "Summary view for staff"]
+    },
+
+    "pupilDiary": {
+      "description": "Fully private wellbeing diary for pupils",
+      "privacy": "Only the pupil can see their entries — no parent, teacher, or coordinator access",
+      "features": [
+        "Daily mood recording (1-5 emoji scale)",
+        "Optional text notes",
+        "Physical diary aesthetic (leather cover, lined paper, serif fonts)",
+        "AI safeguarding scan after each entry (gpt-5-nano)",
+        "Flagged entries create pattern_alert with safe message (no diary text exposed)"
+      ]
+    },
+
+    "messaging": {
+      "channels": [
+        { "type": "Pupil messages", "description": "Messages to safe contacts + urgent help button" },
+        { "type": "Staff inbox", "description": "Internal staff messaging" },
+        { "type": "Parent messages", "description": "Parent to school staff communication" },
+        { "type": "PTA coordinator channel", "description": "PTA members ↔ coordinator" },
+        { "type": "Parent-to-PTA", "description": "Parents can message PTA directly" }
+      ]
+    },
+
+    "diagnosticSurvey": {
+      "description": "Multi-role school climate diagnostic",
+      "questionBank": "20 questions across 5 categories",
+      "categories": ["Awareness & Prevalence", "Trust & Reporting", "Culture & Wellbeing", "Safeguarding Knowledge", "System Readiness"],
+      "respondentGroups": ["pupil", "staff", "parent"],
+      "features": [
+        "Role-adaptive UI (face emojis for pupils, Likert scale for adults)",
+        "Tiered disclosure: coordinators see full results; others see published summary",
+        "Published summary includes aggregated scores, participation counts, bar charts by group",
+        "Agreed Actions workflow with publish control",
+        "Auto-ranked priorities with urgency badges (Critical/High/Moderate/Strength)",
+        "KPIs with baseline/target/timeframe per priority",
+        "Suggested actions mapped to categories",
+        "Strengths, Growth Areas, and Alignment Notes narrative",
+        "Demo data seeding (dev-only)"
+      ]
+    },
+
+    "ptaPortal": {
+      "description": "Full PTA member portal with anonymised data",
+      "tabs": ["Dashboard", "Coordinator Channel", "Policy", "Annual Report", "Co-Design", "Resources"],
+      "features": [
+        "Anonymised KPI dashboard",
+        "School-wide mood trend chart (12-week rolling, from pupil diary data)",
+        "Policy acknowledgment and flagging",
+        "Annual report viewing (approved reports only)",
+        "Co-design feedback collection",
+        "Resources library",
+        "Concern submission"
+      ],
+      "annualReports": {
+        "generate": "POST /pta/report/generate (coordinator/head_teacher)",
+        "approve": "POST /pta/report/approve (coordinator/head_teacher)",
+        "listAll": "GET /pta/report/all (coordinator/head_teacher)",
+        "latestApproved": "GET /pta/report/latest (PTA)",
+        "reportData": ["totalIncidents", "incidentsByCategory", "protocolsByStatus", "alertsSummary"]
+      }
+    },
+
+    "sencoCaseload": {
+      "description": "SENCO pupil caseload management",
+      "features": ["Add/remove pupils", "Progress tracking (4 dimensions)", "Case tasks linked to protocols", "History timeline"]
+    },
+
+    "schoolUpdates": {
+      "description": "Staff broadcast posts to school community",
+      "categories": ["general", "safeguarding", "wellbeing", "curriculum", "event", "policy", "heads_up"],
+      "audiences": ["everyone", "pupils", "parents", "staff", "pupils_parents"],
+      "specialBehaviour": "'Heads Up' category auto-sets audience to staff with prominent observation guidance banner"
+    },
+
+    "educationLearn": {
+      "description": "Rights-based education page",
+      "content": [
+        "Pupil rights (UNCRC, LOPIVI, Convivèxit)",
+        "Parent rights and responsibilities",
+        "Protocol accordions for all three frameworks",
+        "Age-appropriate safety guidance"
+      ]
+    },
+
+    "newsletter": {
+      "description": "Public registration page for organisations interested in safeskoolz",
+      "orgTypes": ["school", "authority", "trust", "ngo", "other"]
+    },
+
+    "training": {
+      "description": "Role-specific feature guides and training materials",
+      "includes": ["Pupil quick-start guide", "Parent onboarding", "Staff step-by-step training", "Real-world scenarios"]
+    }
+  },
+
+  "security": {
+    "authentication": {
+      "method": "JWT tokens (HS256)",
+      "pupilAuth": "PIN-based (4-digit, bcrypt hashed)",
+      "staffAuth": "Email + password (bcrypt, 12 rounds)",
+      "parentAuth": "Email + password",
+      "ptaAuth": "Email + password",
+      "sessionTimeout": "90 seconds inactivity for pupils only",
+      "rateLimiting": "Auth and newsletter endpoints",
+      "lockout": "Failed login attempt tracking with lockout"
+    },
+    "dataProtection": [
+      "Cross-tenant data enforcement (all queries filtered by schoolId)",
+      "IDOR prevention on all endpoints",
+      "PTA PII middleware strips personal data from PTA responses",
+      "Immutable audit logs (PostgreSQL trigger prevents UPDATE/DELETE)",
+      "Teacher consent required before sharing incident details",
+      "Diary entries never exposed in alerts or logs",
+      "Privacy-conscious pupil search",
+      "Newsletter subscribe returns 200 regardless (prevents email enumeration)"
+    ],
+    "cors": "Restricted origins"
+  },
+
+  "database": {
+    "type": "PostgreSQL",
+    "orm": "Drizzle ORM",
+    "tables": [
+      {
+        "name": "schools",
+        "columns": ["id (uuid PK)", "name", "legal_entity", "cif", "address", "country", "region", "created_at"]
+      },
+      {
+        "name": "users",
+        "columns": ["id (uuid PK)", "school_id (FK)", "role", "first_name", "last_name", "email", "pin_hash", "password_hash", "year_group", "class_name", "avatar_type", "avatar_value", "avatar_image_url", "parent_of (uuid[])", "active", "created_at", "last_login", "failed_login_attempts", "locked_until"]
+      },
+      {
+        "name": "incidents",
+        "columns": ["id (uuid PK)", "school_id (FK)", "reference_number", "reporter_id (FK)", "reporter_role", "category", "description", "location", "incident_date", "severity", "emotional_state_before", "emotional_state_after", "involved_persons (jsonb)", "safeguarding_check", "escalation_tier", "status", "teacher_consent_status", "teacher_consent_requested_at", "teacher_consent_responded_at", "teacher_consent_responded_by", "assigned_to (FK)", "resolution_notes", "created_at", "updated_at"]
+      },
+      {
+        "name": "protocols",
+        "columns": ["id (uuid PK)", "school_id (FK)", "incident_id (FK)", "framework", "status", "opened_at", "closed_at", "measures (jsonb)", "referral_bodies (jsonb)", "coordinator_notes", "created_at", "updated_at"]
+      },
+      {
+        "name": "pattern_alerts",
+        "columns": ["id (uuid PK)", "school_id (FK)", "rule", "alert_level", "target_pupil_id", "perpetrator_pupil_id", "related_incident_ids (uuid[])", "message", "status", "triggered_at", "reviewed_at", "reviewed_by"]
+      },
+      {
+        "name": "audit_log",
+        "columns": ["id (uuid PK)", "school_id (FK)", "event_type", "actor_role", "actor_id", "target_type", "target_id", "details (jsonb)", "ip_address", "user_agent", "created_at"],
+        "note": "Immutable — PostgreSQL trigger prevents UPDATE/DELETE"
+      },
+      {
+        "name": "messages",
+        "columns": ["id (uuid PK)", "school_id (FK)", "sender_id (FK)", "recipient_id (FK)", "body", "is_urgent", "read_at", "created_at"]
+      },
+      {
+        "name": "notifications",
+        "columns": ["id (uuid PK)", "school_id (FK)", "user_id (FK)", "type", "title", "body", "link", "read", "created_at"]
+      },
+      {
+        "name": "behaviour_points",
+        "columns": ["id (uuid PK)", "school_id (FK)", "pupil_id (FK)", "points", "reason", "category", "incident_id (FK)", "issued_by (FK)", "issued_at", "note"]
+      },
+      {
+        "name": "pupil_diary",
+        "columns": ["id (uuid PK)", "school_id (FK)", "pupil_id (FK)", "mood (int, CHECK 1-5)", "note", "created_at"]
+      },
+      {
+        "name": "senco_caseload",
+        "columns": ["id (uuid PK)", "school_id (FK)", "pupil_id (FK)", "assigned_by (FK)", "reason", "priority", "status", "notes", "created_at"]
+      },
+      {
+        "name": "senco_tracking",
+        "columns": ["id (uuid PK)", "caseload_id (FK)", "pupil_id (FK)", "recorded_by (FK)", "recorded_at", "progress_rating", "feelings_rating", "attitude_to_learning", "attitude_to_others", "notes"]
+      },
+      {
+        "name": "case_tasks",
+        "columns": ["id (uuid PK)", "school_id (FK)", "protocol_id (FK)", "title", "assigned_to (FK)", "status", "due_date", "notes", "created_at", "completed_at"]
+      },
+      {
+        "name": "diagnostic_surveys",
+        "columns": ["id (uuid PK)", "school_id (FK)", "title", "status", "created_at", "closed_at"]
+      },
+      {
+        "name": "diagnostic_responses",
+        "columns": ["id (uuid PK)", "survey_id (FK)", "user_id (FK)", "question_key", "answer (int)", "created_at"]
+      },
+      {
+        "name": "diagnostic_actions",
+        "columns": ["id (uuid PK)", "survey_id (FK)", "action", "category", "published_at", "created_at"]
+      },
+      {
+        "name": "pta_messages",
+        "columns": ["id (uuid PK)", "school_id (FK)", "sender_id (FK)", "body", "read_at", "created_at"]
+      },
+      {
+        "name": "pta_concerns",
+        "columns": ["id (uuid PK)", "school_id (FK)", "submitted_by_id (FK)", "category", "subject", "body", "status", "coordinator_response", "responded_at", "responded_by_id", "created_at"]
+      },
+      {
+        "name": "pta_policy_acknowledgements",
+        "columns": ["id (uuid PK)", "school_id (FK)", "user_id (FK)", "policy_version", "action_type", "comment", "created_at"]
+      },
+      {
+        "name": "pta_codesign_responses",
+        "columns": ["id (uuid PK)", "school_id (FK)", "submitted_by_id (FK)", "question_key", "response", "created_at"]
+      },
+      {
+        "name": "pta_annual_reports",
+        "columns": ["id (uuid PK)", "school_id (FK)", "academic_year", "report_data (jsonb)", "status", "generated_by_id (FK)", "approved_by_id (FK)", "approved_at", "accessed_by_pta_at", "created_at"]
+      },
+      {
+        "name": "teacher_posts",
+        "columns": ["id (uuid PK)", "school_id (FK)", "author_id (FK)", "title", "body", "category", "audience", "created_at", "updated_at"]
+      },
+      {
+        "name": "annex_templates",
+        "columns": ["id (uuid PK)", "framework", "annex_code", "title", "description", "template_url", "version", "active", "created_at", "updated_at"]
+      },
+      {
+        "name": "delegated_roles",
+        "columns": ["id (uuid PK)", "school_id (FK)", "user_id (FK)", "delegated_role", "delegated_by (FK)", "active", "created_at", "revoked_at"]
+      },
+      {
+        "name": "referral_bodies",
+        "columns": ["id (uuid PK)", "school_id (FK)", "name", "type", "jurisdiction", "contact_phone", "contact_email", "website", "notes", "active", "created_at"]
+      },
+      {
+        "name": "newsletter_subscribers",
+        "columns": ["id (uuid PK)", "email", "organisation_name", "organisation_type", "contact_name", "country", "interests (text[])", "subscribed_at"]
+      },
+      {
+        "name": "interviews",
+        "columns": ["id (uuid PK)", "school_id (FK)", "incident_id (FK)", "protocol_id (FK)", "interviewee_id (FK)", "interviewer_id (FK)", "scheduled_at", "status", "notes", "outcome", "created_at"]
+      }
+    ]
+  },
+
+  "apiEndpoints": {
+    "authentication": [
+      { "method": "POST", "path": "/api/auth/pupil/login", "access": "public", "description": "Pupil PIN login" },
+      { "method": "POST", "path": "/api/auth/staff/login", "access": "public", "description": "Staff email+password login" },
+      { "method": "POST", "path": "/api/auth/parent/login", "access": "public", "description": "Parent email+password login" },
+      { "method": "POST", "path": "/api/auth/demo-login", "access": "public (env-gated)", "description": "Demo quick login" },
+      { "method": "GET", "path": "/api/auth/me", "access": "authenticated", "description": "Current user info" },
+      { "method": "PATCH", "path": "/api/auth/profile", "access": "authenticated", "description": "Update profile" }
+    ],
+    "incidents": [
+      { "method": "GET", "path": "/api/incidents", "access": "authenticated (role-filtered)", "description": "List incidents" },
+      { "method": "POST", "path": "/api/incidents", "access": "authenticated", "description": "Create incident" },
+      { "method": "GET", "path": "/api/incidents/:id", "access": "authenticated", "description": "Get incident detail" },
+      { "method": "PATCH", "path": "/api/incidents/:id", "access": "coordinator/head_teacher", "description": "Update incident" },
+      { "method": "PATCH", "path": "/api/incidents/:id/status", "access": "coordinator/head_teacher", "description": "Update status" },
+      { "method": "POST", "path": "/api/incidents/:id/consent-request", "access": "coordinator", "description": "Request teacher consent from parent" },
+      { "method": "PATCH", "path": "/api/incidents/:id/consent-respond", "access": "parent", "description": "Approve/decline consent" }
+    ],
+    "protocols": [
+      { "method": "GET", "path": "/api/protocols", "access": "coordinator/head_teacher", "description": "List protocols" },
+      { "method": "POST", "path": "/api/protocols", "access": "coordinator/head_teacher", "description": "Create protocol" },
+      { "method": "GET", "path": "/api/protocols/:id", "access": "coordinator/head_teacher", "description": "Get protocol detail" },
+      { "method": "PATCH", "path": "/api/protocols/:id", "access": "coordinator/head_teacher", "description": "Update protocol" }
+    ],
+    "alerts": [
+      { "method": "GET", "path": "/api/alerts", "access": "coordinator/head_teacher/teacher/head_of_year/senco", "description": "List pattern alerts" },
+      { "method": "PATCH", "path": "/api/alerts/:id", "access": "coordinator/head_teacher", "description": "Update alert status" }
+    ],
+    "dashboard": [
+      { "method": "GET", "path": "/api/dashboard/coordinator", "access": "coordinator/head_teacher/senco", "description": "Coordinator dashboard stats" },
+      { "method": "GET", "path": "/api/dashboard/analytics", "access": "coordinator/head_teacher/senco", "description": "Full analytics" },
+      { "method": "GET", "path": "/api/dashboard/teacher-analytics", "access": "teacher/head_of_year/support_staff", "description": "Teacher analytics" },
+      { "method": "GET", "path": "/api/dashboard/parent", "access": "parent", "description": "Parent dashboard" },
+      { "method": "GET", "path": "/api/dashboard/child/:id", "access": "coordinator/head_teacher/senco", "description": "Child profile" },
+      { "method": "GET", "path": "/api/dashboard/school-overview", "access": "parent", "description": "Anonymised school analytics for parents" }
+    ],
+    "diagnostics": [
+      { "method": "GET", "path": "/api/diagnostics", "access": "authenticated", "description": "List surveys" },
+      { "method": "POST", "path": "/api/diagnostics", "access": "coordinator/head_teacher", "description": "Create survey" },
+      { "method": "GET", "path": "/api/diagnostics/active", "access": "authenticated", "description": "Get active survey" },
+      { "method": "GET", "path": "/api/diagnostics/:id/results", "access": "coordinator/head_teacher", "description": "Full confidential results" },
+      { "method": "GET", "path": "/api/diagnostics/:id/summary", "access": "authenticated (closed surveys only)", "description": "Published summary with aggregated scores" },
+      { "method": "GET", "path": "/api/diagnostics/:id/actions", "access": "authenticated", "description": "Agreed actions (published only for non-leadership)" },
+      { "method": "POST", "path": "/api/diagnostics/:id/respond", "access": "authenticated", "description": "Submit response" },
+      { "method": "PATCH", "path": "/api/diagnostics/:id", "access": "coordinator/head_teacher", "description": "Update survey status" },
+      { "method": "POST", "path": "/api/diagnostics/:id/actions", "access": "coordinator/head_teacher", "description": "Add action" },
+      { "method": "POST", "path": "/api/diagnostics/:id/seed-demo", "access": "coordinator (dev only)", "description": "Seed demo data" }
+    ],
+    "behaviour": [
+      { "method": "GET", "path": "/api/behaviour/levels", "access": "public", "description": "Get escalation levels" },
+      { "method": "GET", "path": "/api/behaviour/pupil/:pupilId", "access": "authenticated", "description": "Get pupil behaviour record" },
+      { "method": "GET", "path": "/api/behaviour/summary", "access": "staff", "description": "Class/school behaviour summary" },
+      { "method": "POST", "path": "/api/behaviour/points", "access": "staff", "description": "Issue behaviour points" },
+      { "method": "GET", "path": "/api/behaviour/my-record", "access": "pupil", "description": "Own behaviour record" }
+    ],
+    "diary": [
+      { "method": "GET", "path": "/api/diary/entries", "access": "pupil only", "description": "Get own diary entries" },
+      { "method": "POST", "path": "/api/diary/entries", "access": "pupil only", "description": "Create diary entry (triggers AI scan)" },
+      { "method": "DELETE", "path": "/api/diary/entries/:id", "access": "pupil only", "description": "Delete own entry" }
+    ],
+    "messages": [
+      { "method": "GET", "path": "/api/messages", "access": "authenticated", "description": "Get messages" },
+      { "method": "POST", "path": "/api/messages", "access": "authenticated", "description": "Send message" },
+      { "method": "PATCH", "path": "/api/messages/:id/read", "access": "authenticated", "description": "Mark as read" },
+      { "method": "GET", "path": "/api/messages/conversations", "access": "authenticated", "description": "Get conversations" },
+      { "method": "GET", "path": "/api/messages/child-alerts", "access": "parent", "description": "Child urgent alerts" },
+      { "method": "GET", "path": "/api/safe-contacts", "access": "pupil", "description": "Get safe contacts list" },
+      { "method": "GET", "path": "/api/parent-contacts", "access": "pupil", "description": "Get parent contacts" }
+    ],
+    "pta": [
+      { "method": "GET", "path": "/api/pta/dashboard", "access": "pta", "description": "PTA dashboard with anonymised KPIs" },
+      { "method": "GET", "path": "/api/pta/messages", "access": "pta/coordinator", "description": "PTA-coordinator messages" },
+      { "method": "POST", "path": "/api/pta/messages", "access": "pta/coordinator", "description": "Send PTA message" },
+      { "method": "GET", "path": "/api/pta/policy", "access": "pta", "description": "Get current policy" },
+      { "method": "POST", "path": "/api/pta/policy/acknowledge", "access": "pta", "description": "Acknowledge policy" },
+      { "method": "POST", "path": "/api/pta/policy/flag", "access": "pta", "description": "Flag policy concern" },
+      { "method": "GET", "path": "/api/pta/concerns", "access": "pta/coordinator", "description": "List concerns" },
+      { "method": "POST", "path": "/api/pta/concerns", "access": "pta", "description": "Submit concern" },
+      { "method": "GET", "path": "/api/pta/report/latest", "access": "pta", "description": "Get latest approved report" },
+      { "method": "GET", "path": "/api/pta/report/all", "access": "coordinator/head_teacher", "description": "List all reports" },
+      { "method": "POST", "path": "/api/pta/report/generate", "access": "coordinator/head_teacher", "description": "Generate annual report" },
+      { "method": "POST", "path": "/api/pta/report/approve", "access": "coordinator/head_teacher", "description": "Approve report for PTA" },
+      { "method": "GET", "path": "/api/pta/codesign", "access": "pta/coordinator", "description": "Get co-design questions" },
+      { "method": "POST", "path": "/api/pta/codesign/response", "access": "pta", "description": "Submit co-design response" },
+      { "method": "GET", "path": "/api/pta/mood-trends", "access": "pta", "description": "School-wide mood trends (12-week rolling)" },
+      { "method": "GET", "path": "/api/pta/resources", "access": "pta", "description": "Resources library" },
+      { "method": "GET", "path": "/api/parent/pta-contacts", "access": "parent", "description": "Get PTA member names" },
+      { "method": "POST", "path": "/api/parent/pta-message", "access": "parent", "description": "Message PTA from parent" }
+    ],
+    "senco": [
+      { "method": "GET", "path": "/api/senco/caseload", "access": "senco", "description": "List caseload" },
+      { "method": "POST", "path": "/api/senco/caseload", "access": "senco", "description": "Add pupil to caseload" },
+      { "method": "DELETE", "path": "/api/senco/caseload/:id", "access": "senco", "description": "Remove from caseload" },
+      { "method": "GET", "path": "/api/senco/caseload/:id/tracking", "access": "senco", "description": "Get tracking history" },
+      { "method": "POST", "path": "/api/senco/caseload/:id/tracking", "access": "senco", "description": "Add tracking record" },
+      { "method": "GET", "path": "/api/senco/pupils-available", "access": "senco", "description": "Pupils not yet on caseload" }
+    ],
+    "schoolAdmin": [
+      { "method": "GET", "path": "/api/schools", "access": "public", "description": "List schools (login)" },
+      { "method": "GET", "path": "/api/schools/:schoolId/pupils", "access": "public", "description": "List pupils for login (minimal data)" },
+      { "method": "GET", "path": "/api/schools/:schoolId/staff", "access": "coordinator/head_teacher", "description": "List staff" },
+      { "method": "GET", "path": "/api/my-pupils", "access": "staff", "description": "Get class/year group pupils" },
+      { "method": "GET", "path": "/api/pupils/search", "access": "staff/pupil", "description": "Privacy-conscious search" },
+      { "method": "POST", "path": "/api/pupils/reset-pin/:pupilId", "access": "teacher/coordinator", "description": "Reset pupil PIN" },
+      { "method": "POST", "path": "/api/pupils/bulk-reset-pins", "access": "teacher/coordinator", "description": "Bulk reset PINs" },
+      { "method": "POST", "path": "/api/users/:id/avatar", "access": "authenticated", "description": "Update avatar" }
+    ],
+    "other": [
+      { "method": "GET", "path": "/api/notifications", "access": "authenticated", "description": "Get notifications" },
+      { "method": "PATCH", "path": "/api/notifications/:id/read", "access": "authenticated", "description": "Mark notification read" },
+      { "method": "GET", "path": "/api/annex-templates", "access": "authenticated", "description": "List annex templates" },
+      { "method": "POST", "path": "/api/annex-templates", "access": "coordinator/head_teacher", "description": "Create template" },
+      { "method": "GET", "path": "/api/delegated-roles", "access": "coordinator/head_teacher", "description": "List delegated roles" },
+      { "method": "POST", "path": "/api/delegated-roles", "access": "coordinator/head_teacher", "description": "Assign role" },
+      { "method": "GET", "path": "/api/referral-bodies", "access": "authenticated", "description": "List referral bodies" },
+      { "method": "POST", "path": "/api/referral-bodies", "access": "coordinator/head_teacher", "description": "Add referral body" },
+      { "method": "GET", "path": "/api/case-tasks", "access": "coordinator/senco", "description": "List case tasks" },
+      { "method": "POST", "path": "/api/case-tasks", "access": "coordinator/senco", "description": "Create case task" },
+      { "method": "GET", "path": "/api/teacher-posts", "access": "authenticated", "description": "List school updates" },
+      { "method": "POST", "path": "/api/teacher-posts", "access": "staff", "description": "Create school update" },
+      { "method": "DELETE", "path": "/api/teacher-posts/:id", "access": "author/coordinator", "description": "Delete post" },
+      { "method": "POST", "path": "/api/newsletter/subscribe", "access": "public", "description": "Newsletter signup" },
+      { "method": "GET", "path": "/api/data-retention/policy", "access": "coordinator/senco/pta", "description": "Data retention policy" },
+      { "method": "GET", "path": "/api/healthz", "access": "public", "description": "Health check" }
+    ]
+  },
+
+  "frontendPages": [
+    { "path": "/", "component": "Login", "access": "public" },
+    { "path": "/dashboard", "component": "Role-specific dashboard", "access": "authenticated" },
+    { "path": "/incidents", "component": "Incident list + detail", "access": "authenticated" },
+    { "path": "/incidents/new", "component": "Report incident form", "access": "authenticated" },
+    { "path": "/incidents/:id", "component": "Incident detail", "access": "authenticated" },
+    { "path": "/protocols", "component": "Protocol management", "access": "coordinator/head_teacher" },
+    { "path": "/alerts", "component": "Pattern alerts list", "access": "staff" },
+    { "path": "/messages", "component": "Messaging", "access": "authenticated" },
+    { "path": "/diary", "component": "Pupil feelings diary", "access": "pupil only" },
+    { "path": "/behaviour", "component": "Behaviour tracker", "access": "authenticated" },
+    { "path": "/diagnostics", "component": "Diagnostic surveys", "access": "authenticated" },
+    { "path": "/diagnostics/:id/results", "component": "Diagnostic results (role-filtered)", "access": "authenticated" },
+    { "path": "/class", "component": "My Class / Year Group", "access": "staff" },
+    { "path": "/senco", "component": "SENCO caseload", "access": "senco" },
+    { "path": "/pta", "component": "PTA portal", "access": "pta" },
+    { "path": "/learnings", "component": "School updates", "access": "authenticated" },
+    { "path": "/education", "component": "Learn / Rights education", "access": "authenticated" },
+    { "path": "/training", "component": "Feature training guides", "access": "authenticated" },
+    { "path": "/notifications", "component": "Notifications", "access": "authenticated" },
+    { "path": "/settings", "component": "User settings", "access": "authenticated" },
+    { "path": "/newsletter", "component": "Public newsletter signup", "access": "public" }
+  ],
+
+  "demoCredentials": {
+    "coordinator": { "email": "coordinator@safeschool.dev", "password": "password123" },
+    "headTeacher": { "email": "head@safeschool.dev", "password": "password123" },
+    "teachers": [
+      { "email": "teacher@safeschool.dev", "password": "password123", "note": "Head of Year Y6" },
+      { "email": "teacher2@safeschool.dev", "password": "password123" },
+      { "email": "teacher3@safeschool.dev", "password": "password123" },
+      { "email": "teacher4@safeschool.dev", "password": "password123" }
+    ],
+    "supportStaff": { "email": "support@safeschool.dev", "password": "password123" },
+    "senco": { "email": "senco@safeschool.dev", "password": "password123" },
+    "parents": [
+      { "email": "parent.a@safeschool.dev", "password": "parent123" },
+      { "email": "parent.b@safeschool.dev", "password": "parent123" }
+    ],
+    "pta": [
+      { "email": "pta.chair@safeschool.dev", "password": "pta123" },
+      { "email": "pta.member1@safeschool.dev", "password": "pta123" }
+    ],
+    "pupils": "All pupil PINs = 1234 (or check seed output)"
+  },
+
+  "seededDemoData": {
+    "school": "Morna International College",
+    "yearGroups": ["Y3", "Y4", "Y5", "Y6"],
+    "pupils": "~20 pupils across 4 year groups with animal emoji avatars",
+    "diagnosticSurveys": [
+      { "status": "active", "title": "School Onboarding Diagnostic" },
+      { "status": "closed", "count": 2, "note": "With seeded responses from all role groups" }
+    ],
+    "ptaAnnualReport": {
+      "academicYear": "2025-2026",
+      "status": "approved",
+      "totalIncidents": 169,
+      "categories": 8,
+      "protocols": 15,
+      "patternAlerts": 40
+    },
+    "incidents": "169 seeded incidents across all categories",
+    "patternAlerts": "40 seeded pattern alerts"
+  }
+}
+
+
+Thought for 23s
+This is a seriously solid spec. It already looks like a real product brief, not a vague startup napkin.
+My read: the concept is strong, the role model is rich, and the architecture is sensible. The main work now is not “more features,” it’s tightening the risky edges so it is actually deployable in a school setting like Morna.
+
+Overall verdict
+Yes — this is viable as a pilotable platform.
+The strongest bits are:
+very clear role separation
+proper multi-tenant school model
+good incident/protocol split
+strong PTA layer without giving PTA direct access to child-level data
+diary privacy being protected from staff/parent access
+pattern detection being framed as alerts, not conclusions
+decent monorepo structure for long-term maintainability
+The bit I’d focus on now is this:
+Turn it from a feature-rich school app into a defensible safeguarding system of record.
+That means tightening the compliance model, access control, audit behaviour, and a few naming/workflow issues.
+What looks especially good
+The best design decision in here is the separation between:
+incident
+protocol
+pattern alert
+audit log
+That is exactly the right direction.
+Why it matters:
+
+an incident is a reported event
+a protocol is the formal institutional response
+a pattern alert is an internal signal
+an audit log is the legal/accountability trail
+That separation will save you massive pain later.
+Also, your compliance framing is on the right track. LOPIVI requires schools with minors to have a coordinator/coordinadora de bienestar y protección under the supervision of the head or owner, and the Balearic Convivèxit materials set out formal bullying case workflows and annexes, including the revised school bullying protocol from May 2024. CAIB also publishes a separate protocol and annex structure for violències masclistes in educational settings. 
+
+That means your idea of:
+
+framework assignment
+annex template library
+referral body directory
+formal protocol opening and management
+is exactly the right product direction. 
+The biggest issues I’d fix before build or pilot
+1. “Teacher consent” is misnamed and slightly muddled
+You describe:
+coordinator requests consent
+parent approves/declines
+teacher sees redacted/unredacted view depending on consent
+That is not “teacher consent.” That is really:
+parental disclosure consent
+or parental release permission
+Right now the field names will confuse everybody, including developers and users.
+Better naming:
+
+disclosure_consent_status
+disclosure_consent_requested_at
+disclosure_consent_responded_at
+disclosure_scope
+Even better: define what consent governs:
+teacher sees full narrative?
+names of involved pupils?
+only safeguarding recommendation?
+only class action required?
+That needs to be explicit.
+2. Public pupil listing is too risky
+This endpoint is a red flag:
+GET /api/schools/:schoolId/pupils — public, minimal data
+Even with “minimal data,” this creates a pupil enumeration risk.
+Safer options:
+
+require school selection + class/year + PIN pre-step
+show avatar choices only after a valid school-specific code
+use a login token / QR / roster code for pupil login flows
+never publicly expose a raw list of pupils by school ID
+I would strongly change this before launch.
+3. 4-digit pupil PIN is okay for demo, weak for production
+A 4-digit PIN is only 10,000 combinations. Even with rate limiting and lockout, that is flimsy if pupils can be enumerated.
+Better production approach:
+
+4-digit PIN plus avatar confirmation or birth-month choice
+school-scoped login code
+or 6-digit PIN for production tenants
+Also: 90 seconds inactivity for pupils feels too aggressive. Good safeguarding instinct, but in practice it may create distress/friction for a child writing a diary or reporting something difficult.
+Better:
+
+3–5 minutes inactivity
+with immediate blur/lock on tab switch or explicit “quick hide” button
+4. Immutable audit log vs data protection rights
+“Immutable audit logs” are good, but you need a careful legal/data model, because blanket immutability can clash with rectification/retention obligations.
+The right answer is usually:
+
+audit entries are append-only
+corrections are new compensating entries
+personal data in logs is minimised
+retention policy is explicit by record type
+redaction is policy-driven, not destructive editing
+So: good principle, but it needs a retention + minimisation policy baked into the schema and product logic.
+5. Diary privacy promise is excellent — but the AI scan changes the privacy story
+You say:
+“Only the pupil can see their entries — no parent, teacher, or coordinator access”
+That is great. But then:
+“AI safeguarding scan after each entry”
+“Flagged entries create pattern_alert”
+That means the diary is not truly “only the pupil can see it.”
+A machine is processing it, and the system may act on it.
+That is still workable, but the product language must be precise:
+
+Recommended wording:
+
+“Diary entries are not viewable by parents, teachers, or coordinators.”
+“Entries are automatically scanned for serious safeguarding risk.”
+“If risk is detected, the system creates a safeguarding alert without exposing the diary text.”
+That is a much cleaner and safer promise.
+6. PTA anonymised analytics need minimum-threshold suppression
+PTA access is a clever feature, but anonymisation can fail fast in small schools.
+Example:
+
+Year 6 has 7 pupils
+one sexual incident
+one SEN-related case
+one obvious timing clue
+Everyone works out who it is.
+You need hard rules like:
+
+no subgroup chart if population < 10
+no category displayed if count < 3
+no timeframe slicing that reveals individual cases
+noise/suppression for very small schools
+Otherwise the PTA layer becomes a re-identification machine.
+7. Role overlap needs a permission matrix, not just role descriptions
+You have a good role catalogue, but for build quality you now need a proper matrix:
+For each endpoint/action define:
+
+create
+read own
+read scoped
+read all
+update
+approve
+export
+assign
+close
+Especially important for:
+head_of_year
+support_staff
+senco
+coordinator
+head_teacher
+Because “same as coordinator” is fine in the brief, but dangerous in code.
+8. The platform needs explicit “mandatory action” rules, not just “mandatory referral engine”
+This is a big one.
+You mention a referral engine, which is good. But the system should explicitly distinguish:
+
+alert
+internal action required
+protocol must be opened
+external referral required
+leadership notification required
+Why? Because official school protocols are procedural, not just analytical. The Convivèxit bullying materials and the Balearic protocol structure are annex/workflow-heavy, not just “spot a pattern and show a dashboard.” 
+So I’d add a policy/rules layer, for example:
+
+sexual incident → red alert + protocol review required
+alleged peer sexual violence → mandatory coordinator review
+repeated victimisation threshold → protocol recommendation
+serious safeguarding keywords → same-day review queue
+unresolved red alert > 24h → escalation notice
+That will make the app feel institutional, not cosmetic.
+Product changes I would make now
+Rename a few things
+I’d tidy the language before development:
+safeschool app folder → probably rename to safeskoolz-app or portal
+teacher_consent_* → disclosure_consent_*
+school updates / learnings → pick one and stick to it
+heads_up category → great internally, but maybe label it better in UI, like “Staff Notice”
+coordinator → consider “Wellbeing Coordinator” or “Safeguarding Coordinator” in UI
+Add a formal case timeline model
+You have incidents, protocols, interviews, case tasks. Good.
+I’d still add a dedicated timeline/event table or computed timeline for:
+
+incident reported
+triage started
+parent contacted
+interview completed
+protocol opened
+referral made
+closure approved
+That becomes gold for:
+audits
+inspections
+board/PTA reporting
+legal defensibility
+Add evidence/attachment support
+I don’t see a proper attachments model.
+You probably need:
+
+file uploads for staff only initially
+screenshot / image / PDF / note attachment types
+storage with signed URLs
+malware scanning
+strict role access
+attachment audit events
+That feels like a missing core piece.
+Add multilingual support from day one
+For Morna / Ibiza, I would treat English + Spanish + Catalan as a near-requirement.
+Especially for:
+
+parent-facing flows
+compliance annexes
+protocol labels
+referral body descriptions
+pupil UI
+This is one of those things that is annoying to retrofit later.
+Architecture verdict
+Architecturally, this is clean.
+The monorepo split is sensible:
+
+API
+frontend SPA
+db
+api spec
+generated client
+generated zod
+That’s grown-up.
+A few implementation notes:
+
+Keep business rules out of controllers
+You’re going to have lots of compliance logic. Don’t bury it in Express route files.
+Use service layers like:
+
+incidentService
+protocolService
+consentService
+alertEngine
+auditService
+referralService
+Make school_id enforcement impossible to forget
+Do not rely on every query author remembering tenant filters.
+Use one of:
+
+repository wrappers
+query helpers
+context-bound db access
+row-level security if you want to go harder
+Because cross-tenant leakage is the nightmare scenario here.
+Pattern detection should be versioned
+Your 8 rules are good, but schools will eventually ask:
+why was this flagged?
+when did the rule change?
+why was this not flagged last term?
+So every alert should store:
+rule_name
+rule_version
+trigger_snapshot
+maybe explanation_json
+That will save endless grief.
+What I’d call the top 10 must-fix items before pilot
+Rename consent fields and define disclosure scope.
+Remove public pupil list exposure.
+Strengthen pupil auth flow.
+Add attachment/evidence model.
+Add timeline/event history model.
+Add suppression thresholds for PTA analytics.
+Add retention/redaction rules by record type.
+Add explicit mandatory action/referral rules.
+Add multilingual support plan.
+Build a role-permission matrix before coding endpoints.
+What I’d say commercially
+This has the bones of a real institutional safeguarding platform, not just a reporting tool.
+The commercial wedge is probably not:
+
+“another school app”
+It’s more like:
+protocol-led safeguarding operating system for schools
+combining reporting, workflow, compliance evidence, and anonymised governance visibility
+That’s much stronger.
+And the PTA/coordinator bridge is unusual in a good way — if you keep the anonymisation watertight.
+
+Bottom line
+My honest take:
+This is strong enough to build.
+But before anyone writes too much code, I’d do one tightening pass focused on:
+
+naming
+permissions
+privacy
+compliance workflow
+audit defensibility
+That’s the difference between “impressive demo” and “something a school could actually rely on.”
+I can turn this into a v2 product spec with all the fixes baked in, including revised field names, permission matrix, and the key schema changes.
+
+Sure
+
+Perfect — here’s the tightened v2 spec with the risky bits cleaned up and the product positioned more like a proper safeguarding system.
+safeskoolz — Product Specification v2
+Branding: safeskoolz
+Tagline: A safe space to speak up and seek help.
+Target pilot: Morna International College, Ibiza
+Powered by: Cloudworkz
+1. Product definition
+safeskoolz is a multi-role safeguarding, wellbeing, and incident management platform for schools. It is designed to support school-level reporting, case handling, protocol workflows, internal accountability, and anonymised governance visibility.
+It is built to align operationally with:
+
+LOPIVI safeguarding obligations in Spain, including the requirement for a child wellbeing/protection coordinator in settings involving minors.
+Convivèxit / Balearic school coexistence and bullying protocols, including the updated Balearic anti-bullying protocol materials and annex-driven workflow approach.
+Balearic educational protocol frameworks relating to machista / sexual violence in schools, where applicable to safeguarding and response routing.
+safeskoolz is not a substitute for school judgement, legal advice, or statutory reporting duties. It is a system of record and workflow platform that helps schools report, triage, evidence, manage, and review safeguarding-related concerns.
+2. Product principles
+2.1 Core principles
+Child-first design
+Privacy by default
+Role-scoped visibility
+Append-only accountability trail
+Protocol-led case management
+Pattern detection as signal, not conclusion
+Safe anonymised governance reporting
+Multi-language readiness
+2.2 What the platform does
+Enables pupils, staff, parents, SENCO, coordinators, and PTA users to interact with safeguarding-related processes in role-appropriate ways.
+Distinguishes clearly between:
+a report
+a case / protocol
+a pattern alert
+an audit event
+Supports school response workflows rather than only logging incidents.
+Provides dashboards and summaries appropriate to each role.
+Produces defensible timelines and evidence trails.
+2.3 What the platform does not do
+It does not make legal findings.
+It does not determine guilt.
+It does not replace school policy or statutory obligations.
+It does not expose private diary content to staff, parents, or PTA users.
+It does not give PTA users access to child-level case data.
+3. Revised role model
+3.1 Roles
+pupil
+Login: PIN-based child flow
+Capabilities:
+Submit incident report via child-friendly form
+Write private diary entries
+View own behaviour record
+Message safe contacts
+Use urgent help button
+View school updates
+Take diagnostic survey
+View age-appropriate guides
+parent
+Login: email + password
+Capabilities:
+View own child’s incident summaries and updates
+Respond to disclosure permission requests
+Message school staff
+Message PTA
+View anonymised school-wide parent dashboard
+Take diagnostic survey
+View published survey summaries and agreed actions
+View school updates
+teacher
+Login: email + password
+Capabilities:
+Log incidents via professional form
+View own class / year-group scoped pupils
+Reset pupil login credentials where permitted
+Issue behaviour points
+View teacher dashboard
+Create school updates
+Take diagnostic survey
+View published survey summaries
+head_of_year
+Login: email + password
+Capabilities:
+All teacher capabilities
+View year-group incidents
+Year-group oversight dashboard
+Participate in assigned case workflows
+support_staff
+Login: email + password
+Capabilities:
+Log incidents
+View assigned incidents only
+View school updates
+Limited messaging and notification access
+senco
+Login: email + password
+Capabilities:
+SENCO caseload management
+Tracking and progress records
+Case tasks
+Alert review access
+Coordinator dashboard subset
+Assigned child safeguarding profile access
+safeguarding_coordinator
+UI label: Wellbeing & Protection Coordinator
+Login: email + password
+Capabilities:
+Full incident management
+Full protocol and case management
+Alert review and actioning
+Consent / disclosure request management
+Referral management
+Annex template management
+Referral body management
+Delegated role management
+Annual PTA report generation / approval
+Full analytics
+Audit log review
+Policy / workflow configuration
+head_teacher
+Login: email + password
+Capabilities:
+Same functional permissions as safeguarding coordinator unless restricted by tenant policy
+pta
+Login: email + password
+Capabilities:
+View anonymised school-wide KPI dashboard
+View mood trend summaries subject to suppression rules
+Message coordinator
+Submit concerns
+Acknowledge / flag policy concerns
+View approved annual reports only
+Participate in co-design feedback
+View resources library
+4. Key terminology changes
+The biggest naming change:
+Replace “teacher consent” with “disclosure permission”
+This is clearer and more accurate.
+Old fields
+
+teacher_consent_status
+teacher_consent_requested_at
+teacher_consent_responded_at
+New fields
+disclosure_permission_status
+disclosure_permission_requested_at
+disclosure_permission_responded_at
+disclosure_permission_responded_by
+disclosure_scope
+disclosure_reason
+Disclosure permission definition
+A disclosure permission request is a parent-facing workflow where the school asks whether additional incident detail may be shown to specified staff beyond the default redacted view.
+This does not override the school’s safeguarding duties. It controls additional detail exposure in the platform, not whether the school can act to keep children safe.
+
+Suggested disclosure scopes
+summary_only
+named_staff_view
+full_incident_detail
+behavioural_action_only
+no_additional_disclosure
+5. Revised feature model
+5.1 Incident reporting and case management
+Incident
+An incident is a single reported event or concern.
+Key characteristics
+
+Role-adaptive reporting form
+Reference number
+Severity rating
+Emotional state capture
+Location
+Involved persons
+Safeguarding screening flags
+Assigned staff member
+Status tracking
+Audit trail
+Statuses
+open
+triaged
+under_review
+under_investigation
+resolved
+escalated
+closed
+Case / protocol
+A protocol is the formal institutional response record linked to an incident or cluster of incidents.
+Purpose
+
+Tracks formal safeguarding / coexistence workflow
+Stores measures taken
+Records annexes and referrals
+Captures timeline of case management actions
+Supports eventual closure review
+Statuses
+open
+active
+resolved
+closed
+Pattern alert
+A pattern alert is a system-generated signal indicating that review may be needed.
+Important rule
+Pattern alerts are not conclusions. They are prompts for school review.
+
+Audit event
+An audit event is an append-only accountability entry recording who did what, when, and in relation to which record.
+5.2 Incident forms
+Pupil report form
+Child-friendly flow with:
+simplified categories
+emotional state before / after
+optional “I don’t know who it was”
+optional free text
+safe language prompts
+help-seeking guidance
+urgent help option
+Staff report form
+Professional flow with:
+structured categories
+safeguarding checklist
+identified / unidentified persons
+severity
+witness notes
+action already taken
+recommendation for follow-up
+5.3 Diary privacy model
+The diary remains one of the best features, but the privacy promise needs precision.
+Final diary rule
+Diary entries are not viewable by parents, teachers, coordinators, SENCO, or PTA users.
+Entries may be automatically scanned for safeguarding risk.
+If serious risk is detected, the platform may create a risk alert without exposing the diary text.
+Resulting UX promise
+“Your diary is private. Staff and parents cannot read it. The system only checks for serious safety concerns and will not share your diary words.”
+That is much tighter.
+
+5.4 Pattern detection engine
+Execution
+Scheduled every 60 minutes
+Deduplication enabled
+All alerts store rule metadata
+New alert metadata
+Each alert should store:
+rule_name
+rule_version
+trigger_snapshot
+explanation_json
+dedupe_key
+Rules
+sexual_any
+same_victim_3_incidents
+same_pair_escalating
+group_targeting
+location_hotspot
+repeat_perpetrator
+emotional_distress_pattern
+mood_decline
+Mandatory action layer
+On top of detection, add an explicit action policy engine:
+Examples:
+
+sexual incident → immediate red alert + coordinator review required
+repeated same-victim incidents → protocol recommended
+severe safeguarding concern → same-day review required
+unresolved red alert over defined threshold → escalation notice
+diary risk signal → alert only, no diary text exposed
+This matters because official school safeguarding and anti-bullying protocols are procedural and annex-driven, not just reporting-driven.
+5.5 PTA privacy and anonymisation rules
+The PTA portal is a differentiator, but only if anonymisation is strict.
+PTA access rules
+PTA users may only view:
+aggregated counts
+anonymised trend data
+approved reports
+published summaries
+policy and co-design materials
+PTA users may never view:
+child-level incidents
+named persons
+case-level notes
+diary indicators tied to identifiable cohorts
+low-volume subgroup data
+Suppression rules
+Add these minimum controls:
+no chart or category shown where count < 3
+no subgroup breakdown where cohort < 10
+no time slicing where re-identification risk is elevated
+no single-year-group display in very small schools unless threshold met
+sensitive categories may be merged into broader groupings for PTA view
+5.6 Attachments and evidence
+This is a missing core feature and should be added.
+New capability
+Staff and leadership users can attach evidence to incidents or protocols.
+Allowed types
+PDF
+image
+screenshot
+note / document
+Controls
+file malware scan
+signed URL access
+strict role checks
+file type restrictions
+audit event on upload, view, download, delete
+retention rules by evidence type
+Pupils should not initially have direct attachment upload in v1 unless carefully sandboxed.
+5.7 Case timeline
+Add a dedicated timeline model.
+Timeline purpose
+Every major safeguarding case should have a chronologically ordered case history.
+Example timeline events
+report submitted
+triage started
+assigned to staff member
+parent contacted
+disclosure permission requested
+disclosure permission responded
+interview scheduled
+interview completed
+protocol opened
+referral created
+measure applied
+review completed
+case closed
+This is critical for accountability and inspection readiness.
+6. Revised security model
+6.1 Authentication
+Adults
+email + password
+bcrypt hashing
+failed login tracking
+lockout windows
+restricted origins
+JWT session
+Pupils
+Replace the current public-list + 4-digit PIN model in production.
+New recommended pupil auth flow
+For pilot / production:
+school selected
+pupil enters school-issued short access code or scans QR
+pupil confirms avatar / profile tile
+pupil enters PIN
+optional quick-switch child-safe lock screen
+This removes the need for a public pupil listing endpoint.
+Session timeout
+For pupils:
+increase idle timeout from 90 seconds to something more usable, such as 3–5 minutes
+add a quick hide / lock button
+blur content instantly on inactivity or tab switch if desired
+6.2 Multi-tenant enforcement
+All data access must be school-scoped.
+Technical rule
+Do not rely on developers remembering to add school_id filters manually.
+Use:
+
+scoped repositories
+context-bound DB helpers
+or row-level security if adopted later
+Cross-tenant leakage is one of the biggest real risks.
+6.3 Audit and retention
+“Immutable audit” should really mean append-only audit.
+Final model
+audit entries cannot be edited or deleted via application logic
+corrections are written as new entries
+PII in logs is minimised
+retention rules differ by table / record type
+redactions occur through controlled policy processes, not destructive mutation
+7. Permission matrix model
+You now need a proper permission model, not only role descriptions.
+7.1 Permission verbs
+Use a matrix based on:
+create
+read_own
+read_scoped
+read_all
+update
+assign
+approve
+close
+publish
+export
+admin
+7.2 High-level matrix summary
+Incidents
+pupil: create, read_own submitted
+parent: read_own_child summary only
+teacher: create, read_scoped redacted/scoped
+head_of_year: read_scoped wider year-group
+support_staff: create, read_assigned
+senco: read_assigned / related
+coordinator/head_teacher: full access
+PTA: none
+Protocols
+coordinator/head_teacher: full access
+senco: assigned/scoped access
+teacher/head_of_year: only where explicitly assigned and redacted as policy allows
+parent: no direct protocol record access, only child-facing updates if published
+PTA: none
+Alerts
+coordinator/head_teacher: full access
+senco: assigned + relevant
+teacher/head_of_year: limited scoped alert access
+PTA/parent/pupil: none
+Annual reports
+coordinator/head_teacher: generate / approve
+PTA: read approved only
+Audit log
+coordinator/head_teacher: read
+all others: none
+8. Revised database changes
+Below is the main schema tightening pass.
+8.1 New or renamed tables / columns
+incidents
+Rename consent fields:
+disclosure_permission_status
+disclosure_permission_requested_at
+disclosure_permission_responded_at
+disclosure_permission_responded_by
+disclosure_scope
+disclosure_reason
+Add:
+triaged_at
+closed_at
+visibility_classification
+risk_level
+requires_same_day_review
+protocols
+Add:
+opened_by
+owner_id
+closure_reason
+closure_reviewed_by
+framework_version
+pattern_alerts
+Add:
+rule_version
+dedupe_key
+trigger_snapshot
+explanation_json
+action_required
+action_due_at
+audit_log
+Add:
+event_hash if desired
+request_id
+correlation_id
+new table: case_timeline_events
+Columns:
+id
+school_id
+protocol_id
+incident_id
+event_type
+event_timestamp
+actor_id
+actor_role
+summary
+details_json
+created_at
+new table: attachments
+Columns:
+id
+school_id
+incident_id
+protocol_id
+uploaded_by
+file_name
+storage_key
+mime_type
+file_size
+visibility_scope
+scan_status
+created_at
+new table: disclosure_permissions
+If you want more normalisation than incident columns alone:
+id
+school_id
+incident_id
+requested_by
+requested_from_parent_id
+status
+scope
+reason
+responded_by
+responded_at
+created_at
+users
+Consider adding:
+preferred_language
+last_active_at
+auth_method
+must_reset_password
+must_reset_pin
+9. API changes
+9.1 Endpoints to remove or change
+Remove or redesign
+GET /api/schools/:schoolId/pupils as public
+This is too risky.
+
+Replace with safer flow
+Possible alternatives:
+POST /api/auth/pupil/start
+POST /api/auth/pupil/select-profile
+POST /api/auth/pupil/login
+Where the backend reveals only the minimum next-step data after a valid school access step.
+9.2 New endpoint groups
+Attachments
+POST /api/attachments
+GET /api/attachments/:id
+DELETE /api/attachments/:id
+Timeline
+GET /api/protocols/:id/timeline
+POST /api/protocols/:id/timeline
+Disclosure permissions
+POST /api/incidents/:id/disclosure-request
+PATCH /api/incidents/:id/disclosure-respond
+GET /api/incidents/:id/disclosure
+Action rules / workflow
+GET /api/workflows/rules
+PATCH /api/alerts/:id/action
+POST /api/protocols/:id/referrals
+10. Frontend changes
+10.1 Information architecture
+Keep the pages broadly as they are, but rename a few for clarity:
+/learnings → /updates
+school updates UI label stays “School Updates”
+coordinator dashboard UI label becomes “Safeguarding Dashboard”
+protocols area becomes “Cases & Protocols”
+10.2 Child UX improvements
+For the pupil experience:
+larger tappable controls
+clear “leave quickly” / quick hide button
+trauma-aware language
+save-draft support for reporting if feasible
+no forced long-form text
+10.3 Adult UX improvements
+For staff/coordinator:
+strong table filters
+case timeline view
+clear redacted/unredacted labels
+explicit disclosure scope chip
+action due badges
+policy / framework labels on each case
+11. Internationalisation
+For Ibiza, multilingual support is worth treating as core, not optional.
+Priority languages
+English
+Spanish
+Catalan
+Must-support content
+login
+reporting forms
+child-facing help text
+parent messaging
+rights / education page
+annex templates and compliance labels where relevant
+12. Recommended engineering approach
+12.1 Keep rules out of controllers
+Use services:
+incidentService
+protocolService
+alertEngine
+disclosureService
+auditService
+attachmentService
+timelineService
+referralService
+12.2 Version your rules
+Every alert and workflow-triggered action should know:
+which rule fired
+which version fired
+what facts were used
+That makes future review possible.
+12.3 Generated contracts are a good call
+Your monorepo split still makes sense:
+db schema
+api spec
+zod
+react query client
+backend
+frontend
+That’s a solid foundation.
+13. Commercial positioning
+I’d sharpen the market positioning to this:
+safeskoolz is a protocol-led safeguarding operating system for schools.
+
+Not just:
+
+reporting app
+behaviour tracker
+wellbeing portal
+But:
+reporting
+workflow
+accountability trail
+pattern alerts
+protocol handling
+anonymised governance reporting
+That is much stronger.
+14. Build priorities for v1 pilot
+Phase 1 — must-build
+adult auth + safe pupil auth redesign
+incidents
+protocols / cases
+alerts
+timeline
+audit
+messaging
+dashboards
+PTA anonymised dashboard
+diary with safe alerting
+attachments
+multilingual baseline
+Phase 2 — good to add
+SENCO tracking enhancements
+annual report automation
+richer diagnostic survey actions
+delegated role admin polish
+annex template versioning UI
+Phase 3 — later
+exports / external report packs
+advanced notification rules
+school trust / multi-school hierarchy
+deeper analytics benchmarking
+15. Bottom-line v2 conclusion
+The product is now much tighter if you frame it this way:
+incident = report
+protocol = formal response
+alert = system signal
+timeline = case history
+audit = accountability trail
+PTA = anonymised governance visibility only
+diary = private, with risk-only machine scanning
+disclosure permission = controlled staff visibility workflow
+That version is far more defensible.
+If you want, next step I’d do is turn this into one of these two formats:
+a build-ready PRD or a developer handoff pack with schema, permissions matrix, and endpoint changes laid out table-by-table.
+
