@@ -34,16 +34,49 @@ async function seed() {
   const parentPassword = await bcrypt.hash("parent123", BCRYPT_ROUNDS);
   const ptaPassword = await bcrypt.hash("pta123", BCRYPT_ROUNDS);
 
-  const pupils = [
-    { firstName: "Boy", lastName: "A", yearGroup: "Y6", className: "6A", avatarType: "animal", avatarValue: "\uD83E\uDD8A" },
-    { firstName: "Boy", lastName: "B", yearGroup: "Y6", className: "6A", avatarType: "animal", avatarValue: "\uD83D\uDC3B" },
-    { firstName: "Girl", lastName: "A", yearGroup: "Y5", className: "5B", avatarType: "animal", avatarValue: "\uD83D\uDC2C" },
-    { firstName: "Girl", lastName: "B", yearGroup: "Y5", className: "5B", avatarType: "animal", avatarValue: "\uD83E\uDD8B" },
-    { firstName: "Boy", lastName: "C", yearGroup: "Y4", className: "4A", avatarType: "animal", avatarValue: "\uD83D\uDC27" },
-    { firstName: "Girl", lastName: "C", yearGroup: "Y4", className: "4A", avatarType: "animal", avatarValue: "\uD83E\uDD81" },
-    { firstName: "Boy", lastName: "D", yearGroup: "Y3", className: "3A", avatarType: "animal", avatarValue: "\uD83D\uDC28" },
-    { firstName: "Girl", lastName: "D", yearGroup: "Y3", className: "3A", avatarType: "animal", avatarValue: "\uD83D\uDC3A" },
+  const animalEmojis = ["\uD83E\uDD8A","\uD83D\uDC3B","\uD83D\uDC36","\uD83D\uDC31","\uD83D\uDC30","\uD83E\uDD81","\uD83D\uDC38","\uD83D\uDC28","\uD83D\uDC2F","\uD83E\uDD89","\uD83D\uDC2C","\uD83E\uDD8B","\uD83D\uDC27","\uD83D\uDC3A","\uD83D\uDC3C","\uD83E\uDD84","\uD83D\uDC22","\uD83E\uDD88","\uD83D\uDC19","\uD83E\uDD9C"];
+
+  const classRosters: { yearGroup: string; className: string; names: [string, string][] }[] = [
+    { yearGroup: "Y3", className: "3A", names: [
+      ["Luna","Martinez"],["Oliver","Smith"],["Sofia","Garcia"],["Max","Weber"],["Isla","Johnson"],
+      ["Pablo","Fernandez"],["Emma","de Vries"],["Leo","Müller"],["Mia","Williams"],["Hugo","Lopez"],
+      ["Amelia","Brown"],["Lucas","Romero"],["Chloe","Petersen"],["Mateo","Santos"],["Freya","Anderson"],
+      ["Diego","Torres"],["Lara","Fischer"],["Ethan","Davies"],["Nina","Herrera"],["Finn","van Dijk"],
+    ]},
+    { yearGroup: "Y4", className: "4A", names: [
+      ["Marco","Ruiz"],["Sophie","Taylor"],["Carlos","Moreno"],["Lily","Thompson"],["Jan","Schmidt"],
+      ["Valentina","Navarro"],["James","Wilson"],["Elena","Castro"],["Tom","Bakker"],["Clara","Ortiz"],
+      ["Daniel","Harris"],["Noa","Jimenez"],["Hannah","Meyer"],["Alejandro","Ramos"],["Eva","White"],
+      ["Sebastian","Molina"],["Ruby","Clark"],["Adrian","Serrano"],["Julia","Jansen"],["Liam","Cooper"],
+    ]},
+    { yearGroup: "Y5", className: "5B", names: [
+      ["Ines","Vega"],["George","Martin"],["Carmen","Diaz"],["Oscar","Hall"],["Anke","Schneider"],
+      ["Paula","Reyes"],["William","Lewis"],["Maria","Cruz"],["Lars","de Boer"],["Lucia","Medina"],
+      ["Charlotte","Roberts"],["Alvaro","Flores"],["Zoe","Mitchell"],["Rafael","Gutierrez"],["Iris","Young"],
+      ["Manuel","Aguilar"],["Alice","Walker"],["Hector","Vargas"],["Lotte","Visser"],["Noah","King"],
+    ]},
+    { yearGroup: "Y6", className: "6A", names: [
+      ["Isabel","Hernandez"],["Thomas","Robinson"],["Andrea","Morales"],["Jack","Wright"],["Felix","Bauer"],
+      ["Rocio","Dominguez"],["Emily","Green"],["David","Castillo"],["Sophie","de Jong"],["Miguel","Perez"],
+      ["Olivia","Scott"],["Jorge","Alonso"],["Amy","Hughes"],["Antonio","Suarez"],["Lena","Krause"],
+      ["Victor","Blanco"],["Grace","Edwards"],["Sergio","Mendez"],["Mila","Smit"],["Alexander","Kelly"],
+    ]},
   ];
+
+  const pupils: { firstName: string; lastName: string; yearGroup: string; className: string; avatarType: string; avatarValue: string }[] = [];
+  let emojiIdx = 0;
+  for (const roster of classRosters) {
+    for (const [firstName, lastName] of roster.names) {
+      pupils.push({
+        firstName, lastName,
+        yearGroup: roster.yearGroup,
+        className: roster.className,
+        avatarType: "animal",
+        avatarValue: animalEmojis[emojiIdx % animalEmojis.length],
+      });
+      emojiIdx++;
+    }
+  }
 
   const pupilPins: { name: string; pin: string }[] = [];
   const pupilRecords = [];
