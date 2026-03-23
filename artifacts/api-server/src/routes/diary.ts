@@ -1,7 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
-import { db, pupilDiaryTable, usersTable, patternAlertsTable } from "@workspace/db";
-import { eq, desc, and, inArray } from "drizzle-orm";
+import { db, pupilDiaryTable, patternAlertsTable } from "@workspace/db";
+import { eq, desc, and } from "drizzle-orm";
 import OpenAI from "openai";
 
 const router: IRouter = Router();
@@ -171,35 +171,6 @@ router.delete(
       .where(and(eq(pupilDiaryTable.id, id), eq(pupilDiaryTable.pupilId, user.userId)));
 
     res.json({ success: true });
-  }
-);
-
-router.get(
-  "/diary/child/:childId",
-  authMiddleware,
-  requireRole("parent"),
-  async (req: Request, res: Response): Promise<void> => {
-    const user = (req as any).user as JwtPayload;
-    const { childId } = req.params;
-
-    const [parent] = await db
-      .select({ parentOf: usersTable.parentOf })
-      .from(usersTable)
-      .where(eq(usersTable.id, user.userId));
-
-    if (!parent?.parentOf || !parent.parentOf.includes(childId)) {
-      res.status(403).json({ error: "You can only view your own child's diary" });
-      return;
-    }
-
-    const entries = await db
-      .select()
-      .from(pupilDiaryTable)
-      .where(eq(pupilDiaryTable.pupilId, childId))
-      .orderBy(desc(pupilDiaryTable.createdAt))
-      .limit(100);
-
-    res.json(entries);
   }
 );
 

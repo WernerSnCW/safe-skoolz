@@ -7,7 +7,7 @@ import {
   AlertTriangle, Bell, FileText, Activity, TrendingUp, Users,
   BarChart3, PieChart as PieChartIcon, MapPin, Clock, Calendar,
   UserCheck, ChevronDown, ChevronUp, Shield, Gauge, MessageCircle, Send,
-  CheckCircle2, BookHeart, Lock
+  CheckCircle2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
@@ -358,119 +358,6 @@ function ContactPTACard() {
   );
 }
 
-const DIARY_MOODS = [
-  { value: 1, emoji: "\uD83D\uDE1E", label: "Really bad" },
-  { value: 2, emoji: "\uD83D\uDE1F", label: "Not great" },
-  { value: 3, emoji: "\uD83D\uDE10", label: "Okay" },
-  { value: 4, emoji: "\uD83D\uDE0A", label: "Good" },
-  { value: 5, emoji: "\uD83D\uDE04", label: "Great!" },
-];
-
-function getDiaryMood(mood: number) {
-  return DIARY_MOODS.find(m => m.value === mood) || DIARY_MOODS[2];
-}
-
-function ChildDiaryCard({ childId, childName }: { childId: string; childName: string }) {
-  const [expanded, setExpanded] = useState(false);
-
-  const { data: entries = [], isLoading } = useQuery({
-    queryKey: ["/api/diary/child", childId],
-    queryFn: async () => {
-      const token = localStorage.getItem("safeschool_token");
-      const res = await fetch(`/api/diary/child/${childId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) return [];
-      return res.json();
-    },
-  });
-
-  if (isLoading) return <div className="animate-pulse h-24 bg-muted rounded-2xl" />;
-  if (entries.length === 0) return null;
-
-  const recentMoods = entries.slice(0, 7).map((e: any) => e.mood);
-  const avgMood = (recentMoods.reduce((a: number, b: number) => a + b, 0) / recentMoods.length).toFixed(1);
-  const avgMoodInfo = getDiaryMood(Math.round(Number(avgMood)));
-
-  return (
-    <Card className="border-pink-200 dark:border-pink-900/50">
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="w-full text-left"
-      >
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-pink-100 dark:bg-pink-950/30 rounded-xl flex items-center justify-center">
-                <BookHeart size={24} className="text-pink-500" />
-              </div>
-              <div>
-                <h3 className="font-bold flex items-center gap-2">
-                  {childName}'s Feelings Diary
-                  <Lock size={12} className="text-muted-foreground" />
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  {entries.length} {entries.length === 1 ? "entry" : "entries"} — recent mood: {avgMoodInfo.emoji} {avgMood}/5
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex gap-0.5">
-                {entries.slice(0, 5).map((e: any) => (
-                  <span key={e.id} className="text-lg">{getDiaryMood(e.mood).emoji}</span>
-                ))}
-              </div>
-              {expanded ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
-            </div>
-          </div>
-        </CardContent>
-      </button>
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="px-5 pb-5 space-y-3">
-              {entries.slice(0, 14).map((entry: any) => {
-                const moodInfo = getDiaryMood(entry.mood);
-                const dateStr = new Date(entry.createdAt).toLocaleDateString("en-GB", {
-                  weekday: "short", day: "numeric", month: "short",
-                });
-                const timeStr = new Date(entry.createdAt).toLocaleTimeString("en-GB", {
-                  hour: "2-digit", minute: "2-digit",
-                });
-                return (
-                  <div key={entry.id} className="flex items-start gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
-                    <span className="text-2xl mt-0.5">{moodInfo.emoji}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-sm">{moodInfo.label}</span>
-                        <span className="text-xs text-muted-foreground">{dateStr} at {timeStr}</span>
-                      </div>
-                      {entry.note && (
-                        <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{entry.note}</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-              {entries.length > 14 && (
-                <p className="text-xs text-muted-foreground text-center pt-2">
-                  Showing most recent 14 of {entries.length} entries
-                </p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Card>
-  );
-}
-
 export default function ParentDashboard({ user }: { user: any }) {
   const [periodDays, setPeriodDays] = useState(180);
   const { data: notificationsData } = useListNotifications();
@@ -667,22 +554,6 @@ export default function ParentDashboard({ user }: { user: any }) {
       </div>
 
       <ContactPTACard />
-
-      {childrenList.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-display font-bold flex items-center gap-2">
-            <BookHeart size={20} className="text-pink-500" aria-hidden="true" />
-            Feelings Diary
-          </h2>
-          {childrenList.map((child: any) => (
-            <ChildDiaryCard
-              key={child.id}
-              childId={child.id}
-              childName={child.firstName}
-            />
-          ))}
-        </div>
-      )}
 
       {childBehaviourData && childBehaviourData.length > 0 && (
         <div className="space-y-4">

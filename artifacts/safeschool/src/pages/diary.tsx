@@ -399,7 +399,7 @@ export default function DiaryPage() {
             </h1>
             <div className="flex items-center gap-1.5 mt-1 text-xs" style={{ color: t.text.muted }}>
               <Lock size={11} />
-              <span>Private — only you and your parent can see this</span>
+              <span>Private — only you can see this</span>
               <button
                 type="button"
                 onClick={() => setShowAiInfo(!showAiInfo)}

@@ -58,8 +58,8 @@ function getStepsForRole(role: string): DemoStep[] {
         page: "/diary",
         navHighlight: "My Diary",
         title: "Your Private Diary",
-        description: "Tap the diary cover to start writing. You can pick a mood emoji (Sad, Worried, Meh, Happy, Amazing) or just start writing straight away — the mood is optional. Your entries are private — only you and your parent can see them. Tap the palette icon at the top to switch between 6 diary styles: Classic, Ocean, Rose, Forest, Midnight, and Sunset. Each entry shows the date and time. You can delete old entries if you want to.",
-        benefit: "A safe, private space to write down your thoughts and feelings. The AI watches over entries to keep you safe — but nobody reads your diary.",
+        description: "Tap the diary cover to start writing. You can pick a mood emoji (Sad, Worried, Meh, Happy, Amazing) or just start writing straight away — the mood is optional. Your entries are completely private — only you can see them. Nobody else — not your parents, not your teachers — can read your diary. Tap the palette icon at the top to switch between 6 diary styles: Classic, Ocean, Rose, Forest, Midnight, and Sunset. Each entry shows the date and time. You can delete old entries if you want to.",
+        benefit: "A truly private space for your thoughts. If the system spots big worries, it sends a 'please check on me' message to a trusted adult — but they never see your diary.",
       },
       {
         page: "/behaviour",
@@ -167,7 +167,7 @@ function getStepsForRole(role: string): DemoStep[] {
         page: "/training",
         navHighlight: "Training",
         title: "How To Use SafeSkoolZ",
-        description: "Step-by-step guides for every feature — viewing incidents, checking behaviour points and levels, messaging staff, reporting concerns, and reading your child's diary. Each guide has numbered steps you can follow along with.",
+        description: "Step-by-step guides for every feature — viewing incidents, checking behaviour points and levels, messaging staff, and reporting concerns. Each guide has numbered steps you can follow along with.",
         benefit: "Never feel lost — everything is explained here.",
       },
       {
@@ -253,7 +253,7 @@ function getStepsForRole(role: string): DemoStep[] {
       },
       {
         page: "/diagnostics",
-        navHighlight: "Diagnostics",
+        navHighlight: "Diagnostic",
         title: "Safeguarding Climate Survey",
         description: "Launch diagnostic surveys to measure how pupils, staff, and parents perceive the school's safeguarding culture. Each role gets tailored questions about awareness, trust, reporting, wellbeing, and policy knowledge. View results with radar charts and bar charts showing scores by category and role group. Generate AI-powered action plans with KPIs, baselines, targets, and timeframes.",
         benefit: "Data-driven safeguarding improvement. Measure what matters and track progress over time.",
@@ -401,7 +401,7 @@ function getStepsForRole(role: string): DemoStep[] {
       },
       {
         page: "/diagnostics",
-        navHighlight: "Diagnostics",
+        navHighlight: "Diagnostic",
         title: "Safeguarding Climate Survey",
         description: "Create and launch diagnostic surveys to measure how pupils, staff, and parents perceive the school's safeguarding culture. Each role gets tailored questions. View results with radar charts and bar charts. Generate AI-powered action plans with KPIs, baselines, targets, and timeframes aligned to LOPIVI and Convivèxit requirements.",
         benefit: "Evidence-based safeguarding improvement. Measure, plan, and track progress systematically.",
@@ -434,33 +434,10 @@ function getStepsForRole(role: string): DemoStep[] {
     return [
       {
         page: "/pta",
-        title: "PTA Dashboard",
-        description: "Your PTA Portal home — KPI cards show the current safeguarding climate: total incidents this term (anonymised), active protocols, survey participation rates, and wellbeing trends. Charts show incident trends over time and category breakdowns. All data is anonymised — you never see individual pupil names.",
-        benefit: "Oversight without overstepping. See the big picture without compromising any child's privacy.",
-      },
-      {
-        page: "/pta",
-        title: "Coordinator Channel",
-        description: "Direct messaging channel to the school's Safeguarding Coordinator. Raise questions, flag concerns, or request updates. All messages are threaded and timestamped. You can also formally raise a concern through the 'Raise Concern' form — these are tracked separately and require a coordinator response.",
-        benefit: "Direct line to the safeguarding lead. Formal concerns are tracked and can't be ignored.",
-      },
-      {
-        page: "/pta",
-        title: "Policy Review",
-        description: "Review the school's current safeguarding and anti-bullying policy. You can acknowledge that you've read it, or flag specific sections you think need updating. Flagged items are sent to the coordinator for review. The policy review status shows which PTA members have acknowledged the current version.",
-        benefit: "Active PTA involvement in policy governance. Flag gaps before they become problems.",
-      },
-      {
-        page: "/pta",
-        title: "Annual Report & Co-Design",
-        description: "The Annual Report tab shows the school's anonymised safeguarding report — incident volumes, category trends, protocol outcomes, and action plan progress. You can approve or request changes. The Co-Design tab is a collaborative workspace where PTA members and staff can propose and vote on safeguarding improvements.",
-        benefit: "Genuine partnership. The PTA isn't just informed — they actively shape safeguarding policy.",
-      },
-      {
-        page: "/pta",
-        title: "Resources Library",
-        description: "Curated safeguarding resources organised by category: protocol guides (LOPIVI, Convivèxit), parent guides (how to talk to your child about bullying), training materials, and external links to official bodies. Documents, videos, and web links in one searchable library.",
-        benefit: "Everything a PTA member needs to understand the safeguarding landscape.",
+        navHighlight: "PTA Dashboard",
+        title: "PTA Portal",
+        description: "Your PTA home — KPI cards show the safeguarding climate: anonymised incident counts, active protocols, survey participation rates, and wellbeing trends. Use the tabs to access: Coordinator Channel (direct messaging with the DSL), Policy Review (acknowledge or flag sections), Annual Report & Co-Design (approve reports and vote on improvements), and the Resources Library (LOPIVI, Convivèxit guides, and parent resources). All pupil data is anonymised — you never see individual names.",
+        benefit: "Full PTA oversight in one place — dashboard, messaging, policy, reporting, and resources.",
       },
       {
         page: "/learnings",
