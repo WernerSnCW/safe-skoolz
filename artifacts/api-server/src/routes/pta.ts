@@ -334,6 +334,16 @@ router.get("/pta/report/latest", authMiddleware, requireRole("pta"), async (req,
   res.json({ report });
 });
 
+router.get("/pta/report/all", authMiddleware, requireRole("coordinator", "head_teacher"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+
+  const reports = await db.select().from(ptaAnnualReportsTable)
+    .where(eq(ptaAnnualReportsTable.schoolId, user.schoolId))
+    .orderBy(desc(ptaAnnualReportsTable.createdAt));
+
+  res.json({ reports });
+});
+
 router.post("/pta/report/generate", authMiddleware, requireRole("coordinator", "head_teacher"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
   const now = new Date();

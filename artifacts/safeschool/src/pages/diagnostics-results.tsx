@@ -623,44 +623,157 @@ function AgreedActionsPanel({ surveyId, existingActions, categories }: {
 
 function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
   const { user } = useAuth();
-  const { data, isLoading } = useQuery({
+  const { data: actionsData, isLoading: actionsLoading } = useQuery({
     queryKey: ["/api/diagnostics", surveyId, "actions"],
     queryFn: async () => {
       const res = await fetchWithAuth(`/api/diagnostics/${surveyId}/actions`);
-      if (!res.ok) throw new Error("Failed to load");
+      if (!res.ok) return null;
       return res.json();
     },
     enabled: !!surveyId,
   });
 
-  if (isLoading) {
+  const { data: summary, isLoading: summaryLoading } = useQuery({
+    queryKey: ["/api/diagnostics", surveyId, "summary"],
+    queryFn: async () => {
+      const res = await fetchWithAuth(`/api/diagnostics/${surveyId}/summary`);
+      if (!res.ok) return null;
+      return res.json();
+    },
+    enabled: !!surveyId,
+  });
+
+  if (actionsLoading || summaryLoading) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6 animate-pulse">
+      <div className="max-w-4xl mx-auto space-y-6 animate-pulse">
         <div className="h-10 bg-muted rounded-lg w-64" />
         <div className="h-48 bg-muted rounded-2xl" />
       </div>
     );
   }
 
+  const CATEGORY_COLORS: Record<string, string> = {
+    "Awareness & Prevalence": "#3b82f6",
+    "Trust & Reporting": "#0d9488",
+    "Culture & Wellbeing": "#22c55e",
+    "Safeguarding Knowledge": "#8b5cf6",
+    "System Readiness": "#f59e0b",
+  };
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div>
         <Link href="/diagnostics" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 mb-2">
           <ArrowLeft size={14} /> Back to Diagnostics
         </Link>
-        <h1 className="text-3xl font-display font-bold">Diagnostic Actions</h1>
+        <h1 className="text-3xl font-display font-bold">Diagnostic Results</h1>
         <p className="text-muted-foreground mt-1">
-          {data?.surveyTitle || "School Onboarding Diagnostic"}
+          {summary?.survey?.title || actionsData?.surveyTitle || "School Onboarding Diagnostic"}
+          {summary?.survey?.closedAt && ` — Closed ${new Date(summary.survey.closedAt).toLocaleDateString()}`}
         </p>
       </div>
 
-      {!data?.isPublished || !data?.actions?.length ? (
+      {summary && summary.categories?.length > 0 && (
+        <>
+          <div className="grid grid-cols-3 gap-3">
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-primary">{summary.participation.total}</p>
+                <p className="text-xs text-muted-foreground">Total Responses</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-teal-600">{summary.participation.pupil}</p>
+                <p className="text-xs text-muted-foreground">Pupils</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-indigo-600">{summary.participation.staff + summary.participation.parent}</p>
+                <p className="text-xs text-muted-foreground">Staff & Parents</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 size={20} className="text-primary" />
+                School Safeguarding Climate
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Combined scores across all respondent groups (1-5 scale)
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {summary.overallScores.map((s: any) => {
+                  const pct = (s.overall / 5) * 100;
+                  const color = CATEGORY_COLORS[s.category] || "#6b7280";
+                  return (
+                    <div key={s.category}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-sm font-medium">{s.category}</span>
+                        <span className="text-sm font-bold" style={{ color }}>{s.overall}/5</span>
+                      </div>
+                      <div className="h-3 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{ width: `${pct}%`, backgroundColor: color }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {summary.categories.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users size={20} className="text-primary" />
+                  Scores by Group
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  How different groups scored each category
+                </p>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={summary.categories.map((c: any) => ({
+                    category: c.category.length > 16 ? c.category.substring(0, 14) + "..." : c.category,
+                    ...c.averages,
+                  }))}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="category" tick={{ fontSize: 11 }} />
+                    <YAxis domain={[0, 5]} tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Bar dataKey="pupil" name="Pupils" fill="#0d9488" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="staff" name="Staff" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="parent" name="Parents" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+                <div className="flex justify-center gap-6 mt-3">
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-teal-500" /><span className="text-xs text-muted-foreground">Pupils</span></div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-indigo-500" /><span className="text-xs text-muted-foreground">Staff</span></div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-amber-500" /><span className="text-xs text-muted-foreground">Parents</span></div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      {!actionsData?.isPublished || !actionsData?.actions?.length ? (
         <Card>
           <CardContent className="p-8 text-center">
             <Shield size={48} className="mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-xl font-bold mb-2">Actions not yet available</h2>
+            <h2 className="text-xl font-bold mb-2">Agreed Actions coming soon</h2>
             <p className="text-muted-foreground max-w-md mx-auto">
-              The school leadership is reviewing the diagnostic results and developing an action plan. You'll be able to see the agreed actions once they're published.
+              The school leadership is reviewing the results and developing an action plan. You'll be able to see the agreed actions once they're published.
             </p>
           </CardContent>
         </Card>
@@ -678,7 +791,7 @@ function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {data.actions.map((a: any) => (
+                {actionsData.actions.map((a: any) => (
                   <li key={a.id} className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/20">
                     <CheckCircle2 size={18} className="text-primary mt-0.5 shrink-0" />
                     <div>

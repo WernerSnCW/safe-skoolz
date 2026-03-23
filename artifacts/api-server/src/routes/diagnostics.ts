@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { db } from "@workspace/db";
 import { diagnosticSurveysTable, diagnosticResponsesTable, diagnosticActionsTable, usersTable } from "@workspace/db/schema";
-import { eq, and, count, avg, sql } from "drizzle-orm";
+import { eq, and, count, avg, sql, isNotNull } from "drizzle-orm";
 import { authMiddleware } from "../lib/auth";
 
 const router = Router();
@@ -637,6 +637,114 @@ router.get("/diagnostics/:id/results", authMiddleware, async (req: Request, res:
     actions,
     totalResponses: responses.length,
     questionBank: QUESTION_BANK.map(q => ({ key: q.key, category: q.category })),
+  });
+});
+
+router.get("/diagnostics/:id/summary", authMiddleware, async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const surveyId = req.params.id;
+
+  const [survey] = await db.select()
+    .from(diagnosticSurveysTable)
+    .where(and(
+      eq(diagnosticSurveysTable.id, surveyId),
+      eq(diagnosticSurveysTable.schoolId, user.schoolId),
+    ));
+
+  if (!survey) {
+    res.status(404).json({ error: "Survey not found" });
+    return;
+  }
+
+  if (survey.status !== "closed") {
+    res.status(403).json({ error: "Summary is only available for closed surveys" });
+    return;
+  }
+
+  const responses = await db.select({
+    questionKey: diagnosticResponsesTable.questionKey,
+    answer: diagnosticResponsesTable.answer,
+    userId: diagnosticResponsesTable.userId,
+  })
+    .from(diagnosticResponsesTable)
+    .where(eq(diagnosticResponsesTable.surveyId, surveyId));
+
+  const userIds = [...new Set(responses.map(r => r.userId))];
+  const usersData = userIds.length > 0 ? await db.select({
+    id: usersTable.id,
+    role: usersTable.role,
+  })
+    .from(usersTable)
+    .where(sql`${usersTable.id} IN ${userIds}`) : [];
+
+  const userRoleMap = new Map(usersData.map(u => [u.id, u.role]));
+
+  const participationByGroup: Record<string, Set<string>> = { pupil: new Set(), staff: new Set(), parent: new Set() };
+  const categoryScores: Record<string, Record<string, { sum: number; count: number }>> = {};
+
+  for (const r of responses) {
+    const role = userRoleMap.get(r.userId) || "staff";
+    const group = getRoleGroup(role);
+    participationByGroup[group].add(r.userId);
+
+    const qDef = QUESTION_BANK.find(q => q.key === r.questionKey);
+    if (!qDef) continue;
+
+    const cat = qDef.category;
+    if (!categoryScores[cat]) categoryScores[cat] = {};
+    if (!categoryScores[cat][group]) categoryScores[cat][group] = { sum: 0, count: 0 };
+    categoryScores[cat][group].sum += r.answer;
+    categoryScores[cat][group].count += 1;
+  }
+
+  const categories = Object.entries(categoryScores).map(([cat, groups]) => {
+    const groupAverages: Record<string, number> = {};
+    for (const [g, data] of Object.entries(groups)) {
+      groupAverages[g] = Math.round((data.sum / data.count) * 10) / 10;
+    }
+    return { category: cat, averages: groupAverages };
+  });
+
+  const overallScores = categories.map(c => {
+    const allAvgs = Object.values(c.averages);
+    return {
+      category: c.category,
+      overall: Math.round((allAvgs.reduce((a, b) => a + b, 0) / allAvgs.length) * 10) / 10,
+    };
+  });
+
+  const participation = {
+    pupil: participationByGroup.pupil.size,
+    staff: participationByGroup.staff.size,
+    parent: participationByGroup.parent.size,
+    total: participationByGroup.pupil.size + participationByGroup.staff.size + participationByGroup.parent.size,
+  };
+
+  const isLeadership = ["coordinator", "head_teacher"].includes(user.role);
+
+  let publishedActions: any[] = [];
+  if (isLeadership) {
+    publishedActions = await db.select()
+      .from(diagnosticActionsTable)
+      .where(eq(diagnosticActionsTable.surveyId, surveyId))
+      .orderBy(diagnosticActionsTable.createdAt);
+  } else {
+    publishedActions = await db.select()
+      .from(diagnosticActionsTable)
+      .where(and(
+        eq(diagnosticActionsTable.surveyId, surveyId),
+        isNotNull(diagnosticActionsTable.publishedAt),
+      ))
+      .orderBy(diagnosticActionsTable.createdAt);
+  }
+
+  res.json({
+    survey: { id: survey.id, title: survey.title, status: survey.status, closedAt: survey.closedAt },
+    participation,
+    categories,
+    overallScores,
+    actions: publishedActions,
+    totalResponses: responses.length,
   });
 });
 

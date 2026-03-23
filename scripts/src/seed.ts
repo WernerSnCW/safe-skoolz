@@ -1,4 +1,5 @@
-import { db, schoolsTable, usersTable } from "@workspace/db";
+import { db, schoolsTable, usersTable, ptaAnnualReportsTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 const BCRYPT_ROUNDS = 12;
@@ -164,6 +165,53 @@ async function seed() {
       active: true,
     });
     console.log(`  PTA: ${p.firstName} ${p.lastName} (password: pta123)`);
+  }
+
+  const [coordinatorUser] = await db.select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.email, "coordinator@safeschool.dev"));
+
+  if (coordinatorUser) {
+    const now = new Date();
+    const academicYear = now.getMonth() >= 8
+      ? `${now.getFullYear()}-${now.getFullYear() + 1}`
+      : `${now.getFullYear() - 1}-${now.getFullYear()}`;
+
+    await db.insert(ptaAnnualReportsTable).values({
+      schoolId: school.id,
+      academicYear,
+      reportData: {
+        academicYear,
+        generatedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        totalIncidents: 169,
+        incidentsByCategory: [
+          { category: "bullying", count: 52 },
+          { category: "cyberbullying", count: 28 },
+          { category: "verbal", count: 31 },
+          { category: "physical", count: 18 },
+          { category: "emotional", count: 14 },
+          { category: "discrimination", count: 9 },
+          { category: "safeguarding", count: 7 },
+          { category: "other", count: 10 },
+        ],
+        protocolsByStatus: [
+          { status: "open", count: 2 },
+          { status: "resolved", count: 8 },
+          { status: "closed", count: 5 },
+        ],
+        alertsSummary: [
+          { level: "high", status: "active", count: 3 },
+          { level: "high", status: "resolved", count: 12 },
+          { level: "medium", status: "active", count: 5 },
+          { level: "medium", status: "resolved", count: 20 },
+        ],
+      },
+      status: "approved",
+      generatedById: coordinatorUser.id,
+      approvedById: coordinatorUser.id,
+      approvedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
+    });
+    console.log(`  Seeded approved PTA annual report for ${academicYear}`);
   }
 
   console.log("\nSeed complete!");

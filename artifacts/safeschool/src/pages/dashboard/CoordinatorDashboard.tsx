@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGetCoordinatorDashboard } from "@workspace/api-client-react";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-polished";
+import { Button } from "@/components/ui-polished";
 import {
   AlertTriangle, ShieldAlert, FileText, Activity,
   TrendingUp, BarChart3, PieChart as PieChartIcon, Eye,
-  MapPin, Users
+  MapPin, Users, CheckCircle2, Clock, Download, Loader2
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -38,7 +40,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function CoordinatorDashboardView() {
-  const [activeTab, setActiveTab] = useState<"overview" | "analytics">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "analytics" | "reports">("overview");
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const canManageReports = ["coordinator", "head_teacher"].includes(user?.role || "");
   const { data, isLoading } = useGetCoordinatorDashboard();
 
   const { data: analytics, isLoading: analyticsLoading } = useQuery<any>({
@@ -108,6 +113,17 @@ export default function CoordinatorDashboardView() {
           >
             <BarChart3 size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />Analytics
           </button>
+          {canManageReports && (
+            <button
+              role="tab"
+              aria-selected={activeTab === "reports"}
+              aria-controls="tabpanel-reports"
+              onClick={() => setActiveTab("reports")}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "reports" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              <FileText size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />PTA Reports
+            </button>
+          )}
         </div>
       </div>
 
@@ -395,6 +411,199 @@ export default function CoordinatorDashboardView() {
             <div className="h-80 bg-muted rounded-2xl" />
             <div className="h-80 bg-muted rounded-2xl" />
           </div>
+        </div>
+      )}
+
+      {activeTab === "reports" && (
+        <AnnualReportManager />
+      )}
+    </div>
+  );
+}
+
+function AnnualReportManager() {
+  const queryClient = useQueryClient();
+
+  const { data: reportsData, isLoading } = useQuery<any>({
+    queryKey: ["/api/pta/report/all"],
+    queryFn: async () => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch("/api/pta/report/all", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+  });
+
+  const generateMutation = useMutation({
+    mutationFn: async () => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch("/api/pta/report/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error("Failed to generate");
+      return res.json();
+    },
+    onSuccess: () => {
+      setErrorMsg(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/pta/report/all"] });
+    },
+    onError: () => {
+      setErrorMsg("Failed to generate report. Please try again.");
+    },
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: async (reportId: string) => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch("/api/pta/report/approve", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ reportId }),
+      });
+      if (!res.ok) throw new Error("Failed to approve");
+      return res.json();
+    },
+    onSuccess: () => {
+      setErrorMsg(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/pta/report/all"] });
+    },
+    onError: () => {
+      setErrorMsg("Failed to approve report. Please try again.");
+    },
+  });
+
+  const reports = reportsData?.reports || [];
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const STATUS_STYLES: Record<string, { icon: any; label: string; color: string; bg: string }> = {
+    draft: { icon: Clock, label: "Draft", color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50" },
+    approved: { icon: CheckCircle2, label: "Approved", color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900/50" },
+  };
+
+  if (isLoading) {
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-10 bg-muted rounded w-48" />
+        <div className="h-40 bg-muted rounded-2xl" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold">PTA Annual Reports</h2>
+          <p className="text-sm text-muted-foreground mt-1">Generate and approve safeguarding reports for the PTA.</p>
+        </div>
+        <Button
+          onClick={() => generateMutation.mutate()}
+          disabled={generateMutation.isPending}
+          className="bg-primary"
+        >
+          {generateMutation.isPending ? (
+            <><Loader2 size={14} className="mr-1.5 animate-spin" />Generating...</>
+          ) : (
+            <><FileText size={14} className="mr-1.5" />Generate New Report</>
+          )}
+        </Button>
+      </div>
+
+      {errorMsg && (
+        <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 flex items-center gap-2">
+          <AlertTriangle size={16} className="text-red-500 shrink-0" />
+          <p className="text-sm text-red-700 dark:text-red-400">{errorMsg}</p>
+        </div>
+      )}
+
+      {reports.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <FileText size={48} className="mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-bold mb-2">No reports yet</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Generate your first annual report to share safeguarding data with the PTA. The report will include incident statistics, protocol outcomes, and alert summaries for the current academic year.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {reports.map((report: any) => {
+            const rd = report.reportData as any;
+            const style = STATUS_STYLES[report.status] || STATUS_STYLES.draft;
+            const StatusIcon = style.icon;
+
+            return (
+              <Card key={report.id} className="overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="font-bold text-lg">Academic Year {report.academicYear}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Generated {new Date(report.createdAt).toLocaleDateString()}
+                        {report.approvedAt && ` · Approved ${new Date(report.approvedAt).toLocaleDateString()}`}
+                        {report.accessedByPtaAt && ` · Viewed by PTA ${new Date(report.accessedByPtaAt).toLocaleDateString()}`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${style.bg} ${style.color}`}>
+                        <StatusIcon size={12} />
+                        {style.label}
+                      </span>
+                      {report.status === "draft" && (
+                        <Button
+                          size="sm"
+                          onClick={() => approveMutation.mutate(report.id)}
+                          disabled={approveMutation.isPending}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          {approveMutation.isPending ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <><CheckCircle2 size={12} className="mr-1" />Approve & Publish</>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {rd && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/30 text-center">
+                        <p className="text-2xl font-bold text-blue-600">{rd.totalIncidents ?? 0}</p>
+                        <p className="text-xs text-muted-foreground">Total Incidents</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900/30 text-center">
+                        <p className="text-2xl font-bold text-violet-600">{rd.incidentsByCategory?.length ?? 0}</p>
+                        <p className="text-xs text-muted-foreground">Categories</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-900/30 text-center">
+                        <p className="text-2xl font-bold text-teal-600">
+                          {rd.protocolsByStatus?.reduce((a: number, p: any) => a + (Number(p.count) || 0), 0) ?? 0}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Protocols</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 text-center">
+                        <p className="text-2xl font-bold text-amber-600">
+                          {rd.alertsSummary?.reduce((a: number, al: any) => a + (Number(al.count) || 0), 0) ?? 0}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Pattern Alerts</p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
