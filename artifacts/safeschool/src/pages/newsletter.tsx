@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Mail, User, MapPin, Briefcase, Sparkles, CheckCircle2, ArrowLeft } from "lucide-react";
-import { VoiceShieldIcon } from "@/components/VoiceShieldLogo";
+import { ShieldCheck, Building2, Mail, User, MapPin, Briefcase, Sparkles, CheckCircle2, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 const ORG_TYPES = [
@@ -99,7 +98,7 @@ export default function NewsletterSignUp() {
           </Link>
           <div className="text-center">
             <div className="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-teal-200">
-              <VoiceShieldIcon size={36} className="text-white" />
+              <ShieldCheck className="w-9 h-9 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-3">Register your interest</h1>
             <p className="text-lg text-gray-600 max-w-md mx-auto">

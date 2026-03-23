@@ -3,10 +3,9 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { 
-  Home, AlertTriangle, FileText, Shield,
+  ShieldCheck, Home, AlertTriangle, FileText, Shield,
   Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, GraduationCap, ClipboardCheck, BookHeart, Megaphone
 } from "lucide-react";
-import { VoiceShieldIcon, VoiceShieldLogo } from "@/components/VoiceShieldLogo";
 import { useListNotifications } from "@workspace/api-client-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -181,8 +180,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 glass-panel fixed h-full z-20 border-r border-border/50">
         <div className="p-6 flex items-center gap-3 border-b border-border/50">
-          <div className="p-1.5 rounded-xl shadow-lg shadow-primary/20">
-            <VoiceShieldIcon size={28} />
+          <div className="bg-gradient-to-br from-primary to-secondary p-2 rounded-xl text-primary-foreground shadow-lg shadow-primary/20">
+            <ShieldCheck size={24} strokeWidth={2.5} />
           </div>
           <span className="font-display font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
             SafeSkoolZ
@@ -246,7 +245,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Mobile Header */}
       <header className="md:hidden glass-panel sticky top-0 z-30 px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <VoiceShieldLogo className="text-primary" size={28} />
+          <ShieldCheck className="text-primary" size={24} />
           <span className="font-display font-bold text-lg">SafeSkoolZ</span>
         </div>
         <button
