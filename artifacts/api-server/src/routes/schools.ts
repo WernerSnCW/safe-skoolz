@@ -20,30 +20,6 @@ router.get("/schools", async (_req, res): Promise<void> => {
   );
 });
 
-router.get("/schools/:schoolId/pupils", async (req, res): Promise<void> => {
-  const schoolId = Array.isArray(req.params.schoolId) ? req.params.schoolId[0] : req.params.schoolId;
-  const className = req.query.className as string | undefined;
-
-  let conditions: any[] = [eq(usersTable.schoolId, schoolId), eq(usersTable.role, "pupil"), eq(usersTable.active, true)];
-  if (className) {
-    conditions.push(eq(usersTable.className, className));
-  }
-
-  const pupils = await db.select().from(usersTable).where(and(...conditions));
-
-  res.json(
-    pupils.map((p) => ({
-      id: p.id,
-      firstName: p.firstName,
-      lastName: p.lastName ? p.lastName.charAt(0) + "." : "",
-      yearGroup: p.yearGroup,
-      className: p.className,
-      avatarType: p.avatarType,
-      avatarValue: p.avatarValue,
-    }))
-  );
-});
-
 router.get("/my-pupils", authMiddleware, requireRole("teacher", "head_of_year", "head_teacher", "coordinator", "senco", "support_staff"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
 

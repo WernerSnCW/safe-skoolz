@@ -42,11 +42,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
 
+  /auth/pupil/start:
+    post:
+      operationId: pupilStartLogin
+      tags: [auth]
+      summary: Start pupil login with school access code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PupilStartBody"
+      responses:
+        "200":
+          description: Login session started with profile tiles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PupilStartResponse"
+        "401":
+          description: Invalid access code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /auth/pupil/login:
     post:
       operationId: pupilLogin
       tags: [auth]
-      summary: Pupil login with PIN
+      summary: Complete pupil login with session token, profile key, and PIN
       requestBody:
         required: true
         content:
@@ -151,30 +176,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/School"
 
-  /schools/{schoolId}/pupils:
-    get:
-      operationId: listPupilsBySchool
-      tags: [users]
-      summary: List pupils for a school
-      parameters:
-        - name: schoolId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: className
-          in: query
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Pupil list
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PupilSummary"
 
   /schools/{schoolId}/staff:
     get:
@@ -889,18 +890,55 @@ components:
       required:
         - error
 
-    PupilLoginBody:
+    PupilStartBody:
       type: object
       properties:
         schoolId:
           type: string
-        pupilId:
+        accessCode:
+          type: string
+      required:
+        - schoolId
+        - accessCode
+
+    PupilStartResponse:
+      type: object
+      properties:
+        loginSessionToken:
+          type: string
+        profiles:
+          type: array
+          items:
+            type: object
+            properties:
+              loginKey:
+                type: string
+              displayName:
+                type: string
+              avatarType:
+                type: string
+              avatarValue:
+                type: string
+              yearGroup:
+                type: string
+              className:
+                type: string
+      required:
+        - loginSessionToken
+        - profiles
+
+    PupilLoginBody:
+      type: object
+      properties:
+        loginSessionToken:
+          type: string
+        loginKey:
           type: string
         pin:
           type: string
       required:
-        - schoolId
-        - pupilId
+        - loginSessionToken
+        - loginKey
         - pin
 
     StaffLoginBody:

@@ -32,6 +32,7 @@ const newsletterLimiter = rateLimit({
   message: { error: "Too many requests. Please try again later." },
 });
 
+app.use("/api/auth/pupil/start", authLimiter);
 app.use("/api/auth/pupil/login", authLimiter);
 app.use("/api/auth/staff/login", authLimiter);
 app.use("/api/auth/parent/login", authLimiter);

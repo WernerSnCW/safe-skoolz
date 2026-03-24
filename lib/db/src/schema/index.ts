@@ -18,3 +18,5 @@ export * from "./newsletter";
 export * from "./diagnostics";
 export * from "./diary";
 export * from "./teacherPosts";
+export * from "./schoolLoginCodes";
+export * from "./disclosurePermissions";

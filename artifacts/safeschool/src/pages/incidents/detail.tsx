@@ -45,17 +45,20 @@ export default function IncidentDetail() {
     parentSummary: "",
   });
   const [assessmentSaved, setAssessmentSaved] = useState(false);
-  const canRequestConsent = ["coordinator", "head_teacher", "senco"].includes(userRole);
-  const needsConsent = ["teacher", "head_of_year", "support_staff"].includes(userRole);
+  const canRequestDisclosure = ["coordinator", "head_teacher", "senco"].includes(userRole);
+  const needsDisclosure = ["teacher", "head_of_year", "support_staff"].includes(userRole);
 
-  const consentRequestMutation = useMutation({
-    mutationFn: async (incidentId: string) => {
+  const disclosureRequestMutation = useMutation({
+    mutationFn: async ({ incidentId, subjectPupilId, requestedFromParentId, scope }: { incidentId: string; subjectPupilId: string; requestedFromParentId: string; scope?: string }) => {
       const token = localStorage.getItem("safeschool_token");
-      const res = await fetch(`/api/incidents/${incidentId}/consent-request`, {
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+      const res = await fetch(`${apiBase}api/incidents/${incidentId}/disclosure-request`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ subjectPupilId, requestedFromParentId, scope: scope || "summary_only" }),
       });
-      if (!res.ok) throw new Error((await res.json()).error || "Failed to request consent");
+      if (!res.ok) throw new Error((await res.json()).error || "Failed to request disclosure");
       return res.json();
     },
     onSuccess: () => {
@@ -64,15 +67,17 @@ export default function IncidentDetail() {
     },
   });
 
-  const consentRespondMutation = useMutation({
-    mutationFn: async ({ incidentId, decision }: { incidentId: string; decision: "approved" | "declined" }) => {
+  const disclosureRespondMutation = useMutation({
+    mutationFn: async ({ incidentId, permissionId, decision }: { incidentId: string; permissionId: string; decision: "approved" | "declined" }) => {
       const token = localStorage.getItem("safeschool_token");
-      const res = await fetch(`/api/incidents/${incidentId}/consent-respond`, {
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+      const res = await fetch(`${apiBase}api/incidents/${incidentId}/disclosure-respond`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ decision }),
+        body: JSON.stringify({ permissionId, decision }),
       });
-      if (!res.ok) throw new Error((await res.json()).error || "Failed to respond to consent");
+      if (!res.ok) throw new Error((await res.json()).error || "Failed to respond to disclosure request");
       return res.json();
     },
     onSuccess: () => {
@@ -175,75 +180,80 @@ export default function IncidentDetail() {
         </div>
       </div>
 
-      {needsConsent && incAny.teacherConsentStatus !== "approved" && (
+      {needsDisclosure && incAny.disclosureStatus !== "approved" && (
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
           <Shield size={20} className="text-amber-600 mt-0.5 shrink-0" />
           <div>
             <p className="font-semibold text-amber-800 dark:text-amber-300 text-sm">
-              {incAny.teacherConsentStatus === "requested"
-                ? "Parent consent pending"
-                : incAny.teacherConsentStatus === "declined"
-                  ? "Parent has declined teacher access"
-                  : "Parent consent not yet requested"}
+              {incAny.disclosureStatus === "pending"
+                ? "Disclosure permission pending"
+                : incAny.disclosureStatus === "declined"
+                  ? "Parent has declined staff disclosure"
+                  : "Disclosure permission not yet requested"}
             </p>
             <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
-              {incAny.teacherConsentStatus === "requested"
-                ? "The school has requested parent consent for you to view full incident details. Some information is currently redacted."
-                : incAny.teacherConsentStatus === "declined"
-                  ? "The parent has declined to share full details of this incident with class teachers."
-                  : "A safeguarding coordinator must request parent consent before you can view full incident details. Pupil names and sensitive information are redacted."}
+              {incAny.disclosureStatus === "pending"
+                ? "The school has requested parental permission for you to view full incident details. Some information is currently redacted."
+                : incAny.disclosureStatus === "declined"
+                  ? "The parent has declined to share full details of this incident with additional staff."
+                  : "A safeguarding coordinator must request parental disclosure permission before you can view full incident details. Pupil names and sensitive information are redacted."}
             </p>
           </div>
         </div>
       )}
 
-      {userRole === "parent" && incAny.teacherConsentStatus === "requested" && (
+      {userRole === "parent" && incAny.disclosureStatus === "pending" && incAny.disclosurePermissions?.length > 0 && (
         <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <Info size={20} className="text-blue-600 mt-0.5 shrink-0" />
             <div className="flex-1">
               <p className="font-semibold text-blue-800 dark:text-blue-300 text-sm">
-                Teacher access consent request
+                Staff disclosure permission request
               </p>
               <p className="text-xs text-blue-700 dark:text-blue-400 mt-1 mb-3">
-                The school's safeguarding team has requested your consent to share details of this incident with your child's class teacher. 
-                This helps teachers provide appropriate support. You can approve or decline — your decision will be recorded.
+                The safeguarding team has requested your permission to share information about your child with additional staff members.
+                This helps staff provide appropriate support. You can approve or decline — your decision will be recorded.
+                Disclosure permission affects in-platform visibility only. It does not restrict the school's ability to take immediate safeguarding action where necessary.
               </p>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => consentRespondMutation.mutate({ incidentId: id, decision: "approved" })}
-                  disabled={consentRespondMutation.isPending}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <CheckCircle size={14} className="mr-1" /> Approve
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => consentRespondMutation.mutate({ incidentId: id, decision: "declined" })}
-                  disabled={consentRespondMutation.isPending}
-                  className="border-red-300 text-red-700 hover:bg-red-50"
-                >
-                  <EyeOff size={14} className="mr-1" /> Decline
-                </Button>
-              </div>
+              {incAny.disclosurePermissions
+                .filter((p: any) => p.status === "pending")
+                .map((p: any) => (
+                  <div key={p.id} className="flex gap-2 mb-2">
+                    <Button
+                      size="sm"
+                      onClick={() => disclosureRespondMutation.mutate({ incidentId: id, permissionId: p.id, decision: "approved" })}
+                      disabled={disclosureRespondMutation.isPending}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <CheckCircle size={14} className="mr-1" /> Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => disclosureRespondMutation.mutate({ incidentId: id, permissionId: p.id, decision: "declined" })}
+                      disabled={disclosureRespondMutation.isPending}
+                      className="border-red-300 text-red-700 hover:bg-red-50"
+                    >
+                      <EyeOff size={14} className="mr-1" /> Decline
+                    </Button>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
       )}
 
-      {userRole === "parent" && incAny.teacherConsentStatus === "approved" && (
+      {userRole === "parent" && incAny.disclosureStatus === "approved" && (
         <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl p-3 flex items-center gap-2">
           <CheckCircle size={16} className="text-green-600 shrink-0" />
-          <p className="text-xs text-green-700 dark:text-green-400">You have approved teacher access to this incident's details.</p>
+          <p className="text-xs text-green-700 dark:text-green-400">You have approved staff disclosure for this incident.</p>
         </div>
       )}
 
-      {userRole === "parent" && incAny.teacherConsentStatus === "declined" && (
+      {userRole === "parent" && incAny.disclosureStatus === "declined" && (
         <div className="bg-muted/30 border border-border rounded-xl p-3 flex items-center gap-2">
           <EyeOff size={16} className="text-muted-foreground shrink-0" />
-          <p className="text-xs text-muted-foreground">You have declined teacher access to this incident's details.</p>
+          <p className="text-xs text-muted-foreground">You have declined staff disclosure for this incident.</p>
         </div>
       )}
 
@@ -361,40 +371,57 @@ export default function IncidentDetail() {
                   </Link>
                 )}
 
-                {canRequestConsent && incAny.teacherConsentStatus === "not_requested" && (
+                {canRequestDisclosure && incAny.disclosureStatus === "not_requested" && (
                   <>
                     <hr className="my-4 border-border" />
                     <Button
                       className="w-full justify-start"
                       variant="outline"
-                      onClick={() => consentRequestMutation.mutate(id)}
-                      disabled={consentRequestMutation.isPending}
+                      onClick={() => {
+                        const victimIds = incAny.victimIds || [];
+                        if (victimIds.length === 0) return;
+                        const subjectPupilId = victimIds[0];
+                        const token = localStorage.getItem("safeschool_token");
+                        const baseUrl = import.meta.env.BASE_URL || "/";
+                        const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+                        fetch(`${apiBase}api/my-pupils`, {
+                          headers: { Authorization: `Bearer ${token}` },
+                        }).then(() => {
+                          disclosureRequestMutation.mutate({
+                            incidentId: id,
+                            subjectPupilId,
+                            requestedFromParentId: incAny._parentId || "",
+                            scope: "summary_only",
+                          });
+                        });
+                      }}
+                      disabled={disclosureRequestMutation.isPending}
                     >
-                      <Eye className="mr-2" size={18} /> Request Parent Consent for Teacher Access
+                      <Eye className="mr-2" size={18} /> Request Disclosure Permission
                     </Button>
-                    <p className="text-xs text-muted-foreground">
-                      This will ask the parent to consent to sharing incident details with the class teacher.
+                    <p className="text-xs text-muted-foreground mt-1">
+                      This will ask the parent for permission to share incident details with additional staff.
                     </p>
                   </>
                 )}
-                {canRequestConsent && incAny.teacherConsentStatus === "requested" && (
+                {canRequestDisclosure && incAny.disclosureStatus === "pending" && (
                   <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-3 mt-2">
                     <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                      <Clock size={12} /> Parent consent requested — awaiting response
+                      <Clock size={12} /> Disclosure permission requested — awaiting parent response
                     </p>
                   </div>
                 )}
-                {canRequestConsent && incAny.teacherConsentStatus === "approved" && (
+                {canRequestDisclosure && incAny.disclosureStatus === "approved" && (
                   <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3 mt-2">
                     <p className="text-xs text-green-700 dark:text-green-400 flex items-center gap-1.5">
-                      <CheckCircle size={12} /> Parent has approved teacher access
+                      <CheckCircle size={12} /> Parent has approved staff disclosure
                     </p>
                   </div>
                 )}
-                {canRequestConsent && incAny.teacherConsentStatus === "declined" && (
+                {canRequestDisclosure && incAny.disclosureStatus === "declined" && (
                   <div className="bg-red-50 dark:bg-red-950/20 rounded-lg p-3 mt-2">
                     <p className="text-xs text-red-700 dark:text-red-400 flex items-center gap-1.5">
-                      <EyeOff size={12} /> Parent has declined teacher access
+                      <EyeOff size={12} /> Parent has declined staff disclosure
                     </p>
                   </div>
                 )}

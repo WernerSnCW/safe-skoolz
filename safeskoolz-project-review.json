@@ -22,7 +22,7 @@
           "src/index.ts": "Server bootstrap, cron scheduling for pattern detection",
           "src/routes/index.ts": "Route aggregator — mounts all route files under /api prefix",
           "src/routes/auth.ts": "Authentication routes (pupil PIN, staff email, parent email, demo login, profile)",
-          "src/routes/incidents.ts": "Incident CRUD, consent workflow, assessment, status management",
+          "src/routes/incidents.ts": "Incident CRUD, disclosure permission workflow, assessment, status management",
           "src/routes/protocols.ts": "Protocol CRUD with escalation tier calculation and mandatory referral engine",
           "src/routes/alerts.ts": "Pattern alert listing and status management",
           "src/routes/dashboard.ts": "Coordinator, teacher, parent dashboards and analytics",
@@ -33,7 +33,7 @@
           "src/routes/pta.ts": "PTA portal — dashboard, messaging, policy, concerns, reports, codesign, mood trends, resources, parent-to-PTA",
           "src/routes/senco.ts": "SENCO caseload management and tracking",
           "src/routes/caseTasks.ts": "Case task management linked to protocols",
-          "src/routes/schools.ts": "School listing, pupil listing, staff listing, pupil search, PIN reset, avatar management",
+          "src/routes/schools.ts": "School listing (public pupils endpoint REMOVED), staff listing, pupil search, PIN reset, avatar management",
           "src/routes/teacherPosts.ts": "School updates (teacher posts) with audience filtering",
           "src/routes/notifications.ts": "Notification listing and read marking",
           "src/routes/delegatedRoles.ts": "Delegated safeguarding role assignment and revocation",
@@ -56,14 +56,14 @@
           "src/App.tsx": "Router configuration with ProtectedRoute wrapper and role guards",
           "src/components/layout/AppLayout.tsx": "Sidebar navigation with role-specific menu items, dark mode toggle, notification badges, mobile bottom nav",
           "src/components/demo/DemoWalkthrough.tsx": "Interactive demo walkthrough overlay for new users",
-          "src/pages/login.tsx": "Login page with school selector, pupil PIN pad, staff/parent email forms, demo login",
+          "src/pages/login.tsx": "Login page with staged pupil flow (school select → access code → profile tiles → PIN pad), staff/parent/PTA email forms, demo login",
           "src/pages/dashboard.tsx": "Role router — dispatches to CoordinatorDashboard, TeacherDashboard, PupilDashboard, or ParentDashboard",
           "src/pages/dashboard/CoordinatorDashboard.tsx": "Full analytics dashboard with charts, PTA report management tab, delegated roles, recent incidents",
           "src/pages/dashboard/TeacherDashboard.tsx": "Teacher analytics scoped to class/year group",
           "src/pages/dashboard/PupilDashboard.tsx": "Pupil home with quick actions, behaviour overview, diary mood history",
           "src/pages/dashboard/ParentDashboard.tsx": "Parent dashboard with child incidents, emotional timeline, school overview, PTA contact card",
           "src/pages/report-incident.tsx": "Dual-mode incident form — child-friendly (pupils) vs professional (staff)",
-          "src/pages/incidents.tsx": "Incident list with filtering, search, pagination; incident detail with consent workflow",
+          "src/pages/incidents.tsx": "Incident list with filtering, search, pagination; incident detail with disclosure permission workflow",
           "src/pages/diagnostics.tsx": "Diagnostic survey taking UI with role-adaptive question rendering",
           "src/pages/diagnostics-results.tsx": "Full results (coordinator) or published summary (others) with charts and priorities",
           "src/pages/diary.tsx": "Pupil feelings diary with physical diary aesthetic, mood emoji picker, leather-look cover",
@@ -122,8 +122,9 @@
 
   "roles": {
     "pupil": {
-      "loginMethod": "PIN (4-digit, bcrypt hashed)",
-      "lockout": "3 failed attempts → locked until 2099-12-31 (permanent until admin reset)",
+      "loginMethod": "Staged login: school select → access code (school-level, bcrypt hashed) → profile tile selection → 4-digit PIN",
+      "loginFlow": "POST /api/auth/pupil/start (schoolId + accessCode) → {loginSessionToken, profiles[]}; POST /api/auth/pupil/login (loginSessionToken + loginKey + pin) → JWT. Sessions in-memory Map, 10 min TTL.",
+      "lockout": "3 failed attempts → 15 min lock; 5 failed attempts → admin reset required (lockedUntil = 2099-12-31)",
       "sessionTimeout": "90 seconds inactivity auto-logout",
       "capabilities": [
         "Report incidents via child-friendly form (emoji emotional state, simplified categories)",
@@ -155,7 +156,7 @@
       "lockout": "3 failed attempts → locked until 2099-12-31",
       "capabilities": [
         "View children's incidents (only parentVisible=true incidents involving their child)",
-        "Approve/decline teacher consent requests on incidents",
+        "Approve/decline disclosure permission requests on incidents (scoped: behavioural_action_only, summary_only, named_staff_view, full_incident_detail)",
         "View anonymised school overview analytics",
         "Message school staff directly (teacher, coordinator, etc.)",
         "View child urgent help alerts",
@@ -186,7 +187,7 @@
       "capabilities": [
         "Log incidents via professional form (safeguarding checks, person identification)",
         "View incidents involving own class pupils only",
-        "Redacted incident view until parent grants teacher consent",
+        "Redacted incident view until parent grants disclosure permission",
         "Assess incidents involving own pupils (add staff notes, witness statements, parent summary)",
         "View class pupils list with behaviour and incident links",
         "Reset pupil PINs (individual and bulk)",
@@ -222,7 +223,7 @@
       "capabilities": [
         "Full incident management (all incidents in school, no redaction)",
         "Update incident status (submitted/under_investigation/resolved/escalated/closed)",
-        "Request teacher consent from parents on incidents",
+        "Request disclosure permission from parents on incidents (scoped permission model)",
         "Assess all incidents (staff notes, witness statements, parent summary, parent visibility toggle)",
         "Open and manage protocols (LOPIVI/Convivèxit/Machista Violence)",
         "Automatic escalation tier calculation on protocol creation",
@@ -303,7 +304,7 @@
       "loginMethod": "Email + password",
       "capabilities": [
         "Log incidents",
-        "View incidents (redacted until parent consent approved)",
+        "View incidents (redacted until parent disclosure permission approved)",
         "View assigned pupils",
         "Issue behaviour points",
         "View school updates (audience=everyone|staff)",
@@ -354,14 +355,32 @@
       "routes": [
         {
           "method": "POST",
+          "path": "/api/auth/pupil/start",
+          "access": "public",
+          "requestBody": {"schoolId": "uuid", "accessCode": "string"},
+          "response": {"loginSessionToken": "string (uuid)", "profiles": "[{loginKey, displayName, avatarType, avatarValue, yearGroup, className}]"},
+          "logic": [
+            "Validates school exists",
+            "Looks up active access code for school in school_login_codes table",
+            "bcrypt-compares provided code with stored hash",
+            "Creates in-memory login session (Map) with 10 min TTL",
+            "Returns randomised loginKey per pupil (NOT real pupil IDs)",
+            "Session cleanup interval every 60s",
+            "Audit log: pupil_session_start event"
+          ]
+        },
+        {
+          "method": "POST",
           "path": "/api/auth/pupil/login",
           "access": "public",
-          "requestBody": {"schoolId": "uuid", "pupilId": "uuid", "pin": "string (4-digit)"},
+          "requestBody": {"loginSessionToken": "string", "loginKey": "string", "pin": "string (4-digit)"},
           "response": {"token": "JWT string", "user": "User object (sanitised)", "firstLogin": "boolean"},
           "logic": [
-            "Validates pupil exists in school with role='pupil' and active=true",
-            "Checks lockout (lockedUntil > now → 403)",
-            "Max 3 failed attempts → locked until 2099-12-31 (permanent lockout)",
+            "Validates loginSessionToken exists in session Map (not expired)",
+            "Resolves loginKey → real pupilId from session data",
+            "Checks lockout: lockedUntil > now → 403 with minutesRemaining or adminResetRequired",
+            "3 failed attempts → 15 min lock (lockedUntil = now+15min)",
+            "5 failed attempts → admin reset required (lockedUntil = 2099-12-31)",
             "bcrypt PIN verification",
             "Resets failed_login_attempts on success",
             "Updates last_login timestamp",
@@ -456,7 +475,29 @@
             "head_of_year": "Only incidents involving pupils in their assigned year group",
             "coordinator/head_teacher/senco": "All incidents in school"
           },
-          "enrichment": "enrichIncidents maps user IDs to names and redacts sensitive fields based on viewer role"
+          "enrichment": "enrichIncidents maps user IDs to names and redacts sensitive fields based on viewer role and disclosure permissions",
+          "disclosureRoutes": [
+            {
+              "method": "POST",
+              "path": "/api/incidents/:id/disclosure-request",
+              "access": "coordinator, head_teacher, senco",
+              "requestBody": {"scope": "string (behavioural_action_only|summary_only|named_staff_view|full_incident_detail)"},
+              "logic": "Creates pending entry in incident_disclosure_permissions for subject pupil's parent"
+            },
+            {
+              "method": "PATCH",
+              "path": "/api/incidents/:id/disclosure-respond",
+              "access": "parent (of subject pupil only)",
+              "requestBody": {"permissionId": "uuid", "decision": "approved|declined"},
+              "logic": "Updates disclosure permission status. Only the parent of the incident's subject pupil may respond."
+            },
+            {
+              "method": "GET",
+              "path": "/api/incidents/:id/disclosure-permissions",
+              "access": "authenticated (school-scoped)",
+              "response": "[IncidentDisclosurePermission[]]"
+            }
+          ]
         },
         {
           "method": "POST",
@@ -1274,10 +1315,9 @@
           "response": "[{id, name}] — minimal data for login school selector"
         },
         {
-          "method": "GET",
+          "method": "REMOVED",
           "path": "/api/schools/:schoolId/pupils",
-          "access": "public",
-          "response": "[{id, firstName, lastName, yearGroup, className, avatarType, avatarValue}] — minimal privacy-preserving data for pupil PIN login selector"
+          "note": "REMOVED — public pupil listing was a security risk. Replaced by staged login flow via POST /api/auth/pupil/start which requires school access code."
         },
         {
           "method": "GET",
@@ -1552,8 +1592,15 @@
       "staffAuth": "Email + password (bcrypt, 12 salt rounds)",
       "parentAuth": "Email + password (bcrypt, 12 salt rounds)",
       "lockout": {
-        "maxAttempts": 3,
-        "lockDuration": "Permanent (lockedUntil = 2099-12-31) until admin resets PIN/password",
+        "pupil": {
+          "3_failures": "15 min lock (lockedUntil = now + 15 min)",
+          "5_failures": "Admin reset required (lockedUntil = 2099-12-31)",
+          "response_includes": "minutesRemaining (for timed lock) or adminResetRequired (boolean)"
+        },
+        "staff_parent": {
+          "maxAttempts": 3,
+          "lockDuration": "Permanent (lockedUntil = 2099-12-31) until admin resets password"
+        },
         "resetOnSuccess": "failed_login_attempts set to 0 on successful login"
       },
       "pupilSessionTimeout": "90 seconds inactivity → auto-logout (frontend timer, pupil role only)",
@@ -1564,7 +1611,7 @@
       "IDOR prevention: All :id param endpoints verify resource belongs to requesting user's school",
       "PTA PII middleware: Intercepts JSON responses for role='pta', recursively strips 40+ named PII fields",
       "Immutable audit logs: PostgreSQL trigger prevents UPDATE and DELETE on audit_log table",
-      "Teacher consent: Incident description, victimIds, sensitive fields masked for teacher/head_of_year/support_staff until parent explicitly approves",
+      "Disclosure permissions: Incident description, victimIds, sensitive fields masked for teacher/head_of_year/support_staff until parent grants scoped disclosure permission via incident_disclosure_permissions table. Scopes: behavioural_action_only, summary_only, named_staff_view, full_incident_detail. Only parent of the subject pupil may respond.",
       "Diary privacy: Pupil diary entries NEVER exposed in alerts, logs, API responses to other roles, or AI-generated alerts",
       "AI safeguarding alerts use fixed safe message: 'A pupil's diary entry has been flagged for welfare review' — no diary text included",
       "Mood trends privacy: PTA mood-trends endpoint requires ≥5 distinct pupils per week (HAVING COUNT(DISTINCT pupil_id) >= 5)",
@@ -2030,6 +2077,32 @@
           "unsubscribed_at": {"type": "timestamp"}
         }
       },
+      "school_login_codes": {
+        "columns": {
+          "id": {"type": "uuid", "constraints": "PK"},
+          "school_id": {"type": "uuid", "constraints": "FK → schools.id"},
+          "code_hash": {"type": "varchar", "note": "bcrypt hash of school access code"},
+          "label": {"type": "varchar", "note": "Human-readable label (e.g. 'Main Access Code')"},
+          "active": {"type": "boolean", "constraints": "DEFAULT true"},
+          "created_at": {"type": "timestamp", "constraints": "DEFAULT now()"},
+          "expires_at": {"type": "timestamp", "note": "Optional expiry date"}
+        }
+      },
+      "incident_disclosure_permissions": {
+        "columns": {
+          "id": {"type": "uuid", "constraints": "PK"},
+          "incident_id": {"type": "uuid", "constraints": "FK → incidents.id"},
+          "school_id": {"type": "uuid", "constraints": "FK → schools.id"},
+          "requested_by": {"type": "uuid", "constraints": "FK → users.id"},
+          "requested_at": {"type": "timestamp", "constraints": "DEFAULT now()"},
+          "parent_id": {"type": "uuid", "constraints": "FK → users.id"},
+          "pupil_id": {"type": "uuid", "constraints": "FK → users.id"},
+          "scope": {"type": "varchar", "note": "behavioural_action_only|summary_only|named_staff_view|full_incident_detail"},
+          "status": {"type": "varchar", "constraints": "DEFAULT 'pending'", "note": "pending|approved|declined"},
+          "responded_at": {"type": "timestamp"},
+          "notes": {"type": "text"}
+        }
+      },
       "interviews": {
         "columns": {
           "id": {"type": "uuid", "constraints": "PK"},
@@ -2050,14 +2123,14 @@
 
   "frontendRouting": {
     "publicRoutes": [
-      {"path": "/login", "component": "Login", "description": "School selector → role-based login (PIN pad for pupils, email forms for staff/parent)"},
+      {"path": "/login", "component": "Login", "description": "Staged pupil login (school → access code → profile tiles → PIN) or email forms for staff/parent/PTA"},
       {"path": "/newsletter", "component": "NewsletterSignUp", "description": "Public organisation signup"}
     ],
     "protectedRoutes": [
       {"path": "/", "component": "Dashboard", "description": "Role router → dispatches to CoordinatorDashboard, TeacherDashboard, PupilDashboard, or ParentDashboard"},
       {"path": "/report", "component": "ReportIncident", "description": "Dual-mode incident form (child-friendly vs professional)"},
       {"path": "/incidents", "component": "IncidentsList", "description": "Incident list with filtering, search, pagination"},
-      {"path": "/incidents/:id", "component": "IncidentDetail", "description": "Incident detail with consent workflow and assessment form"},
+      {"path": "/incidents/:id", "component": "IncidentDetail", "description": "Incident detail with disclosure permission workflow and assessment form"},
       {"path": "/protocols", "component": "ProtocolsList", "description": "Protocol management list"},
       {"path": "/protocols/new", "component": "NewProtocol", "description": "Create new protocol form"},
       {"path": "/protocols/:id", "component": "ProtocolDetail", "description": "Protocol detail with interviews, notifications, linked incidents"},
@@ -2097,7 +2170,7 @@
       {"email": "pta.chair@safeschool.dev", "password": "pta123"},
       {"email": "pta.member1@safeschool.dev", "password": "pta123"}
     ],
-    "pupils": "All pupil PINs = 1234"
+    "pupils": "All pupil PINs = random (seeded). School access code = MORNA2025."
   },
 
   "seededDemoData": {
@@ -2124,7 +2197,7 @@
 
   "internalHelpers": {
     "formatUser": "Strips passwordHash, pinHash, and sensitive fields from user object before API response",
-    "enrichIncidents": "Maps user IDs to names, redacts sensitive fields based on viewer role",
+    "enrichIncidents": "Maps user IDs to names, redacts sensitive fields based on viewer role and disclosure permission status (uses incident_disclosure_permissions table)",
     "enrichProtocols": "Adds victimName and openedByName to protocol objects",
     "generateIncidentRef": "Generates unique incident reference number (e.g. INC-2025-001)",
     "generateProtocolRef": "Generates unique protocol reference number",

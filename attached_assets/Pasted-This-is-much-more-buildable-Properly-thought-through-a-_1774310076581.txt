@@ -1,0 +1,628 @@
+This is much more buildable. Properly thought through, a lot less hand-wavy, and much closer to a real dev handoff.
+That said, there are still a few things I’d tighten before anyone treats this as the source of truth.
+
+Overall take
+Big improvement.
+You’ve now got:
+clearer route ownership
+better backend structure
+stronger endpoint-level logic
+proper pattern and escalation engines
+more explicit seeded/demo shape
+enough detail for engineers to start scaffolding
+The main remaining issues are now less “what is this product?” and more:
+a few security/privacy foot-guns
+some permission creep
+some naming/model inconsistencies
+a few data model shortcuts that will bite later
+The strongest parts
+The best bits now are:
+incident/protocol/alert separation
+explicit audit logging
+PTA PII stripping layer
+diary scan using a fixed safe-message output
+school-scoped data model
+route-by-route behavioural logic
+pattern engine with thresholds and dedupe
+diagnostic survey framework being properly structured
+This is no longer just a concept note. It’s now a plausible system design.
+The main issues I’d still fix
+1. Public pupil listing is still the biggest red flag
+You still have:
+GET /api/schools/:schoolId/pupils
+public
+returning id, firstName, lastName, yearGroup, className, avatar...
+That is still too exposed.
+Even if you call it “minimal privacy-preserving,” it is not. It is effectively a child directory.
+
+Better options
+Replace it with one of these:
+Option A
+
+school selected
+child enters school code + short display identifier
+server returns a very small selection result
+Option B
+school-issued QR / login card
+then PIN entry
+Option C
+school selector
+child selects avatar tile only from a small scoped cohort
+never expose full names publicly
+Right now this is the single clearest thing I would not ship.
+2. Permanent lockout until 2099 is too blunt
+This appears in several places.
+It is secure, but operationally horrible.
+
+For pupils especially, this means:
+
+one upset child
+3 wrong tries
+locked forever
+teacher/admin intervention required every time
+That will create chaos.
+Better model
+Use:
+3 failed attempts → 15 minute lock
+5 failed attempts → admin reset required
+for pupils, maybe class teacher reset + coordinator override
+Permanent lockout for adults can still be arguable in some environments, but for children it is too harsh.
+3. 90-second pupil auto-logout is too aggressive
+This looked iffy before and still does.
+A child writing a difficult diary note or incident report may pause for more than 90 seconds. They’ll get kicked out mid-thought.
+
+That is bad UX and could actively stop reporting.
+
+Better
+5 minutes idle timeout
+instant blur on tab switch / screen hide
+visible “quick hide” button
+autosave draft on diary/report forms
+That gives you privacy without sabotaging usability.
+4. JWT in localStorage is not ideal for this kind of app
+You specify:
+token location = localStorage
+That is simple, but for a safeguarding product it is not my favourite choice because XSS becomes much more painful.
+Better
+If you can, use:
+secure, httpOnly cookie for adults
+or at least document why localStorage is being used and harden heavily:
+strict CSP
+no inline scripts
+aggressive output escaping
+dependency hygiene
+For pupils on shared devices, session handling needs extra care.
+5. You fixed the concept, but not the field names
+The logic still says “parent approves disclosure to teachers,” but the fields remain:
+teacher_consent_status
+teacher_consent_requested_at
+etc.
+That is still the wrong name.
+It should be something like:
+
+staff_disclosure_status
+staff_disclosure_requested_at
+staff_disclosure_responded_at
+staff_disclosure_scope
+Or:
+parent_disclosure_permission_*
+Right now the business meaning and schema name still don’t match.
+6. Parent consent logic is too broad
+You currently allow:
+parent can respond if their child is victim or perpetrator
+That needs care.
+Because whose consent is it, exactly?
+
+If a case involves:
+
+victim child A
+alleged perpetrator child B
+should B’s parent be able to approve teacher access to details relating to A? Probably not.
+Better
+Consent should usually be tied to:
+the child whose information is being disclosed
+and maybe the specific disclosure scope
+You need a more precise rule than “victim or perpetrator parent can respond.”
+7. SENCO access is probably too broad
+You currently give SENCO:
+view all incidents
+view protocols
+view all pupils list
+coordinator-level dashboard stats
+That may be okay in some schools, but from a least-privilege perspective it is wide.
+I’d at least decide whether SENCO is:
+
+global welfare operator
+or
+assigned-case specialist
+If it’s the latter, then “view all incidents” is too much.
+8. PTA anonymisation is improved, but dashboard outputs still need suppression rules
+You added the mood trend threshold, which is good.
+But other PTA outputs still look risky:
+
+category breakdown
+protocols open/closed
+alerts red/amber
+behaviour distribution
+monthly trend
+In a small school, these can still reveal too much.
+Add global suppression rules
+For all PTA analytics:
+suppress categories with count < 3
+suppress cohort slices with population < 10
+merge sparse categories into “Other”
+suppress trends for low-volume periods
+avoid year-group breakout entirely unless threshold passed
+The current middleware strips fields, which is good, but anonymisation is not just removing names.
+9. Coordinator analytics include “top victims” and “top perpetrators”
+This may be operationally useful, but the framing is dangerous.
+Especially “top perpetrators” is a very loaded label in a school safeguarding system.
+
+Better
+Rename to something more neutral:
+highest_frequency_targets
+highest_frequency_named_concerns
+repeat-involvement pupils
+Even if this stays internal, language matters. You do not want the UI sounding like a police leaderboard.
+10. users.email UNIQUE across the whole system is probably wrong
+Your users.email is globally unique.
+That may be okay if one person only exists once across all schools, but for a multi-tenant system it is usually safer to think carefully here.
+
+Potential issue:
+
+same parent email across two schools
+same staff member in two schools
+same demo/test identities across tenants
+Better
+Consider:
+unique on (school_id, email) for tenant-scoped users
+or a separate identity/auth table if cross-school identity is intentional
+Right now the uniqueness rule is making a platform-level assumption.
+11. parent_of uuid[] is a shortcut that may become awkward
+This works for demo speed, but it is denormalised and will get annoying.
+You’ll likely want a join table instead, something like:
+
+parent_pupil_links
+parent_id
+pupil_id
+relationship_type
+legal_guardian
+primary_contact
+created_at
+That gives you flexibility later.
+12. Diagnostic responses model is slightly muddled
+You have:
+one row per question_key
+plus comment
+That implies comment per question row, not survey-level comment.
+But your API shape suggests one overall optional comment.
+
+That mismatch should be cleaned up.
+
+Better
+Either:
+keep comments per response row explicitly
+or
+add diagnostic_submissions table for survey-level metadata/comments, and keep answers separate
+13. messages probably needs conversation/thread clarity
+You have parent_message_id, but it looks underspecified.
+You likely want either:
+
+proper thread model
+or
+simpler flat inbox model
+At the moment it is halfway between the two.
+If threading matters, define:
+
+conversation_id
+reply_to_message_id
+per-user delete/archive state
+notification behaviour for threads
+14. Missing attachment/evidence model is still a gap
+This is still the biggest functional omission in the data model.
+For a real safeguarding workflow, staff will want to store:
+
+screenshots
+PDFs
+written notes
+annexes
+interview records
+external referral confirmations
+You have document_url on interviews, but that is not enough.
+You really need an attachments or evidence_files table.
+
+15. Protocol/case timeline is still not first-class
+You’ve got enough tables to reconstruct history, but no dedicated timeline/event stream.
+That is a shame, because timeline views are gold in safeguarding systems.
+
+Add:
+
+case_timeline_events
+protocol_id
+incident_id
+event_type
+summary
+details_json
+actor_id
+created_at
+Then you can show an actual case chronology cleanly.
+Specific contradictions or inconsistencies
+Naming inconsistency
+You want branding:
+safeskoolz everywhere
+But your architecture and demo identities still use:
+safeschool
+safeschool.dev
+artifacts/safeschool
+That is fine internally, but if “all lowercase everywhere” really matters, decide whether this is:
+branding only
+or
+repo/package naming too
+Right now it is mixed.
+Role inconsistency
+You earlier tightened around a “safeguarding coordinator / wellbeing coordinator” concept, but the system still mostly uses coordinator.
+That’s okay internally, but in the UI I’d still relabel it to something clearer.
+
+Endpoint inconsistency
+You use:
+/report
+/incidents
+/learnings
+I’d still rename /learnings to /updates or /school-updates. “Learnings” feels like internal jargon.
+My recommended final fixes before build
+Critical
+Remove public pupil list endpoint.
+Replace permanent pupil lockout with staged lockout/reset.
+Increase pupil session timeout and add quick-hide/autosave.
+Rename consent fields to disclosure-based names.
+Tighten parent consent authority rules.
+Add universal PTA suppression rules.
+Add attachments/evidence model.
+Add case timeline events.
+Important
+Revisit SENCO “view all” permissions.
+Revisit JWT localStorage choice.
+Replace parent_of uuid[] with join table.
+Clean up diagnostics submission model.
+Define message threading properly.
+Reword “top perpetrators/top victims”.
+Verdict on readiness
+My honest view:
+This is now good enough for engineering planning, but not yet good enough to lock as the final implementation spec.
+
+It is roughly at:
+
+85% of a solid build spec
+with a few remaining decisions that matter a lot
+The two biggest unresolved issues are still:
+public pupil login exposure
+over-broad/unclear privacy and disclosure model
+Fix those, and this becomes a genuinely strong v1 foundation.
+The next best step is for me to turn this into a redlined v3 spec, where I rewrite only the risky sections and leave the rest intact.
+Can yuo fix those 2
+Yes — here’s the clean fix for both.
+1. Fix the public pupil login exposure
+Problem
+Right now this endpoint is too exposed:
+GET /api/schools/:schoolId/pupils
+public
+returns child names and profile data
+That is the wrong shape for a safeguarding platform.
+Replace it with a staged pupil login flow
+New principle
+A pupil should only become selectable after a school-specific access step.
+No public child directory. No public pupil enumeration.
+New flow
+Step 1 — select school
+Keep:
+GET /api/schools
+public
+returns minimal school list for login selector
+Step 2 — start pupil login
+Add:
+POST /api/auth/pupil/start
+Request body
+{
+  "schoolId": "uuid",
+  "accessCode": "string"
+}
+What it does
+validates the school exists and is active
+validates a school-issued pupil access code
+rate limits by IP + schoolId
+returns only a short-lived login session token plus a tiny set of selectable profile tiles
+Response
+{
+  "loginSessionToken": "short-lived token",
+  "profiles": [
+    {
+      "loginKey": "opaque string",
+      "displayName": "Tom K.",
+      "avatarType": "animal",
+      "avatarValue": "fox",
+      "yearGroup": "Y6"
+    }
+  ]
+}
+Step 3 — select profile
+Add:
+POST /api/auth/pupil/select-profile
+Request body
+{
+  "loginSessionToken": "string",
+  "loginKey": "opaque string"
+}
+What it does
+validates the session token
+validates the opaque profile key belongs to that short-lived session
+returns a child-safe PIN prompt state only
+does not expose raw pupil IDs publicly
+Step 4 — complete PIN login
+Replace current public login shape with:
+POST /api/auth/pupil/login
+Request body
+{
+  "loginSessionToken": "string",
+  "loginKey": "string",
+  "pin": "1234"
+}
+What it does
+resolves loginKey internally to pupilId
+checks lockout rules
+verifies bcrypt PIN
+signs JWT only on success
+What to remove
+Remove this endpoint entirely:
+GET /api/schools/:schoolId/pupils
+New supporting table
+Add a school-level access code table:
+school_login_codes
+{
+  "id": "uuid",
+  "school_id": "uuid",
+  "code_type": "varchar", 
+  "code_hash": "varchar",
+  "active": "boolean",
+  "expires_at": "timestamp",
+  "created_at": "timestamp"
+}
+You can start with one active pupil login code per school or per year group.
+Better lockout while we’re here
+For pupils, replace permanent 2099 lockout with:
+3 failed attempts → 15 minute lock
+5 failed attempts in 24h → admin reset required
+That’s far more usable.
+Revised API section for pupil auth
+Remove
+{
+  "method": "GET",
+  "path": "/api/schools/:schoolId/pupils",
+  "access": "public"
+}
+Add
+[
+  {
+    "method": "POST",
+    "path": "/api/auth/pupil/start",
+    "access": "public",
+    "requestBody": {
+      "schoolId": "uuid",
+      "accessCode": "string"
+    },
+    "response": {
+      "loginSessionToken": "string",
+      "profiles": [
+        {
+          "loginKey": "string",
+          "displayName": "string",
+          "avatarType": "string",
+          "avatarValue": "string",
+          "yearGroup": "string"
+        }
+      ]
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/pupil/login",
+    "access": "public",
+    "requestBody": {
+      "loginSessionToken": "string",
+      "loginKey": "string",
+      "pin": "string (4-digit)"
+    },
+    "response": {
+      "token": "JWT string",
+      "user": "sanitised user",
+      "firstLogin": "boolean"
+    }
+  }
+]
+Frontend login change
+Instead of:
+school selector
+public pupil list
+PIN
+Use:
+school selector
+access code
+avatar/profile tile select
+PIN pad
+That solves the biggest exposure issue neatly.
+2. Fix the privacy / disclosure model
+Problem
+The current model is muddled because:
+field names say teacher_consent_*
+but the real action is parent-controlled disclosure
+and the parent permission rule is too broad
+and the scope of what becomes visible is unclear
+New principle
+This is not teacher consent.
+It is a parental disclosure permission workflow controlling additional staff visibility inside the app.
+It does not decide whether the school may act for safeguarding purposes.
+
+Rename the concept
+Old
+teacher_consent_status
+teacher_consent_requested_at
+teacher_consent_responded_at
+teacher_consent_responded_by
+New
+disclosure_permission_status
+disclosure_permission_requested_at
+disclosure_permission_responded_at
+disclosure_permission_responded_by
+disclosure_scope
+disclosure_target_roles
+disclosure_reason
+New definition
+A disclosure permission request is a request from leadership to a parent or guardian asking whether specified staff may see additional incident information inside the platform beyond the default redacted view.
+Important legal/operational rule
+Add this sentence to the spec:
+Disclosure permission affects in-platform visibility only. It does not restrict the school’s ability to take immediate safeguarding action where necessary.
+That line matters a lot.
+Tighten who can respond
+Old rule
+Parent can respond if their child is victim or perpetrator.
+New rule
+Only a parent/guardian linked to the child whose protected information is being disclosed may respond.
+So if the request is about exposing details relating to victim child A:
+
+only parent/guardian of child A responds
+Not the other family.
+Add per-child permission records
+Do not keep this as a loose single incident flag only.
+Use a dedicated table.
+New table: incident_disclosure_permissions
+{
+  "id": "uuid",
+  "school_id": "uuid",
+  "incident_id": "uuid",
+  "subject_pupil_id": "uuid",
+  "requested_by_id": "uuid",
+  "requested_from_parent_id": "uuid",
+  "target_roles": "text[]",
+  "target_user_ids": "uuid[]",
+  "scope": "varchar",
+  "reason": "text",
+  "status": "varchar",
+  "responded_by_id": "uuid",
+  "responded_at": "timestamp",
+  "created_at": "timestamp"
+}
+Define disclosure scopes clearly
+Use a fixed enum:
+behavioural_action_only
+summary_only
+named_staff_view
+full_incident_detail
+declined
+Meaning
+behavioural_action_only
+Staff see only what they need to act operationally.
+summary_only
+Short narrative summary, no sensitive full detail.
+
+named_staff_view
+Only specifically identified staff can see expanded details.
+
+full_incident_detail
+Expanded incident detail for authorised staff in scope.
+
+declined
+Default redaction remains.
+
+Default redaction rule
+For teacher / head_of_year / support_staff:
+they may see incident existence and operational status where relevant
+but sensitive fields stay redacted unless disclosure permission allows them
+Sensitive fields to redact by default
+full description
+victim/perpetrator identity where restricted
+witness text
+emotional free text
+staff notes
+parent summary
+unknown person descriptions
+safeguarding trigger rationale
+linked pattern details if identifying
+Better endpoint design
+Replace old endpoints
+Request disclosure
+POST /api/incidents/:id/disclosure-request
+Request body
+{
+  "subjectPupilId": "uuid",
+  "requestedFromParentId": "uuid",
+  "targetRoles": ["teacher"],
+  "targetUserIds": ["uuid"],
+  "scope": "summary_only",
+  "reason": "Support class-level response and pastoral management"
+}
+Respond to disclosure request
+PATCH /api/incidents/:id/disclosure-respond
+Request body
+{
+  "permissionId": "uuid",
+  "decision": "approved | declined"
+}
+If approved, the approved scope applies.
+If declined, default redaction stays.
+Revised visibility rule for incident detail
+Leadership
+coordinator
+head_teacher
+See full incident detail always
+SENCO
+Pick one of these and be explicit:
+full access only when assigned to the incident/protocol
+or full school access by policy
+I’d recommend: assigned or protocol-linked access by default
+Teacher / head_of_year / support_staff
+See:
+minimal operational record by default
+expanded fields only if disclosure permission exists for that child and that staff role/user
+Parent
+Parent sees:
+parent-visible summary relating to their own child
+never unrestricted whole-case visibility by default
+no access to another child’s protected detail
+PTA
+No case-level visibility ever
+Revised incident schema section
+In incidents
+Remove:
+teacher_consent_status
+teacher_consent_requested_at
+teacher_consent_responded_at
+teacher_consent_responded_by
+Keep only broad parent visibility items if you want:
+parent_visible
+parent_summary
+Move disclosure workflow into dedicated table.
+Revised wording for the product spec
+Use this exact language:
+By default, staff outside leadership see a redacted incident view. Where additional visibility is operationally useful, leadership may request parental disclosure permission for specified staff roles or named staff members. This permission governs in-platform visibility only and does not prevent the school from taking safeguarding action where required.
+That’s much cleaner.
+Final replacement summary
+Replace this
+public pupil list endpoint
+teacher consent naming and broad consent logic
+With this
+staged pupil login using school access code + session token + profile tile + PIN
+parental disclosure permission workflow with:
+clear scope
+child-specific authority
+named target roles/users
+dedicated table
+default redaction
+The shortest possible implementation version
+New critical changes
+Delete GET /api/schools/:schoolId/pupils
+Add POST /api/auth/pupil/start
+Change pupil login to use loginSessionToken + loginKey + pin
+Rename/remove all teacher_consent_* fields
+Add incident_disclosure_permissions table
+Restrict disclosure response to parent of the child whose info is being disclosed
+Apply redaction by default to non-leadership staff
+Define disclosure scopes explicitly

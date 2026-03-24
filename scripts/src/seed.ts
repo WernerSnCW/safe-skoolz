@@ -1,4 +1,4 @@
-import { db, schoolsTable, usersTable, ptaAnnualReportsTable } from "@workspace/db";
+import { db, schoolsTable, usersTable, ptaAnnualReportsTable, schoolLoginCodesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
@@ -9,6 +9,18 @@ async function seed() {
 
   const existingSchools = await db.select().from(schoolsTable);
   if (existingSchools.length > 0) {
+    const existingCodes = await db.select().from(schoolLoginCodesTable).where(eq(schoolLoginCodesTable.schoolId, existingSchools[0].id));
+    if (existingCodes.length === 0) {
+      const accessCode = "MORNA2025";
+      const accessCodeHash = await bcrypt.hash(accessCode, BCRYPT_ROUNDS);
+      await db.insert(schoolLoginCodesTable).values({
+        schoolId: existingSchools[0].id,
+        codeType: "pupil_login",
+        codeHash: accessCodeHash,
+        active: true,
+      });
+      console.log(`  Inserted missing school access code: ${accessCode}`);
+    }
     console.log("Database already seeded. Skipping.");
     process.exit(0);
   }
@@ -26,6 +38,16 @@ async function seed() {
     .returning();
 
   console.log(`Created school: ${school.name} (${school.id})`);
+
+  const accessCode = "MORNA2025";
+  const accessCodeHash = await bcrypt.hash(accessCode, BCRYPT_ROUNDS);
+  await db.insert(schoolLoginCodesTable).values({
+    schoolId: school.id,
+    codeType: "pupil_login",
+    codeHash: accessCodeHash,
+    active: true,
+  });
+  console.log(`  School access code: ${accessCode}`);
 
   function generateRandomPin(): string {
     return Math.floor(1000 + Math.random() * 9000).toString();
@@ -228,6 +250,7 @@ async function seed() {
   console.log("  Parent B: parent.b@safeschool.dev / parent123");
   console.log("  PTA Chair: pta.chair@safeschool.dev / pta123");
   console.log("  PTA Member 1: pta.member1@safeschool.dev / pta123");
+  console.log("  Pupil Access Code: MORNA2025");
   console.log("  Pupils: Each pupil has a unique random PIN (see above). Staff can reset PINs from the My Class page.");
 
   process.exit(0);

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { usePupilLogin, useStaffLogin, useParentLogin, useListSchools, useListPupilsBySchool } from "@workspace/api-client-react";
+import { useStaffLogin, useParentLogin, useListSchools } from "@workspace/api-client-react";
 import { Button, Input, Label, Card, CardContent } from "@/components/ui-polished";
-import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck, Building2, ChevronRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck, Building2, ChevronRight, Lock, ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const IS_DEMO = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === "true";
 
@@ -29,25 +29,39 @@ const PTA_ACCOUNTS = IS_DEMO ? [
   { label: "PTA Member 1", subtitle: "PTA Member", email: "pta.member1@safeschool.dev", password: "pta123" },
 ] : [];
 
+type PupilProfile = {
+  loginKey: string;
+  displayName: string;
+  avatarType: string;
+  avatarValue: string;
+  yearGroup: string;
+  className: string;
+};
+
+type PupilLoginStep = "school" | "accessCode" | "selectProfile" | "enterPin";
+
 export default function Login() {
   const [_, setLocation] = useLocation();
   const { setToken } = useAuth();
   const [activeTab, setActiveTab] = useState<"pupil" | "staff" | "parent" | "pta">("pupil");
-  const pupilLogin = usePupilLogin();
   const staffLogin = useStaffLogin();
   const parentLogin = useParentLogin();
   const { data: schools } = useListSchools();
 
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
-  const [selectedPupilId, setSelectedPupilId] = useState("");
-  const [pin, setPin] = useState("");
   const [selectedStaffEmail, setSelectedStaffEmail] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
 
-  const { data: pupils } = useListPupilsBySchool(selectedSchoolId, {}, { query: { enabled: !!selectedSchoolId } });
+  const [pupilStep, setPupilStep] = useState<PupilLoginStep>("school");
+  const [accessCode, setAccessCode] = useState("");
+  const [loginSessionToken, setLoginSessionToken] = useState("");
+  const [profiles, setProfiles] = useState<PupilProfile[]>([]);
+  const [selectedProfile, setSelectedProfile] = useState<PupilProfile | null>(null);
+  const [pin, setPin] = useState("");
+  const [pupilLoading, setPupilLoading] = useState(false);
 
   useEffect(() => {
     if (schools && schools.length > 0 && !selectedSchoolId) {
@@ -55,21 +69,84 @@ export default function Login() {
     }
   }, [schools, selectedSchoolId]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const apiBase = (() => {
+    const b = import.meta.env.BASE_URL || "/";
+    return b.endsWith("/") ? b : b + "/";
+  })();
+
+  const handleAccessCodeSubmit = async () => {
+    setError("");
+    setPupilLoading(true);
+    try {
+      const res = await fetch(`${apiBase}api/auth/pupil/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ schoolId: selectedSchoolId, accessCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Invalid access code. Check with your teacher.");
+        setPupilLoading(false);
+        return;
+      }
+      setLoginSessionToken(data.loginSessionToken);
+      setProfiles(data.profiles);
+      setPupilStep("selectProfile");
+    } catch {
+      setError("Could not connect. Please try again.");
+    }
+    setPupilLoading(false);
+  };
+
+  const handleProfileSelect = (profile: PupilProfile) => {
+    setSelectedProfile(profile);
+    setPin("");
+    setError("");
+    setPupilStep("enterPin");
+  };
+
+  const handlePupilPinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProfile || !pin) return;
+    setError("");
+    setPupilLoading(true);
+    try {
+      const res = await fetch(`${apiBase}api/auth/pupil/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          loginSessionToken,
+          loginKey: selectedProfile.loginKey,
+          pin,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.locked) {
+          setError(data.message || "Account locked. Ask your teacher to reset your PIN.");
+        } else if (data.message) {
+          setError(data.message);
+        } else {
+          setError(data.error || "Wrong PIN. Try again.");
+        }
+        setPupilLoading(false);
+        return;
+      }
+      setToken(data.token);
+      setLocation("/");
+    } catch {
+      setError("Could not connect. Please try again.");
+    }
+    setPupilLoading(false);
+  };
+
+  const handleStaffSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
       let res;
-      if (activeTab === "pupil") {
-        if (!selectedSchoolId || !selectedPupilId || !pin) {
-          setError("Please select your school, name, and enter your PIN.");
-          return;
-        }
-        res = await pupilLogin.mutateAsync({
-          data: { schoolId: selectedSchoolId, pupilId: selectedPupilId, pin }
-        });
-      } else if (activeTab === "staff") {
+      if (activeTab === "staff") {
         const accounts = STAFF_ACCOUNTS;
         const selected = accounts.find(a => a.email === selectedStaffEmail);
         const loginEmail = selected?.email || email;
@@ -112,7 +189,7 @@ export default function Login() {
     } catch (err: any) {
       const data = err?.data || err?.response?.data;
       if (data?.locked) {
-        setError(data.message || "Account locked. Ask your teacher to reset your PIN.");
+        setError(data.message || "Account locked.");
       } else if (data?.message) {
         setError(data.message);
       } else {
@@ -125,8 +202,6 @@ export default function Login() {
     setError("");
     setDemoLoading(activeTab);
     try {
-      const baseUrl = import.meta.env.BASE_URL || "/";
-      const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
       const res = await fetch(`${apiBase}api/auth/demo-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -148,7 +223,19 @@ export default function Login() {
     }
   };
 
-  const isPending = pupilLogin.isPending || staffLogin.isPending || parentLogin.isPending;
+  const isPending = staffLogin.isPending || parentLogin.isPending || pupilLoading;
+
+  const resetPupilFlow = () => {
+    setPupilStep("school");
+    setAccessCode("");
+    setLoginSessionToken("");
+    setProfiles([]);
+    setSelectedProfile(null);
+    setPin("");
+    setError("");
+  };
+
+  const profileSearch = useState("");
 
   return (
     <div className="min-h-screen w-full flex bg-background relative overflow-hidden">
@@ -184,7 +271,7 @@ export default function Login() {
                 role="tab"
                 aria-selected={activeTab === tab.id}
                 aria-controls={`tabpanel-${tab.id}`}
-                onClick={() => { setActiveTab(tab.id); setError(""); setSelectedStaffEmail(""); }}
+                onClick={() => { setActiveTab(tab.id); setError(""); setSelectedStaffEmail(""); resetPupilFlow(); }}
                 className={`py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 ${
                   activeTab === tab.id
                     ? "bg-card shadow-sm text-primary"
@@ -198,67 +285,149 @@ export default function Login() {
           </div>
 
           <CardContent className="p-6 sm:p-8">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div role="alert" aria-live="assertive" aria-atomic="true">
-                {error && (
-                  <div className="p-4 rounded-xl bg-destructive/10 text-destructive text-sm font-semibold flex items-center gap-2">
-                    <AlertTriangle size={16} aria-hidden="true" />
-                    {error}
-                  </div>
-                )}
-              </div>
+            <div role="alert" aria-live="assertive" aria-atomic="true">
+              {error && (
+                <div className="p-4 rounded-xl bg-destructive/10 text-destructive text-sm font-semibold flex items-center gap-2 mb-4">
+                  <AlertTriangle size={16} aria-hidden="true" />
+                  {error}
+                </div>
+              )}
+            </div>
 
-              {activeTab === "pupil" ? (
-                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                  <div>
-                    <Label htmlFor="school">My School</Label>
-                    <select
-                      id="school"
-                      value={selectedSchoolId}
-                      onChange={e => { setSelectedSchoolId(e.target.value); setSelectedPupilId(""); }}
-                      className="w-full h-12 rounded-xl border border-input bg-background px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      required
-                    >
-                      <option value="">Select your school...</option>
-                      {schools?.map(s => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="pupil">My Name</Label>
-                    <select
-                      id="pupil"
-                      value={selectedPupilId}
-                      onChange={e => setSelectedPupilId(e.target.value)}
-                      className="w-full h-12 rounded-xl border border-input bg-background px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      required
+            {activeTab === "pupil" ? (
+              <AnimatePresence mode="wait">
+                {pupilStep === "school" && (
+                  <motion.div key="school" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
+                    <div>
+                      <Label htmlFor="school">My School</Label>
+                      <select
+                        id="school"
+                        value={selectedSchoolId}
+                        onChange={e => { setSelectedSchoolId(e.target.value); }}
+                        className="w-full h-12 rounded-xl border border-input bg-background px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        required
+                      >
+                        <option value="">Select your school...</option>
+                        {schools?.map(s => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <Button
+                      type="button"
+                      size="lg"
+                      className="w-full"
                       disabled={!selectedSchoolId}
+                      onClick={() => { setError(""); setPupilStep("accessCode"); }}
                     >
-                      <option value="">Find my name...</option>
-                      {pupils?.map(p => (
-                        <option key={p.id} value={p.id}>
-                          {p.avatarValue ? `${p.avatarValue} ` : ""}{p.firstName} {p.lastName} ({p.className || p.yearGroup || ""})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="pin">Secret PIN</Label>
+                      Next
+                    </Button>
+                  </motion.div>
+                )}
+
+                {pupilStep === "accessCode" && (
+                  <motion.div key="accessCode" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
+                    <button type="button" onClick={() => setPupilStep("school")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors">
+                      <ArrowLeft size={14} /> Back
+                    </button>
+                    <div className="text-center py-2">
+                      <Lock size={32} className="mx-auto text-primary/60 mb-2" />
+                      <p className="text-sm text-muted-foreground">Enter the school access code your teacher gave you</p>
+                    </div>
+                    <div>
+                      <Label htmlFor="accessCode">School Access Code</Label>
+                      <Input
+                        id="accessCode"
+                        type="text"
+                        placeholder="e.g. MORNA2025"
+                        value={accessCode}
+                        onChange={e => setAccessCode(e.target.value.toUpperCase())}
+                        required
+                        autoComplete="off"
+                        className="tracking-widest text-center text-lg font-bold uppercase"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      size="lg"
+                      className="w-full"
+                      disabled={!accessCode || pupilLoading}
+                      onClick={handleAccessCodeSubmit}
+                    >
+                      {pupilLoading ? "Checking..." : "Enter"}
+                    </Button>
+                  </motion.div>
+                )}
+
+                {pupilStep === "selectProfile" && (
+                  <motion.div key="selectProfile" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-3">
+                    <button type="button" onClick={resetPupilFlow} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors">
+                      <ArrowLeft size={14} /> Start over
+                    </button>
+                    <p className="text-sm font-semibold text-center">Find your name</p>
                     <Input
-                      id="pin"
-                      type="password"
-                      placeholder="****"
-                      maxLength={4}
-                      value={pin}
-                      onChange={e => setPin(e.target.value)}
-                      required
-                      autoComplete="one-time-code"
-                      className="tracking-widest text-center text-xl font-bold"
+                      type="text"
+                      placeholder="Search by name..."
+                      value={profileSearch[0]}
+                      onChange={e => profileSearch[1](e.target.value)}
+                      className="text-sm"
                     />
-                  </div>
-                </motion.div>
-              ) : (
+                    <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">
+                      {profiles
+                        .filter(p => !profileSearch[0] || p.displayName.toLowerCase().includes(profileSearch[0].toLowerCase()))
+                        .map((p) => (
+                        <button
+                          key={p.loginKey}
+                          type="button"
+                          onClick={() => handleProfileSelect(p)}
+                          className="w-full flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
+                        >
+                          <span className="text-2xl">{p.avatarValue || "👤"}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-sm truncate">{p.displayName}</p>
+                            <p className="text-xs text-muted-foreground">{p.className || p.yearGroup}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {pupilStep === "enterPin" && selectedProfile && (
+                  <motion.div key="enterPin" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
+                    <button type="button" onClick={() => { setPupilStep("selectProfile"); setPin(""); setError(""); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors">
+                      <ArrowLeft size={14} /> Change name
+                    </button>
+                    <div className="text-center py-2">
+                      <span className="text-4xl block mb-2">{selectedProfile.avatarValue || "👤"}</span>
+                      <p className="font-bold text-lg">{selectedProfile.displayName}</p>
+                      <p className="text-xs text-muted-foreground">{selectedProfile.className || selectedProfile.yearGroup}</p>
+                    </div>
+                    <form onSubmit={handlePupilPinSubmit} className="space-y-4">
+                      <div>
+                        <Label htmlFor="pin">Secret PIN</Label>
+                        <Input
+                          id="pin"
+                          type="password"
+                          placeholder="****"
+                          maxLength={4}
+                          value={pin}
+                          onChange={e => setPin(e.target.value)}
+                          required
+                          autoComplete="one-time-code"
+                          className="tracking-widest text-center text-xl font-bold"
+                          autoFocus
+                        />
+                      </div>
+                      <Button type="submit" size="lg" className="w-full" disabled={pupilLoading || pin.length < 4}>
+                        {pupilLoading ? "Signing in..." : "Sign In securely"}
+                      </Button>
+                    </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            ) : (
+              <form onSubmit={handleStaffSubmit} className="space-y-5">
                 <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                   {(() => {
                     const accounts = activeTab === "parent" ? PARENT_ACCOUNTS : activeTab === "pta" ? PTA_ACCOUNTS : STAFF_ACCOUNTS;
@@ -330,12 +499,12 @@ export default function Login() {
                     );
                   })()}
                 </motion.div>
-              )}
 
-              <Button type="submit" size="lg" className="w-full mt-6" disabled={isPending}>
-                {isPending ? "Signing in..." : "Sign In securely"}
-              </Button>
-            </form>
+                <Button type="submit" size="lg" className="w-full mt-6" disabled={isPending}>
+                  {isPending ? "Signing in..." : "Sign In securely"}
+                </Button>
+              </form>
+            )}
 
             {IS_DEMO && (
               <div className="mt-4 pt-4 border-t border-border/50">

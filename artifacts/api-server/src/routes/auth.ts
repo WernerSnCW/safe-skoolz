@@ -1,27 +1,129 @@
 import { Router, type IRouter } from "express";
 import bcrypt from "bcrypt";
-import { eq, and } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
-import { PupilLoginBody, StaffLoginBody } from "@workspace/api-zod";
+import crypto from "crypto";
+import { eq, and, isNull, gt } from "drizzle-orm";
+import { db, usersTable, schoolLoginCodesTable } from "@workspace/db";
+import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
 
-const MAX_LOGIN_ATTEMPTS = 3;
+const PUPIL_LOCK_MINUTES = 15;
+const PUPIL_LOCK_THRESHOLD = 3;
+const PUPIL_ADMIN_RESET_THRESHOLD = 5;
 
-router.post("/auth/pupil/login", async (req, res): Promise<void> => {
-  const parsed = PupilLoginBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
+const loginSessions = new Map<string, { schoolId: string; profiles: { loginKey: string; pupilId: string }[]; expiresAt: number }>();
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, session] of loginSessions) {
+    if (session.expiresAt < now) loginSessions.delete(key);
+  }
+}, 60_000);
+
+router.post("/auth/pupil/start", async (req, res): Promise<void> => {
+  const { schoolId, accessCode } = req.body;
+
+  if (!schoolId || !accessCode) {
+    res.status(400).json({ error: "schoolId and accessCode are required" });
     return;
   }
 
-  const { schoolId, pupilId, pin } = parsed.data;
+  const codes = await db
+    .select()
+    .from(schoolLoginCodesTable)
+    .where(
+      and(
+        eq(schoolLoginCodesTable.schoolId, schoolId),
+        eq(schoolLoginCodesTable.codeType, "pupil_login"),
+        eq(schoolLoginCodesTable.active, true)
+      )
+    );
+
+  let codeValid = false;
+  for (const code of codes) {
+    if (code.expiresAt && new Date(code.expiresAt) < new Date()) continue;
+    const match = await bcrypt.compare(accessCode.toUpperCase().trim(), code.codeHash);
+    if (match) {
+      codeValid = true;
+      break;
+    }
+  }
+
+  if (!codeValid) {
+    res.status(401).json({ error: "Invalid school access code" });
+    return;
+  }
+
+  const pupils = await db
+    .select()
+    .from(usersTable)
+    .where(
+      and(
+        eq(usersTable.schoolId, schoolId),
+        eq(usersTable.role, "pupil"),
+        eq(usersTable.active, true)
+      )
+    );
+
+  const loginSessionToken = crypto.randomBytes(32).toString("hex");
+  const profileEntries: { loginKey: string; pupilId: string }[] = [];
+
+  const profiles = pupils.map((p) => {
+    const loginKey = crypto.randomBytes(16).toString("hex");
+    profileEntries.push({ loginKey, pupilId: p.id });
+    return {
+      loginKey,
+      displayName: `${p.firstName} ${p.lastName ? p.lastName.charAt(0) + "." : ""}`,
+      avatarType: p.avatarType || "animal",
+      avatarValue: p.avatarValue || "",
+      yearGroup: p.yearGroup || "",
+      className: p.className || "",
+    };
+  });
+
+  loginSessions.set(loginSessionToken, {
+    schoolId,
+    profiles: profileEntries,
+    expiresAt: Date.now() + 10 * 60 * 1000,
+  });
+
+  res.json({ loginSessionToken, profiles });
+});
+
+router.post("/auth/pupil/login", async (req, res): Promise<void> => {
+  const { loginSessionToken, loginKey, pin } = req.body;
+
+  if (!loginSessionToken || !loginKey || !pin) {
+    res.status(400).json({ error: "loginSessionToken, loginKey, and pin are required" });
+    return;
+  }
+
+  const session = loginSessions.get(loginSessionToken);
+  if (!session || session.expiresAt < Date.now()) {
+    loginSessions.delete(loginSessionToken);
+    res.status(401).json({ error: "Login session expired. Please start again." });
+    return;
+  }
+
+  const profileEntry = session.profiles.find((p) => p.loginKey === loginKey);
+  if (!profileEntry) {
+    res.status(401).json({ error: "Invalid profile selection" });
+    return;
+  }
+
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(and(eq(usersTable.id, pupilId), eq(usersTable.schoolId, schoolId), eq(usersTable.role, "pupil"), eq(usersTable.active, true)));
+    .where(
+      and(
+        eq(usersTable.id, profileEntry.pupilId),
+        eq(usersTable.schoolId, session.schoolId),
+        eq(usersTable.role, "pupil"),
+        eq(usersTable.active, true)
+      )
+    );
 
   if (!user || !user.pinHash) {
     res.status(401).json({ error: "Invalid credentials" });
@@ -29,11 +131,25 @@ router.post("/auth/pupil/login", async (req, res): Promise<void> => {
   }
 
   if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
-    res.status(423).json({
-      error: "Account locked",
-      message: "Too many wrong attempts. Ask your teacher to reset your PIN.",
-      locked: true,
-    });
+    const lockedUntilTime = new Date(user.lockedUntil).getTime();
+    const isAdminLocked = lockedUntilTime > Date.now() + 24 * 60 * 60 * 1000;
+
+    if (isAdminLocked) {
+      res.status(423).json({
+        error: "Account locked",
+        message: "Your account is locked. Ask your teacher to reset your PIN.",
+        locked: true,
+        adminResetRequired: true,
+      });
+    } else {
+      const minutesLeft = Math.ceil((lockedUntilTime - Date.now()) / 60000);
+      res.status(423).json({
+        error: "Account locked",
+        message: `Too many wrong attempts. Try again in ${minutesLeft} minute${minutesLeft === 1 ? "" : "s"}.`,
+        locked: true,
+        minutesRemaining: minutesLeft,
+      });
+    }
     return;
   }
 
@@ -41,21 +157,28 @@ router.post("/auth/pupil/login", async (req, res): Promise<void> => {
   if (!pinValid) {
     const newAttempts = (user.failedLoginAttempts || 0) + 1;
     const updates: any = { failedLoginAttempts: newAttempts };
-    const remaining = MAX_LOGIN_ATTEMPTS - newAttempts;
 
-    if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+    if (newAttempts >= PUPIL_ADMIN_RESET_THRESHOLD) {
       updates.lockedUntil = new Date("2099-12-31");
-    }
-
-    await db.update(usersTable).set(updates).where(eq(usersTable.id, user.id));
-
-    if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+      await db.update(usersTable).set(updates).where(eq(usersTable.id, user.id));
       res.status(423).json({
         error: "Account locked",
-        message: "Too many wrong attempts. Ask your teacher to reset your PIN.",
+        message: "Your account is locked. Ask your teacher to reset your PIN.",
         locked: true,
+        adminResetRequired: true,
+      });
+    } else if (newAttempts >= PUPIL_LOCK_THRESHOLD) {
+      updates.lockedUntil = new Date(Date.now() + PUPIL_LOCK_MINUTES * 60 * 1000);
+      await db.update(usersTable).set(updates).where(eq(usersTable.id, user.id));
+      res.status(423).json({
+        error: "Account locked",
+        message: `Too many wrong attempts. Try again in ${PUPIL_LOCK_MINUTES} minutes.`,
+        locked: true,
+        minutesRemaining: PUPIL_LOCK_MINUTES,
       });
     } else {
+      await db.update(usersTable).set(updates).where(eq(usersTable.id, user.id));
+      const remaining = PUPIL_LOCK_THRESHOLD - newAttempts;
       res.status(401).json({
         error: "Wrong PIN",
         message: `That PIN wasn't right. You have ${remaining} ${remaining === 1 ? "try" : "tries"} left.`,
@@ -65,7 +188,12 @@ router.post("/auth/pupil/login", async (req, res): Promise<void> => {
     return;
   }
 
-  await db.update(usersTable).set({ lastLogin: new Date(), failedLoginAttempts: 0, lockedUntil: null }).where(eq(usersTable.id, user.id));
+  await db
+    .update(usersTable)
+    .set({ lastLogin: new Date(), failedLoginAttempts: 0, lockedUntil: null })
+    .where(eq(usersTable.id, user.id));
+
+  loginSessions.delete(loginSessionToken);
 
   const firstLogin = !user.lastLogin;
   const token = signToken({ userId: user.id, schoolId: user.schoolId, role: user.role });

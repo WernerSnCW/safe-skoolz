@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, gte, lte, desc, sql, inArray } from "drizzle-orm";
-import { db, incidentsTable, usersTable, notificationsTable, patternAlertsTable } from "@workspace/db";
+import { db, incidentsTable, usersTable, notificationsTable, patternAlertsTable, disclosurePermissionsTable } from "@workspace/db";
 import {
   CreateIncidentBody,
   ListIncidentsQueryParams,
@@ -468,9 +468,21 @@ router.patch("/incidents/:id/assess", authMiddleware, requireRole("coordinator",
   res.json(enriched[0]);
 });
 
-router.post("/incidents/:id/consent-request", authMiddleware, requireRole("coordinator", "head_teacher", "senco"), async (req, res): Promise<void> => {
+router.post("/incidents/:id/disclosure-request", authMiddleware, requireRole("coordinator", "head_teacher", "senco"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const { subjectPupilId, requestedFromParentId, targetRoles, targetUserIds, scope, reason } = req.body;
+
+  if (!subjectPupilId || !requestedFromParentId) {
+    res.status(400).json({ error: "subjectPupilId and requestedFromParentId are required" });
+    return;
+  }
+
+  const validScopes = ["behavioural_action_only", "summary_only", "named_staff_view", "full_incident_detail"];
+  if (scope && !validScopes.includes(scope)) {
+    res.status(400).json({ error: `scope must be one of: ${validScopes.join(", ")}` });
+    return;
+  }
 
   const [incident] = await db.select().from(incidentsTable)
     .where(and(eq(incidentsTable.id, id), eq(incidentsTable.schoolId, user.schoolId)));
@@ -480,87 +492,138 @@ router.post("/incidents/:id/consent-request", authMiddleware, requireRole("coord
     return;
   }
 
-  if (incident.teacherConsentStatus !== "not_requested") {
-    res.status(400).json({ error: "Consent has already been requested for this incident" });
+  const [parentUser] = await db.select().from(usersTable)
+    .where(and(eq(usersTable.id, requestedFromParentId), eq(usersTable.role, "parent"), eq(usersTable.schoolId, user.schoolId)));
+  if (!parentUser) {
+    res.status(404).json({ error: "Parent not found" });
     return;
   }
 
-  const [updated] = await db.update(incidentsTable)
-    .set({
-      teacherConsentStatus: "requested",
-      teacherConsentRequestedAt: new Date(),
-    })
-    .where(eq(incidentsTable.id, id))
-    .returning();
+  const parentChildIds = parentUser.parentOf || [];
+  if (!parentChildIds.includes(subjectPupilId)) {
+    res.status(400).json({ error: "The specified parent is not the guardian of the subject pupil" });
+    return;
+  }
+
+  const victimIds = incident.victimIds || [];
+  const perpetratorIds = incident.perpetratorIds || [];
+  const involvedIds = [...victimIds, ...perpetratorIds];
+  if (!involvedIds.includes(subjectPupilId)) {
+    res.status(400).json({ error: "The subject pupil is not involved in this incident" });
+    return;
+  }
+
+  const [permission] = await db.insert(disclosurePermissionsTable).values({
+    schoolId: user.schoolId,
+    incidentId: id,
+    subjectPupilId,
+    requestedById: user.userId,
+    requestedFromParentId,
+    targetRoles: targetRoles || ["teacher"],
+    targetUserIds: targetUserIds || [],
+    scope: scope || "summary_only",
+    reason: reason || null,
+    status: "pending",
+  }).returning();
+
+  await db.insert(notificationsTable).values({
+    recipientId: requestedFromParentId,
+    schoolId: user.schoolId,
+    trigger: "disclosure_request",
+    subject: "Staff disclosure permission request",
+    body: `The safeguarding team has requested your permission to share information about your child with additional staff members. Please review.`,
+    delivered: true,
+  });
 
   await writeAudit({
     schoolId: user.schoolId,
-    eventType: "teacher_consent_requested",
+    eventType: "disclosure_requested",
     actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
     targetType: "incident",
     targetId: id,
-    details: { referenceNumber: incident.referenceNumber },
+    details: { permissionId: permission.id, subjectPupilId, scope: permission.scope, referenceNumber: incident.referenceNumber },
     req,
   });
 
-  res.json({ success: true, teacherConsentStatus: updated.teacherConsentStatus });
+  res.json({ success: true, permission });
 });
 
-router.patch("/incidents/:id/consent-respond", authMiddleware, requireRole("parent"), async (req, res): Promise<void> => {
+router.patch("/incidents/:id/disclosure-respond", authMiddleware, requireRole("parent"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
-  const { decision } = req.body;
+  const { permissionId, decision } = req.body;
 
-  if (!decision || !["approved", "declined"].includes(decision)) {
-    res.status(400).json({ error: "Decision must be 'approved' or 'declined'" });
+  if (!permissionId || !decision || !["approved", "declined"].includes(decision)) {
+    res.status(400).json({ error: "permissionId and decision (approved/declined) are required" });
     return;
   }
 
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
-  const [incident] = await db.select().from(incidentsTable)
-    .where(and(eq(incidentsTable.id, id), eq(incidentsTable.schoolId, user.schoolId)));
+  const [permission] = await db.select().from(disclosurePermissionsTable)
+    .where(and(
+      eq(disclosurePermissionsTable.id, permissionId),
+      eq(disclosurePermissionsTable.incidentId, id),
+      eq(disclosurePermissionsTable.requestedFromParentId, user.userId)
+    ));
 
-  if (!incident) {
-    res.status(404).json({ error: "Incident not found" });
+  if (!permission) {
+    res.status(404).json({ error: "Disclosure permission request not found or not addressed to you" });
+    return;
+  }
+
+  if (permission.status !== "pending") {
+    res.status(400).json({ error: "This disclosure request has already been responded to" });
     return;
   }
 
   const [parent] = await db.select().from(usersTable).where(eq(usersTable.id, user.userId));
-  const childIds = parent?.parentOf || [];
-  const involvedVictims = (incident.victimIds || []).filter(v => childIds.includes(v));
-  const involvedPerps = (incident.perpetratorIds || []).filter(p => childIds.includes(p));
-
-  if (involvedVictims.length === 0 && involvedPerps.length === 0) {
-    res.status(403).json({ error: "Your child is not involved in this incident" });
+  const parentChildIds = parent?.parentOf || [];
+  if (!parentChildIds.includes(permission.subjectPupilId)) {
+    res.status(403).json({ error: "You are not the guardian of the child whose information is being disclosed" });
     return;
   }
 
-  if (incident.teacherConsentStatus !== "requested") {
-    res.status(400).json({ error: "No consent request pending for this incident" });
-    return;
-  }
-
-  const [updated] = await db.update(incidentsTable)
+  const [updated] = await db.update(disclosurePermissionsTable)
     .set({
-      teacherConsentStatus: decision,
-      teacherConsentRespondedAt: new Date(),
-      teacherConsentRespondedBy: user.userId,
+      status: decision,
+      respondedById: user.userId,
+      respondedAt: new Date(),
     })
-    .where(eq(incidentsTable.id, id))
+    .where(eq(disclosurePermissionsTable.id, permissionId))
     .returning();
 
   await writeAudit({
     schoolId: user.schoolId,
-    eventType: "teacher_consent_responded",
+    eventType: "disclosure_responded",
     actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
     targetType: "incident",
     targetId: id,
-    details: { decision, referenceNumber: incident.referenceNumber },
+    details: { permissionId, decision, subjectPupilId: permission.subjectPupilId },
     req,
   });
 
-  const enriched = await enrichIncidents([updated], user.role, childIds, user.userId);
-  res.json(enriched[0]);
+  const [incident] = await db.select().from(incidentsTable)
+    .where(and(eq(incidentsTable.id, id), eq(incidentsTable.schoolId, user.schoolId)));
+  if (incident) {
+    const enriched = await enrichIncidents([incident], user.role, parentChildIds, user.userId);
+    res.json(enriched[0]);
+  } else {
+    res.json({ success: true, permission: updated });
+  }
+});
+
+router.get("/incidents/:id/disclosure-permissions", authMiddleware, requireRole("coordinator", "head_teacher", "senco", "parent"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+  let conditions: any[] = [eq(disclosurePermissionsTable.incidentId, id), eq(disclosurePermissionsTable.schoolId, user.schoolId)];
+
+  if (user.role === "parent") {
+    conditions.push(eq(disclosurePermissionsTable.requestedFromParentId, user.userId));
+  }
+
+  const permissions = await db.select().from(disclosurePermissionsTable).where(and(...conditions));
+  res.json(permissions);
 });
 
 async function enrichIncidents(incidents: (typeof incidentsTable.$inferSelect)[], viewerRole?: string, parentChildIds?: string[], viewerUserId?: string) {
@@ -588,9 +651,24 @@ async function enrichIncidents(incidents: (typeof incidentsTable.$inferSelect)[]
   const isParent = viewerRole === "parent";
   const isPupil = viewerRole === "pupil";
   const isFullAccess = ["coordinator", "head_teacher", "senco"].includes(viewerRole || "");
-  const needsConsent = ["teacher", "head_of_year", "support_staff"].includes(viewerRole || "");
+  const needsDisclosure = ["teacher", "head_of_year", "support_staff"].includes(viewerRole || "");
 
-  return incidents.map((inc) => {
+  const incidentIds = incidents.map((i) => i.id);
+  let disclosureMap: Record<string, any[]> = {};
+  if (incidentIds.length > 0) {
+    const allPermissions = await db
+      .select()
+      .from(disclosurePermissionsTable)
+      .where(inArray(disclosurePermissionsTable.incidentId, incidentIds));
+    for (const perm of allPermissions) {
+      if (!disclosureMap[perm.incidentId]) disclosureMap[perm.incidentId] = [];
+      disclosureMap[perm.incidentId].push(perm);
+    }
+  }
+
+  return Promise.all(incidents.map(async (inc) => {
+    const permissions = disclosureMap[inc.id] || [];
+
     const base: any = {
       id: inc.id,
       referenceNumber: inc.referenceNumber,
@@ -637,8 +715,19 @@ async function enrichIncidents(incidents: (typeof incidentsTable.$inferSelect)[]
       base.reporterName = null;
       base.parentSummary = inc.parentSummary || null;
       base.updatedAt = inc.updatedAt ? inc.updatedAt.toISOString() : null;
-      base.teacherConsentStatus = inc.teacherConsentStatus;
-      base.teacherConsentRequestedAt = inc.teacherConsentRequestedAt ? inc.teacherConsentRequestedAt.toISOString() : null;
+
+      const myPendingPermissions = permissions.filter(
+        (p: any) => p.requestedFromParentId === viewerUserId && p.status === "pending"
+      );
+      const myRespondedPermissions = permissions.filter(
+        (p: any) => p.requestedFromParentId === viewerUserId && p.status !== "pending"
+      );
+      base.disclosurePermissions = [...myPendingPermissions, ...myRespondedPermissions];
+      base.disclosureStatus = myPendingPermissions.length > 0
+        ? "pending"
+        : myRespondedPermissions.length > 0
+          ? myRespondedPermissions[myRespondedPermissions.length - 1].status
+          : "not_requested";
     } else if (isPupil) {
       base.reporterId = inc.reporterId;
       base.reporterRole = inc.reporterRole;
@@ -651,21 +740,54 @@ async function enrichIncidents(incidents: (typeof incidentsTable.$inferSelect)[]
       base.victimIds = inc.victimIds || [];
       base.perpetratorIds = [];
     } else {
-      const consentGranted = !needsConsent || inc.teacherConsentStatus === "approved";
-      base.teacherConsentStatus = inc.teacherConsentStatus;
+      let disclosureGranted = false;
+      let disclosureScope = "none";
+      if (!needsDisclosure) {
+        disclosureGranted = true;
+        disclosureScope = "full_incident_detail";
+      } else {
+        const approvedPerms = permissions.filter((p: any) => {
+          if (p.status !== "approved") return false;
+          const targetRoles = p.targetRoles || [];
+          const targetUserIds = p.targetUserIds || [];
+          return targetRoles.includes(viewerRole) || (viewerUserId && targetUserIds.includes(viewerUserId));
+        });
+        if (approvedPerms.length > 0) {
+          disclosureGranted = true;
+          const scopeOrder = ["behavioural_action_only", "summary_only", "named_staff_view", "full_incident_detail"];
+          disclosureScope = approvedPerms.reduce((best: string, p: any) => {
+            return scopeOrder.indexOf(p.scope) > scopeOrder.indexOf(best) ? p.scope : best;
+          }, "behavioural_action_only");
+        }
+      }
+
+      const hasPendingDisclosure = permissions.some((p: any) => p.status === "pending");
+
+      base.disclosureStatus = disclosureGranted ? "approved" : hasPendingDisclosure ? "pending" : permissions.length > 0 ? "declined" : "not_requested";
+      base.disclosureScope = disclosureScope;
+
+      const scopeAtLeast = (min: string) => {
+        const order = ["none", "behavioural_action_only", "summary_only", "named_staff_view", "full_incident_detail"];
+        return order.indexOf(disclosureScope) >= order.indexOf(min);
+      };
+
+      const showNames = scopeAtLeast("named_staff_view");
+      const showFull = scopeAtLeast("full_incident_detail");
+      const showSummary = scopeAtLeast("summary_only");
+
       base.reporterId = inc.reporterId;
       base.reporterRole = inc.reporterRole;
       base.anonymous = inc.anonymous;
       base.incidentTime = inc.incidentTime;
-      base.description = consentGranted ? inc.description : "[Consent required — parent has not yet approved teacher access to this incident's details]";
-      base.victimIds = consentGranted ? (inc.victimIds || []) : [];
-      base.perpetratorIds = consentGranted ? (inc.perpetratorIds || []) : [];
-      base.personInvolvedText = consentGranted ? inc.personInvolvedText : null;
-      base.unknownPersonDescriptions = consentGranted ? (inc.unknownPersonDescriptions as any[] || []) : [];
-      base.witnessIds = consentGranted ? (inc.witnessIds || []) : [];
-      base.witnessText = consentGranted ? inc.witnessText : null;
+      base.description = showSummary ? inc.description : "[Disclosure required — parent has not yet approved staff access to this incident's details]";
+      base.victimIds = showNames ? (inc.victimIds || []) : [];
+      base.perpetratorIds = showNames ? (inc.perpetratorIds || []) : [];
+      base.personInvolvedText = showNames ? inc.personInvolvedText : null;
+      base.unknownPersonDescriptions = showFull ? (inc.unknownPersonDescriptions as any[] || []) : [];
+      base.witnessIds = showFull ? (inc.witnessIds || []) : [];
+      base.witnessText = showFull ? inc.witnessText : null;
       base.emotionalState = inc.emotionalState;
-      base.emotionalFreetext = consentGranted ? inc.emotionalFreetext : null;
+      base.emotionalFreetext = showSummary ? inc.emotionalFreetext : null;
       base.happeningToMe = inc.happeningToMe;
       base.happeningToSomeoneElse = inc.happeningToSomeoneElse;
       base.iSawIt = inc.iSawIt;
@@ -678,21 +800,36 @@ async function enrichIncidents(incidents: (typeof incidentsTable.$inferSelect)[]
       base.formalResponseRequested = inc.formalResponseRequested;
       base.requestExternalReferral = inc.requestExternalReferral;
       base.confidentialFlag = inc.confidentialFlag;
-      base.staffNotes = consentGranted ? inc.staffNotes : null;
-      base.witnessStatements = consentGranted ? inc.witnessStatements : null;
-      base.parentSummary = consentGranted ? inc.parentSummary : null;
+      base.staffNotes = showFull ? inc.staffNotes : null;
+      base.witnessStatements = showFull ? inc.witnessStatements : null;
+      base.parentSummary = showSummary ? inc.parentSummary : null;
       base.assessedBy = inc.assessedBy;
       base.assessedAt = inc.assessedAt ? inc.assessedAt.toISOString() : null;
       base.reporterName = inc.reporterId ? (userMap[inc.reporterId] || null) : null;
-      base.victimNames = consentGranted ? (inc.victimIds || []).map((id) => userMap[id] || "Unknown") : ["[Consent required]"];
-      base.perpetratorNames = consentGranted ? (inc.perpetratorIds || []).map((id) => userMap[id] || "Unknown") : ["[Consent required]"];
+      base.victimNames = showNames ? (inc.victimIds || []).map((id) => userMap[id] || "Unknown") : ["[Disclosure required]"];
+      base.perpetratorNames = showNames ? (inc.perpetratorIds || []).map((id) => userMap[id] || "Unknown") : ["[Disclosure required]"];
       if (inc.assessedBy && userMap[inc.assessedBy]) {
         base.assessedByName = userMap[inc.assessedBy];
+      }
+
+      if (isFullAccess) {
+        base.victimIds = inc.victimIds || [];
+        base.perpetratorIds = inc.perpetratorIds || [];
+        const allParents = await db.select({ id: usersTable.id, parentOf: usersTable.parentOf }).from(usersTable)
+          .where(and(eq(usersTable.schoolId, inc.schoolId), eq(usersTable.role, "parent")));
+        const subjectVictimId = (inc.victimIds || [])[0];
+        if (subjectVictimId) {
+          const victimParent = allParents.find(p => (p.parentOf || []).includes(subjectVictimId));
+          if (victimParent) {
+            base._parentId = victimParent.id;
+          }
+        }
+        base.disclosurePermissions = permissions;
       }
     }
 
     return base;
-  });
+  }));
 }
 
 export default router;
