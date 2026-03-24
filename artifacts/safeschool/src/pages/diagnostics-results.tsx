@@ -767,6 +767,67 @@ function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
         </>
       )}
 
+      {summary && summary.categories?.length > 0 && (() => {
+        const gaps: { category: string; groups: { high: string; low: string }; gap: number; interpretation: string }[] = [];
+        for (const cat of summary.categories) {
+          const avgs = cat.averages as Record<string, number>;
+          const entries = Object.entries(avgs).filter(([, v]) => v > 0);
+          if (entries.length < 2) continue;
+          entries.sort((a, b) => b[1] - a[1]);
+          const [highGroup, highScore] = entries[0];
+          const [lowGroup, lowScore] = entries[entries.length - 1];
+          const gap = Math.round((highScore - lowScore) * 10) / 10;
+          if (gap >= 0.8) {
+            const highLabel = GROUP_LABELS[highGroup] || highGroup;
+            const lowLabel = GROUP_LABELS[lowGroup] || lowGroup;
+            let interpretation = "";
+            if (lowGroup === "pupil") {
+              interpretation = `${lowLabel} experience this area very differently from ${highLabel}. Their lived reality may not match how adults perceive the school.`;
+            } else if (lowGroup === "parent") {
+              interpretation = `${lowLabel} rate this lower than ${highLabel} — they may not feel fully informed or confident about the school's approach in this area.`;
+            } else {
+              interpretation = `${lowLabel} rate this lower than ${highLabel} — there may be a gap between policy and practice.`;
+            }
+            gaps.push({
+              category: cat.category,
+              groups: { high: highLabel, low: lowLabel },
+              gap,
+              interpretation,
+            });
+          }
+        }
+        if (gaps.length === 0) return null;
+        return (
+          <Card className="border-amber-200 dark:border-amber-900/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare size={20} className="text-amber-500" />
+                Perception Gaps
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Where different groups see things differently — these are important conversations to have.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {gaps.sort((a, b) => b.gap - a.gap).map((g, i) => (
+                <div key={i} className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-sm">{g.category}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold">
+                      {g.gap}pt gap
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{g.interpretation}</p>
+                  <p className="text-xs mt-2 text-amber-600 dark:text-amber-400">
+                    {g.groups.high} scored higher — {g.groups.low} scored lower
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       {!actionsData?.isPublished || !actionsData?.actions?.length ? (
         <Card>
           <CardContent className="p-8 text-center">

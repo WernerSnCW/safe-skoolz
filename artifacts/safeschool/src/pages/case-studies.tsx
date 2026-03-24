@@ -6,7 +6,8 @@ import {
   BookOpen, Users, AlertTriangle, Shield, Eye, Heart,
   ChevronDown, ChevronUp, Lightbulb, TrendingDown,
   UserX, Swords, DollarSign, Zap, ArrowRight,
-  Activity, BookHeart, Gauge, FileText, ClipboardCheck
+  Activity, BookHeart, Gauge, FileText, ClipboardCheck,
+  Bell, Megaphone, BarChart3
 } from "lucide-react";
 
 type RoleKey = "pupil" | "parent" | "teacher" | "coordinator" | "senco" | "head_teacher" | "head_of_year" | "support_staff" | "pta";
@@ -23,6 +24,7 @@ interface CaseStudy {
   whatSafeskoolzShows: { label: string; detail: string }[];
   interventions: string[];
   roleInsights: Partial<Record<RoleKey, { heading: string; points: string[] }>>;
+  whatParentsReceive: { type: "notification" | "pta_update" | "diagnostic"; content: string }[];
   linkedFeatures: { label: string; href: string; icon: any }[];
   refPrefix: string;
 }
@@ -91,6 +93,11 @@ const CASE_STUDIES: CaseStudy[] = [
         ],
       },
     },
+    whatParentsReceive: [
+      { type: "notification", content: "Your child's school has identified a pattern of group bullying. The school is taking action including restorative work with those involved and safety plans for affected children." },
+      { type: "pta_update", content: "PTA Annual Report: \"We identified and addressed a 'ringleader plus recruited bullies' pattern this term. Interventions included restorative justice for the instigator, protective support for coerced followers, and safety planning for the victim.\"" },
+      { type: "diagnostic", content: "Diagnostic gap: Pupils scored 'I feel safe at break time' at 2.8/5 while staff scored the same area at 4.1/5 \u2014 a 1.3-point perception gap showing pupils experience break time very differently from how staff assume." },
+    ],
     linkedFeatures: [
       { label: "View Incidents", href: "/incidents", icon: FileText },
       { label: "Alerts Dashboard", href: "/alerts", icon: Activity },
@@ -159,6 +166,11 @@ const CASE_STUDIES: CaseStudy[] = [
         ],
       },
     },
+    whatParentsReceive: [
+      { type: "notification", content: "Important: The school has strengthened its anti-retaliation policy. Any child who is punished for reporting will be protected, and retaliation will be treated as a separate serious offence." },
+      { type: "pta_update", content: "PTA briefing: \"We observed a short-term spike in incidents linked to retaliation after reporting. The school has implemented stronger sanctions and communicated a clear anti-retaliation policy in assemblies.\"" },
+      { type: "diagnostic", content: "Diagnostic gap: Pupils scored 'If I report something, it will make things better' at 2.1/5 while parents scored 3.9/5 \u2014 a 1.8-point gap. Children don't trust the system the way parents assume they do." },
+    ],
     linkedFeatures: [
       { label: "View Incidents", href: "/incidents", icon: FileText },
       { label: "Alerts Dashboard", href: "/alerts", icon: Activity },
@@ -227,6 +239,11 @@ const CASE_STUDIES: CaseStudy[] = [
         ],
       },
     },
+    whatParentsReceive: [
+      { type: "notification", content: "School Alert: We have identified a pattern of bullying based on material possessions and socio-economic status. The school is running class-wide PSHE sessions on respect and equality, and working directly with those involved." },
+      { type: "pta_update", content: "PTA Annual Report: \"We identified material-based bullying in one class group and responded with targeted empathy work, class-wide education on equality, and a review of school events that may unintentionally reinforce wealth markers.\"" },
+      { type: "diagnostic", content: "Diagnostic insight: 'I feel respected at school' and 'People don't judge me for what I have' scored significantly below average in one class group, prompting targeted intervention." },
+    ],
     linkedFeatures: [
       { label: "View Incidents", href: "/incidents", icon: FileText },
       { label: "Behaviour Tracker", href: "/behaviour", icon: Gauge },
@@ -294,6 +311,11 @@ const CASE_STUDIES: CaseStudy[] = [
         ],
       },
     },
+    whatParentsReceive: [
+      { type: "notification", content: "Your child's class group arrangements have been adjusted to reduce disruption. This is a structural change based on behaviour data \u2014 not a punishment. You should see an immediate improvement." },
+      { type: "pta_update", content: "PTA update: \"Data-driven seating adjustments in one class reduced disruption incidents by 85% in two weeks. This demonstrates how small structural changes, guided by pattern analysis, can transform a classroom without punitive measures.\"" },
+      { type: "diagnostic", content: "Post-intervention check: Behaviour points for the affected class dropped from 12/week to 2/week after the structural adjustment. No sanctions were needed." },
+    ],
     linkedFeatures: [
       { label: "View Incidents", href: "/incidents", icon: FileText },
       { label: "Behaviour Tracker", href: "/behaviour", icon: Gauge },
@@ -364,6 +386,11 @@ const CASE_STUDIES: CaseStudy[] = [
         ],
       },
     },
+    whatParentsReceive: [
+      { type: "notification", content: "We'd like to invite you for a check-in about your child's wellbeing. Our monitoring shows they may be finding school harder lately, and we'd like to talk about how we can support them together." },
+      { type: "pta_update", content: "PTA briefing: \"Our pupil diary system detected a sustained mood decline in a child before any crisis occurred. Early intervention \u2014 including a named safe adult and buddy arrangements \u2014 reversed the trend within a month.\"" },
+      { type: "diagnostic", content: "Diary mood data: Child's average mood dropped from 4.5 to 1.5 over four weeks. After intervention, mood recovered to 3.5 within one month. Traditional incident logging would have missed this entirely." },
+    ],
     linkedFeatures: [
       { label: "Pupil Diary", href: "/diary", icon: BookHeart },
       { label: "View Incidents", href: "/incidents", icon: FileText },
@@ -371,6 +398,83 @@ const CASE_STUDIES: CaseStudy[] = [
       { label: "Diagnostic Survey", href: "/diagnostics", icon: ClipboardCheck },
     ],
     refPrefix: "CS5",
+  },
+  {
+    id: "misogyny",
+    title: "Casual Misogyny",
+    subtitle: "When 'just banter' normalises gender-based disrespect",
+    icon: Swords,
+    color: "text-rose-600",
+    bgColor: "bg-rose-50 dark:bg-rose-950/20",
+    borderColor: "border-rose-200 dark:border-rose-900/30",
+    narrative: [
+      "Several girls in Year 9 report feeling uncomfortable in the corridor between lessons. They describe boys making comments about their bodies, rating them out of 10, and sharing edited photos.",
+      "Each individual comment is dismissed as 'banter' by the boys and initially by some staff. No single incident reaches the threshold for formal action.",
+      "Over six weeks, safeskoolz logs 23 separate low-level incidents involving the same group of boys and multiple girl victims. Pattern analysis flags a 'misogynistic behaviour cluster'.",
+      "The system cross-references diary entries: three girls have written about dreading school, two have stopped participating in PE, and one has asked to change her route between classes.",
+      "Under Spain's LOPIVI framework and the school's Machista Violence protocol, this pattern constitutes gender-based harassment requiring institutional action — not just individual sanctions.",
+    ],
+    whatSafeskoolzShows: [
+      { label: "23 incidents in 6 weeks", detail: "Pattern analysis groups individually minor comments into a clear harassment pattern targeting girls." },
+      { label: "Machista Violence flag", detail: "Auto-classified under the school's gender-based violence protocol when the pattern meets threshold criteria." },
+      { label: "5 victims, 4 perpetrators", detail: "Network analysis reveals the same group of boys across multiple incidents with different girl targets." },
+      { label: "Diary correlation", detail: "Three victims' diary entries show declining mood, avoidance behaviours, and anxiety specifically linked to school corridors." },
+      { label: "Bystander silence", detail: "Diagnostic survey shows 78% of pupils witnessed similar behaviour but only 12% reported it — a massive reporting gap." },
+    ],
+    interventions: [
+      "Whole-school assembly on respect, consent, and the difference between banter and harassment.",
+      "Targeted intervention with the boys' group — restorative sessions with trained facilitator, not just punishment.",
+      "Safe corridor plan: adjusted timing, staff presence at identified hotspots between lessons.",
+      "PSHE curriculum updated with specific modules on gender respect and Machista Violence awareness.",
+      "Formal notification to parents of perpetrators under LOPIVI obligations, with support resources provided.",
+      "Anonymous follow-up survey two months later showing 85% of girls felt safer — evidencing the intervention worked.",
+    ],
+    roleInsights: {
+      pupil: {
+        heading: "Your voice matters",
+        points: [
+          "Comments about your body are never 'just banter' — you have the right to feel safe and respected at school.",
+          "If something makes you uncomfortable, even if it seems small, logging it helps the school see the bigger picture.",
+          "You don't have to name yourself. Anonymous reporting still builds the pattern that triggers action.",
+        ],
+      },
+      parent: {
+        heading: "What to look for at home",
+        points: [
+          "Watch for your child avoiding school, changing their route, or suddenly disliking subjects they previously enjoyed.",
+          "If your daughter mentions boys 'rating' girls or making body comments, this is not harmless — it's a pattern the school needs to know about.",
+          "The school is legally required under LOPIVI to act on gender-based harassment patterns. Your report helps build that evidence.",
+        ],
+      },
+      teacher: {
+        heading: "Why 'it's just banter' is dangerous",
+        points: [
+          "Each comment logged individually seems minor. The system reveals the pattern: same boys, multiple girls, escalating behaviour.",
+          "Under the Machista Violence protocol, dismissing these as banter could expose the school to legal liability.",
+          "Your corridor observations are crucial data. Log the 'small stuff' — that's exactly what pattern analysis needs.",
+        ],
+      },
+      coordinator: {
+        heading: "The institutional picture",
+        points: [
+          "This case demonstrates why LOPIVI compliance requires systematic data collection — no single adult could see this pattern.",
+          "The Machista Violence protocol was triggered by accumulated evidence, not a single severe incident.",
+          "Cross-referencing incidents with diary entries and diagnostic data creates an undeniable evidence base for intervention and, if needed, regulatory reporting.",
+        ],
+      },
+    },
+    whatParentsReceive: [
+      { type: "notification", content: "Important: The school has identified a pattern of gender-based disrespectful behaviour. We are taking action under our Machista Violence protocol including restorative work, curriculum changes, and environmental safety measures." },
+      { type: "pta_update", content: "PTA Annual Report: \"Our monitoring identified a pattern of casual misogyny affecting multiple girls. Under LOPIVI obligations, we intervened with restorative work, curriculum updates, and environmental changes. Follow-up surveys showed an 85% improvement in girls feeling safe.\"" },
+      { type: "diagnostic", content: "Perception gap: 'I feel respected regardless of my gender' — girls scored 2.3/5 while boys scored 4.4/5. A 2.1-point gap reveals that boys genuinely don't perceive the problem that girls experience daily." },
+    ],
+    linkedFeatures: [
+      { label: "View Incidents", href: "/incidents", icon: FileText },
+      { label: "Alerts Dashboard", href: "/alerts", icon: Activity },
+      { label: "Diagnostic Survey", href: "/diagnostics", icon: ClipboardCheck },
+      { label: "Pupil Diary", href: "/diary", icon: BookHeart },
+    ],
+    refPrefix: "CS6",
   },
 ];
 
@@ -511,6 +615,35 @@ export default function CaseStudiesPage() {
                           ))}
                         </ul>
                       </div>
+
+                      {(["parent", "pta", "coordinator", "head_teacher"].includes(role)) && cs.whatParentsReceive.length > 0 && (
+                        <div>
+                          <h3 className="font-bold text-lg flex items-center gap-2 mb-3">
+                            <Megaphone size={18} className="text-purple-600" />
+                            What parents receive
+                          </h3>
+                          <p className="text-xs text-muted-foreground mb-3">Example communications that safeskoolz generates for this scenario.</p>
+                          <div className="space-y-3">
+                            {cs.whatParentsReceive.map((item, i) => {
+                              const typeConfig = {
+                                notification: { icon: Bell, label: "School Alert", color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/20", border: "border-blue-200/50 dark:border-blue-900/30" },
+                                pta_update: { icon: Megaphone, label: "PTA Report", color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-950/20", border: "border-purple-200/50 dark:border-purple-900/30" },
+                                diagnostic: { icon: BarChart3, label: "Diagnostic Insight", color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/20", border: "border-amber-200/50 dark:border-amber-900/30" },
+                              }[item.type];
+                              const Icon = typeConfig.icon;
+                              return (
+                                <div key={i} className={`p-4 rounded-xl ${typeConfig.bg} border ${typeConfig.border}`}>
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Icon size={14} className={typeConfig.color} />
+                                    <span className={`text-xs font-bold uppercase tracking-wide ${typeConfig.color}`}>{typeConfig.label}</span>
+                                  </div>
+                                  <p className="text-sm leading-relaxed">{item.content}</p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
 
                       {(role !== "pupil") && (
                         <div>
