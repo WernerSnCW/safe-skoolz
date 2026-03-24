@@ -932,6 +932,334 @@ function RoleFeaturesSection() {
   );
 }
 
+interface ReportAudience {
+  id: string;
+  role: string;
+  icon: any;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  description: string;
+  reports: {
+    title: string;
+    icon: any;
+    frequency: string;
+    mockup: { type: string; content: string; color?: string }[];
+  }[];
+}
+
+const REPORT_AUDIENCES: ReportAudience[] = [
+  {
+    id: "pta",
+    role: "PTA & Governors",
+    icon: Users,
+    color: "text-purple-600",
+    bgColor: "bg-purple-50 dark:bg-purple-950/20",
+    borderColor: "border-purple-200 dark:border-purple-800",
+    description: "Anonymised data that shows whether the school is getting safer. No child names, no incident details \u2014 just trends, patterns, and outcomes.",
+    reports: [
+      {
+        title: "Termly Safeguarding Summary",
+        icon: FileText,
+        frequency: "Every term",
+        mockup: [
+          { type: "chart", content: "Total incidents: 47 \u2022 Resolved: 44 \u2022 Active protocols: 2 \u2022 Avg resolution: 8 days" },
+          { type: "chart", content: "Verbal: 22 \u2022 Physical: 9 \u2022 Online: 8 \u2022 Relational: 5 \u2022 Other: 3" },
+          { type: "badge", content: "Incidents down 18% from last term. Zero Tier 3 incidents.", color: "green" },
+          { type: "alert", content: "Location hotspot: 6 incidents near the sports hall at lunch. Recommend increased supervision.", color: "amber" },
+        ],
+      },
+      {
+        title: "Diagnostic Climate Report",
+        icon: BarChart3,
+        frequency: "Twice yearly",
+        mockup: [
+          { type: "chart", content: "Pupil trust in reporting: 2.1/5 \u2022 Staff confidence: 4.2/5 \u2022 Parent awareness: 3.9/5" },
+          { type: "alert", content: "Critical gap: Pupils score reporting trust 2.1 points lower than staff think. Children don\u2019t believe adults will act.", color: "red" },
+          { type: "badge", content: "Agreed action: Relaunch pupil reporting with assembly + safe adult ambassadors. KPI target: 3.0 by July.", color: "purple" },
+          { type: "chart", content: "Response rate: Pupils 89% \u2022 Staff 95% \u2022 Parents 62%" },
+        ],
+      },
+      {
+        title: "Year-End Outcome Report",
+        icon: CheckCircle2,
+        frequency: "Annual",
+        mockup: [
+          { type: "badge", content: "3 Convivèxit protocols opened this year. All 3 resolved with zero re-offending.", color: "green" },
+          { type: "chart", content: "Victim recovery rate: 100% \u2022 Avg weeks to resolution: 5.2 \u2022 Parental satisfaction: 4.6/5" },
+          { type: "notification", content: "Case summary: \"Group targeting pattern identified through linked incident reports. Intervention included safe adults, restorative conversations, and parent meetings. Full recovery evidenced.\"", color: "green" },
+          { type: "badge", content: "Suitable for Ofsted/inspection evidence. PDF export available.", color: "purple" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "staff",
+    role: "Staff & Coordinators",
+    icon: GraduationCap,
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
+    borderColor: "border-indigo-200 dark:border-indigo-800",
+    description: "Operational reporting that helps staff see what\u2019s working and where to focus. Live data, not end-of-term surprises.",
+    reports: [
+      {
+        title: "Weekly Dashboard",
+        icon: Activity,
+        frequency: "Real-time",
+        mockup: [
+          { type: "badge", content: "This week: 5 new incidents \u2022 3 resolved \u2022 2 under review \u2022 1 pattern alert", color: "indigo" },
+          { type: "chart", content: "Monday: 2 incidents \u2022 Tuesday: 1 \u2022 Wednesday: 0 \u2022 Thursday: 2 \u2022 Friday: 0" },
+          { type: "alert", content: "Mood decline: 2 pupils in Year 6 showing sustained low mood (below 2.0 for 7+ days)", color: "amber" },
+          { type: "badge", content: "Overdue tasks: 0. All protocol deadlines met.", color: "green" },
+        ],
+      },
+      {
+        title: "Behaviour Escalation Report",
+        icon: TrendingDown,
+        frequency: "Fortnightly",
+        mockup: [
+          { type: "badge", content: "5 pupils at Level 3+ (formal warning threshold)", color: "amber" },
+          { type: "chart", content: "Marcus (Yr 6): 14 pts \u2014 Level 4 \u2022 Tyler (Yr 6): 5 pts \u2014 Level 2 \u2022 Jayden (Yr 6): 4 pts \u2014 Level 2" },
+          { type: "alert", content: "Trend: 3 of these 5 pupils are connected through linked incidents. Possible group dynamic.", color: "red" },
+          { type: "badge", content: "Recommended: Review behaviour points for Yr 6 cohort. Linked incidents suggest coordinated targeting.", color: "indigo" },
+        ],
+      },
+      {
+        title: "Protocol Compliance Tracker",
+        icon: ClipboardCheck,
+        frequency: "Ongoing",
+        mockup: [
+          { type: "badge", content: "Active protocols: Convivèxit #CVX-003 (Week 4 of 6)", color: "purple" },
+          { type: "timeline", content: "Safe adult check-in: Complete (5 of 5 this week)" },
+          { type: "timeline", content: "Restorative conversation #2 (Tyler): Scheduled for Thursday" },
+          { type: "timeline", content: "Parent follow-up (Marcus\u2019s parents): Meeting confirmed Friday 2pm" },
+          { type: "badge", content: "All LOPIVI deadlines met. No overdue external referrals.", color: "green" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "parents",
+    role: "Parents & Families",
+    icon: Heart,
+    color: "text-amber-600",
+    bgColor: "bg-amber-50 dark:bg-amber-950/20",
+    borderColor: "border-amber-200 dark:border-amber-800",
+    description: "Parents see what matters to their child and their school \u2014 not a data dump, but clear answers to \"is my child safe?\" and \"what is the school doing?\"",
+    reports: [
+      {
+        title: "My Child\u2019s Wellbeing Summary",
+        icon: Heart,
+        frequency: "On request",
+        mockup: [
+          { type: "badge", content: "Your child has no active safeguarding concerns.", color: "green" },
+          { type: "chart", content: "Behaviour points: 0 \u2022 Incidents involving your child: 0 this term" },
+          { type: "notification", content: "Your child\u2019s wellbeing score is healthy. No mood flags detected.", color: "green" },
+        ],
+      },
+      {
+        title: "Incident Notification",
+        icon: Bell,
+        frequency: "When relevant",
+        mockup: [
+          { type: "notification", content: "We are writing to let you know that a pattern of targeted behaviour towards your child has been identified and addressed.", color: "blue" },
+          { type: "notification", content: "A Convivèxit protocol has been initiated. Your child has been assigned a safe adult (Ms Rivera). We would welcome the opportunity to discuss this with you.", color: "blue" },
+          { type: "action", content: "Acknowledge \u00b7 Request meeting \u00b7 Ask a question", color: "teal" },
+        ],
+      },
+      {
+        title: "School Safeguarding Report",
+        icon: Shield,
+        frequency: "Termly",
+        mockup: [
+          { type: "notification", content: "Morna International College \u2014 Term 2 Safeguarding Update", color: "blue" },
+          { type: "chart", content: "Incidents this term: 47 (down 18%) \u2022 Resolved: 94% \u2022 Avg resolution: 8 days" },
+          { type: "badge", content: "Climate survey: 89% of pupils completed. Key finding: reporting trust needs improvement.", color: "amber" },
+          { type: "badge", content: "Action taken: New safe adult ambassador programme launched. Lunchtime supervision increased.", color: "green" },
+        ],
+      },
+      {
+        title: "Diagnostic Survey Invitation",
+        icon: ClipboardCheck,
+        frequency: "Twice yearly",
+        mockup: [
+          { type: "notification", content: "You are invited to complete a 5-minute safeguarding climate survey. Your answers are anonymous.", color: "blue" },
+          { type: "form", content: "\"I trust the school to keep my child safe\" \u2014 Strongly agree \u00b7 Agree \u00b7 Neutral \u00b7 Disagree \u00b7 Strongly disagree" },
+          { type: "form", content: "\"I know how to report a concern about my child\" \u2014 Strongly agree \u00b7 Agree \u00b7 Neutral \u00b7 Disagree" },
+          { type: "badge", content: "Results are shared with PTA and published to all parents.", color: "amber" },
+        ],
+      },
+    ],
+  },
+];
+
+function ReportingAnalyticsSection() {
+  const [activeAudience, setActiveAudience] = useState(0);
+  const [activeReport, setActiveReport] = useState(0);
+  const audience = REPORT_AUDIENCES[activeAudience];
+  const report = audience.reports[activeReport];
+  const AudienceIcon = audience.icon;
+  const ReportIcon = report.icon;
+
+  const switchAudience = (idx: number) => {
+    setActiveAudience(idx);
+    setActiveReport(0);
+  };
+
+  return (
+    <div className="mt-16">
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-transparent to-purple-500/5 rounded-3xl" />
+        <div className="relative text-center py-8 px-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 text-xs font-bold mb-3">
+            <BarChart3 size={12} />
+            REPORTING & ANALYTICS
+          </div>
+          <h2 className="text-3xl font-display font-bold mb-2">Where does the data go?</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-4">
+            Every incident, mood entry, and behaviour point feeds into reports tailored to each audience. PTA governors see anonymised trends. Staff see operational data. Parents see what matters to their child.
+          </p>
+          <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <motion.div animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}>
+              <MousePointerClick size={14} className="text-indigo-500" />
+            </motion.div>
+            Choose an audience to see their reports
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center gap-3 mb-3">
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <FileText size={12} className="text-primary" />
+          <span>Incidents</span>
+        </div>
+        <ArrowRight size={14} className="text-muted-foreground/50" />
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Activity size={12} className="text-amber-500" />
+          <span>Patterns</span>
+        </div>
+        <ArrowRight size={14} className="text-muted-foreground/50" />
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <BarChart3 size={12} className="text-indigo-500" />
+          <span>Analytics</span>
+        </div>
+        <ArrowRight size={14} className="text-muted-foreground/50" />
+        <div className="flex items-center gap-1 text-xs font-bold text-foreground">
+          <Send size={12} className="text-purple-500" />
+          <span>Reports</span>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-2 sm:gap-3 mb-6 flex-wrap">
+        {REPORT_AUDIENCES.map((a, i) => {
+          const AI = a.icon;
+          return (
+            <button
+              key={a.id}
+              onClick={() => switchAudience(i)}
+              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${
+                i === activeAudience
+                  ? `${a.bgColor} ${a.borderColor} ${a.color} shadow-md`
+                  : "bg-card border-border text-muted-foreground hover:border-primary/30 hover:shadow-sm"
+              }`}
+            >
+              <AI size={18} />
+              {a.role}
+              {i === activeAudience && (
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-1.5 h-1.5 rounded-full bg-current" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeAudience}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={`rounded-2xl border-2 ${audience.borderColor} overflow-hidden`}>
+            <div className={`${audience.bgColor} px-6 py-4`}>
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-xl bg-white/60 dark:bg-black/10 ${audience.color}`}>
+                  <AudienceIcon size={22} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg">{audience.role}</h3>
+                  <p className="text-sm text-muted-foreground">{audience.description}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-4 sm:px-6 pt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Hand size={13} className="text-muted-foreground" />
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  {audience.reports.length} reports &mdash; click to preview
+                </span>
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {audience.reports.map((r, i) => {
+                  const RI = r.icon;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setActiveReport(i)}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all border whitespace-nowrap ${
+                        i === activeReport
+                          ? `${audience.bgColor} ${audience.borderColor} ${audience.color} shadow-sm`
+                          : "bg-card border-border text-muted-foreground hover:border-primary/30 hover:shadow-sm"
+                      }`}
+                    >
+                      <RI size={13} />
+                      {r.title}
+                      {i === activeReport && <ChevronDown size={11} className="opacity-50" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`${activeAudience}-${activeReport}`}
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -8 }}
+                transition={{ duration: 0.15 }}
+                className="px-6 py-5"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <ReportIcon size={16} className={audience.color} />
+                    <span className={`text-xs font-bold ${audience.color}`}>{report.title}</span>
+                  </div>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">{report.frequency}</span>
+                </div>
+
+                <div className="rounded-xl border border-border bg-card p-4 space-y-2 mt-3">
+                  <div className="flex items-center gap-2 pb-2 border-b border-border/50 mb-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                    <span className="text-[10px] text-muted-foreground ml-2 font-mono">{report.title}</span>
+                  </div>
+                  {report.mockup.map((el, i) => (
+                    <MockupElement key={i} el={el} />
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function HowItWorksPage() {
   const [activeStep, setActiveStep] = useState(0);
   const [activeScreen, setActiveScreen] = useState(0);
@@ -1145,6 +1473,8 @@ export default function HowItWorksPage() {
         </div>
 
         <RoleFeaturesSection />
+
+        <ReportingAnalyticsSection />
 
         <div className="mt-12 text-center">
           <div className="p-8 rounded-2xl bg-card border border-border shadow-sm">
