@@ -30,3 +30,9 @@ id = "WbjASXSnLIqsJYaFMAguw"
 uri = "file://safeskoolz-project-review.json"
 type = "unspecified"
 title = "safeskoolz Complete Technical Specification (102KB, 2136 lines)"
+
+[[outputs]]
+id = "JMhlqxaucZerW1NWD8jlr"
+uri = "file://safeskoolz-app-structure.json"
+type = "unspecified"
+title = "safeskoolz App Structure & UX Overview (JSON)"
