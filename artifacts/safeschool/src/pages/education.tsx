@@ -480,66 +480,101 @@ function PupilContent() {
         </AccordionItem>
 
         <AccordionItem title="Have you been unkind to someone?" icon={Lightbulb}>
-          <p>Sometimes people do unkind things. If you have been mean to someone, pushed them around, left them out on purpose, or said hurtful things — that takes courage to admit. <strong>Reading this is already a brave step.</strong></p>
+          <p>If you have been mean to someone, pushed them around, left them out on purpose, or said hurtful things — the fact that you're reading this shows something important about you. <strong>It means you care.</strong></p>
 
-          <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mt-2 mb-3">
-            <p className="font-bold text-primary">Being unkind to someone doesn't make you a bad person. What matters is what you do next.</p>
+          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/5 border border-primary/20 mt-2 mb-3">
+            <p className="text-base font-bold text-primary">Doing something bad does not make you a bad person.</p>
+            <p className="text-sm text-muted-foreground mt-1">Good people sometimes do unkind things. What makes the difference is what you do next. The fact that you're here, reading this, already proves you're not the person the unkind behaviour suggests you are.</p>
           </div>
 
-          <p className="font-bold mt-3">Why does it happen?</p>
-          <p>People are unkind for lots of reasons. You might recognise some of these:</p>
+          <p className="font-bold mt-3">You are not alone in this</p>
+          <p>Research shows that most young people who are unkind to others are dealing with difficult things themselves. You might recognise some of these:</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>You feel angry or stressed and you take it out on others</li>
-            <li>Things are hard at home and it's making you feel bad inside</li>
-            <li>You wanted to fit in or impress friends, so you went along with it</li>
-            <li>Someone was unkind to you first and you passed that hurt on</li>
-            <li>You didn't realise how much it was affecting the other person</li>
+            <li><strong>Things are hard at home</strong> — arguments, stress, or feeling like nobody notices how you feel. When you're hurting inside, it can come out as hurting others</li>
+            <li><strong>Someone was unkind to you first</strong> — many children who bully have been bullied themselves. Hurt gets passed on like a chain — but you can be the one who breaks it</li>
+            <li><strong>Peer pressure</strong> — you went along with something because your friends were doing it, or because you were scared of being left out. That doesn't make it right, but it's a reason adults understand</li>
+            <li><strong>You feel angry a lot</strong> — and you don't know why or what to do with it. So it comes out at the wrong people</li>
+            <li><strong>You wanted to feel powerful</strong> — because in other parts of your life you feel powerless. That's more common than you think</li>
+            <li><strong>You didn't realise the impact</strong> — sometimes we genuinely don't see how much our words or actions affect someone until it's pointed out</li>
           </ul>
-          <p className="mt-2">None of these reasons make it okay — but understanding <em>why</em> helps you change.</p>
+          <p className="mt-2">None of these reasons make it okay — but they do explain it. And understanding <em>why</em> is the first step to changing.</p>
 
-          <p className="font-bold mt-3">Picking on someone weaker isn't being strong</p>
-          <p>It might feel powerful to push someone around or say things that make others laugh. But real strength looks very different:</p>
+          <p className="font-bold mt-3">What real strength looks like</p>
+          <p>Picking on someone smaller, younger, or quieter might feel powerful in the moment — but it's not strength. Here's what real strength actually looks like:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li><strong>Real strength</strong> is standing up for someone, not against them</li>
-            <li><strong>Real strength</strong> is saying sorry and meaning it</li>
-            <li><strong>Real strength</strong> is walking away from a group that's being mean, even when it's hard</li>
+            <li><strong>Real strength</strong> is saying sorry and meaning it — even when it's embarrassing</li>
+            <li><strong>Real strength</strong> is walking away from a group that's being mean, even when it means being on your own for a bit</li>
             <li><strong>Real strength</strong> is asking for help when you're struggling inside</li>
+            <li><strong>Real strength</strong> is admitting you got it wrong and trying to make it right</li>
           </ul>
 
-          <p className="font-bold mt-3">What can you do now?</p>
+          <p className="font-bold mt-3">The truth about labels</p>
+          <p>Nobody wants to be called "a bully." And here's the thing — <strong>you are not "a bully."</strong> You are a person who has done some unkind things. There's a massive difference.</p>
+          <p className="mt-1">"A bully" sounds permanent, like that's who you are forever. But <strong>behaviour can change</strong>. You can learn different ways to handle your feelings. You can repair the harm you've done. You can become someone you're proud of.</p>
+
+          <p className="font-bold mt-3">What can you do right now?</p>
           <div className="space-y-3 mt-2">
             <div className="flex gap-3 items-start">
               <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
               <div>
                 <p className="font-bold">Stop the behaviour</p>
-                <p className="text-muted-foreground">Even if your friends keep doing it, you can choose to stop. That's your decision and it matters.</p>
+                <p className="text-muted-foreground">Even if your friends keep doing it, you can choose to stop. That's your decision and it matters more than you think.</p>
               </div>
             </div>
             <div className="flex gap-3 items-start">
               <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
               <div>
                 <p className="font-bold">Say sorry — and mean it</p>
-                <p className="text-muted-foreground">A real apology sounds like: "I'm sorry I did that. It wasn't okay, and I won't do it again." You don't need to make excuses.</p>
+                <p className="text-muted-foreground">A real apology isn't "sorry, but..." or "sorry you felt that way." It sounds like: <em>"I'm sorry I did that. It wasn't okay, and I won't do it again."</em> You don't need to make excuses. A genuine sorry is one of the most powerful things one person can say to another.</p>
               </div>
             </div>
             <div className="flex gap-3 items-start">
               <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
               <div>
-                <p className="font-bold">Be honest about how you're feeling</p>
-                <p className="text-muted-foreground">If something is making you act this way — stress, problems at home, feeling angry all the time — tell someone. A teacher, school counsellor, or parent can help you with what's really going on.</p>
+                <p className="font-bold">Try to understand how they felt</p>
+                <p className="text-muted-foreground">Think about a time when someone made you feel small, scared, or left out. That's how the other person felt because of what you did. This isn't meant to make you feel terrible — it's meant to help you understand why it matters.</p>
               </div>
             </div>
             <div className="flex gap-3 items-start">
               <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">4</span>
               <div>
-                <p className="font-bold">Talk to an adult you trust</p>
-                <p className="text-muted-foreground">Sometimes being unkind is a way of asking for help without knowing how to ask. Adults won't just punish you — they want to help you too. You deserve support.</p>
+                <p className="font-bold">Talk to someone about what's going on with YOU</p>
+                <p className="text-muted-foreground">If something is making you act this way — stress, anger, problems at home, feeling like you don't fit in — you deserve help with that too. Talk to a teacher, school counsellor, or parent. They won't just punish you. Good adults want to understand and help.</p>
+              </div>
+            </div>
+            <div className="flex gap-3 items-start">
+              <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">5</span>
+              <div>
+                <p className="font-bold">Make a different choice tomorrow</p>
+                <p className="text-muted-foreground">You can't change what you did yesterday. But you can choose what you do tomorrow. Even small things count — being kind to the person you were mean to, including someone who's sitting alone, or refusing to join in when others are being cruel.</p>
               </div>
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-secondary/10 border border-secondary/20 mt-3">
-            <p className="font-bold text-secondary">You are not stuck being this person. Everyone can change. The fact that you're reading this means you already care.</p>
+          <p className="font-bold mt-4">If your friends pressure you to be unkind</p>
+          <p>This is one of the hardest situations. Your friends are being mean and you feel like you have to join in or you'll be next. Here are some things that can help:</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong>You don't have to laugh.</strong> Not laughing is not the same as being against your friends — it just means you're not joining in</li>
+            <li><strong>Walk away quietly.</strong> You don't need to make a big speech. Just move away</li>
+            <li><strong>"I'm not into this"</strong> is a complete sentence. You don't need to explain more</li>
+            <li><strong>Real friends don't make you be cruel to others.</strong> If your friend group only works when you're all being mean to someone, those aren't real friendships</li>
+            <li><strong>Tell an adult privately.</strong> You don't have to stand up publicly. You can quietly tell a teacher what's happening — including that you feel pressured</li>
+          </ul>
+
+          <p className="font-bold mt-4">You deserve support too</p>
+          <p>Here's something adults don't always say clearly enough: <strong>children who are unkind to others also deserve help.</strong> The school's job isn't just to protect the person who got hurt — it's also to help you understand why it happened and how to do better.</p>
+          <p className="mt-1">Under Spanish law (LOPIVI) and the Convivèxit protocol, schools have a legal duty to provide you with support — not just consequences. That means:</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Someone will talk to you properly about what happened and why</li>
+            <li>If things are hard at home or you're struggling emotionally, the school will connect you with help</li>
+            <li>You'll be given a chance to make things right — not just be punished</li>
+            <li>Your parents will be involved to support you, not just told off</li>
+          </ul>
+
+          <div className="p-4 rounded-xl bg-gradient-to-br from-secondary/10 to-green-50 dark:from-secondary/10 dark:to-green-950/20 border border-secondary/20 mt-3">
+            <p className="font-bold text-secondary">You are not stuck being this person.</p>
+            <p className="text-sm mt-1">People change all the time. The version of you that did something unkind is not the final version of you. Every day you get to decide who you want to be. And the fact that you read all of this? That's already the start of something different.</p>
           </div>
         </AccordionItem>
 
@@ -663,45 +698,63 @@ function StaffContent() {
         </AccordionItem>
 
         <AccordionItem title="Supporting children who bully" icon={RefreshCw}>
-          <p>Children who bully are often struggling themselves. A punitive-only response rarely changes behaviour. Effective support combines clear boundaries with genuine pastoral care.</p>
+          <p>Children who bully are often struggling themselves. A punitive-only response rarely changes behaviour. Research consistently shows that effective support combines clear boundaries with genuine pastoral care.</p>
 
-          <p className="font-bold mt-3">Why children bully</p>
+          <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 mt-2 dark:from-amber-950/20 dark:to-orange-950/20 dark:border-amber-800">
+            <p className="font-bold text-amber-700 dark:text-amber-400">The evidence is clear: doing something bad does not make a child bad.</p>
+            <p className="text-sm mt-1">Research into Adverse Childhood Experiences (ACEs) shows that children who bully have significantly higher rates of trauma, family stress, and prior victimisation. A DfE report rated restorative approaches the most effective anti-bullying strategy, with 97% of schools confirming positive results. The KiVa programme (randomised controlled trials, 11,000+ students) shows that supporting children who bully — not just punishing them — reduces bullying by 20-23% and improves their own mental health.</p>
+          </div>
+
+          <p className="font-bold mt-3">Why children bully — the research</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Home difficulties</strong> — domestic conflict, neglect, abuse, or inconsistent parenting</li>
-            <li><strong>Social pressure</strong> — seeking status, belonging, or peer approval</li>
-            <li><strong>Past victimisation</strong> — children who have been bullied may replicate the behaviour</li>
-            <li><strong>Emotional regulation difficulties</strong> — struggling with anger, frustration, or stress</li>
-            <li><strong>Lack of empathy skills</strong> — not yet understanding how their actions affect others</li>
-            <li><strong>Undiagnosed needs</strong> — ADHD, attachment difficulties, or trauma responses</li>
+            <li><strong>Home difficulties</strong> — domestic conflict, neglect, abuse, or inconsistent parenting. ACE research shows a dose-response relationship: the more adverse experiences, the higher the risk of bullying behaviour</li>
+            <li><strong>Prior victimisation</strong> — "bully-victims" (children who are both bullied and bully others) are identified in research as the most troubled group, showing the most severe conduct and emotional problems</li>
+            <li><strong>Social pressure</strong> — seeking status, belonging, or peer approval. KiVa research shows that removing the social rewards (peer attention, status) that maintain bullying is key to stopping it</li>
+            <li><strong>Emotional regulation difficulties</strong> — struggling with anger, frustration, or stress, often linked to unprocessed trauma</li>
+            <li><strong>Lack of empathy skills</strong> — not yet understanding how their actions affect others. This is a skill that can be taught</li>
+            <li><strong>Undiagnosed needs</strong> — ADHD, attachment difficulties, or trauma responses that manifest as aggression</li>
           </ul>
 
-          <p className="font-bold mt-3">How to respond</p>
+          <p className="font-bold mt-3">Evidence-based response framework</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
             <div className="p-3 rounded-lg bg-green-50 border border-green-200 dark:bg-green-950/20 dark:border-green-800">
               <p className="font-bold text-green-700 dark:text-green-400 text-xs uppercase tracking-wider mb-2">Effective approaches</p>
               <ul className="list-disc pl-4 space-y-1 text-sm">
-                <li>Name the behaviour, not the child ("What you did was bullying" not "You are a bully")</li>
-                <li>Explore what's behind the behaviour — ask "What's going on for you?"</li>
-                <li>Teach empathy explicitly — "How do you think they felt?"</li>
-                <li>Involve SENCO if behaviour is persistent or severe</li>
-                <li>Create a support plan alongside consequences</li>
-                <li>Check home circumstances — bullying can be a cry for help</li>
+                <li><strong>Name the behaviour, not the child</strong> — "What you did was bullying" not "You are a bully." Labels become identities</li>
+                <li><strong>Explore root causes</strong> — ask "What's going on for you?" before asking "Why did you do it?"</li>
+                <li><strong>Teach empathy explicitly</strong> — "How do you think they felt?" Research shows empathy is a learnable skill</li>
+                <li><strong>Restorative conversations</strong> — structured, non-confrontational discussions (KiVa model: understanding motivations, building empathy, developing alternative behaviours)</li>
+                <li><strong>Create a support plan alongside consequences</strong> — the LOPIVI framework requires educational intervention, not just punishment</li>
+                <li><strong>Check home circumstances</strong> — bullying can be a cry for help. ACE screening may be appropriate</li>
+                <li><strong>Involve SENCO</strong> if behaviour is persistent or severe</li>
+                <li><strong>Systematic follow-up</strong> — regular check-ins to reinforce prosocial behaviour (not just monitoring for further incidents)</li>
               </ul>
             </div>
             <div className="p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-800">
               <p className="font-bold text-red-700 dark:text-red-400 text-xs uppercase tracking-wider mb-2">Avoid</p>
               <ul className="list-disc pl-4 space-y-1 text-sm">
-                <li>Labelling a child as "a bully" — this becomes their identity</li>
-                <li>Public humiliation or shaming</li>
-                <li>Assuming the child is "just mean" without investigating causes</li>
-                <li>Punishing without any restorative or educational element</li>
-                <li>Ignoring the child's own wellbeing needs</li>
+                <li><strong>Labelling a child as "a bully"</strong> — this becomes their identity and reduces motivation to change</li>
+                <li><strong>Public humiliation or shaming</strong> — shaming increases aggression, not empathy</li>
+                <li><strong>Assuming the child is "just mean"</strong> — without investigating causes you miss the real problem</li>
+                <li><strong>Punishment without any restorative element</strong> — sanctions alone show no long-term behaviour change in the evidence</li>
+                <li><strong>Ignoring the child's own wellbeing</strong> — the Barnet study showed schools with restorative approaches had 51% fewer exclusions; those without had 65% more</li>
+                <li><strong>Forcing confrontation with the victim</strong> — restorative conversations should only happen when both parties are ready and the child who bullied shows genuine commitment to change</li>
               </ul>
             </div>
           </div>
 
+          <p className="font-bold mt-3">Your legal obligations (LOPIVI & Convivèxit)</p>
+          <p>Under Spanish law, schools are required to provide an <strong>individualised intervention plan</strong> for the child who has engaged in bullying. This must include:</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Behavioural modification programmes tailored to the individual child</li>
+            <li>Social-emotional competency training</li>
+            <li>Family support and collaboration (parents informed, involved in behaviour change commitments)</li>
+            <li>Access to psychological services (school counsellor or external referral) where needed</li>
+            <li>Restorative measures where appropriate — mediation, repair of harm, apology (only if the victim agrees and the child shows genuine commitment)</li>
+          </ul>
+
           <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 mt-3 dark:bg-amber-950/20 dark:border-amber-800">
-            <p className="font-bold text-amber-700 dark:text-amber-400">Children who bully need support, not just sanctions. A child who is hurting others is often a child who is hurting inside. Address both.</p>
+            <p className="font-bold text-amber-700 dark:text-amber-400">A child who is hurting others is often a child who is hurting inside. Your job is to address both — protect the victim and help the child who bullied. These are not competing goals.</p>
           </div>
         </AccordionItem>
 
@@ -917,38 +970,48 @@ function ParentContent() {
         </AccordionItem>
 
         <AccordionItem title="If your child is accused of bullying" icon={HelpCircle}>
-          <p>Hearing that your child has been unkind to others can be difficult. It's natural to feel defensive or upset. But how you respond now can make a real difference.</p>
+          <p>Hearing that your child has been unkind to others is one of the hardest things a parent can face. It's natural to feel defensive, upset, or even disbelieving. But how you respond now can make a real difference — for your child, for the child who was hurt, and for the future.</p>
+
+          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/5 border border-primary/20 mt-2 mb-3">
+            <p className="font-bold text-primary">Your child is not "a bully." They are a child who has done something unkind.</p>
+            <p className="text-sm text-muted-foreground mt-1">Research consistently shows that children who engage in bullying behaviour are often dealing with their own struggles — stress, trauma, peer pressure, or difficulties they haven't found the words for yet. Unkind behaviour is something that can change with the right support.</p>
+          </div>
 
           <p className="font-bold mt-3">First steps</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Listen to what the school tells you without being defensive — they are not attacking your child, they want to help</li>
-            <li>Talk to your child privately and calmly — ask for their version, but make clear that bullying is not acceptable</li>
-            <li>Avoid asking "What did they do to you first?" — this teaches them to justify unkind behaviour</li>
-            <li>Help them understand how their actions affect others: "How would you feel if someone did that to you?"</li>
+            <li><strong>Listen to the school without being defensive</strong> — they are not attacking your child or your parenting. They want to work with you to help your child</li>
+            <li><strong>Talk to your child privately and calmly</strong> — ask for their version, but be clear that bullying behaviour is not acceptable regardless of the reason</li>
+            <li><strong>Avoid "What did they do to you first?"</strong> — this teaches them to justify unkind behaviour rather than take responsibility for it</li>
+            <li><strong>Help them understand impact</strong> — "How do you think they felt?" is more powerful than "You should be ashamed"</li>
+            <li><strong>Separate the behaviour from the person</strong> — "What you did was wrong" is very different from "You are bad." Children internalise labels</li>
           </ul>
 
-          <p className="font-bold mt-3">Looking deeper</p>
-          <p>Children who bully are often dealing with their own struggles. Consider whether any of these might apply:</p>
+          <p className="font-bold mt-3">Looking deeper — what the research tells us</p>
+          <p>Studies into Adverse Childhood Experiences (ACEs) show that children who bully others frequently have their own unmet needs. This is not an excuse — it's a guide for how to respond effectively. Consider honestly whether any of these might apply:</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Are there problems at home — arguments, a separation, a bereavement, financial stress?</li>
-            <li>Has your child been bullied themselves, either now or in the past?</li>
-            <li>Are they struggling with school work, friendships, or anxiety?</li>
-            <li>Have they been exposed to aggressive behaviour from older siblings, peers, or media?</li>
-            <li>Are they finding it hard to manage their emotions?</li>
+            <li>Are there difficulties at home — conflict between parents, a separation, bereavement, financial stress, or a family member's illness?</li>
+            <li>Has your child been bullied themselves, either now or in the past? Research identifies "bully-victims" as the highest-risk group</li>
+            <li>Are they struggling with school work, friendships, self-esteem, or anxiety?</li>
+            <li>Have they been exposed to aggressive or controlling behaviour — from older siblings, peers, online content, or adults?</li>
+            <li>Are they finding it hard to manage big emotions like anger, jealousy, or frustration?</li>
+            <li>Could there be an undiagnosed need — attention difficulties, attachment issues, or a trauma response?</li>
           </ul>
-          <p className="mt-2">Bullying can sometimes be a child's way of asking for help when they don't have the words. Understanding the root cause doesn't excuse the behaviour, but it helps you address it properly.</p>
+          <p className="mt-2">Understanding the root cause doesn't excuse the behaviour, but it tells you what actually needs fixing. Punishment alone — without addressing the underlying cause — rarely leads to lasting change.</p>
 
-          <p className="font-bold mt-3">Moving forward</p>
+          <p className="font-bold mt-3">Moving forward together</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Work with the school on a support and behaviour plan</li>
-            <li>Help your child practise empathy — discuss characters' feelings in books or TV shows</li>
-            <li>Praise kind behaviour when you see it — reinforce the positive</li>
-            <li>Set clear, consistent boundaries at home about how we treat others</li>
-            <li>If the behaviour continues, ask the school about counselling or SENCO support</li>
+            <li><strong>Work with the school</strong> on a joint support and behaviour plan — under LOPIVI, the school is required to offer an individualised intervention plan, not just sanctions</li>
+            <li><strong>Help your child practise empathy at home</strong> — discuss characters' feelings in books, films, or real situations. "How do you think she felt when that happened?"</li>
+            <li><strong>Praise kind behaviour when you see it</strong> — reinforcing the positive is more effective than only punishing the negative</li>
+            <li><strong>Set clear, consistent boundaries</strong> about how you treat others — at home, at school, and online</li>
+            <li><strong>Model the behaviour you want to see</strong> — children learn how to handle conflict by watching their parents</li>
+            <li><strong>If the behaviour continues</strong>, ask the school about counselling, SENCO support, or external referral. Persistent bullying often signals deeper needs that require professional help</li>
+            <li><strong>Take care of yourself too</strong> — this is stressful for parents. You don't have to handle it alone. Talk to the school counsellor or seek your own support</li>
           </ul>
 
-          <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mt-3">
-            <p className="font-bold text-primary">Your child is not defined by this behaviour. With the right support from home and school working together, children can and do change. What they need most right now is firm boundaries and genuine care.</p>
+          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-green-50 dark:from-primary/10 dark:to-green-950/20 border border-primary/20 mt-3">
+            <p className="font-bold text-primary">Your child is not defined by this behaviour.</p>
+            <p className="text-sm mt-1">With the right support from home and school working together, children can and do change. What they need most right now is a combination of firm boundaries, genuine understanding, and the belief that they can be better. You reading this is already part of that.</p>
           </div>
         </AccordionItem>
 
