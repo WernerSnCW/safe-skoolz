@@ -138,6 +138,7 @@ function PupilSearchPicker({
   label,
   selectedIds,
   onSelect,
+  onSelectMany,
   onRemove,
   isPupil,
   childFriendlyLabel,
@@ -145,6 +146,7 @@ function PupilSearchPicker({
   label: string;
   selectedIds: PupilResult[];
   onSelect: (p: PupilResult) => void;
+  onSelectMany: (ps: PupilResult[]) => void;
   onRemove: (id: string) => void;
   isPupil: boolean;
   childFriendlyLabel: string;
@@ -155,6 +157,7 @@ function PupilSearchPicker({
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [allLoaded, setAllLoaded] = useState(false);
+  const [groupFilter, setGroupFilter] = useState<"none" | "year" | "class">("none");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const containerRef = useRef<HTMLDivElement>(null);
   const fetchIdRef = useRef(0);
@@ -169,7 +172,7 @@ function PupilSearchPicker({
       });
       if (res.ok && fetchId === fetchIdRef.current) {
         const data = await res.json();
-        if (isPupil && searchQuery === "") {
+        if (searchQuery === "") {
           setAllPupils(data);
           setAllLoaded(true);
         }
@@ -180,7 +183,7 @@ function PupilSearchPicker({
   };
 
   useEffect(() => {
-    if (isPupil && allLoaded) {
+    if (allLoaded) {
       const filtered = query.trim()
         ? allPupils.filter(p =>
             `${p.firstName} ${p.lastName}`.toLowerCase().includes(query.toLowerCase())
@@ -194,10 +197,10 @@ function PupilSearchPicker({
   }, [query, selectedIds, allLoaded]);
 
   useEffect(() => {
-    if (isPupil && !allLoaded) {
+    if (!allLoaded) {
       fetchPupils("");
     }
-  }, [isPupil]);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -211,22 +214,110 @@ function PupilSearchPicker({
 
   const availableForSelect = allPupils.filter(p => !selectedIds.some(s => s.id === p.id));
 
+  const yearGroups = [...new Set(allPupils.map(p => p.yearGroup).filter(Boolean))].sort();
+  const classNames = [...new Set(allPupils.map(p => p.className).filter(Boolean))].sort();
+
+  const handleSelectAll = () => {
+    onSelectMany(availableForSelect);
+  };
+
+  const handleSelectGroup = (type: "year" | "class", value: string) => {
+    const matching = availableForSelect.filter(p =>
+      type === "year" ? p.yearGroup === value : p.className === value
+    );
+    if (matching.length > 0) onSelectMany(matching);
+    setGroupFilter("none");
+  };
+
+  const handleClearAll = () => {
+    selectedIds.forEach(p => onRemove(p.id));
+  };
+
   return (
     <div ref={containerRef}>
       <Label className="text-sm">{isPupil ? childFriendlyLabel : label}</Label>
       {selectedIds.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2 mb-2">
-          {selectedIds.map((p) => (
-            <span key={p.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-sm font-medium">
-              {p.firstName} {p.lastName}
-              {p.className && <span className="text-xs text-muted-foreground">({p.className})</span>}
-              <button type="button" onClick={() => onRemove(p.id)} className="ml-1 hover:text-destructive">
-                <X size={14} />
-              </button>
-            </span>
-          ))}
+        <div className="mt-2 mb-2">
+          <div className="flex flex-wrap gap-2">
+            {selectedIds.map((p) => (
+              <span key={p.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-sm font-medium">
+                {p.firstName} {p.lastName}
+                {p.className && <span className="text-xs text-muted-foreground">({p.className})</span>}
+                <button type="button" onClick={() => onRemove(p.id)} className="ml-1 hover:text-destructive">
+                  <X size={14} />
+                </button>
+              </span>
+            ))}
+          </div>
+          {selectedIds.length > 1 && (
+            <button type="button" onClick={handleClearAll} className="text-xs text-muted-foreground hover:text-destructive mt-1.5 underline">
+              Clear all ({selectedIds.length})
+            </button>
+          )}
         </div>
       )}
+
+      {!isPupil && allLoaded && (
+        <div className="flex flex-wrap gap-1.5 mt-2 mb-2">
+          <button
+            type="button"
+            onClick={handleSelectAll}
+            disabled={availableForSelect.length === 0}
+            className="px-2.5 py-1 text-xs rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/15 text-primary font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Select all ({availableForSelect.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setGroupFilter(groupFilter === "year" ? "none" : "year")}
+            className={`px-2.5 py-1 text-xs rounded-lg border font-medium transition-colors ${groupFilter === "year" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
+          >
+            By year group
+          </button>
+          <button
+            type="button"
+            onClick={() => setGroupFilter(groupFilter === "class" ? "none" : "class")}
+            className={`px-2.5 py-1 text-xs rounded-lg border font-medium transition-colors ${groupFilter === "class" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
+          >
+            By class
+          </button>
+        </div>
+      )}
+
+      <AnimatePresence>
+        {groupFilter !== "none" && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-wrap gap-1.5 mb-2 p-2.5 rounded-lg border border-border bg-muted/20">
+              <span className="text-xs text-muted-foreground w-full mb-1">
+                {groupFilter === "year" ? "Select a year group:" : "Select a class:"}
+              </span>
+              {(groupFilter === "year" ? yearGroups : classNames).map((g) => {
+                const count = availableForSelect.filter(p =>
+                  groupFilter === "year" ? p.yearGroup === g : p.className === g
+                ).length;
+                return (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => handleSelectGroup(groupFilter, g!)}
+                    disabled={count === 0}
+                    className="px-3 py-1.5 text-xs rounded-lg border border-primary/20 bg-white dark:bg-zinc-900 hover:bg-primary/10 transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {g} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {isPupil ? (
         <div className="mt-1">
           <select
@@ -255,7 +346,7 @@ function PupilSearchPicker({
             value={query}
             onChange={(e) => { setQuery(e.target.value); setShowResults(true); }}
             onFocus={() => { setShowResults(true); if (results.length === 0 && !isSearching) fetchPupils(query); }}
-            placeholder="Search for a pupil by name..."
+            placeholder="Search by name or use group buttons above..."
             className="w-full h-10 rounded-xl border border-input bg-background pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
           <AnimatePresence>
@@ -888,6 +979,7 @@ export default function ReportIncident() {
                     childFriendlyLabel="Who was hurt or affected?"
                     selectedIds={selectedVictims}
                     onSelect={(p) => setSelectedVictims(prev => [...prev, p])}
+                    onSelectMany={(ps) => setSelectedVictims(prev => [...prev, ...ps.filter(p => !prev.some(e => e.id === p.id))])}
                     onRemove={(id) => setSelectedVictims(prev => prev.filter(p => p.id !== id))}
                     isPupil={isPupil}
                   />
@@ -919,6 +1011,7 @@ export default function ReportIncident() {
                     childFriendlyLabel="Who did it?"
                     selectedIds={selectedPerps}
                     onSelect={(p) => setSelectedPerps(prev => [...prev, p])}
+                    onSelectMany={(ps) => setSelectedPerps(prev => [...prev, ...ps.filter(p => !prev.some(e => e.id === p.id))])}
                     onRemove={(id) => setSelectedPerps(prev => prev.filter(p => p.id !== id))}
                     isPupil={isPupil}
                   />
@@ -950,6 +1043,7 @@ export default function ReportIncident() {
                     childFriendlyLabel="Did anyone else see it?"
                     selectedIds={selectedWitnesses}
                     onSelect={(p) => setSelectedWitnesses(prev => [...prev, p])}
+                    onSelectMany={(ps) => setSelectedWitnesses(prev => [...prev, ...ps.filter(p => !prev.some(e => e.id === p.id))])}
                     onRemove={(id) => setSelectedWitnesses(prev => prev.filter(p => p.id !== id))}
                     isPupil={isPupil}
                   />
