@@ -2,6 +2,7 @@ import app from "./app";
 import { db } from "@workspace/db";
 import { sql } from "drizzle-orm";
 import { runScheduledPatternScan } from "./lib/patternDetection";
+import { seedDemoData } from "./lib/seed";
 
 const rawPort = process.env["PORT"];
 
@@ -36,9 +37,17 @@ async function ensureAuditLogImmutability() {
   console.log("[db] Audit log immutability trigger applied");
 }
 
-ensureAuditLogImmutability().catch((err) => {
-  console.error("[db] Failed to apply audit log trigger:", err);
-});
+async function startup() {
+  await ensureAuditLogImmutability().catch((err) => {
+    console.error("[db] Failed to apply audit log trigger:", err);
+  });
+
+  await seedDemoData().catch((err) => {
+    console.error("[seed] Failed to seed demo data:", err);
+  });
+}
+
+startup();
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
