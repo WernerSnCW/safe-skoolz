@@ -1,0 +1,268 @@
+You’re looking for three layers of case studies: (1) lived child stories, (2) what the data view shows, and (3) what targeted interventions follow from that.
+
+Below are example case studies you can adapt for safeskoolz demos and Morna.
+
+Case study 1 – “Child A creates new bullies”
+Narrative (human story)
+
+Child A has a history of low‑level bullying.
+
+Children B and C previously had no incident history.
+
+Over a term, A, B, and C repeatedly target Child D (no prior incidents).
+
+In interviews, B and C say they joined in because they are scared of A and “don’t want to be next”.
+
+What safeskoolz would show
+
+Pattern rules:
+
+same_victim_3_incidents fires for Child D.
+
+group_targeting fires for the trio A+B+C against D.
+
+repeat_perpetrator fires for A as a frequent instigator.
+
+Timeline view:
+
+Incidents show D as victim with A always present, B and C joining later.
+
+Emotional data:
+
+D’s emotional_state_before/after scores drop over time.
+
+A’s behaviour_points show incidents across different classmates.
+
+Intervention enabled
+
+Coordinator sees A as the origin, B and C as coerced followers, D as primary victim.
+
+School runs:
+
+Restorative work and clear sanctions for A.
+
+Protective work with B and C about peer pressure and fear.
+
+Safety plan and check‑ins for D.
+
+PTA/parents see, via anonymised PTA report, that the school is tackling “ring‑leader plus recruited bullies” patterns, not just isolated incidents.
+
+Case study 2 – “Retaliation kills reporting”
+Narrative
+
+Child X reports being bullied by Y and Z.
+
+School intervenes weakly; word gets out.
+
+Y and Z start mocking X as “snitch” in corridors.
+
+Child E bullies Child F for staying friends with X.
+
+Children who report start being targeted; reporting drops sharply because kids are scared of retaliation.
+
+What safeskoolz would show
+
+Incident patterns:
+
+Initial incidents: X victim, Y+Z perpetrators.
+
+Follow‑on incidents: X and F victim, E/Y/Z perpetrators, category “bullying”/“retaliation”.
+
+Trend:
+
+After first intervention, total incidents don’t drop, but new victims appear linked to X.
+
+Pupil diagnostic survey shows:
+
+Lower “Trust & Reporting” scores for pupils (“If I report, it will make things worse”).
+
+Pattern rules:
+
+group_targeting on X,
+
+repeat_perpetrator on Y and Z,
+
+Potential AI‑flagged messages about “snitch” language.
+
+Intervention enabled
+
+Coordinator sees a retaliation cluster, not “problem solved”.
+
+Interventions:
+
+Explicit “anti‑retaliation” policy communication in assemblies and to parents.
+
+Stronger sanctions for Y/Z/E focused on retaliatory behaviour.
+
+Private reassurance to pupils that retaliation will be treated as a separate serious offence.
+
+PTA dashboard shows:
+
+Short‑term spike in incidents but improved follow‑up and then a later recovery in survey trust scores as culture changes.
+
+Case study 3 – “Child Q’s material bullying”
+Narrative
+
+Child Q regularly mocks classmates about clothes, phones, brands, and holidays.
+
+Individual events seem minor (“just teasing”), so they are not joined up mentally by staff.
+
+Several children start avoiding Q and feel “poor” or “left out”.
+
+What safeskoolz would show
+
+Incident tags:
+
+Multiple incidents for Q as perpetrator with category “bullying” + subtag “discrimination/material” or “socio‑economic”.
+
+Pattern rules:
+
+repeat_perpetrator fires for Q.
+
+Analytics:
+
+Coordinator dashboard: cluster of incidents with similar free‑text keywords (“clothes”, “phone”, “cheap”, “holiday”).
+
+Diagnostic survey: pupils in Q’s class rate “I feel respected at school” and “People don’t judge me for what I have” significantly lower than average.
+
+Intervention enabled
+
+School identifies a theme: bullying around material status.
+
+Interventions:
+
+Work directly with Q on empathy and respect.
+
+Class‑wide PSHE units on money, equality, and respect.
+
+Review reward systems that may glorify visible wealth markers.
+
+PTA sees in the annual report:
+
+“We identified a pattern of material‑based bullying in one class and implemented X, Y, Z responses.”
+
+Case study 4 – “Classroom volatility: P and T together”
+Narrative
+
+Child P and Child T are fine separately but highly disruptive together.
+
+Teachers experience “bad days” but don’t tie it to P+T as a pair.
+
+What safeskoolz would show
+
+Behaviour_points and incidents:
+
+spikes in points and low behaviour ratings on days/lessons where P and T share a group or table.
+
+Analytics:
+
+Heatmap view of incidents by class group and seating plan (if captured).
+
+Repeated co‑occurrence of P and T in incident records.
+
+Possible pattern rule:
+
+Custom rule same_pair_escalating showing that when P and T are together, severity tends to rise.
+
+Intervention enabled
+
+Simple but powerful action: separate P and T in timetabling/seating.
+
+Monitor post‑change:
+
+Incidents and behaviour points in that class drop.
+
+This becomes a micro‑case study of how small structural adjustments, guided by data, reduce low‑level disruption and free staff time.
+
+How to package these for Morna
+For each case, prepare three slides or sections:
+
+“What was happening” – 3–4 bullet story about the children.
+
+“What safeskoolz surfaced” – screenshot‑style descriptions of pattern alerts, dashboards, and survey results.
+
+“What the school did differently” – concrete interventions + how you’d evidence improvement (fewer incidents, better survey scores, fewer pattern alerts).
+
+This gives you:
+
+Child‑level empathy (parents and teachers feel the reality).
+
+Data‑level clarity (why a system is needed).
+
+Intervention‑level credibility (this is not just logging; it changes decisions).
+
+Would it help if I now turn one of these into a fully written 1‑page PDF narrative (with headings and call‑outs) that you can give to Morna’s Head and PTA as a “worked example”?
+Alsos the gradual demorilisaiotn of a child over time
+Completed 1 step
+You want a case study that shows a child’s gradual demoralisation over time, tying the feelings diary, incidents, and alerts together. Here’s a clean example you can use.
+
+Case study – “Slow collapse: Child M”
+Narrative (human story)
+
+Child M starts the year as a settled pupil with no incident history.
+
+Over several weeks, small things happen: eye‑rolling, excluding from games, whispers about M’s appearance and work.
+
+M doesn’t initially report; they just “feel bad about school”.
+
+At home, parents notice M is quieter, more reluctant to go to school, but can’t point to a single big event.
+
+What safeskoolz would show
+
+Pupil diary data
+
+Early weeks: mood entries mostly 4–5.
+
+Over 3–4 weeks: mood drops to 2–3 with notes like “no one wanted me on their team”, “they laughed when I spoke”.
+
+mood_decline rule fires: average mood ≤2 over 5+ entries in 14 days → amber alert to SENCO + coordinator.
+​
+
+Incident / behaviour signals
+
+1–2 “low‑level” incidents logged by a teacher (e.g. “teasing”, “exclusion at break”) with M as victim but category set to “minor”.
+
+No one incident hits “red” on its own, but combined with diary data the system shows a pattern of emotional distress.
+​
+
+Diagnostics and pattern alert
+
+Diagnostic survey: M’s answers show low scores on “I feel I belong” and “I feel safe telling someone if something is wrong”.
+
+Pattern engine links:
+
+repeated low mood,
+
+minor bullying incidents,
+
+low trust in reporting.
+
+Coordinator dashboard highlights M under an “at‑risk of withdrawal” tile.
+
+Intervention enabled
+
+SENCO and coordinator proactively invite M for a check‑in (“We’ve noticed school seems harder lately, can we talk?”), rather than waiting for a crisis.
+
+They:
+
+Explore what’s been happening socially and in class.
+
+Identify a small group who have been quietly excluding or mocking M.
+
+Put in place:
+
+a named safe adult M can message,
+
+targeted work with the peers involved,
+
+small protective arrangements (e.g. buddy at break, seating that reduces exposure).
+
+Over the next month, safeskoolz shows:
+
+Mood gradually rising back toward 3–4.
+
+No new bullying incidents involving M.
+
+Follow‑up diagnostic (or next term’s survey) showing improved “belonging” and “trust” scores for that class.
+
+This case study is powerful because it demonstrates that safeskoolz catches slow emotional collapse that would otherwise be invisible until the child refuses school, self‑harms, or explodes.
