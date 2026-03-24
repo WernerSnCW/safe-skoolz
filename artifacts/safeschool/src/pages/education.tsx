@@ -289,13 +289,13 @@ function PupilContent() {
       </Card>
 
       <Card className="border-indigo-200 dark:border-indigo-900/50 bg-indigo-50/50 dark:bg-indigo-950/20">
-        <CardContent className="p-6">
-          <h2 className="text-lg font-display font-bold mb-3 flex items-center gap-2">
+        <CardContent className="p-5 sm:p-6">
+          <h2 className="text-lg font-display font-bold mb-2 flex items-center gap-2">
             <Scale size={20} className="text-indigo-600 dark:text-indigo-400" />
             Your Rights
           </h2>
-          <p className="text-sm text-muted-foreground mb-3">These are things every child is entitled to. They are part of the law and the school's duty of care.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <p className="text-sm text-foreground/70 mb-4">These are things every child is entitled to. They are part of the law and the school's duty of care.</p>
+          <div className="grid grid-cols-1 gap-2.5">
             {[
               { emoji: "\uD83D\uDEE1\uFE0F", text: "You have the right to feel safe at school — nobody should hurt you, scare you, or make you feel bad about yourself" },
               { emoji: "\uD83D\uDDE3\uFE0F", text: "You have the right to be listened to — when you tell an adult something, they must take it seriously" },
@@ -306,13 +306,13 @@ function PupilContent() {
               { emoji: "\uD83D\uDCDA", text: "You have the right to understand what's happening — if a report involves you, the school should explain what they are doing and why" },
               { emoji: "\u2764\uFE0F", text: "You have the right to support — whether you are the person who was hurt or the person who did something wrong, you deserve help" },
             ].map((right, i) => (
-              <div key={i} className="flex items-start gap-2 p-2.5 rounded-lg bg-white dark:bg-zinc-900/50 border border-indigo-100 dark:border-indigo-900/30">
-                <span className="text-base shrink-0 mt-0.5">{right.emoji}</span>
-                <p className="text-xs leading-relaxed">{right.text}</p>
+              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white dark:bg-zinc-900/50 border border-indigo-100 dark:border-indigo-900/30">
+                <span className="text-lg shrink-0 mt-0.5">{right.emoji}</span>
+                <p className="text-sm leading-relaxed text-foreground/90">{right.text}</p>
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-3 italic">These rights come from the UN Convention on the Rights of the Child, Spanish LOPIVI law, and the Balearic Islands Convivèxit protocol.</p>
+          <p className="text-xs text-foreground/50 mt-4 italic">These rights come from the UN Convention on the Rights of the Child, Spanish LOPIVI law, and the Balearic Islands Convivèxit protocol.</p>
         </CardContent>
       </Card>
 
