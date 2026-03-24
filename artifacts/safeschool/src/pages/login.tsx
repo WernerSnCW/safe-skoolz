@@ -294,11 +294,10 @@ export default function Login() {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden"
             >
               {activeTab === "pupil" && (
                 <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-teal-50/30 dark:bg-teal-950/10">
@@ -399,7 +398,8 @@ export default function Login() {
                         id="school"
                         value={selectedSchoolId}
                         onChange={e => { setSelectedSchoolId(e.target.value); }}
-                        className="w-full h-12 rounded-xl border border-input bg-background px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        className="w-full h-14 rounded-xl border border-input bg-background px-4 text-base appearance-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        style={{ fontSize: "16px" }}
                         required
                       >
                         <option value="">Select your school...</option>
@@ -541,7 +541,8 @@ export default function Login() {
                                 setEmail("");
                                 setPassword("");
                               }}
-                              className="w-full h-12 rounded-xl border border-input bg-background px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                              className="w-full h-14 rounded-xl border border-input bg-background px-4 text-base appearance-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+                              style={{ fontSize: "16px" }}
                             >
                               <option value="">Find my name...</option>
                               {accounts.map(a => (
