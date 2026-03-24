@@ -470,6 +470,421 @@ function MockupElement({ el }: { el: { type: string; content: string; color?: st
   );
 }
 
+interface RoleFeature {
+  page: string;
+  icon: any;
+  title: string;
+  description: string;
+  mockup: { type: string; content: string; color?: string }[];
+}
+
+interface RoleProfile {
+  id: string;
+  role: string;
+  icon: any;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  tagline: string;
+  features: RoleFeature[];
+}
+
+const ROLES: RoleProfile[] = [
+  {
+    id: "pupil",
+    role: "Pupils",
+    icon: Heart,
+    color: "text-teal-600",
+    bgColor: "bg-teal-50 dark:bg-teal-950/20",
+    borderColor: "border-teal-200 dark:border-teal-800",
+    tagline: "A safe, private space to speak up \u2014 even anonymously",
+    features: [
+      {
+        page: "Report a Concern",
+        icon: FileText,
+        title: "Tell someone what happened",
+        description: "Report anything that feels wrong \u2014 bullying, something scary, or something happening to a friend. You can stay anonymous if you want.",
+        mockup: [
+          { type: "form", content: "What happened? \u2014 Physical \u00b7 Verbal \u00b7 Mind games \u00b7 My body, my rules \u00b7 Leaving out \u00b7 Online" },
+          { type: "form", content: "Is this happening to you, or someone else?" },
+          { type: "form", content: "How are you feeling? \u2014 \ud83d\ude28 Scared \u00b7 \ud83d\ude22 Sad \u00b7 \ud83d\ude20 Angry \u00b7 \ud83d\ude1f Worried" },
+          { type: "badge", content: "You can keep this anonymous. Adults will keep you safe.", color: "teal" },
+        ],
+      },
+      {
+        page: "Feelings Diary",
+        icon: BookHeart,
+        title: "A private diary that only you can see",
+        description: "Record how you feel each day with a mood score and optional notes. Nobody at school can read it \u2014 but if the system detects you\u2019re struggling, it quietly alerts a trusted adult.",
+        mockup: [
+          { type: "mood", content: "\ud83d\ude04 Great \u00b7 \ud83d\ude42 Good \u00b7 \ud83d\ude10 Okay \u00b7 \ud83d\ude1f Not great \u00b7 \ud83d\ude22 Really bad" },
+          { type: "form", content: "Write about your day (optional)..." },
+          { type: "badge", content: "Nobody can read your diary. It belongs to you.", color: "teal" },
+        ],
+      },
+      {
+        page: "Safe Messaging",
+        icon: MessageSquare,
+        title: "Message your safe adult",
+        description: "If you\u2019ve been assigned a safe adult, you can message them directly through safeskoolz. Private, secure, available any time.",
+        mockup: [
+          { type: "notification", content: "Your safe adult is: Ms Rivera. You can message her any time.", color: "teal" },
+          { type: "form", content: "\"Can I talk to you at break? Something happened again.\"" },
+        ],
+      },
+      {
+        page: "School Updates",
+        icon: Megaphone,
+        title: "See what the school is doing",
+        description: "Read school updates about safeguarding, wellbeing events, and things the school wants you to know.",
+        mockup: [
+          { type: "notification", content: "Anti-Bullying Week: workshops in assembly this week. Remember \u2014 telling someone is brave, not weak.", color: "blue" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "parent",
+    role: "Parents",
+    icon: Users,
+    color: "text-amber-600",
+    bgColor: "bg-amber-50 dark:bg-amber-950/20",
+    borderColor: "border-amber-200 dark:border-amber-800",
+    tagline: "Know what the school is doing \u2014 and raise concerns yourself",
+    features: [
+      {
+        page: "Report a Concern",
+        icon: FileText,
+        title: "Report what your child is telling you",
+        description: "If your child comes home upset, you can log a concern directly. It goes to the safeguarding team. You don\u2019t need to wait for a parents\u2019 evening.",
+        mockup: [
+          { type: "form", content: "What are you concerned about? \u2014 Bullying \u00b7 Online safety \u00b7 Behaviour change \u00b7 Something my child told me" },
+          { type: "form", content: "\"My daughter has been coming home in tears. She says a group of boys are targeting her at lunch.\"" },
+          { type: "badge", content: "Concern logged. The safeguarding coordinator has been notified.", color: "amber" },
+        ],
+      },
+      {
+        page: "Notifications",
+        icon: Bell,
+        title: "Get notified when the school acts",
+        description: "When the school identifies something involving your child, you receive a private notification. Not a generic newsletter \u2014 a specific alert with what\u2019s been done.",
+        mockup: [
+          { type: "notification", content: "A pattern of targeted behaviour towards your child has been identified. A Convivèxit protocol has been initiated. Your child has been assigned a named safe adult.", color: "blue" },
+          { type: "action", content: "Acknowledge \u00b7 Request meeting", color: "teal" },
+        ],
+      },
+      {
+        page: "Diagnostic Results",
+        icon: BarChart3,
+        title: "See how safe children feel at school",
+        description: "When the school runs a safeguarding diagnostic, parents see the aggregated results \u2014 how pupils, staff, and parents scored across trust, awareness, and culture.",
+        mockup: [
+          { type: "chart", content: "Trust & Reporting: Pupils 2.1 \u2022 Parents 3.9 \u2022 Staff 4.2" },
+          { type: "alert", content: "Perception gap: Children don\u2019t trust the reporting system as much as parents think they do.", color: "amber" },
+        ],
+      },
+      {
+        page: "Contact PTA",
+        icon: MessageSquare,
+        title: "Message your PTA representative",
+        description: "Raise a concern directly with a PTA member. They see anonymised safeguarding data and can advocate for change at governor level.",
+        mockup: [
+          { type: "form", content: "\"I\u2019m worried about the lunchtime supervision. My child says there\u2019s nowhere to go if they feel unsafe.\"" },
+          { type: "badge", content: "Message sent to PTA Chair (Sarah T.)", color: "amber" },
+        ],
+      },
+      {
+        page: "Case Studies",
+        icon: BookOpen,
+        title: "Understand real patterns",
+        description: "Read anonymised case studies showing how bullying patterns develop and what the school does about them. See what parents typically receive at each stage.",
+        mockup: [
+          { type: "timeline", content: "Case Study 1: Ringleader plus recruited bullies \u2014 how group dynamics work" },
+          { type: "timeline", content: "Case Study 5: Slow emotional collapse \u2014 when a child withdraws gradually" },
+          { type: "badge", content: "\"What parents receive\" section shows example alerts, reports, and diagnostic data", color: "amber" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "teacher",
+    role: "Teachers & Staff",
+    icon: GraduationCap,
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
+    borderColor: "border-indigo-200 dark:border-indigo-800",
+    tagline: "Log incidents in 60 seconds. Get guided through the right process.",
+    features: [
+      {
+        page: "Log Incident",
+        icon: FileText,
+        title: "Report an incident with guided categories",
+        description: "Select what happened, who was involved, and the child\u2019s emotional state. The form adapts to the category \u2014 physical, verbal, online, sexual, coercive. Takes under a minute.",
+        mockup: [
+          { type: "form", content: "Category: Physical \u00b7 Verbal \u00b7 Psychological \u00b7 Sexual \u00b7 Relational \u00b7 Coercive \u00b7 Property \u00b7 Online" },
+          { type: "form", content: "Victims \u00b7 Perpetrators \u00b7 Witnesses \u2014 search by name or describe unknown persons" },
+          { type: "form", content: "Staff checks: Were children separated? Coordinator notified? Told by child?" },
+        ],
+      },
+      {
+        page: "Protocol Guidance",
+        icon: Shield,
+        title: "Serious incidents show you what to do next",
+        description: "When you log a Tier 2 or Tier 3 incident, the confirmation screen shows step-by-step protocol guidance: what to do, what NOT to do, who to notify, legal basis, and timeframes.",
+        mockup: [
+          { type: "badge", content: "Tier 3 \u2014 CRITICAL \u00b7 LOPIVI Protocol", color: "red" },
+          { type: "alert", content: "Step 1: Secure the child in a safe space with a trusted adult", color: "red" },
+          { type: "alert", content: "Step 2: Do not investigate. Your role is to report, not question.", color: "red" },
+          { type: "alert", content: "Do NOT promise the child you will keep it secret", color: "red" },
+          { type: "badge", content: "Coordinator must be informed within 15 minutes. External referral within 24 hours.", color: "amber" },
+        ],
+      },
+      {
+        page: "Behaviour Tracker",
+        icon: Gauge,
+        title: "Track behaviour points across your class",
+        description: "See which children are accumulating behaviour points, what level they\u2019re at, and how trends are changing. Filter by your class or year group.",
+        mockup: [
+          { type: "badge", content: "Marcus: 14 pts \u2014 Level 4 (Formal Warning)", color: "red" },
+          { type: "badge", content: "Tyler: 5 pts \u2014 Level 2 (Verbal Warning)", color: "amber" },
+          { type: "chart", content: "Class 6A: 12 incidents this term \u2022 3 amber alerts \u2022 1 red alert" },
+        ],
+      },
+      {
+        page: "School Updates",
+        icon: Megaphone,
+        title: "Post updates and \u2018Heads Up\u2019 alerts to staff",
+        description: "Share observations, flag concerns to colleagues, or post safeguarding updates. \u2018Heads Up\u2019 posts are staff-only and show a prominent observation guidance banner.",
+        mockup: [
+          { type: "form", content: "Category: Heads Up \u2022 Audience: Staff only" },
+          { type: "form", content: "\"Keep an eye on Year 5 at lunch \u2014 there\u2019s been tension between two groups this week.\"" },
+          { type: "alert", content: "Heads Up: This is an observation for staff awareness. If you see anything, log it.", color: "amber" },
+        ],
+      },
+      {
+        page: "Notifications",
+        icon: Bell,
+        title: "Get alerted when patterns involve your pupils",
+        description: "When pattern alerts fire for children in your class, you receive a notification. When protocols are opened, you\u2019re told what tasks you\u2019ve been assigned.",
+        mockup: [
+          { type: "notification", content: "Pattern Alert: A pupil in your class (6A) has been involved in 3 incidents this week as a victim.", color: "blue" },
+          { type: "notification", content: "Task assigned: Daily wellbeing check-in with Sofia for the next 2 weeks.", color: "blue" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "coordinator",
+    role: "Coordinators & Head Teachers",
+    icon: Shield,
+    color: "text-purple-600",
+    bgColor: "bg-purple-50 dark:bg-purple-950/20",
+    borderColor: "border-purple-200 dark:border-purple-800",
+    tagline: "See everything. Respond proportionately. Evidence every decision.",
+    features: [
+      {
+        page: "Dashboard",
+        icon: BarChart3,
+        title: "Full safeguarding picture in one place",
+        description: "Open incidents, active alerts (red/amber), mood trends, behaviour escalations, active protocols, and overdue tasks. Everything you need to make decisions.",
+        mockup: [
+          { type: "badge", content: "4 active alerts \u2022 12 open incidents \u2022 2 mood decline flags \u2022 1 overdue task", color: "purple" },
+          { type: "chart", content: "This week: 3 new incidents \u2022 2 resolved \u2022 1 protocol opened" },
+          { type: "alert", content: "\ud83d\udea8 RED: Group targeting detected \u2014 3 perpetrators acting together against 1 victim over 3 weeks", color: "red" },
+        ],
+      },
+      {
+        page: "Pattern Alerts",
+        icon: Activity,
+        title: "Automatic pattern detection across the school",
+        description: "The system links incidents across different reporters, days, and categories. It spots repeat victims, repeat perpetrators, group dynamics, location hotspots, and escalating severity.",
+        mockup: [
+          { type: "alert", content: "\ud83d\udea8 RED: Same victim in 4+ incidents from 3 different reporters", color: "red" },
+          { type: "alert", content: "\ud83d\udea8 AMBER: Location hotspot \u2014 4 incidents in the same corridor this term", color: "amber" },
+          { type: "alert", content: "\ud83d\udea8 AMBER: Sustained mood decline for 2 pupils over 14 days", color: "amber" },
+        ],
+      },
+      {
+        page: "Broadcast Alerts",
+        icon: Megaphone,
+        title: "Notify parents, staff, or the whole school",
+        description: "Send targeted or school-wide alerts. Choose your audience: all parents, all staff, parents and staff, or everyone. Every send is audit-logged.",
+        mockup: [
+          { type: "form", content: "Audience: All Staff \u2022 Category: Safeguarding Update" },
+          { type: "form", content: "Subject: \"Increased supervision at lunch \u2014 active Convivèxit protocol\"" },
+          { type: "badge", content: "Sent to 32 staff members. Audit logged.", color: "purple" },
+        ],
+      },
+      {
+        page: "Diagnostics",
+        icon: ClipboardCheck,
+        title: "Run school climate surveys",
+        description: "Launch anonymous diagnostics for pupils, staff, and parents. See aggregated results, perception gaps, auto-ranked priorities, and recommended KPIs.",
+        mockup: [
+          { type: "chart", content: "Trust & Reporting: Pupils 2.1 \u2022 Staff 4.2 \u2014 1.8pt gap" },
+          { type: "badge", content: "Priority 1 (Critical): Pupil trust in reporting \u2014 KPI: raise from 2.1 to 3.0 by end of term", color: "red" },
+          { type: "badge", content: "Agreed Actions published to parents and staff", color: "purple" },
+        ],
+      },
+      {
+        page: "Incident Management",
+        icon: FileText,
+        title: "Review, assess, and escalate incidents",
+        description: "See every incident logged by any staff member or pupil. Filter by status, category, tier, or child. Add assessments, update status, mark for external referral.",
+        mockup: [
+          { type: "chart", content: "SS-2026-0012 \u2022 Sexual \u2022 Tier 3 \u2022 Status: Under review" },
+          { type: "badge", content: "Mandatory external referral: Fiscal\u00eda de Menores", color: "red" },
+          { type: "form", content: "Assessment: \"Referral sent to external services. Protective measures in place. Next review: 48 hours.\"" },
+        ],
+      },
+      {
+        page: "Audit Log",
+        icon: Eye,
+        title: "Every action is recorded",
+        description: "Every incident, notification, protocol action, login, and data access is audit-logged with timestamps. Immutable. Designed for inspections and legal compliance.",
+        mockup: [
+          { type: "timeline", content: "14:32 \u2014 teacher@school.dev logged Incident CS1-004 (Online, Tier 2)" },
+          { type: "timeline", content: "14:33 \u2014 SYSTEM auto-notified coordinator of Tier 2 incident" },
+          { type: "timeline", content: "14:35 \u2014 coordinator@school.dev opened Convivèxit protocol #CVX-003" },
+          { type: "timeline", content: "14:40 \u2014 SYSTEM sent notification to parent of victim" },
+        ],
+      },
+    ],
+  },
+];
+
+function RoleFeaturesSection() {
+  const [activeRole, setActiveRole] = useState(0);
+  const [activeFeature, setActiveFeature] = useState(0);
+  const role = ROLES[activeRole];
+  const feature = role.features[activeFeature];
+  const RoleIcon = role.icon;
+  const FeatureIcon = feature.icon;
+
+  const switchRole = (idx: number) => {
+    setActiveRole(idx);
+    setActiveFeature(0);
+  };
+
+  return (
+    <div className="mt-16">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-display font-bold mb-2">What each role can do</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto">
+          Sofia's story shows pattern detection. But safeskoolz is used every day by pupils, parents, teachers, and coordinators for much more.
+        </p>
+      </div>
+
+      <div className="flex justify-center gap-2 sm:gap-3 mb-6 flex-wrap">
+        {ROLES.map((r, i) => {
+          const RI = r.icon;
+          return (
+            <button
+              key={r.id}
+              onClick={() => switchRole(i)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${
+                i === activeRole
+                  ? `${r.bgColor} ${r.borderColor} ${r.color}`
+                  : "bg-card border-border text-muted-foreground hover:border-primary/30"
+              }`}
+            >
+              <RI size={18} />
+              {r.role}
+            </button>
+          );
+        })}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeRole}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={`rounded-2xl border-2 ${role.borderColor} overflow-hidden`}>
+            <div className={`${role.bgColor} px-6 py-4`}>
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-xl bg-white/60 dark:bg-black/10 ${role.color}`}>
+                  <RoleIcon size={22} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">{role.role}</h3>
+                  <p className="text-sm text-muted-foreground">{role.tagline}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-4 sm:px-6 pt-4 flex gap-2 overflow-x-auto pb-1">
+              {role.features.map((f, i) => {
+                const FI = f.icon;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setActiveFeature(i)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all border whitespace-nowrap ${
+                      i === activeFeature
+                        ? `${role.bgColor} ${role.borderColor} ${role.color}`
+                        : "bg-card border-border text-muted-foreground hover:border-primary/30"
+                    }`}
+                  >
+                    <FI size={13} />
+                    {f.page}
+                  </button>
+                );
+              })}
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`${activeRole}-${activeFeature}`}
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -8 }}
+                transition={{ duration: 0.15 }}
+                className="px-6 py-5"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <FeatureIcon size={16} className={role.color} />
+                  <span className={`text-xs font-bold ${role.color}`}>{feature.page}</span>
+                </div>
+                <h4 className="font-bold text-base mb-1">{feature.title}</h4>
+                <p className="text-sm text-muted-foreground mb-4">{feature.description}</p>
+
+                <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+                  <div className="flex items-center gap-2 pb-2 border-b border-border/50 mb-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                    <span className="text-[10px] text-muted-foreground ml-2 font-mono">{feature.page}</span>
+                  </div>
+                  {feature.mockup.map((el, i) => (
+                    <MockupElement key={i} el={el} />
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        {ROLES.map((r) => {
+          const RI = r.icon;
+          return (
+            <div key={r.id} className="p-4 rounded-xl bg-card border border-border">
+              <RI size={20} className={`mx-auto mb-1.5 ${r.color}`} />
+              <p className="font-bold text-sm">{r.features.length} features</p>
+              <p className="text-xs text-muted-foreground">{r.role}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function HowItWorksPage() {
   const [activeStep, setActiveStep] = useState(0);
   const [activeScreen, setActiveScreen] = useState(0);
@@ -636,25 +1051,9 @@ export default function HowItWorksPage() {
           </button>
         </div>
 
-        <div className="mt-12 grid sm:grid-cols-3 gap-4 text-center">
-          <div className="p-5 rounded-xl bg-card border border-border">
-            <FileText size={24} className="mx-auto text-indigo-500 mb-2" />
-            <p className="font-bold text-sm">7 platform features</p>
-            <p className="text-xs text-muted-foreground">Diary, incidents, alerts, behaviour, diagnostics, notifications, PTA portal</p>
-          </div>
-          <div className="p-5 rounded-xl bg-card border border-border">
-            <Users size={24} className="mx-auto text-amber-500 mb-2" />
-            <p className="font-bold text-sm">4 perspectives</p>
-            <p className="text-xs text-muted-foreground">Pupils, parents, teachers, and coordinators each see what they need</p>
-          </div>
-          <div className="p-5 rounded-xl bg-card border border-border">
-            <Shield size={24} className="mx-auto text-purple-500 mb-2" />
-            <p className="font-bold text-sm">3 compliance frameworks</p>
-            <p className="text-xs text-muted-foreground">LOPIVI, Convivèxit, and Machista Violence protocols built in</p>
-          </div>
-        </div>
+        <RoleFeaturesSection />
 
-        <div className="mt-8 text-center">
+        <div className="mt-12 text-center">
           <div className="p-8 rounded-2xl bg-card border border-border shadow-sm">
             <h2 className="text-2xl font-bold mb-2">Every school has stories like Sofia's.</h2>
             <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
