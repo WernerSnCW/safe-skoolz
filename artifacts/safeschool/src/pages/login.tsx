@@ -20,8 +20,8 @@ const STAFF_ACCOUNTS = IS_DEMO ? [
 ] : [];
 
 const PARENT_ACCOUNTS = IS_DEMO ? [
-  { label: "Parent A", subtitle: "Parent of Boy A", email: "parent.a@safeschool.dev", password: "parent123" },
-  { label: "Parent B", subtitle: "Parent of Boy B", email: "parent.b@safeschool.dev", password: "parent123" },
+  { label: "Parent A", subtitle: "Parent of Bob", email: "parent.a@safeschool.dev", password: "parent123" },
+  { label: "Parent B", subtitle: "Parent of Caroline", email: "parent.b@safeschool.dev", password: "parent123" },
 ] : [];
 
 const PTA_ACCOUNTS = IS_DEMO ? [
