@@ -364,13 +364,16 @@ router.post("/auth/demo-login", async (req, res): Promise<void> => {
 
   let user;
   if (role === "pupil") {
-    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "pupil"), eq(usersTable.active, true)));
+    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "pupil"), eq(usersTable.active, true), eq(usersTable.firstName, "Bob")));
+    if (!user) {
+      [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "pupil"), eq(usersTable.active, true))).limit(1);
+    }
   } else if (role === "parent") {
-    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "parent"), eq(usersTable.active, true)));
+    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "parent"), eq(usersTable.active, true))).limit(1);
   } else if (role === "pta") {
-    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "pta"), eq(usersTable.active, true)));
+    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "pta"), eq(usersTable.active, true))).limit(1);
   } else {
-    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "teacher"), eq(usersTable.active, true)));
+    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "teacher"), eq(usersTable.active, true))).limit(1);
   }
 
   if (!user) {
