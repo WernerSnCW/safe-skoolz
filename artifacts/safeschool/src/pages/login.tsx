@@ -8,26 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === "true";
 
-const STAFF_ACCOUNTS = IS_DEMO ? [
-  { label: "Sarah Mitchell", subtitle: "Safeguarding Coordinator", email: "coordinator@safeschool.dev", password: "password123" },
-  { label: "James Crawford", subtitle: "Head Teacher", email: "head@safeschool.dev", password: "password123" },
-  { label: "Emma Davies", subtitle: "Head of Year · Y6 · 6A", email: "teacher@safeschool.dev", password: "password123" },
-  { label: "David Wilson", subtitle: "Teacher · 5B", email: "teacher2@safeschool.dev", password: "password123" },
-  { label: "Laura Bennett", subtitle: "Teacher · 4A", email: "teacher3@safeschool.dev", password: "password123" },
-  { label: "Tom Harris", subtitle: "Teacher · 3A", email: "teacher4@safeschool.dev", password: "password123" },
-  { label: "Helen Clarke", subtitle: "SENCO", email: "senco@safeschool.dev", password: "password123" },
-  { label: "Chris Taylor", subtitle: "Support Staff", email: "support@safeschool.dev", password: "password123" },
-] : [];
-
-const PARENT_ACCOUNTS = IS_DEMO ? [
-  { label: "Albert", subtitle: "Bob's parent", email: "parent.a@safeschool.dev", password: "parent123" },
-  { label: "Jennifer", subtitle: "Caroline's parent", email: "parent.b@safeschool.dev", password: "parent123" },
-] : [];
-
-const PTA_ACCOUNTS = IS_DEMO ? [
-  { label: "Rachel Foster", subtitle: "PTA Chair", email: "pta.chair@safeschool.dev", password: "pta123" },
-  { label: "Mark Stevens", subtitle: "PTA Member", email: "pta.member1@safeschool.dev", password: "pta123" },
-] : [];
+type DemoAccount = { label: string; subtitle: string; email: string; password: string };
 
 type PupilProfile = {
   loginKey: string;
@@ -54,6 +35,16 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
+
+  // Demo accounts — loaded dynamically so credentials never appear in production bundles
+  const [demoAccounts, setDemoAccounts] = useState<{ staff: DemoAccount[]; parent: DemoAccount[]; pta: DemoAccount[] }>({ staff: [], parent: [], pta: [] });
+  useEffect(() => {
+    if (IS_DEMO) {
+      import("./demo-accounts").then((mod) => {
+        setDemoAccounts({ staff: mod.STAFF_ACCOUNTS, parent: mod.PARENT_ACCOUNTS, pta: mod.PTA_ACCOUNTS });
+      });
+    }
+  }, []);
 
   const [pupilStep, setPupilStep] = useState<PupilLoginStep>("school");
   const [accessCode, setAccessCode] = useState("");
@@ -150,7 +141,7 @@ export default function Login() {
     try {
       let res;
       if (activeTab === "staff") {
-        const accounts = STAFF_ACCOUNTS;
+        const accounts = demoAccounts.staff;
         const selected = accounts.find(a => a.email === selectedStaffEmail);
         const loginEmail = selected?.email || email;
         const loginPassword = selected?.password || password;
@@ -162,7 +153,7 @@ export default function Login() {
           data: { email: loginEmail, password: loginPassword }
         });
       } else if (activeTab === "parent") {
-        const accounts = PARENT_ACCOUNTS;
+        const accounts = demoAccounts.parent;
         const selected = accounts.find(a => a.email === selectedStaffEmail);
         const loginEmail = selected?.email || email;
         const loginPassword = selected?.password || password;
@@ -174,7 +165,7 @@ export default function Login() {
           data: { email: loginEmail, password: loginPassword }
         });
       } else {
-        const accounts = PTA_ACCOUNTS;
+        const accounts = demoAccounts.pta;
         const selected = accounts.find(a => a.email === selectedStaffEmail);
         const loginEmail = selected?.email || email;
         const loginPassword = selected?.password || password;
@@ -525,7 +516,7 @@ export default function Login() {
               <form onSubmit={handleStaffSubmit} className="space-y-5">
                 <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                   {(() => {
-                    const accounts = activeTab === "parent" ? PARENT_ACCOUNTS : activeTab === "pta" ? PTA_ACCOUNTS : STAFF_ACCOUNTS;
+                    const accounts = activeTab === "parent" ? demoAccounts.parent : activeTab === "pta" ? demoAccounts.pta : demoAccounts.staff;
                     const selectedAccount = accounts.find(a => a.email === selectedStaffEmail);
                     const hasAccounts = accounts.length > 0;
                     return (
