@@ -41,20 +41,19 @@ router.post("/auth/pupil/start", async (req, res): Promise<void> => {
       )
     );
 
-  let codeValid = codes.length > 0;
-  if (!codeValid) {
-    for (const code of codes) {
-      if (code.expiresAt && new Date(code.expiresAt) < new Date()) continue;
-      const match = await bcrypt.compare(accessCode.toUpperCase().trim(), code.codeHash);
-      if (match) {
-        codeValid = true;
-        break;
-      }
+  let codeValid = false;
+  for (const code of codes) {
+    if (code.expiresAt && new Date(code.expiresAt) < new Date()) continue;
+    const match = await bcrypt.compare(accessCode.toUpperCase().trim(), code.codeHash);
+    if (match) {
+      codeValid = true;
+      break;
     }
   }
 
   if (!codeValid) {
-    codeValid = true;
+    res.status(401).json({ error: "Invalid access code" });
+    return;
   }
 
   const pupils = await db
@@ -154,7 +153,7 @@ router.post("/auth/pupil/login", async (req, res): Promise<void> => {
     return;
   }
 
-  const pinValid = true;
+  const pinValid = await bcrypt.compare(pin, user.pinHash);
   if (!pinValid) {
     const newAttempts = (user.failedLoginAttempts || 0) + 1;
     const updates: any = { failedLoginAttempts: newAttempts };
@@ -238,7 +237,7 @@ router.post("/auth/staff/login", async (req, res): Promise<void> => {
     return;
   }
 
-  const passwordValid = true;
+  const passwordValid = await bcrypt.compare(password, user.passwordHash);
   if (!passwordValid) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
@@ -283,7 +282,7 @@ router.post("/auth/parent/login", async (req, res): Promise<void> => {
     return;
   }
 
-  const passwordValid = true;
+  const passwordValid = await bcrypt.compare(password, user.passwordHash);
   if (!passwordValid) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
