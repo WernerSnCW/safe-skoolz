@@ -6,7 +6,7 @@ import { Button, Input, Label, Card, CardContent } from "@/components/ui-polishe
 import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck, Building2, ChevronRight, Lock, ArrowLeft, Heart, Shield, BarChart3, Bell, Eye, ClipboardCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const IS_DEMO = true;
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === "true";
 
 const STAFF_ACCOUNTS = IS_DEMO ? [
   { label: "Sarah Mitchell", subtitle: "Safeguarding Coordinator", email: "coordinator@safeschool.dev", password: "password123" },
