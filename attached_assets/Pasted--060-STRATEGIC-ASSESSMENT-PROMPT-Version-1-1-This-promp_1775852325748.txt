@@ -1,0 +1,137 @@
+# 060 — STRATEGIC ASSESSMENT PROMPT
+Version: 1.1
+
+---
+
+This prompt assesses whether the tool has been built in the right way
+for its intended goals, and identifies enhancements and potential new
+features. Complete the template below exactly. Do not add prose before
+or after it. Replace every placeholder in square brackets.
+
+---
+
+## STEP 1 — ESTABLISH GOALS
+
+No PRODUCT_GOALS.md exists. Use the operator-supplied goals below.
+
+### Operator-supplied goals
+
+**What this tool is for:** Safeskoolz is a school safeguarding and wellbeing
+platform for Catalan/Spanish schools. It supports incident reporting, protocol
+management (LOPIVI, Convivèxit, Machista Violence), pupil wellbeing monitoring,
+and multi-role communication across pupils, staff, parents, SENCO, coordinators,
+and PTA.
+
+**Who uses it:** School staff (coordinators, teachers, SENCO), pupils, parents,
+and PTA members. Users are not technical — the platform must be role-appropriate
+and intuitive for each audience.
+
+**What success looks like:** Every safeguarding workflow is complete end-to-end.
+Each role can fulfil their responsibilities without needing to leave the platform.
+The system is reliable, data-consistent, and produces no silent failures.
+
+**What it is not for:** General school administration, lesson planning, or
+anything outside the safeguarding and wellbeing remit.
+
+---
+
+## CONSTRAINTS
+
+- Do not propose changes that contradict CTX_architecture.md without flagging
+  them under "Out-of-scope flags" as requiring architectural review first.
+- Do not introduce new features that expand scope beyond confirmed goals.
+  Features that seem logical but fall outside confirmed goals go under
+  "Out-of-scope flags," not "Potential new features."
+- Outputs from this prompt are advisory only. Any change proposed here must be
+  explicitly pulled into a future Step 2 idea — it does not update CTX files
+  or the product baseline directly.
+
+---
+
+## STEP 2 — STRATEGIC ASSESSMENT OUTPUT
+
+### 1. Goals confirmed
+[3–5 bullet points — labelled "Operator-supplied." Do not paraphrase without first quoting.]
+
+---
+
+### 2. Strategic fit
+
+For each major feature or workflow:
+
+#### `[Feature or workflow name]`
+**Serves the goal:** [YES / PARTIALLY / NO]
+**Reasoning:** [why]
+**Drift risk:** [YES / NO — has this feature grown beyond its purpose?]
+
+---
+
+### 3. Architectural appropriateness
+
+| Area | Appropriate | Notes |
+|---|---|---|
+| [e.g. Data model] | YES / PARTIALLY / NO | [one-line note] |
+
+**Overall architecture verdict:** [WELL-SUITED / OVER-ENGINEERED / UNDER-BUILT]
+**Reasoning:** [2–3 sentences]
+
+---
+
+### 4. Enhancements
+
+Improvements to existing features that would close the gap between current
+behaviour and confirmed goals. Ordered by impact.
+
+#### `[Enhancement name]`
+**Addresses:** [which goal or gap]
+**What to build:** [specific description]
+**Effort estimate:** [LOW / MEDIUM / HIGH]
+**Priority:** [HIGH / MEDIUM / LOW]
+
+---
+
+### 5. Potential new features
+
+Features not in scope today that would advance confirmed goals if added.
+Ordered by strategic value.
+
+#### `[Feature name]`
+**Addresses:** [which goal]
+**What to build:** [specific description]
+**Dependency:** [what must exist first, or "None"]
+**Effort estimate:** [LOW / MEDIUM / HIGH]
+**Priority:** [HIGH / MEDIUM / LOW]
+
+---
+
+### 6. Out-of-scope flags
+
+Features or patterns that appear to serve a different goal than confirmed,
+OR proposed changes that contradict CTX_architecture.md:
+
+- **[Feature or pattern]:** [what goal it seems to serve vs confirmed goal,
+  or what architectural conflict exists]
+
+If none: "None identified."
+
+### 7. Deprecation candidates (optional)
+
+Features currently in the codebase that should be removed to reduce technical
+debt, if any. Not mandatory — only include if genuinely identified.
+
+- **[Feature]:** [why it should be removed, what depends on it]
+
+If none: "None identified."
+
+---
+
+### 8. Overall verdict
+
+| Dimension | Status | Notes |
+|---|---|---|
+| Strategic fit | 🟢 / 🟡 / 🔴 | 🟢 = YES for all major features; 🟡 = PARTIALLY for one or more; 🔴 = NO for a core feature |
+| Architectural appropriateness | 🟢 / 🟡 / 🔴 | 🟢 = WELL-SUITED; 🟡 = OVER/UNDER-BUILT in one area; 🔴 = OVER/UNDER-BUILT overall |
+| Enhancement opportunity | 🟢 / 🟡 / 🔴 | 🟢 = minor improvements only; 🟡 = meaningful gaps; 🔴 = significant drift |
+| New feature opportunity | 🟢 / 🟡 / 🔴 | 🟢 = no urgent additions; 🟡 = 1–2 high value; 🔴 = missing capabilities |
+
+**Recommendation:** [ON TRACK — ENHANCE / REORIENT BEFORE BUILDING / ARCHITECTURAL REVIEW NEEDED]

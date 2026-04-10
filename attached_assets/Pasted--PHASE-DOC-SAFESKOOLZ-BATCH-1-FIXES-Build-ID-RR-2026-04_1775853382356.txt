@@ -1,0 +1,176 @@
+# PHASE DOC — SAFESKOOLZ BATCH 1 FIXES
+Build ID: RR-2026-04-10-001
+Sub-phase: 001 (single pass — all LOW effort, non-overlapping)
+Status: STEP 2 COMPLETE — ready for Step 3
+
+---
+
+## STEP 2 SIGN-OFF
+
+**Agreed idea (one paragraph):**
+Four targeted fixes to resolve the highest-priority gaps identified in the
+050/060/070 review. Fix 1: expose a GET /api/config endpoint returning
+{ demoEnabled: boolean } driven by the DEMO_MODE env var, and update login.tsx
+to conditionally render the "Show me around" button only when demoEnabled is
+true — eliminating the silent 403 failure in production. Fix 2: in
+routes/diary.ts, when getOpenAI() returns null or the AI scan throws, create
+an in-app coordinator notification ("Diary entry by [pupil name] could not be
+AI-scanned — manual review required") and write an audit log entry with
+eventType: "diary_scan_skipped" — eliminating the safeguarding silent failure.
+Fix 3: audit newsletter.tsx against the POST /api/newsletter/subscribe
+validation requirements (organisationType, contactName, schoolName, email) and
+add any missing fields to the form, ensuring all required fields are submitted.
+Fix 4: remove the newsletter page from frontend routing (App.tsx), sidebar
+navigation (AppLayout.tsx), and delete newsletter.tsx — the backend route and
+newsletter_subscribers table are retained in case they are needed later.
+
+**Open assumptions going into Step 3:**
+- DEMO_MODE env var name is exactly "DEMO_MODE" as confirmed in .replit
+- The safeguarding coordinator role string is "coordinator" as used in
+  existing notification logic — Replit AI to confirm from routes/diary.ts
+  before creating the notification
+- newsletter.tsx is the only frontend file that references the newsletter
+  route — Replit AI to confirm no other component imports it before deleting
+- The /api/config route does not already exist in routes/index.ts
+
+**Scope boundary:**
+This build covers:
+- New GET /api/config endpoint (new route file or addition to an existing
+  lightweight route such as health.ts)
+- login.tsx: conditional render of "Show me around" button based on config
+  fetch result
+- routes/diary.ts: coordinator notification + audit log on AI scan failure
+- newsletter.tsx: form field audit and fix
+- App.tsx + AppLayout.tsx: remove newsletter route and nav item
+- newsletter.tsx: delete file
+
+This build does NOT cover:
+- Any change to the newsletter backend route or newsletter_subscribers table
+- Any change to the diary AI scan logic itself (only the failure handling)
+- Training completion tracking (FIX-06 — separate phase)
+- PDF export (FIX-07 — separate phase)
+- In-memory session state / autoscale fixes (FIX-04 — separate phase)
+- API pattern consolidation (FIX-05 — separate phase)
+
+---
+
+## WHAT WILL BE BUILT
+
+### FIX-01: Demo Login — Config Endpoint + Conditional Button
+
+**Backend:**
+- Add GET /api/config (no auth required — public endpoint)
+- Returns: `{ demoEnabled: boolean }`
+- demoEnabled = process.env.DEMO_MODE === "true"
+- Mount in routes/index.ts
+
+**Frontend (login.tsx):**
+- On component mount, fetch GET /api/config
+- Store demoEnabled in local state (default: false while loading)
+- Render "Show me around" button only when demoEnabled === true
+- Remove IS_DEMO hardcoded constant if it is only used for this button
+
+**Files touched:** routes/index.ts (mount), new routes/config.ts (or inline
+in health.ts), artifacts/safeschool/src/pages/login.tsx
+
+---
+
+### FIX-02: AI Diary Scan — Failure Notification + Audit Log
+
+**Backend (routes/diary.ts):**
+- In the POST /diary/entries handler, after the AI scan block:
+  - If getOpenAI() returns null: create notification for coordinator and
+    write audit log entry
+  - If the openai API call throws: catch the error, create notification and
+    audit log entry, then continue (do not fail the diary entry creation)
+- Notification body: "A diary entry by [pupil first name] could not be
+  AI-scanned. Manual review may be required."
+- Notification trigger field: "diary_scan_skipped"
+- Audit log eventType: "diary_scan_skipped"
+- Audit log targetType: "diary_entry", targetId: the new diary entry id
+- The coordinator to notify: look up the school's coordinator user the same
+  way existing notification logic does in this file
+
+**Files touched:** artifacts/api-server/src/routes/diary.ts
+
+---
+
+### FIX-03: Newsletter Form Field Alignment
+
+**Frontend (newsletter.tsx):**
+- Inspect current form fields against required backend fields:
+  organisationType, contactName, schoolName, email
+- Add any missing fields with appropriate labels and input types
+- Ensure all four fields are included in the POST body on submit
+- If organisationType is an enum in the backend, use a select/dropdown
+
+**Files touched:** artifacts/safeschool/src/pages/newsletter.tsx
+
+---
+
+### FIX-04 (FLAG-01): Remove Newsletter from Frontend
+
+**Frontend:**
+- App.tsx: remove the /newsletter route and its import
+- AppLayout.tsx: remove newsletter nav item from all role navigation arrays
+- Delete: artifacts/safeschool/src/pages/newsletter.tsx
+
+**Do NOT touch:**
+- artifacts/api-server/src/routes/newsletter.ts (keep)
+- newsletter_subscribers table (keep)
+- POST /api/newsletter/subscribe endpoint (keep)
+
+**Files touched:** App.tsx, AppLayout.tsx
+**Files deleted:** newsletter.tsx
+
+Note: FIX-03 and FIX-04 are contradictory — if we fix the newsletter form
+AND remove the newsletter page, FIX-03 is redundant. Resolution: skip FIX-03.
+The newsletter page is being removed entirely so form field alignment is moot.
+FIX-03 is DROPPED from this build.
+
+---
+
+## CONSTRAINTS
+
+- All new backend code must follow the route-per-domain pattern
+  (Router() + mount in routes/index.ts)
+- All new notifications must use the existing notification creation pattern
+  (insert into notifications table via db — same as other diary.ts
+  notification calls)
+- All audit log entries must use writeAudit() from lib/auditHelper.ts
+- Static routes must be declared before parameterised :id routes in the
+  same router
+- No new npm packages — all fixes use existing infrastructure
+- Backward compatibility: no schema changes in this build
+- No Orval codegen run in this build — config fetch in login.tsx uses a
+  simple fetch() call (the config endpoint is trivial and does not warrant
+  a generated hook)
+- Do not modify the newsletter backend route or table
+
+---
+
+## ACCEPTANCE CRITERIA
+
+### FIX-01
+- [ ] GET /api/config returns `{ demoEnabled: false }` in production
+  (DEMO_MODE not set)
+- [ ] GET /api/config returns `{ demoEnabled: true }` when DEMO_MODE=true
+- [ ] "Show me around" button does not render when demoEnabled is false
+- [ ] "Show me around" button renders and functions when demoEnabled is true
+- [ ] No console errors on login page load in either env state
+
+### FIX-02
+- [ ] When OpenAI key is missing: coordinator notification created with
+  correct trigger and body
+- [ ] When OpenAI key is missing: audit log entry written with
+  eventType: "diary_scan_skipped"
+- [ ] Diary entry is still created successfully even when scan is skipped
+- [ ] When OpenAI key IS present: no notification created, behaviour unchanged
+- [ ] No unhandled promise rejection when AI scan fails
+
+### FIX-04
+- [ ] /newsletter route no longer accessible in the frontend
+- [ ] Newsletter nav item absent from all role navigation arrays
+- [ ] newsletter.tsx file deleted
+- [ ] No broken imports in App.tsx or AppLayout.tsx after deletion
+- [ ] Backend POST /api/newsletter/subscribe still responds (not removed)
