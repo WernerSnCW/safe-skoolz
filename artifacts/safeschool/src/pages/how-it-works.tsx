@@ -1489,12 +1489,6 @@ export default function HowItWorksPage() {
                   Try the demo
                 </span>
               </Link>
-              <Link href="/newsletter">
-                <span className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border font-bold hover:bg-muted transition-colors cursor-pointer">
-                  <Megaphone size={18} />
-                  Bring safeskoolz to your school
-                </span>
-              </Link>
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-4">

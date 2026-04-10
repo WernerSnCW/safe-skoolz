@@ -27,7 +27,6 @@ import CaseloadPage from "@/pages/caseload";
 import BehaviourPage from "@/pages/behaviour";
 import TrainingPage from "@/pages/training";
 import PtaPortal from "@/pages/pta";
-import NewsletterSignUp from "@/pages/newsletter";
 import Diagnostics from "@/pages/diagnostics";
 import DiagnosticsResults from "@/pages/diagnostics-results";
 import DiaryPage from "@/pages/diary";
@@ -69,7 +68,6 @@ function Router() {
     <Switch>
       <Route path="/login" component={Login} />
       <Route path="/how-it-works" component={HowItWorksPage} />
-      <Route path="/newsletter" component={NewsletterSignUp} />
       <Route path="/">
         {() => <ProtectedRoute component={Dashboard} />}
       </Route>

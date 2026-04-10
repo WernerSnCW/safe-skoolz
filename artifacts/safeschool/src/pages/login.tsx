@@ -6,8 +6,6 @@ import { Button, Input, Label, Card, CardContent } from "@/components/ui-polishe
 import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck, Building2, ChevronRight, Lock, ArrowLeft, Heart, Shield, BarChart3, Bell, Eye, ClipboardCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const IS_DEMO = import.meta.env.VITE_DEMO_MODE === "true";
-
 type DemoAccount = { label: string; subtitle: string; email: string; password: string };
 
 type PupilProfile = {
@@ -35,16 +33,31 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
+  const [demoEnabled, setDemoEnabled] = useState(false);
 
-  // Demo accounts — loaded dynamically so credentials never appear in production bundles
+  useEffect(() => {
+    const apiBase = (() => {
+      const b = import.meta.env.BASE_URL || "/";
+      return b.endsWith("/") ? b : b + "/";
+    })();
+    fetch(`${apiBase}api/config`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.demoEnabled) {
+          setDemoEnabled(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const [demoAccounts, setDemoAccounts] = useState<{ staff: DemoAccount[]; parent: DemoAccount[]; pta: DemoAccount[] }>({ staff: [], parent: [], pta: [] });
   useEffect(() => {
-    if (IS_DEMO) {
+    if (demoEnabled) {
       import("./demo-accounts").then((mod) => {
         setDemoAccounts({ staff: mod.STAFF_ACCOUNTS, parent: mod.PARENT_ACCOUNTS, pta: mod.PTA_ACCOUNTS });
       });
     }
-  }, []);
+  }, [demoEnabled]);
 
   const [pupilStep, setPupilStep] = useState<PupilLoginStep>("school");
   const [accessCode, setAccessCode] = useState("");
@@ -593,7 +606,7 @@ export default function Login() {
               </form>
             )}
 
-            {IS_DEMO && (
+            {demoEnabled && (
               <div className="mt-4 pt-4 border-t border-border/50">
                 <button
                   type="button"
@@ -638,25 +651,6 @@ export default function Login() {
           </motion.div>
         </Link>
 
-        <Link href="/newsletter">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="mt-3 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 p-5 text-white shadow-lg shadow-teal-200/50 cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Building2 size={24} className="text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-base">Bring safeskoolz to your school</p>
-                <p className="text-sm text-teal-100 mt-0.5">Schools & authorities — sign up to our newsletter and register your interest</p>
-              </div>
-              <ChevronRight size={20} className="text-teal-200 flex-shrink-0" />
-            </div>
-          </motion.div>
-        </Link>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
           Protected by safeskoolz. Your reports are confidential.

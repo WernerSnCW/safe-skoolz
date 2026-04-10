@@ -1,8 +1,9 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
-import { db, pupilDiaryTable, patternAlertsTable } from "@workspace/db";
-import { eq, desc, and } from "drizzle-orm";
+import { db, pupilDiaryTable, patternAlertsTable, notificationsTable, usersTable } from "@workspace/db";
+import { eq, desc, and, inArray } from "drizzle-orm";
 import OpenAI from "openai";
+import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
 
@@ -16,6 +17,55 @@ function getOpenAI(): OpenAI | null {
   return openaiClient;
 }
 
+async function notifyScanSkipped(
+  entryId: string,
+  pupilId: string,
+  schoolId: string,
+  reason: string
+): Promise<void> {
+  try {
+    const [pupil] = await db
+      .select({ firstName: usersTable.firstName })
+      .from(usersTable)
+      .where(eq(usersTable.id, pupilId));
+
+    const pupilName = pupil?.firstName || "A pupil";
+
+    const coordinators = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(
+        and(
+          eq(usersTable.schoolId, schoolId),
+          inArray(usersTable.role, ["coordinator", "head_teacher"]),
+          eq(usersTable.active, true)
+        )
+      );
+
+    for (const coord of coordinators) {
+      await db.insert(notificationsTable).values({
+        schoolId,
+        recipientId: coord.id,
+        trigger: "diary_scan_skipped",
+        channel: "in_app",
+        subject: "Diary entry could not be AI-scanned",
+        body: `A diary entry by ${pupilName} could not be AI-scanned. Manual review may be required.`,
+        delivered: true,
+      });
+    }
+
+    await writeAudit({
+      schoolId,
+      eventType: "diary_scan_skipped",
+      targetType: "diary_entry",
+      targetId: entryId,
+      details: { pupilId, reason },
+    });
+  } catch (err) {
+    console.error("[diary-ai] Failed to notify scan skip:", (err as Error).message);
+  }
+}
+
 async function scanDiaryEntry(
   entryId: string,
   note: string,
@@ -24,7 +74,12 @@ async function scanDiaryEntry(
   schoolId: string
 ): Promise<void> {
   const client = getOpenAI();
-  if (!client || !note || note.trim().length < 10) return;
+  if (!note || note.trim().length < 10) return;
+
+  if (!client) {
+    await notifyScanSkipped(entryId, pupilId, schoolId, "AI integration not configured");
+    return;
+  }
 
   try {
     const response = await client.chat.completions.create({
@@ -72,6 +127,7 @@ Respond with ONLY a JSON object: {"flag": true/false, "level": "red"|"amber"|nul
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       parsed = JSON.parse(jsonMatch ? jsonMatch[0] : content);
     } catch {
+      await notifyScanSkipped(entryId, pupilId, schoolId, "AI response parse failure");
       return;
     }
 
@@ -95,6 +151,7 @@ Respond with ONLY a JSON object: {"flag": true/false, "level": "red"|"amber"|nul
     console.log(`[diary-ai] Flagged entry ${entryId} as ${safeLevel}`);
   } catch (err) {
     console.error("[diary-ai] Scan failed (non-blocking):", (err as Error).message);
+    await notifyScanSkipped(entryId, pupilId, schoolId, (err as Error).message || "AI scan threw an error");
   }
 }
 
