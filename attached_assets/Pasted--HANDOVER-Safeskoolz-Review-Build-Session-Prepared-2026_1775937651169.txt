@@ -1,0 +1,207 @@
+# HANDOVER — Safeskoolz Review & Build Session
+Prepared: 2026-04-10
+From conversation: Safeskoolz platform review, gap analysis, and 5-batch
+build sprint
+
+---
+
+## What shipped this session
+
+| Build ID | What | Status |
+|---|---|---|
+| RR-2026-04-10-001 | Batch 1: Demo login fix, AI diary scan alerting, newsletter frontend removal | ✅ Complete |
+| RR-2026-04-10-002 | Batch 2: Education+Training merged to /learn, PTA tab confirmed, Noticeboard renaming | ✅ Complete |
+| RR-2026-04-10-003 | Batch 3: Parent disclosure acknowledgement (schema + endpoints + UI) | ✅ Complete |
+| RR-2026-04-10-004 | Batch 4: PDF export for incidents and protocols (pdfkit, server-side) | ✅ Complete |
+| RR-2026-04-10-005 | Batch 5: Training completion tracking (table, 3 endpoints, completion UI, staff matrix) | ✅ Complete |
+
+Pre-build: 050 Health Check, 060 Strategic Assessment, 070 Product Review
+all run and synthesised before any build began.
+
+---
+
+## What was NOT completed
+
+FIX-05 (API pattern consolidation), FIX-11 (Protocol progressive
+disclosure), and FIX-04 (In-memory state/autoscale) were deliberately
+deferred — all medium/low priority, all require separate sessions.
+Nothing incomplete from what was attempted.
+
+---
+
+## Manual tests still needed
+
+All items below require a live authenticated session (DEMO_MODE=true or
+direct login with seeded credentials):
+
+- RR-001: Demo login button renders and functions when DEMO_MODE=true
+  Steps: Set DEMO_MODE=true in Replit dev env, reload /login, confirm
+  "Show me around" button appears and demo-login succeeds.
+
+- RR-001: AI diary scan — confirm no spurious notification when OpenAI
+  key IS present
+  Steps: Set AI_INTEGRATIONS_OPENAI_API_KEY, log in as pupil, submit
+  diary entry, confirm no "diary_scan_skipped" notification appears for
+  coordinator.
+
+- RR-002: PTA login end-to-end
+  Steps: Log in via PTA tab with PTA demo account, confirm redirect to
+  /pta portal and correct role in JWT.
+
+- RR-003: Parent disclosure acknowledgement card
+  Steps: As coordinator, create and approve a disclosure for a demo
+  parent. Log in as that parent, confirm amber card appears on dashboard.
+  Click Acknowledge, confirm card disappears.
+
+- RR-004: Incident PDF download
+  Steps: Log in as coordinator, open any incident detail, click Export
+  PDF, confirm file downloads as incident-[ref].pdf, open and verify all
+  6 sections present including CONFIDENTIAL header and LOPIVI footer.
+
+- RR-004: Protocol PDF download
+  Steps: Log in as coordinator, open any protocol detail, click Export
+  PDF, confirm file downloads as protocol-[ref].pdf, open and verify all
+  8 sections present.
+
+- RR-004: Parent/PTA role blocked from export endpoint
+  Steps: Call GET /api/incidents/:id/export with a parent JWT, confirm
+  403 returned.
+
+- RR-005: "Mark as read" flow
+  Steps: Log in as staff, open /learn → "Using safeskoolz" tab, expand
+  any module, click "Mark as read", confirm completion badge appears
+  without page reload.
+
+- RR-005: Training status page and CSV
+  Steps: Log in as coordinator, navigate to /training-status, confirm
+  staff × module matrix renders, click Export CSV, confirm file downloads
+  with correct data.
+
+- RR-005: Coordinator dashboard training card
+  Steps: Log in as coordinator, confirm "Staff Training Completion" card
+  appears on dashboard with correct count and link to /training-status.
+
+---
+
+## Current system state
+
+The platform was reviewed from scratch (050/060/070) and 5 build batches
+shipped. Capabilities added this session:
+
+- Demo login no longer silently fails in production — button conditionally
+  hidden via /api/config endpoint
+- AI diary scan failures now notify the safeguarding coordinator and write
+  an audit log entry — no more silent safeguarding gaps
+- Newsletter feature removed from the frontend (backend retained)
+- Education and Training pages merged into a single /learn section with
+  two sub-tabs
+- PTA login tab confirmed present and correctly implemented
+- Noticeboard naming standardised across nav and page headings
+- Parents can acknowledge incident disclosures with an optional response —
+  coordinators see acknowledgement status on incident detail
+- Incidents and protocols exportable as branded, confidential PDF reports
+  with LOPIVI data retention footer
+- Training completion tracking across 9 modules — staff see completion
+  badges, coordinators see full staff completion matrix at /training-status
+
+---
+
+## UX / technical items logged but not built
+
+- FIX-05 — API call pattern consolidation: mixed React Query hooks and
+  raw fetch() across pages. Low urgency — both patterns work. Suggested
+  future phase: audit and migrate raw fetch() pages to generated hooks.
+
+- FIX-11 — Protocol detail progressive disclosure: full protocol detail
+  shown at all status stages. Suggested future phase: phase the detail
+  view by protocol status (minimal fields when open, progressive reveal
+  as status advances).
+
+- FIX-04 — In-memory state / autoscale hardening: three issues —
+  loginSessions Map not shared across instances, setInterval pattern
+  detection duplicating in autoscale, express-rate-limit counters not
+  shared. Requires dedicated session. Suggested approach: PostgreSQL-backed
+  session store, DB-backed scan lock, pg-backed rate limit store.
+
+- FLAG-01 residual: newsletter_subscribers table and backend route retained
+  in case reuse is needed. If a future marketing site is built, the
+  subscriber endpoint is available at POST /api/newsletter/subscribe.
+
+---
+
+## Options for next phase
+
+**Option A — FIX-04: In-memory state / autoscale hardening (HIGH effort)**
+Addresses the three in-memory state weaknesses that create reliability
+issues in Replit's autoscale deployment: pupil login sessions lost on
+restart, duplicate pattern detection alerts, ineffective rate limiting.
+Requires PostgreSQL session store, DB-backed scan lock, pg rate limit store.
+This is the highest-impact remaining technical item.
+Step 1 required: YES — scope to auth.ts, index.ts, app.ts, and any
+session/rate limit middleware before speccing.
+
+**Option B — FIX-05: API pattern consolidation (MEDIUM effort)**
+Migrate remaining raw fetch() calls in diary.tsx, behaviour.tsx,
+my-class.tsx, diagnostics.tsx to generated React Query hooks. Reduces
+maintenance burden and standardises error handling across the frontend.
+Low risk, no backend changes.
+Step 1 required: YES — scope to the four frontend files above to confirm
+current fetch patterns before migrating.
+
+**Option C — FIX-11: Protocol progressive disclosure (MEDIUM effort)**
+Phase the protocol detail page by status — show minimal fields when
+status is "open", progressively reveal interviews, referrals, and
+closure sections as status advances. UX improvement for coordinators
+managing early-stage protocols.
+Step 1 required: YES — scope to protocols/detail.tsx to map current
+sections and status values before restructuring.
+
+**Option D — New feature: Email notifications**
+The notification system currently creates in-app notifications only.
+Adding email delivery (SendGrid or similar) for high-priority events
+(Help Now, diary scan skipped, new disclosure) would close a real gap
+for coordinators who may not check the platform constantly.
+Step 1 required: YES — full codebase scan to confirm no email
+infrastructure exists before speccing.
+
+---
+
+## Build record (cumulative)
+
+| Build ID | What | Status |
+|---|---|---|
+| RR-2026-04-10-001 | Demo login fix, AI diary scan alerting, newsletter removal | ✅ Complete |
+| RR-2026-04-10-002 | Learn page merge, Noticeboard rename, PTA tab confirmed | ✅ Complete |
+| RR-2026-04-10-003 | Parent disclosure acknowledgement | ✅ Complete |
+| RR-2026-04-10-004 | PDF export (incidents + protocols, pdfkit) | ✅ Complete |
+| RR-2026-04-10-005 | Training completion tracking (9 modules, staff matrix) | ✅ Complete |
+
+---
+
+## What to bring into the next conversation
+
+1. This handover document
+2. CTX_architecture_safeskoolz_v1_0.md (updated after RR-005 — version
+   in Replit project is current)
+3. A fresh Step 1 scan scoped to whichever files the next phase touches
+   (see Step 1 requirement below)
+
+---
+
+## Step 1 requirement for next phase
+
+- YES for all three remaining options (A, B, C) — each touches files
+  that have changed across this session and assumptions must be verified
+  before speccing.
+
+  Option A (FIX-04): scope to artifacts/api-server/src/routes/auth.ts,
+  artifacts/api-server/src/index.ts, artifacts/api-server/src/app.ts
+
+  Option B (FIX-05): scope to artifacts/safeschool/src/pages/diary.tsx,
+  behaviour.tsx, my-class.tsx, diagnostics.tsx
+
+  Option C (FIX-11): scope to artifacts/safeschool/src/pages/protocols/detail.tsx
+
+---
+
+*Replit Rules Handover | 2026-04-10*
