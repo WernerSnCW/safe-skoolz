@@ -1,0 +1,166 @@
+# STEP 4 — READINESS CHECK
+Build ID: RR-2026-04-10-004
+Date: 2026-04-10
+Note: CTX files not present for safeskoolz. Feature touches external
+package installation and new route file — validated against generic rules.
+
+---
+
+## CHANGES MADE
+
+1. (TYPE B) Approach C confirmed — pdfkit chosen. Gate answered correctly
+   before implementation began. One package only (pdfkit). Justified as
+   pure-Node, no Chrome binary required. Constraint satisfied.
+
+2. (TYPE B) Two code review fixes applied during build — both critical:
+   (a) PDF streaming lifecycle: original pipe() approach was unreliable.
+   Fixed to Buffer-based generation (generate full PDF → send as Buffer).
+   Correct approach for Express response handling.
+   (b) Authorization gap: incident export initially had no per-record
+   scoping. Fixed to match the detail view's authorization model —
+   teachers/heads of year can only export incidents involving their own
+   class/year group pupils. Critical security fix.
+
+3. (TYPE B) Audit log moved to after successful delivery — original
+   implementation logged before response sent. Corrected so audit entry
+   only written if PDF was actually delivered.
+
+4. (TYPE B) Additional roles on incident export noted — phase doc specified
+   coordinator, teacher, senco. Build added head_teacher and head_of_year.
+   These are additive and consistent with the detail view's role model.
+   No objection — correct behaviour.
+
+**Assumption-based changes:**
+- pdfkit installed in api-server package (not monorepo root) — confirmed
+  from build narrative (pnpm install path issue resolved).
+- caseTasksTable and schoolsTable confirmed exported from @workspace/db —
+  required for protocol PDF content.
+- Per-record authorization for incident export matches existing detail
+  route logic — confirmed from Replit's scan of GET /incidents/:id.
+
+---
+
+## REQUIRES USER CONFIRMATION
+
+None.
+
+---
+
+## POST-BUILD VERIFICATION AGAINST ACCEPTANCE CRITERIA
+
+### Approach gate
+✅ Build report explicitly states Approach C (pdfkit), with justification
+   Evidence: Gate answered before implementation. One package installed.
+
+### Incident export
+
+✅ "Export PDF" button visible on incident detail page for coordinator,
+   teacher, senco (and head_teacher, head_of_year — additive)
+   Evidence: Button added to incidents/detail.tsx with role check.
+
+✅ "Export PDF" button NOT visible for parent and PTA roles
+   Evidence: Role-gated display in incidents/detail.tsx confirmed.
+
+⚠️ Clicking button triggers download of valid PDF named
+   "incident-[referenceNumber].pdf"
+   Manual test required — NOT VERIFIED. DEFERRED.
+   (Route responds 401 without auth — correct. End-to-end download
+   requires authenticated session.)
+
+⚠️ PDF contains all six sections (header, incident details, people,
+   assessment, protocol guidance, footer)
+   NOT VERIFIED end-to-end — DEFERRED. pdfExport.ts implements all
+   sections per phase doc spec but output not visually confirmed.
+
+✅ PDF header includes "CONFIDENTIAL" and incident reference number
+   Evidence: pdfExport.ts confirmed to include CONFIDENTIAL marking
+   per implementation narrative.
+
+✅ PDF footer includes generation date, user name, LOPIVI reference
+   Evidence: Footer section implemented in pdfExport.ts per spec.
+
+✅ Audit log entry written with eventType "incident_exported"
+   Evidence: writeAudit() call confirmed, moved to after successful
+   delivery.
+
+✅ Button shows loading state while PDF generating
+   Evidence: Loading spinner and state implemented in incidents/detail.tsx.
+
+### Protocol export
+
+✅ "Export PDF" button visible on protocol detail page for coordinator
+   (and head_teacher, senco — additive, consistent with role model)
+   Evidence: Button added to protocols/detail.tsx with role check.
+
+⚠️ Clicking button triggers download of valid PDF named
+   "protocol-[referenceNumber].pdf"
+   Manual test required — NOT VERIFIED. DEFERRED.
+
+⚠️ PDF contains all eight sections
+   NOT VERIFIED end-to-end — DEFERRED.
+
+✅ PDF header includes "CONFIDENTIAL" and protocol reference number
+   Evidence: Implemented in pdfExport.ts.
+
+✅ PDF footer includes generation date, user name, LOPIVI reference
+   Evidence: Implemented in pdfExport.ts.
+
+✅ Audit log entry written with eventType "protocol_exported"
+   Evidence: writeAudit() call confirmed after successful delivery.
+
+---
+
+## DEFERRED ACCEPTANCE CRITERIA
+
+1. Incident export — end-to-end download + PDF content verification
+   How to verify: Log in as coordinator, open any incident detail page,
+   click Export PDF, confirm file downloads as
+   "incident-[referenceNumber].pdf", open PDF and confirm all six
+   sections are present and correctly populated.
+
+2. Protocol export — end-to-end download + PDF content verification
+   How to verify: Log in as coordinator, open any protocol detail page,
+   click Export PDF, confirm file downloads as
+   "protocol-[referenceNumber].pdf", open PDF and confirm all eight
+   sections present.
+
+3. Role exclusion — parent and PTA cannot access export endpoint directly
+   How to verify: Call GET /api/incidents/:id/export with a parent JWT,
+   confirm 403 returned.
+
+---
+
+## ⚠️ NOTE: pdfkit package installed
+New npm dependency added (pdfkit) to api-server package. This is the only
+new package permitted per the phase doc constraint. Confirmed.
+
+---
+
+## VERDICT: READY FOR BUILD ✅
+
+Build complete. Core deferred ACs are end-to-end download verification —
+these require an authenticated session and cannot be confirmed via curl
+alone. Routes are registered, protected, and responding correctly. Two
+critical issues (streaming lifecycle, authorization gap) were caught by
+code review and fixed during the build. Implementation quality is good.
+
+**Phase status: COMPLETE (with 3 deferred ACs — all require live session)**
+
+---
+
+## REMAINING FIX QUEUE
+
+| Fix | Description | Effort | Priority |
+|---|---|---|---|
+| FIX-06 | Training completion tracking | MEDIUM | MEDIUM |
+| FIX-05 | API pattern consolidation | MEDIUM | MEDIUM |
+| FIX-11 | Protocol progressive disclosure | MEDIUM | LOW |
+| FIX-04 | In-memory state / autoscale | HIGH | MEDIUM |
+
+All critical and high-priority fixes from the original synthesis are now
+complete. Remaining items are medium/low priority improvements.
+
+Recommended next: FIX-06 (training completion tracking) — adds real value
+for coordinators verifying staff have completed safeguarding training.
+Or pause and produce a CTX_architecture_safeskoolz.md to lock in the
+architectural decisions made across Batches 1–4 before continuing.
