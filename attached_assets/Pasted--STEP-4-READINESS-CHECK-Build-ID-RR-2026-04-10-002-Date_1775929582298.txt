@@ -1,0 +1,146 @@
+# STEP 4 — READINESS CHECK
+Build ID: RR-2026-04-10-002
+Date: 2026-04-10
+Note: CTX files not present for safeskoolz. Frontend-only build — validated
+against generic rules only.
+
+---
+
+## CHANGES MADE
+
+1. (TYPE B) FIX-10 marked as pre-existing — no change needed. Confirmed from
+   Replit's scan: PTA tab already present with correct endpoint, purple theme,
+   and PTA-specific copy. AC rewritten to reflect verification rather than
+   implementation.
+
+2. (TYPE B) FIX-12 naming clarified — the nav label was "School Updates" not
+   "Learnings" as assumed. Phase doc assumption was incorrect; Replit found
+   the correct string and renamed it. AC updated to reflect actual string.
+
+3. (TYPE B) Wouter redirect decision documented — Replit kept /education and
+   /training as backward-compatible alias routes rather than removing them.
+   This is the correct choice per the phase doc instruction.
+
+**Assumption-based changes:** None beyond the above.
+
+---
+
+## REQUIRES USER CONFIRMATION
+
+None.
+
+---
+
+## POST-BUILD VERIFICATION AGAINST ACCEPTANCE CRITERIA
+
+### FIX-09: Education + Training → Learn
+
+✅ GET /learn renders a page with two visible tabs: "About Safeguarding"
+   and "Using safeskoolz"
+   Evidence: Learn.tsx created, two sub-tabs implemented importing education
+   and training content.
+
+✅ "About Safeguarding" tab renders role-adaptive education content
+   Evidence: Existing education.tsx content imported — role-adaptive logic
+   preserved.
+
+✅ "Using safeskoolz" tab renders role-adaptive training content
+   Evidence: Existing training.tsx content imported — role-adaptive
+   expandable sections preserved.
+
+✅ No role sees both "Education" and "Training" as separate sidebar items
+   Evidence: All role nav arrays updated in AppLayout.tsx — Training and
+   Education entries replaced with single "Learn" item. GraduationCap
+   import removed (was Training icon, no longer used).
+
+✅ All affected roles now have a single "Learn" item pointing to /learn
+   Evidence: Replit updated all role nav arrays (8 arrays confirmed from
+   AppLayout.tsx edit narrative).
+
+✅ No broken imports — education.tsx and training.tsx retained
+   Evidence: Both files kept. learn.tsx imports from them. Clean compile
+   confirmed, no console errors.
+
+✅ /education and /training routes kept as backward-compatible aliases
+   Evidence: Replit confirmed old routes still work. Correct decision per
+   phase doc constraint.
+
+### FIX-10: PTA Login Tab
+
+✅ Login page shows four tabs: Pupil, Staff, Parent, PTA
+   Evidence: Screenshot confirmed. Pre-existing — already built correctly.
+
+✅ PTA tab renders email + password fields
+   Evidence: Pre-existing implementation confirmed from scan.
+
+✅ PTA tab uses PTA-specific copy and purple theme
+   Evidence: Replit confirmed PTA tab had role-appropriate styling and copy.
+
+⚠️ PTA tab submit calls POST /api/auth/staff/login and returns valid JWT
+   Manual test required: Log in with a PTA demo account and confirm redirect
+   to PTA portal. NOT verified — DEMO_MODE not enabled in this environment.
+   DEFERRED.
+
+✅ Staff tab unchanged
+   Evidence: No changes made to Staff tab — pre-existing tab untouched.
+
+### FIX-12: Noticeboard Naming
+
+✅ Nav label reads "Noticeboard" across all role nav arrays
+   Evidence: Replit updated all 8 role nav arrays from "School Updates" to
+   "Noticeboard".
+
+✅ Page heading in learnings.tsx reads "Noticeboard"
+   Evidence: Heading and description updated in learnings.tsx.
+
+✅ Route path /learnings unchanged
+   Evidence: No route path changes — only label and heading text.
+
+✅ Backend /api/teacher-posts endpoint unchanged
+   Evidence: No backend changes in this build.
+
+---
+
+## DEFERRED ACCEPTANCE CRITERIA
+
+1. FIX-10: PTA login end-to-end (JWT + redirect to PTA portal)
+   How to verify: Enable DEMO_MODE, select a PTA demo account from the PTA
+   tab, submit, confirm redirect to /pta and correct role in JWT.
+
+---
+
+## SCOPE DEVIATION NOTE
+
+The phase doc assumed the nav label was "Learnings" — it was actually
+"School Updates". Replit identified the correct string and renamed it.
+This is not a scope deviation — the intent (standardise to "Noticeboard")
+was correctly executed. No operator confirmation required.
+
+---
+
+## VERDICT: READY FOR BUILD ✅
+
+Build complete. One AC deferred (PTA login e2e) pending DEMO_MODE access —
+same environment constraint as Batch 1. Implementation is sound.
+
+**Phase status: COMPLETE (with 1 deferred AC)**
+
+---
+
+## NEXT PHASE RECOMMENDATION
+
+Remaining fix queue from the synthesis:
+
+| Fix | Description | Effort | Priority |
+|---|---|---|---|
+| FIX-08 | Parent disclosure acknowledgement | LOW | MEDIUM |
+| FIX-06 | Training completion tracking | MEDIUM | MEDIUM |
+| FIX-07 | PDF export (incident + protocol) | MEDIUM | HIGH |
+| FIX-11 | Protocol detail progressive disclosure | MEDIUM | LOW |
+| FIX-05 | API pattern consolidation | MEDIUM | MEDIUM |
+| FIX-04 | In-memory state / autoscale | HIGH | MEDIUM |
+
+Recommended next: FIX-08 (parent disclosure acknowledgement) as Batch 3 —
+LOW effort, touches existing disclosure_permissions table, closes a
+communication gap in the parent workflow. Then FIX-07 (PDF export) as a
+standalone MEDIUM phase — highest priority remaining item.
