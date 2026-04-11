@@ -32,7 +32,7 @@ The project is a pnpm workspace monorepo, separating deployable applications (`a
 - **Auth & Roles:** JWT-based custom authentication supporting multiple roles with a visibility hierarchy. Pupil login uses a staged flow with PIN entry.
 - **Database Schema:** Core entities include schools, users, incidents, protocols, notifications, pattern alerts, audit logs, messages, SENCO caseload, and compliance-related tables.
 - **Compliance Frameworks:** Supports LOPIVI, Convivèxit 2024, and Machista Violence.
-- **Incident Management:** Detailed reporting with emotional state capture, safeguarding checks, three escalation tiers, and a teacher assessment workflow. A disclosure permission model allows parents to grant scoped access to incident details.
+- **Incident Management:** Detailed reporting with emotional state capture, safeguarding checks, three escalation tiers, and a teacher assessment workflow. A disclosure permission model allows parents to grant scoped access to incident details. Parents can acknowledge approved disclosures with an optional response; coordinators see acknowledgement status in the incident detail view.
 - **Messaging System:** Dedicated messaging for pupils, staff, and parents.
 - **SENCO Caseload Tracker:** Manages pupil caseloads, progress, and history.
 - **Behaviour Escalation Tracker:** Points-based system with 7 escalation levels.

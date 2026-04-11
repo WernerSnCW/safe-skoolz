@@ -18,6 +18,8 @@ export const disclosurePermissionsTable = pgTable("incident_disclosure_permissio
   status: varchar("status", { length: 20 }).default("pending").notNull(),
   respondedById: uuid("responded_by_id").references(() => usersTable.id),
   respondedAt: timestamp("responded_at", { withTimezone: true }),
+  acknowledgedAt: timestamp("acknowledged_at", { withTimezone: true }),
+  parentResponse: text("parent_response"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
   index("idx_disclosure_incident").on(table.incidentId),

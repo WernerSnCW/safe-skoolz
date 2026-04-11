@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useListNotifications } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import {
@@ -395,6 +395,40 @@ export default function ParentDashboard({ user }: { user: any }) {
     enabled: childIds.length > 0,
   });
 
+  const queryClient = useQueryClient();
+  const { data: disclosuresData } = useQuery({
+    queryKey: ["/api/incidents/my-disclosures"],
+    queryFn: async () => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch("/api/incidents/my-disclosures", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+  const pendingDisclosures = (disclosuresData || []).filter((d: any) => !d.acknowledgedAt);
+
+  const [ackDisclosureId, setAckDisclosureId] = useState<string | null>(null);
+  const [ackResponse, setAckResponse] = useState("");
+  const acknowledgeMutation = useMutation({
+    mutationFn: async ({ incidentId, disclosureId, response }: { incidentId: string; disclosureId: string; response?: string }) => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch(`/api/incidents/${incidentId}/disclosure/${disclosureId}/acknowledge`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ response: response || undefined }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Failed to acknowledge");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents/my-disclosures"] });
+      setAckDisclosureId(null);
+      setAckResponse("");
+    },
+  });
+
   const [showSchoolOverview, setShowSchoolOverview] = useState(false);
   const { data: schoolData } = useQuery({
     queryKey: ["/api/dashboard/school-overview"],
@@ -485,6 +519,72 @@ export default function ParentDashboard({ user }: { user: any }) {
           ))}
         </div>
       </div>
+
+      {pendingDisclosures.length > 0 && (
+        <div className="space-y-3">
+          {pendingDisclosures.map((disc: any) => (
+            <Card key={disc.id} className="border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm">Action required — Incident disclosure</h3>
+                    <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
+                      The school has shared details of incident <strong className="font-mono">{disc.referenceNumber}</strong> with you. Please acknowledge receipt.
+                    </p>
+
+                    {ackDisclosureId === disc.id ? (
+                      <div className="mt-3 space-y-2">
+                        <textarea
+                          value={ackResponse}
+                          onChange={(e) => setAckResponse(e.target.value)}
+                          placeholder="Add a response — optional"
+                          maxLength={1000}
+                          rows={2}
+                          className="w-full px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-300"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => acknowledgeMutation.mutate({ incidentId: disc.incidentId, disclosureId: disc.id, response: ackResponse })}
+                            disabled={acknowledgeMutation.isPending}
+                            className="bg-amber-600 hover:bg-amber-700 text-white"
+                          >
+                            <CheckCircle2 size={14} className="mr-1" />
+                            {acknowledgeMutation.isPending ? "Confirming..." : "Confirm Acknowledgement"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => { setAckDisclosureId(null); setAckResponse(""); }}
+                            className="text-muted-foreground"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                        {acknowledgeMutation.isError && (
+                          <p className="text-xs text-destructive">Failed to acknowledge. Please try again.</p>
+                        )}
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => setAckDisclosureId(disc.id)}
+                        className="mt-2 bg-amber-600 hover:bg-amber-700 text-white"
+                      >
+                        <CheckCircle2 size={14} className="mr-1" />
+                        Acknowledge
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>

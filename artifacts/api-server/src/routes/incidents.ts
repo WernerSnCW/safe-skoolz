@@ -256,6 +256,46 @@ router.post("/incidents", authMiddleware, async (req, res): Promise<void> => {
   res.status(201).json(result);
 });
 
+router.get("/incidents/my-disclosures", authMiddleware, requireRole("parent"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+
+  const disclosures = await db
+    .select()
+    .from(disclosurePermissionsTable)
+    .where(
+      and(
+        eq(disclosurePermissionsTable.schoolId, user.schoolId),
+        eq(disclosurePermissionsTable.requestedFromParentId, user.userId),
+        eq(disclosurePermissionsTable.status, "approved")
+      )
+    )
+    .orderBy(desc(disclosurePermissionsTable.respondedAt));
+
+  const incidentIds = [...new Set(disclosures.map(d => d.incidentId))];
+  let incidentMap: Record<string, { referenceNumber: string; category: string }> = {};
+  if (incidentIds.length > 0) {
+    const incidents = await db
+      .select({ id: incidentsTable.id, referenceNumber: incidentsTable.referenceNumber, category: incidentsTable.category })
+      .from(incidentsTable)
+      .where(inArray(incidentsTable.id, incidentIds));
+    for (const inc of incidents) {
+      incidentMap[inc.id] = { referenceNumber: inc.referenceNumber, category: inc.category };
+    }
+  }
+
+  const result = disclosures.map(d => ({
+    id: d.id,
+    incidentId: d.incidentId,
+    referenceNumber: incidentMap[d.incidentId]?.referenceNumber || null,
+    category: incidentMap[d.incidentId]?.category || null,
+    acknowledgedAt: d.acknowledgedAt ? d.acknowledgedAt.toISOString() : null,
+    respondedAt: d.respondedAt ? d.respondedAt.toISOString() : null,
+    parentResponse: d.parentResponse || null,
+  }));
+
+  res.json(result);
+});
+
 router.get("/incidents/:id", authMiddleware, async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
@@ -620,6 +660,84 @@ router.patch("/incidents/:id/disclosure-respond", authMiddleware, requireRole("p
   } else {
     res.json({ success: true, permission: updated });
   }
+});
+
+router.patch("/incidents/:incidentId/disclosure/:disclosureId/acknowledge", authMiddleware, requireRole("parent"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+  const incidentId = req.params.incidentId;
+  const disclosureId = req.params.disclosureId;
+
+  const [disclosure] = await db
+    .select()
+    .from(disclosurePermissionsTable)
+    .where(
+      and(
+        eq(disclosurePermissionsTable.id, disclosureId),
+        eq(disclosurePermissionsTable.incidentId, incidentId),
+        eq(disclosurePermissionsTable.schoolId, user.schoolId)
+      )
+    );
+
+  if (!disclosure) {
+    res.status(404).json({ error: "Disclosure not found" });
+    return;
+  }
+
+  if (disclosure.requestedFromParentId !== user.userId) {
+    res.status(403).json({ error: "This disclosure was not addressed to you" });
+    return;
+  }
+
+  if (disclosure.status !== "approved") {
+    res.status(400).json({ error: "Only approved disclosures can be acknowledged" });
+    return;
+  }
+
+  if (disclosure.acknowledgedAt !== null) {
+    res.status(400).json({ error: "This disclosure has already been acknowledged" });
+    return;
+  }
+
+  const responseText = req.body.response;
+  let parentResponse: string | null = null;
+  if (typeof responseText === "string" && responseText.trim().length > 0) {
+    parentResponse = responseText.trim().substring(0, 1000);
+  }
+
+  const [updated] = await db
+    .update(disclosurePermissionsTable)
+    .set({
+      acknowledgedAt: new Date(),
+      parentResponse,
+    })
+    .where(
+      and(
+        eq(disclosurePermissionsTable.id, disclosureId),
+        eq(disclosurePermissionsTable.incidentId, incidentId),
+        eq(disclosurePermissionsTable.schoolId, user.schoolId),
+        eq(disclosurePermissionsTable.requestedFromParentId, user.userId),
+        eq(disclosurePermissionsTable.status, "approved"),
+        sql`${disclosurePermissionsTable.acknowledgedAt} IS NULL`
+      )
+    )
+    .returning();
+
+  if (!updated) {
+    res.status(400).json({ error: "Disclosure could not be acknowledged — it may have already been acknowledged" });
+    return;
+  }
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "disclosure_acknowledged",
+    actor: { userId: user.userId, schoolId: user.schoolId, role: user.role },
+    targetType: "disclosure_permission",
+    targetId: disclosureId,
+    details: { incidentId, hasResponse: !!parentResponse },
+    req,
+  });
+
+  res.json(updated);
 });
 
 router.get("/incidents/:id/disclosure-permissions", authMiddleware, requireRole("coordinator", "head_teacher", "senco", "parent"), async (req, res): Promise<void> => {

@@ -1,0 +1,201 @@
+# PHASE DOC — SAFESKOOLZ BATCH 3: PARENT DISCLOSURE ACKNOWLEDGEMENT
+Build ID: RR-2026-04-10-003
+Sub-phase: 001 (single pass)
+Status: STEP 2 COMPLETE — ready for Step 3
+
+---
+
+## STEP 2 SIGN-OFF
+
+**Agreed idea (one paragraph):**
+When a safeguarding incident is disclosed to a parent, the parent currently
+receives a notification but has no way to acknowledge receipt or respond.
+This build adds a parent acknowledgement flow to the existing disclosure
+permissions system. When a disclosure request is responded to (status moves
+to "approved"), the parent dashboard surfaces a pending acknowledgement card.
+The parent clicks "Acknowledge" which calls a new PATCH endpoint that records
+acknowledgedAt and an optional parentResponse text on the disclosure_permissions
+record. The coordinator can see acknowledgement status on the incident detail
+page. No new tables — this extends the existing disclosure_permissions table
+with two new nullable columns.
+
+**Open assumptions going into Step 3:**
+- disclosure_permissions table currently has: id, incidentId, requestedBy,
+  parentId, status, requestedAt, respondedAt — Replit AI must confirm exact
+  column names from the schema file before adding new columns
+- The parent dashboard (ParentDashboard.tsx) currently fetches
+  GET /api/dashboard/parent — Replit AI to confirm whether disclosure
+  permissions data is already in that response or needs a separate fetch
+- incidents/detail.tsx renders disclosure section — Replit AI to confirm
+  the exact component or section that shows disclosure status to coordinators
+- Drizzle schema push is the correct migration mechanism (no raw SQL) —
+  confirmed from Step 1 scan
+
+**Scope boundary:**
+This build covers:
+- disclosure_permissions schema: add acknowledgedAt (timestamptz, nullable)
+  and parentResponse (text, nullable) columns
+- New endpoint: PATCH /api/incidents/:incidentId/disclosure/:disclosureId/acknowledge
+  — parent role only, sets acknowledgedAt = now(), optionally stores
+  parentResponse, writes audit log entry
+- ParentDashboard.tsx: show pending acknowledgement card for any disclosure
+  with status "approved" and acknowledgedAt null
+- incidents/detail.tsx: show acknowledgement status (acknowledged / pending /
+  not applicable) in the disclosure section visible to coordinators
+- Audit log entry on acknowledgement: eventType "disclosure_acknowledged"
+
+This build does NOT cover:
+- Any change to the disclosure request or response flow
+- Email or push notifications to coordinator on acknowledgement
+- Parent being able to dispute or reject a disclosure
+- Any change to the disclosure_permissions status field values
+- PDF generation of disclosure acknowledgement
+- Any other incident or protocol changes
+
+---
+
+## WHAT WILL BE BUILT
+
+### Schema change (disclosure_permissions table)
+
+Add to lib/db/src/schema/disclosure_permissions.ts (or equivalent file):
+- acknowledgedAt: timestamp with timezone, nullable, no default
+- parentResponse: text, nullable, no default
+
+Run drizzle-kit push after schema change.
+
+---
+
+### New endpoint: PATCH /api/incidents/:incidentId/disclosure/:disclosureId/acknowledge
+
+**File:** artifacts/api-server/src/routes/incidents.ts (or a new
+disclosure sub-route — Replit AI to decide based on existing route structure)
+
+**Auth:** requireRole("parent")
+
+**Validation:**
+- Confirm the disclosure record exists
+- Confirm disclosureId belongs to incidentId (prevent cross-incident tampering)
+- Confirm the authenticated user's id matches the parentId on the record
+- Confirm status is "approved" (only approved disclosures can be acknowledged)
+- Confirm acknowledgedAt is currently null (idempotency — do not re-acknowledge)
+
+**On success:**
+- Set acknowledgedAt = new Date()
+- Set parentResponse = req.body.response (string, optional, max 1000 chars)
+- Write audit log: eventType "disclosure_acknowledged", targetType
+  "disclosure_permission", targetId: disclosureId
+- Return updated disclosure record
+
+**On failure:**
+- 404 if disclosure not found
+- 403 if parentId does not match authenticated user
+- 400 if status is not "approved"
+- 400 if already acknowledged (acknowledgedAt is not null)
+
+---
+
+### ParentDashboard.tsx — Pending Acknowledgement Card
+
+**Fetch:** Add GET /api/incidents/my-disclosures (new endpoint — see below)
+or extend GET /api/dashboard/parent to include pending disclosures.
+Replit AI to choose the simpler option based on existing dashboard route
+structure.
+
+**New endpoint: GET /api/incidents/my-disclosures**
+- Auth: requireRole("parent")
+- Returns all disclosure_permissions records where parentId = authenticated
+  user id and status = "approved"
+- Includes: id, incidentId, incident referenceNumber, incident category,
+  acknowledgedAt, respondedAt
+- Ordered by respondedAt desc
+
+**UI (ParentDashboard.tsx):**
+- If any disclosures have acknowledgedAt = null: show a card above the
+  main dashboard content with amber/warning styling
+- Card heading: "Action required — Incident disclosure"
+- Card body: "The school has shared details of incident [referenceNumber]
+  with you. Please acknowledge receipt."
+- Button: "Acknowledge" — opens a small inline form with an optional
+  text area ("Add a response — optional") and a confirm button
+- On confirm: call PATCH acknowledge endpoint, refresh the disclosures list
+- On success: card disappears (or shows "Acknowledged" state briefly)
+
+---
+
+### incidents/detail.tsx — Coordinator Acknowledgement Status
+
+In the existing disclosure section of the incident detail page, for each
+disclosure_permissions record with status "approved", show:
+
+- If acknowledgedAt is not null: "Acknowledged by parent on [date]"
+  and parentResponse if present
+- If acknowledgedAt is null: "Awaiting parent acknowledgement"
+- If status is not "approved": no acknowledgement status shown
+
+This display is read-only for coordinators — no action required.
+
+---
+
+## CONSTRAINTS
+
+- No new npm packages
+- Schema change via drizzle-kit push only — no raw SQL
+- New endpoint must follow existing route pattern (Router(), mounted in
+  routes/index.ts, static routes before parameterised routes)
+- PATCH endpoint must be scoped to parent role only — coordinator must
+  not be able to acknowledge on behalf of a parent
+- Audit log via writeAudit() from lib/auditHelper.ts
+- Backward compatibility: existing disclosure_permissions rows unaffected —
+  new columns are nullable with no default
+- ParentDashboard.tsx: use the same data-fetching pattern already present
+  in that file (React Query hook or raw fetch — match whichever is used)
+- incidents/detail.tsx: read-only display only — no new mutations from
+  the coordinator view
+- openapi.yaml: add the new endpoints. Do not run Orval codegen as part
+  of this build — that is a separate step
+
+---
+
+## ACCEPTANCE CRITERIA
+
+### Schema
+- [ ] disclosure_permissions table has acknowledgedAt (timestamptz nullable)
+  and parentResponse (text nullable) columns after drizzle-kit push
+- [ ] Existing disclosure rows unaffected (nulls for new columns)
+
+### PATCH acknowledge endpoint
+- [ ] PATCH /api/incidents/:incidentId/disclosure/:disclosureId/acknowledge
+  returns 200 and updated record when called by the correct parent with
+  an approved, unacknowledged disclosure
+- [ ] Returns 403 when called by a user whose id does not match parentId
+- [ ] Returns 400 when disclosure status is not "approved"
+- [ ] Returns 400 when disclosure is already acknowledged
+  (acknowledgedAt is not null)
+- [ ] Audit log entry written with eventType "disclosure_acknowledged"
+- [ ] Optional parentResponse (max 1000 chars) stored when provided
+- [ ] Empty or absent response field stored as null (not empty string)
+
+### GET my-disclosures endpoint
+- [ ] Returns only disclosures where parentId matches authenticated user
+- [ ] Returns only disclosures with status "approved"
+- [ ] Includes incidentId, referenceNumber, category, acknowledgedAt,
+  respondedAt in response
+
+### ParentDashboard.tsx
+- [ ] Pending acknowledgement card visible when at least one approved
+  disclosure has acknowledgedAt = null
+  Manual test required: create a disclosure, approve it, log in as the
+  parent, confirm card appears
+- [ ] Card shows correct incident reference number
+- [ ] Acknowledge button + optional response field present on card
+- [ ] After acknowledging, card no longer shows pending state
+- [ ] No card shown when all disclosures are acknowledged or none exist
+
+### incidents/detail.tsx
+- [ ] Coordinator sees "Acknowledged by parent on [date]" for acknowledged
+  disclosures
+- [ ] Coordinator sees "Awaiting parent acknowledgement" for approved but
+  unacknowledged disclosures
+- [ ] parentResponse displayed when present
+- [ ] No acknowledgement status shown for disclosures not yet approved

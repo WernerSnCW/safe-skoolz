@@ -412,10 +412,30 @@ export default function IncidentDetail() {
                   </div>
                 )}
                 {canRequestDisclosure && incAny.disclosureStatus === "approved" && (
-                  <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3 mt-2">
+                  <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3 mt-2 space-y-2">
                     <p className="text-xs text-green-700 dark:text-green-400 flex items-center gap-1.5">
                       <CheckCircle size={12} /> Parent has approved staff disclosure
                     </p>
+                    {incAny.disclosurePermissions?.filter((p: any) => p.status === "approved").map((p: any) => (
+                      <div key={p.id} className="text-xs text-green-700 dark:text-green-400 pl-5">
+                        {p.acknowledgedAt ? (
+                          <>
+                            <p className="flex items-center gap-1.5">
+                              <CheckCircle size={10} /> Acknowledged by parent on {formatDate(p.acknowledgedAt)}
+                            </p>
+                            {p.parentResponse && (
+                              <p className="mt-1 pl-4 text-green-600 dark:text-green-500 italic">
+                                "{p.parentResponse}"
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <p className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
+                            <Clock size={10} /> Awaiting parent acknowledgement
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
                 {canRequestDisclosure && incAny.disclosureStatus === "declined" && (
