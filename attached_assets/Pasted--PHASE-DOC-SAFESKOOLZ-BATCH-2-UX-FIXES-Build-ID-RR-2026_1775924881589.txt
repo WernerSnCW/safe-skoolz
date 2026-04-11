@@ -1,0 +1,183 @@
+# PHASE DOC — SAFESKOOLZ BATCH 2 UX FIXES
+Build ID: RR-2026-04-10-002
+Sub-phase: 001 (single pass — all LOW effort, frontend-only, non-overlapping)
+Status: STEP 2 COMPLETE — ready for Step 3
+
+---
+
+## STEP 2 SIGN-OFF
+
+**Agreed idea (one paragraph):**
+Three low-effort frontend UX fixes identified in the 070 product review.
+Fix 1: merge the Education and Training pages into a single "Learn" section
+with two sub-tabs ("About Safeguarding" and "Using safeskoolz"), updating
+sidebar navigation for all affected roles and replacing the two separate
+routes with a single /learn route. Fix 2: add a dedicated "PTA" tab to the
+login screen so PTA members do not need to use the Staff tab — the PTA tab
+pre-fills PTA demo accounts and uses role-appropriate copy, but still submits
+to the same POST /api/auth/staff/login endpoint. Fix 3: standardise the
+noticeboard naming — rename "Learnings" to "Noticeboard" consistently across
+the sidebar navigation label and any page headings in learnings.tsx, without
+changing the underlying route path or backend endpoint.
+
+**Open assumptions going into Step 3:**
+- The sidebar navigation in AppLayout.tsx has separate nav arrays per role
+  (confirmed from Step 1 scan — 9 role variants). Replit AI must identify
+  which roles currently show Education and/or Training nav items before
+  merging them.
+- The /learn route is not currently used anywhere in App.tsx — Replit AI
+  to confirm before adding it.
+- PTA demo accounts exist in login.tsx STAFF_ACCOUNTS or a separate array —
+  Replit AI to confirm the exact array name and account shape before adding
+  the PTA tab.
+- learnings.tsx page heading text — Replit AI to confirm the exact string
+  before renaming.
+
+**Scope boundary:**
+This build covers:
+- education.tsx + training.tsx merged into a single Learn.tsx (or tabbed
+  component) at route /learn
+- AppLayout.tsx: all role nav arrays updated — Education and Training items
+  replaced with a single "Learn" item pointing to /learn
+- App.tsx: /education and /training routes replaced with /learn route
+- login.tsx: new PTA tab added alongside existing Pupil / Staff / Parent tabs
+- AppLayout.tsx: "Learnings" nav label renamed to "Noticeboard"
+- learnings.tsx: page heading renamed to "Noticeboard" if present
+
+This build does NOT cover:
+- Any backend route changes
+- Any schema changes
+- Any change to the education.tsx or training.tsx content itself — only
+  the container/navigation structure changes
+- Orval codegen
+- Any new API endpoints
+- PTA login endpoint change — still uses POST /api/auth/staff/login
+- Any change to the /api/teacher-posts backend
+
+---
+
+## WHAT WILL BE BUILT
+
+### FIX-09: Education + Training → "Learn" Section
+
+**New component/page:**
+- Create artifacts/safeschool/src/pages/learn.tsx
+- Two sub-tabs: "About Safeguarding" and "Using safeskoolz"
+- "About Safeguarding" tab: render the existing content from education.tsx
+  (role-adaptive tabs, quiz, accordions) — import or inline
+- "Using safeskoolz" tab: render the existing content from training.tsx
+  (role-adaptive expandable sections) — import or inline
+- Default tab: "About Safeguarding"
+
+**Routing (App.tsx):**
+- Add route: /learn → Learn component
+- Keep /education and /training as redirect routes to /learn to avoid
+  broken bookmarks (if wouter supports redirects — otherwise remove them
+  and rely on nav updates)
+- Replit AI to confirm wouter redirect syntax before implementing
+
+**Navigation (AppLayout.tsx):**
+- For every role that currently shows "Education" nav item: replace with
+  "Learn" pointing to /learn
+- For every role that currently shows "Training" nav item: remove it
+  (consolidated into Learn)
+- Use the same icon currently used for Education (Replit AI to confirm
+  icon name from AppLayout.tsx)
+
+**Files touched:**
+- artifacts/safeschool/src/pages/learn.tsx (new file)
+- artifacts/safeschool/src/App.tsx
+- artifacts/safeschool/src/components/layout/AppLayout.tsx
+- artifacts/safeschool/src/pages/education.tsx (keep — referenced by learn.tsx)
+- artifacts/safeschool/src/pages/training.tsx (keep — referenced by learn.tsx)
+
+---
+
+### FIX-10: PTA Login Tab
+
+**Frontend (login.tsx):**
+- Add a fourth tab: "PTA" alongside Pupil / Staff / Parent
+- Tab content: email + password fields (same as Staff tab)
+- Pre-populate demo account dropdown with PTA demo accounts
+  (same pattern as STAFF_ACCOUNTS dropdown)
+- On submit: call POST /api/auth/staff/login with email, password, role: "pta"
+  — same endpoint as staff, same payload shape
+- Tab label copy: "PTA Member" (not "Staff")
+- Demo dropdown label: "Select PTA member" (not "Select staff member")
+
+**Files touched:**
+- artifacts/safeschool/src/pages/login.tsx
+
+---
+
+### FIX-12: Noticeboard Naming Standardisation
+
+**Frontend:**
+- AppLayout.tsx: find the nav item that links to the learnings/noticeboard
+  page and update its label to "Noticeboard" if not already
+- learnings.tsx: update any page heading, title, or H1 text that says
+  "Learnings" to "Noticeboard"
+- Do NOT rename the file, the route path, or the API endpoint
+
+**Files touched:**
+- artifacts/safeschool/src/components/layout/AppLayout.tsx
+- artifacts/safeschool/src/pages/learnings.tsx
+
+---
+
+## CONSTRAINTS
+
+- No backend changes in this build
+- No schema changes in this build
+- No Orval codegen run
+- No new npm packages
+- education.tsx and training.tsx must not be deleted — they are referenced
+  by the new learn.tsx
+- PTA login tab must use POST /api/auth/staff/login — do not create a new
+  endpoint
+- Route paths for /education and /training: if wouter does not support
+  redirect components, remove the old routes entirely rather than leaving
+  dead routes — Replit AI to decide and document the choice in the build report
+- Shadcn UI + Lucide icons only for any new UI elements
+- Backward compatibility: no data changes, all existing deep links to
+  /education and /training may break — acceptable per scope boundary above
+- All role nav arrays in AppLayout.tsx must be updated — do not update
+  only one role and leave others inconsistent
+
+---
+
+## ACCEPTANCE CRITERIA
+
+### FIX-09
+
+- [ ] GET /learn renders a page with two visible tabs: "About Safeguarding"
+  and "Using safeskoolz"
+- [ ] "About Safeguarding" tab renders the content currently in education.tsx
+  (role-adaptive — pupil sees pupil content, staff sees staff content)
+- [ ] "Using safeskoolz" tab renders the content currently in training.tsx
+  (role-adaptive expandable sections)
+- [ ] No role sees both "Education" and "Training" as separate sidebar items
+- [ ] All roles that previously had Education or Training in the sidebar now
+  have a single "Learn" item pointing to /learn
+- [ ] No broken imports after education.tsx and training.tsx are retained
+  but their direct routes removed or redirected
+
+### FIX-10
+
+- [ ] Login page shows four tabs: Pupil, Staff, Parent, PTA
+- [ ] PTA tab renders email + password fields
+- [ ] PTA tab demo dropdown pre-populates with PTA demo accounts (not staff)
+- [ ] PTA tab submit calls POST /api/auth/staff/login and returns a valid JWT
+  on success
+  Manual test required: log in with a PTA demo account via the new tab and
+  confirm redirect to PTA portal
+- [ ] Staff tab is unchanged — still shows staff accounts only
+
+### FIX-12
+
+- [ ] Nav item label for learnings/noticeboard page reads "Noticeboard" in
+  all role navigation arrays where it appears
+- [ ] Page heading in learnings.tsx reads "Noticeboard" (or equivalent
+  display title)
+- [ ] Route path /learnings (or whatever it is) unchanged
+- [ ] Backend /api/teacher-posts endpoint unchanged

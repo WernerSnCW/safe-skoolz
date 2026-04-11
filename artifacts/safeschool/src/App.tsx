@@ -21,11 +21,10 @@ import AlertsList from "@/pages/alerts";
 import NotificationsList from "@/pages/notifications";
 import Settings from "@/pages/settings";
 import MyClass from "@/pages/my-class";
-import Education from "@/pages/education";
+import LearnPage from "@/pages/learn";
 import MessagesPage from "@/pages/messages";
 import CaseloadPage from "@/pages/caseload";
 import BehaviourPage from "@/pages/behaviour";
-import TrainingPage from "@/pages/training";
 import PtaPortal from "@/pages/pta";
 import Diagnostics from "@/pages/diagnostics";
 import DiagnosticsResults from "@/pages/diagnostics-results";
@@ -98,8 +97,14 @@ function Router() {
       <Route path="/notifications">
         {() => <ProtectedRoute component={NotificationsList} />}
       </Route>
+      <Route path="/learn">
+        {() => <ProtectedRoute component={LearnPage} />}
+      </Route>
       <Route path="/education">
-        {() => <ProtectedRoute component={Education} />}
+        {() => <ProtectedRoute component={LearnPage} />}
+      </Route>
+      <Route path="/training">
+        {() => <ProtectedRoute component={LearnPage} />}
       </Route>
       <Route path="/messages">
         {() => <ProtectedRoute component={MessagesPage} />}
@@ -109,9 +114,6 @@ function Router() {
       </Route>
       <Route path="/behaviour">
         {() => <ProtectedRoute component={BehaviourPage} />}
-      </Route>
-      <Route path="/training">
-        {() => <ProtectedRoute component={TrainingPage} />}
       </Route>
       <Route path="/pta">
         {() => <ProtectedRoute component={PtaPortal} />}

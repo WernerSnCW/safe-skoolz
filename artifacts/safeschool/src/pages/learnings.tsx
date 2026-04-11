@@ -311,12 +311,12 @@ export default function LearningsPage() {
         <div>
           <h1 className="text-3xl font-display font-bold flex items-center gap-3">
             <Megaphone className="text-indigo-500" size={32} />
-            School Updates
+            Noticeboard
           </h1>
           <p className="text-muted-foreground mt-1">
             {isStaff
-              ? "Share learnings, resources, and information with the school community."
-              : "Latest updates and learnings from your teachers."}
+              ? "Share updates, resources, and information with the school community."
+              : "Latest updates from your teachers."}
           </p>
         </div>
         {isStaff && !showCompose && (

@@ -4,13 +4,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { 
   ShieldCheck, Home, AlertTriangle, FileText, Shield,
-  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, GraduationCap, ClipboardCheck, BookHeart, Megaphone, BookMarked
+  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, ClipboardCheck, BookHeart, Megaphone, BookMarked
 } from "lucide-react";
 import { useListNotifications } from "@workspace/api-client-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const MOBILE_PRIORITY_HREFS: Record<string, string[]> = {
-  pupil: ["/", "/report", "/diary", "/education"],
+  pupil: ["/", "/report", "/diary", "/learn"],
   parent: ["/", "/report", "/messages", "/notifications"],
   teacher: ["/", "/report", "/class", "/messages"],
   head_of_year: ["/", "/report", "/class", "/messages"],
@@ -18,7 +18,7 @@ const MOBILE_PRIORITY_HREFS: Record<string, string[]> = {
   senco: ["/", "/caseload", "/incidents", "/messages"],
   coordinator: ["/", "/incidents", "/protocols", "/alerts"],
   head_teacher: ["/", "/incidents", "/protocols", "/alerts"],
-  pta: ["/pta", "/education", "/notifications", "/learnings"],
+  pta: ["/pta", "/learn", "/notifications", "/learnings"],
 };
 
 function getMobileNavItems(navItems: any[], role: string) {
@@ -63,10 +63,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         ...base,
         { name: "Report Incident", href: "/report", icon: AlertTriangle },
         { name: "My Diary", href: "/diary", icon: BookHeart },
-        { name: "School Updates", href: "/learnings", icon: Megaphone },
+        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
         { name: "My Behaviour", href: "/behaviour", icon: Gauge },
-        { name: "Training", href: "/training", icon: GraduationCap },
-        { name: "Learn", href: "/education", icon: BookOpen },
+        { name: "Learn", href: "/learn", icon: BookOpen },
         { name: "Case Studies", href: "/case-studies", icon: BookMarked },
         { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
         { name: "My Settings", href: "/settings", icon: Settings },
@@ -79,10 +78,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: "Report Incident", href: "/report", icon: AlertTriangle },
         { name: "Incidents", href: "/incidents", icon: FileText },
         { name: "Behaviour", href: "/behaviour", icon: Gauge },
-        { name: "School Updates", href: "/learnings", icon: Megaphone },
+        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
         { name: "Messages", href: "/messages", icon: MessageCircle },
-        { name: "Training", href: "/training", icon: GraduationCap },
-        { name: "Learn", href: "/education", icon: BookOpen },
+        { name: "Learn", href: "/learn", icon: BookOpen },
         { name: "Case Studies", href: "/case-studies", icon: BookMarked },
         { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
@@ -94,14 +92,13 @@ export function AppLayout({ children }: AppLayoutProps) {
       return [
         ...base,
         { name: "Log Incident", href: "/report", icon: AlertTriangle },
-        { name: "School Updates", href: "/learnings", icon: Megaphone },
+        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
         { name: "Behaviour", href: "/behaviour", icon: Gauge },
         { name: user.role === "head_of_year" ? "My Year Group" : "My Class", href: "/class", icon: Users },
         { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Incidents", href: "/incidents", icon: FileText },
         { name: "Alerts", href: "/alerts", icon: Activity },
-        { name: "Training", href: "/training", icon: GraduationCap },
-        { name: "Learn", href: "/education", icon: BookOpen },
+        { name: "Learn", href: "/learn", icon: BookOpen },
         { name: "Case Studies", href: "/case-studies", icon: BookMarked },
         { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
@@ -113,12 +110,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       return [
         ...base,
         { name: "Log Incident", href: "/report", icon: AlertTriangle },
-        { name: "School Updates", href: "/learnings", icon: Megaphone },
+        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
         { name: "Behaviour", href: "/behaviour", icon: Gauge },
         { name: "My Pupils", href: "/class", icon: Users },
         { name: "Messages", href: "/messages", icon: MessageCircle },
-        { name: "Training", href: "/training", icon: GraduationCap },
-        { name: "Learn", href: "/education", icon: BookOpen },
+        { name: "Learn", href: "/learn", icon: BookOpen },
         { name: "Case Studies", href: "/case-studies", icon: BookMarked },
         { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
@@ -130,7 +126,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       return [
         ...base,
         { name: "My Caseload", href: "/caseload", icon: ClipboardList },
-        { name: "School Updates", href: "/learnings", icon: Megaphone },
+        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
         { name: "Behaviour", href: "/behaviour", icon: Gauge },
         { name: "Log Incident", href: "/report", icon: AlertTriangle },
         { name: "Incidents", href: "/incidents", icon: FileText },
@@ -138,8 +134,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: "Messages", href: "/messages", icon: MessageCircle },
         { name: "Protocols", href: "/protocols", icon: Shield },
         { name: "Alerts", href: "/alerts", icon: Activity },
-        { name: "Training", href: "/training", icon: GraduationCap },
-        { name: "Learn", href: "/education", icon: BookOpen },
+        { name: "Learn", href: "/learn", icon: BookOpen },
         { name: "Case Studies", href: "/case-studies", icon: BookMarked },
         { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
@@ -150,9 +145,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     if (user.role === "pta") {
       return [
         { name: "PTA Dashboard", href: "/pta", icon: Home },
-        { name: "School Updates", href: "/learnings", icon: Megaphone },
-        { name: "Training", href: "/training", icon: GraduationCap },
-        { name: "Learn", href: "/education", icon: BookOpen },
+        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
+        { name: "Learn", href: "/learn", icon: BookOpen },
         { name: "Case Studies", href: "/case-studies", icon: BookMarked },
         { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
         { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
@@ -163,7 +157,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     // Coordinator, Head Teacher
     return [
       ...base,
-      { name: "School Updates", href: "/learnings", icon: Megaphone },
+      { name: "Noticeboard", href: "/learnings", icon: Megaphone },
       { name: "Behaviour", href: "/behaviour", icon: Gauge },
       { name: "Log Incident", href: "/report", icon: AlertTriangle },
       { name: "Incidents", href: "/incidents", icon: FileText },
@@ -172,8 +166,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       { name: "Protocols", href: "/protocols", icon: Shield },
       { name: "Alerts", href: "/alerts", icon: Activity },
       { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
-      { name: "Training", href: "/training", icon: GraduationCap },
-      { name: "Learn", href: "/education", icon: BookOpen },
+      { name: "Learn", href: "/learn", icon: BookOpen },
       { name: "Case Studies", href: "/case-studies", icon: BookMarked },
       { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
       { name: "Settings", href: "/settings", icon: Settings },
