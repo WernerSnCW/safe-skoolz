@@ -52,6 +52,7 @@ The project is a pnpm workspace monorepo, separating deployable applications (`a
 - **Broadcast Notifications:** Coordinator/head_teacher roles can send in-app alerts to various audiences (e.g., `all_parents`, `all_staff`).
 - **Case Studies Page:** Interactive page with 6 real-pattern case studies demonstrating platform features, role-adaptive content, and interventions.
 - **How It Works Page:** Public page with an interactive step-by-step walkthrough of the platform's features using a case study.
+- **PDF Export:** Incident and protocol reports can be exported as branded PDF documents with confidential marking, LOPIVI data retention notice, and audit trail. Incident export available to coordinator/head_teacher/senco/teacher/head_of_year; protocol export to coordinator/head_teacher/senco. Per-record authorization mirrors the detail view (teacher/head_of_year scoped to their class/year pupils).
 - **Protocol Guidance on Serious Incidents:** Post-submission guidance for Tier 2/3 incidents, displaying detailed protocols (LOPIVI, Convivèxit) with steps, warnings, legal basis, and referral requirements.
 - **Diagnostic Perception Gaps:** Diagnostic results for parents/non-leadership include a "Perception Gaps" card highlighting significant differences in respondent group scores.
 - **Teacher School Updates (Learnings):** Staff can broadcast posts with various categories and audience targeting. A "Heads Up" category provides prominent observation guidance for staff.
@@ -71,3 +72,4 @@ The project is a pnpm workspace monorepo, separating deployable applications (`a
 - **Query Management:** TanStack React Query
 - **Rate Limiting:** express-rate-limit
 - **AI Integration:** OpenAI SDK (gpt-5-nano)
+- **PDF Generation:** pdfkit (incident and protocol export)

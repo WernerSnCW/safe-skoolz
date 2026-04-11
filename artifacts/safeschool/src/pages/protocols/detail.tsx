@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { useGetProtocol } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { formatDateTime, formatDate } from "@/lib/utils";
-import { ArrowLeft, Shield, FileText, AlertTriangle, Users, Calendar, CheckCircle } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { ArrowLeft, Shield, FileText, AlertTriangle, Users, Calendar, CheckCircle, Download, Loader2 } from "lucide-react";
 
 const RISK_LEVEL_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   low: { bg: "bg-green-100 dark:bg-green-950/30", text: "text-green-700 dark:text-green-400", label: "Low" },
@@ -14,8 +16,40 @@ const RISK_LEVEL_STYLES: Record<string, { bg: string; text: string; label: strin
 export default function ProtocolDetail() {
   const [, params] = useRoute("/protocols/:id");
   const id = params?.id || "";
+  const { user } = useAuth();
+  const userRole = user?.role || "";
+  const canExport = ["coordinator", "head_teacher", "senco"].includes(userRole);
+  const [isExporting, setIsExporting] = useState(false);
 
   const { data: detail, isLoading } = useGetProtocol(id);
+
+  const handleExportPdf = async () => {
+    if (!detail) return;
+    const prot = detail.protocol || detail;
+    setIsExporting(true);
+    try {
+      const token = localStorage.getItem("safeschool_token");
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+      const res = await fetch(`${apiBase}api/protocols/${id}/export`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `protocol-${prot.referenceNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("PDF export failed:", e);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (isLoading) return <div className="animate-pulse h-96 bg-muted rounded-2xl m-8"></div>;
 
@@ -54,6 +88,18 @@ export default function ProtocolDetail() {
             Opened on {formatDateTime(prot.openedAt)}
           </p>
         </div>
+        {canExport && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportPdf}
+            disabled={isExporting}
+            className="ml-auto shrink-0"
+          >
+            {isExporting ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Download size={14} className="mr-1.5" />}
+            {isExporting ? "Exporting..." : "Export PDF"}
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

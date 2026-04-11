@@ -5,7 +5,7 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { formatDateTime, formatDate } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowLeft, MapPin, Calendar, User, ShieldAlert, CheckCircle, Clock, AlertTriangle, Users, FileText, Eye, EyeOff, Save, ClipboardList, Plus, Trash2, Heart, Shield, Info } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, User, ShieldAlert, CheckCircle, Clock, AlertTriangle, Users, FileText, Eye, EyeOff, Save, ClipboardList, Plus, Trash2, Heart, Shield, Info, Download, Loader2 } from "lucide-react";
 
 const STAFF_ROLES = ["teacher", "head_of_year", "coordinator", "head_teacher", "senco", "support_staff"];
 
@@ -47,6 +47,35 @@ export default function IncidentDetail() {
   const [assessmentSaved, setAssessmentSaved] = useState(false);
   const canRequestDisclosure = ["coordinator", "head_teacher", "senco"].includes(userRole);
   const needsDisclosure = ["teacher", "head_of_year", "support_staff"].includes(userRole);
+  const canExport = ["coordinator", "head_teacher", "senco", "teacher", "head_of_year"].includes(userRole);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportPdf = async () => {
+    if (!inc) return;
+    setIsExporting(true);
+    try {
+      const token = localStorage.getItem("safeschool_token");
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+      const res = await fetch(`${apiBase}api/incidents/${id}/export`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `incident-${inc.referenceNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("PDF export failed:", e);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const disclosureRequestMutation = useMutation({
     mutationFn: async ({ incidentId, subjectPupilId, requestedFromParentId, scope }: { incidentId: string; subjectPupilId: string; requestedFromParentId: string; scope?: string }) => {
@@ -178,6 +207,18 @@ export default function IncidentDetail() {
             )}
           </p>
         </div>
+        {canExport && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportPdf}
+            disabled={isExporting}
+            className="ml-auto shrink-0"
+          >
+            {isExporting ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Download size={14} className="mr-1.5" />}
+            {isExporting ? "Exporting..." : "Export PDF"}
+          </Button>
+        )}
       </div>
 
       {needsDisclosure && incAny.disclosureStatus !== "approved" && (

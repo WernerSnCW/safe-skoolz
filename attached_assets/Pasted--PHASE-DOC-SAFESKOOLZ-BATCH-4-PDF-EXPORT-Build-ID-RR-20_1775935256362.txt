@@ -1,0 +1,244 @@
+# PHASE DOC — SAFESKOOLZ BATCH 4: PDF EXPORT
+Build ID: RR-2026-04-10-004
+Sub-phase: 001 (single pass)
+Status: STEP 2 COMPLETE — ready for Step 3
+
+---
+
+## STEP 2 SIGN-OFF
+
+**Agreed idea (one paragraph):**
+Add downloadable PDF export for individual incident reports and protocol
+reports. A coordinator or authorised staff member clicks "Export PDF" on
+an incident detail page or protocol detail page. The system generates a
+clean, structured PDF containing all relevant fields for that record and
+triggers a browser download. The PDF is generated server-side (preferred)
+or client-side depending on what libraries are already present in the
+project. No new tables are required. The export is a point-in-time snapshot
+— it is not stored or versioned. Annex templates already in the system are
+not used for this export (they are document templates, not report templates)
+— the PDF renders the live record data directly.
+
+**Open assumptions — MANDATORY STEP 1 GATE:**
+Before writing any implementation code, Replit AI MUST scan the following
+and report findings:
+
+GATE — answer all four before proceeding:
+1. Is puppeteer or puppeteer-core installed in any package.json in the
+   monorepo? If yes: which package, which version?
+2. Is html2canvas installed anywhere? If yes: which package, which version?
+3. Is jsPDF or @jspdf/jspdf installed anywhere? If yes: which package?
+4. Is there any existing PDF generation code anywhere in the codebase?
+   If yes: which file, what approach does it use?
+
+Based on the scan findings, choose ONE of the following approaches and
+state the choice explicitly before implementing:
+
+APPROACH A — Server-side Puppeteer:
+Use if puppeteer/puppeteer-core is already installed OR if no PDF library
+exists and Replit's environment supports Chrome binaries. Generate an HTML
+string server-side, render with Puppeteer headless, return as
+application/pdf. Higher quality output.
+
+APPROACH B — Client-side html2canvas + jsPDF:
+Use if html2canvas and jsPDF are already installed in the frontend package.
+Capture the existing detail page DOM, convert to PDF client-side, trigger
+download. Lower quality but zero new dependencies if already present.
+
+APPROACH C — Server-side HTML-to-PDF without Puppeteer:
+Use if neither Puppeteer nor html2canvas/jsPDF is present. Install a
+lightweight server-side library such as `@sparticuz/chromium` +
+`puppeteer-core` (Replit-compatible) or `pdf-lib`. State the chosen
+library and justify the choice.
+
+Do NOT proceed past the gate without stating the chosen approach.
+
+**Scope boundary:**
+This build covers:
+- Incident PDF export: all fields from the incident record including
+  reference number, date, category, escalation tier, description, people
+  involved, location, emotional state, status, staff notes, assessment
+  details
+- Protocol PDF export: all fields from the protocol record including
+  reference number, type, risk level, risk assessment, linked incidents,
+  protective measures, external referral details, case tasks summary,
+  status, resolution notes
+- "Export PDF" button on incidents/detail.tsx (coordinator and staff roles)
+- "Export PDF" button on protocols/detail.tsx (coordinator role)
+- Server-side: new endpoints GET /api/incidents/:id/export and
+  GET /api/protocols/:id/export (if server-side approach chosen)
+- Client-side: export function triggered from existing detail page data
+  (if client-side approach chosen)
+- Audit log entry on each export: eventType "incident_exported" or
+  "protocol_exported"
+
+This build does NOT cover:
+- Bulk export (multiple incidents or protocols in one PDF)
+- Storing or versioning the generated PDF
+- Email delivery of the PDF
+- Using annex templates as the PDF template
+- Export from list views (only from detail pages)
+- Parent or PTA access to PDF export
+- Any schema changes
+
+---
+
+## WHAT WILL BE BUILT
+
+### Export endpoints (if server-side approach chosen)
+
+**GET /api/incidents/:id/export**
+- Auth: requireRole("coordinator", "teacher", "senco") — same roles that
+  can view incident detail
+- Fetch the full incident record (same data as GET /api/incidents/:id)
+- Generate PDF from HTML template
+- Set headers: Content-Type: application/pdf,
+  Content-Disposition: attachment; filename="incident-[referenceNumber].pdf"
+- Write audit log: eventType "incident_exported"
+- Return PDF binary
+
+**GET /api/protocols/:id/export**
+- Auth: requireRole("coordinator")
+- Fetch the full protocol record (same data as GET /api/protocols/:id)
+- Generate PDF from HTML template
+- Set headers: Content-Type: application/pdf,
+  Content-Disposition: attachment; filename="protocol-[referenceNumber].pdf"
+- Write audit log: eventType "protocol_exported"
+- Return PDF binary
+
+### PDF content — Incident report
+
+Section 1 — Header:
+- School name
+- safeskoolz logo / wordmark (text only if image assets not available)
+- "SAFEGUARDING INCIDENT REPORT — CONFIDENTIAL"
+- Reference number, date generated
+
+Section 2 — Incident details:
+- Reference number, incident date/time, category, escalation tier
+- Location, description
+- Emotional state
+
+Section 3 — People involved:
+- Reporter role (anonymous if flagged)
+- Victim(s) names (or "Unknown" if unknownPersonDescriptions used)
+- Perpetrator(s) names (or "Unknown")
+- Witnesses
+
+Section 4 — Assessment:
+- Status, assessed by, assessed at
+- Staff notes
+- Safeguarding trigger (yes/no)
+- Mandatory referral required (yes/no)
+
+Section 5 — Protocol guidance (if escalation tier 2 or 3):
+- Protocol type, immediate steps summary
+
+Section 6 — Footer:
+- "Generated on [date] by [user name] — CONFIDENTIAL"
+- "This document is subject to LOPIVI data retention requirements"
+
+### PDF content — Protocol report
+
+Section 1 — Header:
+- School name, "SAFEGUARDING PROTOCOL — CONFIDENTIAL"
+- Reference number, date generated
+
+Section 2 — Protocol details:
+- Reference number, type (LOPIVI / Convivèxit / Machista Violence),
+  opened by, opened at, status
+- Gender-based violence flag
+
+Section 3 — Risk assessment:
+- Risk level, risk assessment text
+- Risk factors (list)
+- Protective factors (list)
+- Protective measures (list)
+
+Section 4 — People:
+- Victim name
+- Alleged perpetrators
+
+Section 5 — Referral:
+- External referral required (yes/no)
+- Referral body, referral date
+
+Section 6 — Case tasks summary:
+- List of tasks: title, assignee, status, due date
+
+Section 7 — Resolution:
+- Resolution notes (if closed), closed at
+
+Section 8 — Footer:
+- "Generated on [date] by [user name] — CONFIDENTIAL"
+- "This document is subject to LOPIVI data retention requirements"
+
+### UI changes
+
+**incidents/detail.tsx:**
+- Add "Export PDF" button in the page header/action area
+- Visible to: coordinator, teacher, senco roles
+- On click: triggers download (either fetch to server endpoint or
+  client-side generation)
+- Button state: loading spinner while generating, then auto-downloads
+
+**protocols/detail.tsx:**
+- Add "Export PDF" button in the page header/action area
+- Visible to: coordinator role only
+- Same behaviour as above
+
+---
+
+## CONSTRAINTS
+
+- Approach must be declared before implementation begins (see GATE above)
+- No new npm packages unless APPROACH C is chosen — in that case, one
+  package maximum, justified in the build report
+- Audit log via writeAudit() for every export
+- PDF content must not include data the requesting role cannot normally
+  see — use the same RBAC logic as the existing detail endpoints
+- "CONFIDENTIAL" must appear in the PDF header and footer
+- Footer must include the LOPIVI data retention reference
+- No schema changes
+- Static routes before parameterised routes in incidents.ts and protocols.ts
+- The export button must not be visible to parent or PTA roles
+- If server-side: new route files or additions to existing route files
+  must follow the Router() + routes/index.ts mount pattern
+- If client-side: export function must be self-contained and not introduce
+  a new global state pattern
+
+---
+
+## ACCEPTANCE CRITERIA
+
+### Incident export
+- [ ] "Export PDF" button visible on incident detail page for coordinator,
+  teacher, and senco roles
+- [ ] "Export PDF" button NOT visible for parent and PTA roles
+- [ ] Clicking button triggers download of a valid PDF file named
+  "incident-[referenceNumber].pdf"
+- [ ] PDF contains all six sections defined above
+- [ ] PDF header includes "CONFIDENTIAL" and the incident reference number
+- [ ] PDF footer includes generation date, user name, and LOPIVI reference
+- [ ] Audit log entry written with eventType "incident_exported" on each
+  export
+- [ ] Button shows loading state while PDF is generating
+  Manual test required: click Export PDF on a real incident, confirm
+  download triggers and PDF opens correctly
+
+### Protocol export
+- [ ] "Export PDF" button visible on protocol detail page for coordinator
+  role only
+- [ ] Clicking button triggers download of a valid PDF file named
+  "protocol-[referenceNumber].pdf"
+- [ ] PDF contains all eight sections defined above
+- [ ] PDF header includes "CONFIDENTIAL" and the protocol reference number
+- [ ] PDF footer includes generation date, user name, and LOPIVI reference
+- [ ] Audit log entry written with eventType "protocol_exported" on each
+  export
+  Manual test required: click Export PDF on a real protocol, confirm
+  download triggers and PDF opens correctly
+
+### Approach gate
+- [ ] Build report explicitly states which approach was chosen (A, B, or C)
+  and why, based on the Step 1 scan findings
