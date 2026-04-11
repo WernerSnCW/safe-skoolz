@@ -20,3 +20,4 @@ export * from "./diary";
 export * from "./teacherPosts";
 export * from "./schoolLoginCodes";
 export * from "./disclosurePermissions";
+export * from "./trainingCompletions";

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui-polished";
 import {
   AlertTriangle, ShieldAlert, FileText, Activity,
   TrendingUp, BarChart3, PieChart as PieChartIcon, Eye,
-  MapPin, Users, CheckCircle2, Clock, Download, Loader2
+  MapPin, Users, CheckCircle2, Clock, Download, Loader2, GraduationCap, ChevronRight
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -45,6 +45,25 @@ export default function CoordinatorDashboardView() {
   const { user } = useAuth();
   const canManageReports = ["coordinator", "head_teacher"].includes(user?.role || "");
   const { data, isLoading } = useGetCoordinatorDashboard();
+
+  const { data: trainingData } = useQuery<any[]>({
+    queryKey: ["/api/training/staff-status"],
+    queryFn: async () => {
+      const token = localStorage.getItem("safeschool_token");
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+      const res = await fetch(`${apiBase}api/training/staff-status`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: canManageReports,
+  });
+
+  const trainingStaff = trainingData || [];
+  const totalModules = 9;
+  const allTrainedCount = trainingStaff.filter((s: any) => (s.completions?.length || 0) >= totalModules).length;
 
   const { data: analytics, isLoading: analyticsLoading } = useQuery<any>({
     queryKey: ["/api/dashboard/analytics"],
@@ -186,6 +205,25 @@ export default function CoordinatorDashboardView() {
               </Card>
             </Link>
           </div>
+
+          <Link href="/training-status">
+            <Card className="hover:border-primary/50 transition-all cursor-pointer group">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="p-3 rounded-2xl bg-green-500/10 text-green-600 group-hover:bg-green-500 group-hover:text-white transition-colors">
+                  <GraduationCap size={24} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold">Staff Training Completion</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {trainingStaff.length > 0
+                      ? `${allTrainedCount} of ${trainingStaff.length} staff have completed all modules`
+                      : "View staff training progress"}
+                  </p>
+                </div>
+                <ChevronRight size={18} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       )}
 

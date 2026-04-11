@@ -1,13 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-polished";
+import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import {
   GraduationCap, AlertTriangle, FileText, MessageCircle, Shield,
   Users, Gauge, Bell, Key, ClipboardList, Activity, Eye, Home,
-  ChevronRight, CheckCircle2, Monitor, BookOpen
+  ChevronRight, CheckCircle2, Monitor, BookOpen, Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StartDemoButton } from "@/components/demo/DemoWalkthrough";
+
+const MODULE_IDS = [
+  "loggingIncident",
+  "assessingIncident",
+  "managingPupilPins",
+  "behaviourPoints",
+  "respondingToMessages",
+  "understandingAlerts",
+  "managingProtocols",
+  "sencoCaseload",
+  "dashboardOverview",
+] as const;
+
+const MODULE_LABELS: Record<string, string> = {
+  loggingIncident: "Logging an Incident",
+  assessingIncident: "Assessing an Incident",
+  managingPupilPins: "Managing Pupil PINs",
+  behaviourPoints: "Behaviour Points",
+  respondingToMessages: "Responding to Messages",
+  understandingAlerts: "Understanding Alerts",
+  managingProtocols: "Managing Protocols",
+  sencoCaseload: "SENCO Caseload",
+  dashboardOverview: "Dashboard Overview",
+};
+
+type CompletionMap = Record<string, string>;
 
 function Step({ number, title, children }: { number: number; title: string; children: React.ReactNode }) {
   return (
@@ -21,8 +47,74 @@ function Step({ number, title, children }: { number: number; title: string; chil
   );
 }
 
-function GuideSection({ title, icon: Icon, color, children }: { title: string; icon: React.ElementType; color?: string; children: React.ReactNode }) {
+function CompletionBadge({ completedAt }: { completedAt: string }) {
+  const date = new Date(completedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 text-xs font-bold">
+      <CheckCircle2 size={12} />
+      Completed {date}
+    </span>
+  );
+}
+
+function MarkAsReadButton({ moduleId, onComplete }: { moduleId: string; onComplete: (moduleId: string, completedAt: string) => void }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("safeschool_token");
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+      const res = await fetch(`${apiBase}api/training/complete/${moduleId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
+      onComplete(moduleId, data.completedAt);
+    } catch (e) {
+      console.error("Failed to mark as read:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="pt-3 border-t border-border/50 mt-4">
+      <Button variant="outline" size="sm" onClick={handleClick} disabled={loading}>
+        {loading ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <CheckCircle2 size={14} className="mr-1.5" />}
+        {loading ? "Marking..." : "Mark as read"}
+      </Button>
+    </div>
+  );
+}
+
+function GuideSection({
+  title,
+  icon: Icon,
+  color,
+  moduleId,
+  completions,
+  onComplete,
+  showCompletion,
+  children,
+}: {
+  title: string;
+  icon: React.ElementType;
+  color?: string;
+  moduleId?: string;
+  completions?: CompletionMap;
+  onComplete?: (moduleId: string, completedAt: string) => void;
+  showCompletion?: boolean;
+  children: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
+  const isCompleted = moduleId && completions?.[moduleId];
+
   return (
     <div className="border border-border rounded-xl overflow-hidden">
       <button
@@ -35,6 +127,9 @@ function GuideSection({ title, icon: Icon, color, children }: { title: string; i
             <Icon size={18} />
           </div>
           <span className="font-bold text-sm">{title}</span>
+          {showCompletion && isCompleted && (
+            <CompletionBadge completedAt={completions![moduleId!]} />
+          )}
         </div>
         <motion.div animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.15 }}>
           <ChevronRight size={16} className="text-muted-foreground" />
@@ -50,6 +145,9 @@ function GuideSection({ title, icon: Icon, color, children }: { title: string; i
           >
             <div className="px-5 pb-5 pt-1 text-sm leading-relaxed space-y-4">
               {children}
+              {showCompletion && moduleId && !isCompleted && onComplete && (
+                <MarkAsReadButton moduleId={moduleId} onComplete={onComplete} />
+              )}
             </div>
           </motion.div>
         )}
@@ -238,13 +336,14 @@ function ParentGuides() {
   );
 }
 
-function StaffGuides({ role }: { role: string }) {
+function StaffGuides({ role, completions, onComplete }: { role: string; completions: CompletionMap; onComplete: (moduleId: string, completedAt: string) => void }) {
   const isCoordinator = role === "coordinator" || role === "head_teacher";
   const isSenco = role === "senco";
+  const showCompletion = !["pupil", "pta"].includes(role);
 
   return (
     <div className="space-y-3">
-      <GuideSection title="Logging an incident" icon={AlertTriangle} color="bg-red-100 dark:bg-red-950/50 text-red-600">
+      <GuideSection title="Logging an incident" icon={AlertTriangle} color="bg-red-100 dark:bg-red-950/50 text-red-600" moduleId="loggingIncident" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Click 'Log Incident'">Available from the sidebar or dashboard.</Step>
           <Step number={2} title="Select the category">Choose the most accurate category — this determines the escalation tier. Categories include physical, verbal, bullying, online, sexual, coercive, and more.</Step>
@@ -258,7 +357,7 @@ function StaffGuides({ role }: { role: string }) {
         </div>
       </GuideSection>
 
-      <GuideSection title="Assessing an incident" icon={FileText} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600">
+      <GuideSection title="Assessing an incident" icon={FileText} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600" moduleId="assessingIncident" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Open the incident">Go to Incidents, find the report, and click to open it.</Step>
           <Step number={2} title="Review the details">Read the full report including emotional state, people involved, and the reporter's description.</Step>
@@ -269,7 +368,7 @@ function StaffGuides({ role }: { role: string }) {
         </div>
       </GuideSection>
 
-      <GuideSection title="Managing pupil PINs" icon={Key} color="bg-amber-100 dark:bg-amber-950/50 text-amber-600">
+      <GuideSection title="Managing pupil PINs" icon={Key} color="bg-amber-100 dark:bg-amber-950/50 text-amber-600" moduleId="managingPupilPins" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Go to My Class (or My Year Group)">Find it in the sidebar.</Step>
           <Step number={2} title="Find the PIN Management section">It's the amber card at the top of the page.</Step>
@@ -281,7 +380,7 @@ function StaffGuides({ role }: { role: string }) {
         </div>
       </GuideSection>
 
-      <GuideSection title="Behaviour points" icon={Gauge} color="bg-green-100 dark:bg-green-950/50 text-green-600">
+      <GuideSection title="Behaviour points" icon={Gauge} color="bg-green-100 dark:bg-green-950/50 text-green-600" moduleId="behaviourPoints" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Go to Behaviour">Click "Behaviour" in the sidebar.</Step>
           <Step number={2} title="Find the pupil">Use the search bar or scroll the list.</Step>
@@ -291,7 +390,7 @@ function StaffGuides({ role }: { role: string }) {
         </div>
       </GuideSection>
 
-      <GuideSection title="Responding to messages" icon={MessageCircle} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600">
+      <GuideSection title="Responding to messages" icon={MessageCircle} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600" moduleId="respondingToMessages" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Go to Messages">Click "Messages" in the sidebar. You'll see conversation threads from pupils and parents.</Step>
           <Step number={2} title="Check for urgent messages">Urgent help requests and chat requests appear with red/amber badges. Respond to these first.</Step>
@@ -299,7 +398,7 @@ function StaffGuides({ role }: { role: string }) {
         </div>
       </GuideSection>
 
-      <GuideSection title="Understanding alerts" icon={Activity} color="bg-red-100 dark:bg-red-950/50 text-red-600">
+      <GuideSection title="Understanding alerts" icon={Activity} color="bg-red-100 dark:bg-red-950/50 text-red-600" moduleId="understandingAlerts" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Go to Alerts">The system automatically detects concerning patterns across incidents.</Step>
           <Step number={2} title="Review the pattern">Each alert shows what was detected — e.g. the same pupil named as perpetrator in 3 incidents within 30 days.</Step>
@@ -309,7 +408,7 @@ function StaffGuides({ role }: { role: string }) {
       </GuideSection>
 
       {isCoordinator && (
-        <GuideSection title="Managing protocols" icon={Shield} color="bg-purple-100 dark:bg-purple-950/50 text-purple-600">
+        <GuideSection title="Managing protocols" icon={Shield} color="bg-purple-100 dark:bg-purple-950/50 text-purple-600" moduleId="managingProtocols" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
           <div className="space-y-3">
             <Step number={1} title="Open a protocol">From an incident or the Protocols page, create a new formal protocol.</Step>
             <Step number={2} title="Select the framework">Choose Convivèxit (anti-bullying), LOPIVI (safeguarding), or Machista Violence (gender-based) based on the nature of the concern.</Step>
@@ -323,7 +422,7 @@ function StaffGuides({ role }: { role: string }) {
       )}
 
       {isSenco && (
-        <GuideSection title="SENCO caseload management" icon={ClipboardList} color="bg-purple-100 dark:bg-purple-950/50 text-purple-600">
+        <GuideSection title="SENCO caseload management" icon={ClipboardList} color="bg-purple-100 dark:bg-purple-950/50 text-purple-600" moduleId="sencoCaseload" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
           <div className="space-y-3">
             <Step number={1} title="Go to My Caseload">Click "My Caseload" in the sidebar.</Step>
             <Step number={2} title="Add a pupil">Click "Add to Caseload", search for the pupil, set a priority and reason.</Step>
@@ -333,7 +432,7 @@ function StaffGuides({ role }: { role: string }) {
         </GuideSection>
       )}
 
-      <GuideSection title="Dashboard overview" icon={Home} color="bg-primary/10 text-primary">
+      <GuideSection title="Dashboard overview" icon={Home} color="bg-primary/10 text-primary" moduleId="dashboardOverview" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-2">
           {role === "teacher" || role === "head_of_year" ? (
             <>
@@ -416,11 +515,39 @@ function CaseStudies() {
 
 export default function TrainingPage() {
   const { user } = useAuth();
+  const [completions, setCompletions] = useState<CompletionMap>({});
+
+  const isPupil = user?.role === "pupil";
+  const isParent = user?.role === "parent";
+  const isPta = user?.role === "pta";
+  const isStaff = !isPupil && !isParent && !isPta;
+  const showCompletion = isStaff || isParent;
+
+  useEffect(() => {
+    if (!user || isPupil || isPta) return;
+    const token = localStorage.getItem("safeschool_token");
+    const baseUrl = import.meta.env.BASE_URL || "/";
+    const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+    fetch(`${apiBase}api/training/status`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then(res => res.ok ? res.json() : [])
+      .then((data: { moduleId: string; completedAt: string }[]) => {
+        const map: CompletionMap = {};
+        for (const c of data) map[c.moduleId] = typeof c.completedAt === "string" ? c.completedAt : new Date(c.completedAt).toISOString();
+        setCompletions(map);
+      })
+      .catch(() => {});
+  }, [user, isPupil, isPta]);
+
+  const handleComplete = useCallback((moduleId: string, completedAt: string) => {
+    setCompletions(prev => ({ ...prev, [moduleId]: completedAt }));
+  }, []);
+
   if (!user) return null;
 
-  const isPupil = user.role === "pupil";
-  const isParent = user.role === "parent";
-  const isStaff = !isPupil && !isParent;
+  const completedCount = Object.keys(completions).length;
+  const totalModules = MODULE_IDS.length;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -439,11 +566,23 @@ export default function TrainingPage() {
         </div>
       </div>
 
+      {showCompletion && completedCount > 0 && (
+        <div className="flex items-center justify-center gap-3">
+          <div className="h-2 flex-1 max-w-xs bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-green-500 rounded-full transition-all duration-500"
+              style={{ width: `${Math.round((completedCount / totalModules) * 100)}%` }}
+            />
+          </div>
+          <span className="text-sm font-bold text-muted-foreground">{completedCount}/{totalModules} completed</span>
+        </div>
+      )}
+
       <QuickStart role={user.role} />
 
       {isPupil && <PupilGuides />}
       {isParent && <ParentGuides />}
-      {isStaff && <StaffGuides role={user.role} />}
+      {isStaff && <StaffGuides role={user.role} completions={completions} onComplete={handleComplete} />}
 
       {isStaff && <CaseStudies />}
 

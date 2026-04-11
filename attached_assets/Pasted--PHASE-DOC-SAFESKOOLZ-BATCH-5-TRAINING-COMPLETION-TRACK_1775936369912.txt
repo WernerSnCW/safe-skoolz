@@ -1,0 +1,229 @@
+# PHASE DOC — SAFESKOOLZ BATCH 5: TRAINING COMPLETION TRACKING
+Build ID: RR-2026-04-10-005
+Sub-phase: 001 (single pass)
+Status: STEP 2 COMPLETE — ready for Step 3
+
+---
+
+## STEP 2 SIGN-OFF
+
+**Agreed idea (one paragraph):**
+The training page (training.tsx, now accessible via /learn) is currently a
+static user guide with no completion tracking. This build adds a lightweight
+completion tracking system: each expandable section in training.tsx is a
+named module. When a user marks a module as read, a record is written to a
+new training_completions table. The training page shows per-module completion
+badges for the authenticated user. Coordinators get a new read-only staff
+completion view showing which staff members have completed which modules —
+accessible from the coordinator dashboard or a dedicated route. No mandatory
+reading enforcement in this build — tracking only, no blocking behaviour.
+
+**Open assumptions going into Step 3:**
+- training.tsx has named expandable sections per role — Replit AI must
+  confirm the exact section/module identifiers (keys or labels) from the
+  file before assigning module IDs
+- The coordinator dashboard (CoordinatorDashboard.tsx) has an appropriate
+  place to surface a "Staff training completion" link or summary — Replit
+  AI to confirm layout before adding
+- training.tsx currently uses no API calls (confirmed static from Step 1
+  scan) — Replit AI to confirm this is still the case after Batch 2 changes
+- Drizzle schema push is the correct migration mechanism — confirmed from
+  CTX
+
+**Scope boundary:**
+This build covers:
+- New table: training_completions (userId, moduleId, completedAt, schoolId)
+- New endpoints:
+  GET /api/training/status — authenticated user's completion status
+  POST /api/training/complete/:moduleId — mark a module complete
+  GET /api/training/staff-status — coordinator only, all staff completions
+    for the school
+- training.tsx (/learn "Using safeskoolz" tab): completion badges per
+  module, "Mark as read" button per section, fetches GET /api/training/status
+  on load
+- New page or section: staff completion view for coordinators
+- CoordinatorDashboard.tsx: link or summary card pointing to staff
+  completion view
+
+This build does NOT cover:
+- Mandatory reading enforcement or blocking access based on completion
+- Email or push notifications about incomplete training
+- Completion expiry or re-certification
+- Pupil training tracking (pupils do not have training modules)
+- Parent or PTA training tracking
+- Any change to the "About Safeguarding" tab content
+
+---
+
+## WHAT WILL BE BUILT
+
+### Schema — new table: training_completions
+
+Fields:
+- id: UUID PK, default uuid_generate_v4() or gen_random_uuid()
+- schoolId: UUID FK → schools, not null
+- userId: UUID FK → users, not null
+- moduleId: varchar(100), not null — the module identifier string
+- completedAt: timestamptz, not null, default now()
+
+Constraints:
+- Unique on (userId, moduleId) — a user can only complete each module once
+- Index on (schoolId, userId) for the staff-status query
+
+Replit AI: define this in lib/db/src/schema/training_completions.ts,
+export from lib/db/src/schema/index.ts, run drizzle-kit push.
+
+### Module IDs
+
+Module IDs are string constants defined in a shared location so frontend
+and backend use identical values. Replit AI must:
+1. Read training.tsx and identify every expandable section
+2. Assign a stable camelCase moduleId to each (e.g. "reportingIncidents",
+   "protocolLOPIVI", "moodDiary")
+3. Define these as a MODULE_IDS constant in a shared file or in both
+   the route file and training.tsx
+4. List all assigned module IDs in the build report
+
+### New route file: artifacts/api-server/src/routes/training.ts
+
+Mount in routes/index.ts as /api/training.
+
+**GET /api/training/status**
+- Auth: requireRole — all roles except pupil and pta
+- Returns: array of { moduleId, completedAt } for the authenticated user
+- Query: SELECT from training_completions WHERE userId = req.user.userId
+
+**POST /api/training/complete/:moduleId**
+- Auth: requireRole — all roles except pupil and pta
+- Validate: moduleId must be one of the defined MODULE_IDS values —
+  reject unknown module IDs with 400
+- Idempotent: if record already exists for (userId, moduleId), return
+  200 with existing record (do not error, do not duplicate)
+- On new completion: insert into training_completions, write audit log
+  eventType: "training_module_completed"
+- Returns: { moduleId, completedAt, alreadyCompleted: boolean }
+
+**GET /api/training/staff-status**
+- Auth: requireRole("coordinator", "head_teacher")
+- Returns: array of staff users with their completion records
+- Shape: [{ userId, firstName, lastName, role, completions: [{ moduleId,
+  completedAt }] }]
+- Only includes users with role in: coordinator, head_teacher, teacher,
+  head_of_year, senco (not pupils, parents, pta)
+- Scoped by schoolId
+
+### Frontend — training.tsx ("Using safeskoolz" tab in /learn)
+
+On mount: fetch GET /api/training/status, store completions map
+{ [moduleId]: completedAt }.
+
+For each expandable module section:
+- If completedAt exists for this moduleId: show green badge "Completed
+  [date]" next to the section heading
+- If not completed: show "Mark as read" button at the bottom of the
+  expanded section content
+- On "Mark as read" click: POST /api/training/complete/:moduleId, update
+  local completions map, replace button with completion badge
+- Button state: loading while POST in flight
+
+Do not show training completion UI on the "About Safeguarding" tab — only
+on the "Using safeskoolz" tab.
+
+Pupils and PTA users: do not render completion badges or "Mark as read"
+buttons (these roles should not reach the training tab, but add a role
+check as a safety net).
+
+### Frontend — staff completion view
+
+New page: artifacts/safeschool/src/pages/training-status.tsx
+Route: /training-status (add to App.tsx, visible to coordinator and
+head_teacher roles only)
+
+Content:
+- Page heading: "Staff Training Completion"
+- Fetch GET /api/training/staff-status on mount
+- Render a table: rows = staff members, columns = module names
+- Cell: ✓ with completion date if completed, — if not
+- Summary row: completion percentage per module
+- Export as CSV button (client-side, no backend needed — generate CSV
+  from the fetched data in the browser)
+
+CoordinatorDashboard.tsx:
+- Add a "Training completion" summary card showing: X of Y staff have
+  completed all modules
+- Link to /training-status
+
+---
+
+## CONSTRAINTS
+
+- New table via drizzle-kit push only — no raw SQL
+- Unique constraint on (userId, moduleId) — enforce at DB level, not
+  just application level
+- POST /api/training/complete/:moduleId must be idempotent — duplicate
+  calls must not error or duplicate records
+- moduleId values must be validated server-side against a known list —
+  do not accept arbitrary strings
+- Audit log via writeAudit() for new completions only — do not audit
+  idempotent re-completions
+- Static routes (/api/training/status, /api/training/staff-status) must
+  be declared before parameterised routes (/api/training/complete/:moduleId)
+  in training.ts
+- No completion UI for pupil or pta roles
+- CSV export is client-side only — no backend endpoint needed
+- No new npm packages — CSV generation via plain JavaScript (join with
+  commas, download via Blob URL)
+- Backward compatibility: no changes to existing tables
+- Follow existing React Query or fetch() pattern in training.tsx —
+  match whichever pattern the file already uses after Batch 2 changes
+- CTX_architecture_safeskoolz.md must be updated after this build to
+  record the training_completions table and module ID list
+
+---
+
+## ACCEPTANCE CRITERIA
+
+### Schema
+- [ ] training_completions table exists with correct columns after
+  drizzle-kit push
+- [ ] Unique constraint on (userId, moduleId) confirmed — attempt to
+  insert duplicate returns DB constraint error (handled gracefully
+  by idempotency logic)
+
+### GET /api/training/status
+- [ ] Returns array of { moduleId, completedAt } for authenticated user
+- [ ] Returns empty array for user with no completions (not 404)
+- [ ] Returns 403 for pupil role
+- [ ] Returns 403 for pta role
+
+### POST /api/training/complete/:moduleId
+- [ ] Returns 200 and inserts record for valid moduleId on first call
+- [ ] Returns 200 with alreadyCompleted: true on subsequent calls for
+  same moduleId — no duplicate DB record created
+- [ ] Returns 400 for unknown moduleId not in MODULE_IDS list
+- [ ] Audit log entry written for new completion (not for re-completion)
+
+### training.tsx — "Using safeskoolz" tab
+- [ ] Completion badge visible for completed modules after page load
+- [ ] "Mark as read" button visible for incomplete modules when section
+  is expanded
+- [ ] Clicking "Mark as read" updates the UI to show completion badge
+  without page reload
+  Manual test required: log in as a staff user, open /learn, switch to
+  "Using safeskoolz" tab, expand a module, click "Mark as read", confirm
+  badge appears
+
+### training-status.tsx — coordinator view
+- [ ] Page accessible at /training-status for coordinator and head_teacher
+- [ ] Page returns 403 / redirects for other roles
+- [ ] Table shows all staff with columns for each module
+- [ ] Completion percentage shown per module
+- [ ] "Export CSV" button downloads a valid CSV file with staff names
+  and completion dates
+  Manual test required: log in as coordinator, navigate to /training-status,
+  confirm table renders and CSV downloads
+
+### CoordinatorDashboard.tsx
+- [ ] Summary card shows "X of Y staff completed all modules" (or
+  equivalent phrasing)
+- [ ] Card links to /training-status
