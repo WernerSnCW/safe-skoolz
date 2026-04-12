@@ -1,7 +1,7 @@
 # CTX_ARCHITECTURE
 Project: Safeskoolz
-Version: 2026-04-12 — incorporating RR-2026-04-10-001
-through RR-2026-04-10-006
+Version: 2026-04-10 — initial creation, incorporating RR-2026-04-10-001
+through RR-2026-04-10-004
 
 ---
 
@@ -186,7 +186,6 @@ Key routes as of 2026-04-10:
 - /caseload — SENCO caseload
 - /training — kept as alias (content now in /learn)
 - /education — kept as alias (content now in /learn)
-- /training-status — staff training completion matrix (coordinator + head_teacher)
 - /my-class — teacher class management
 - /settings — profile editor
 - /delegated-roles — role appointments
@@ -251,7 +250,7 @@ PDF requirements (non-negotiable):
 ## Training completions (RR-2026-04-10-005)
 
 New table: training_completions
-Schema file: lib/db/src/schema/trainingCompletions.ts
+Schema file: lib/db/src/schema/training_completions.ts
 Fields: id (UUID PK), schoolId (UUID FK→schools), userId (UUID FK→users),
 moduleId (varchar 100), completedAt (timestamptz default now())
 Unique constraint: (userId, moduleId) — one completion record per user
@@ -291,59 +290,6 @@ New frontend route: /training-status (coordinator + head_teacher only)
 File: artifacts/safeschool/src/pages/training-status.tsx
 Staff × module matrix table with per-module completion percentages.
 CSV export is client-side only (Blob URL) — no backend endpoint.
-
----
-
-## Locked pupils and audit corrections (RR-2026-04-10-006)
-
-### New endpoint: GET /api/auth/locked-pupils
-
-File: artifacts/api-server/src/routes/auth.ts
-Auth: authMiddleware + requireRole("coordinator", "head_teacher")
-Returns: array of { id, firstName, lastName, className, yearGroup,
-lockedUntil, failedLoginAttempts } for pupils with lockedUntil > now(),
-scoped by schoolId. Returns empty array when none locked. Ordered by
-lockedUntil desc.
-Declared before parameterised routes in auth.ts (line 91).
-
-Unlock action: uses existing POST /api/schools/pupils/reset-pin/:pupilId
-(schools.ts). This endpoint already clears lockedUntil = null and
-failedLoginAttempts = 0, generates a new PIN, and writes audit log with
-eventType "pin_reset". No separate unlock endpoint was needed.
-
-### UrgentHelpDialog fix
-
-File: artifacts/safeschool/src/pages/dashboard/PupilDashboard.tsx
-Changed type field in urgent help POST from "message" to "urgent_help".
-This ensures:
-- Parent child-alerts endpoint (GET /messages/child-alerts) correctly
-  finds urgent help messages (filters on type === "urgent_help")
-- Notification trigger fires "urgent_help_request" instead of falling
-  through to "pupil_message"
-
-### Corrected audit events
-
-Events that were previously missing or broken, now fixed:
-- **diary_entry_created** (diary.ts): writeAudit after db.insert, before
-  response. Previously unaudited.
-- **diary_entry_deleted** (diary.ts): writeAudit after db.delete.
-  Previously unaudited.
-- **notification_acknowledged** (notifications.ts): writeAudit after
-  db.update, after 404 check. Previously unaudited.
-- **notification_broadcast** (notifications.ts): actor field corrected
-  from user.userId (string) to user (JwtPayload). actorId and actorRole
-  now correctly populated in audit log.
-
-### Coordinator dashboard: locked pupils card
-
-File: artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx
-Amber warning card in Overview tab, between stat cards and training card.
-Only renders when locked pupils exist. Shows per-pupil:
-- Name, class/year group
-- Lock type (admin reset required vs timed lockout)
-- Failed attempt count
-- "Reset lockout" button → calls reset-pin endpoint → displays new PIN
-  in green badge for coordinator to communicate to pupil
 
 ---
 
@@ -391,24 +337,49 @@ From RR-2026-04-10-004:
 - Protocol PDF download end-to-end (authenticated session required)
 - Parent/PTA role returns 403 on export endpoint (direct API call required)
 
-From RR-2026-04-10-005:
-- "Mark as read" updates UI without page reload (authenticated staff session)
-- training-status.tsx table renders correctly and CSV downloads valid file
-- Coordinator dashboard training card shows correct count and links correctly
-
-From RR-2026-04-10-006:
-- Parent child-alerts feed receives urgent help messages (pupil triggers
-  Help Now → parent calls GET /messages/child-alerts → message appears)
-- Broadcast audit log has non-null actorId and actorRole (trigger
-  broadcast as coordinator → check audit_log)
-- End-to-end lockout and reset flow (3 failed pupil PIN attempts →
-  coordinator sees amber card → clicks Reset → new PIN shown → pupil
-  logs in with new PIN)
-
 ---
 
 ## Out of date?
 
 If a spec describes something that contradicts this file, flag it in Step 4.
 Do not silently apply the older constraint.
-Last reviewed against codebase: 2026-04-12 (updated after RR-2026-04-10-006)
+Last reviewed against codebase: 2026-04-10 (created after RR-2026-04-10-004)
+
+---
+
+## Phase 1 safety fixes (RR-2026-04-10-006)
+
+### UrgentHelpDialog type field correction
+File: artifacts/safeschool/src/pages/dashboard/PupilDashboard.tsx
+UrgentHelpDialog POST /api/messages now sends type: "urgent_help"
+(was incorrectly "message"). This fix enables GET /messages/child-alerts
+(parent endpoint) to receive urgent help messages from pupils. The
+notification trigger now correctly fires "urgent_help_request".
+
+### Audit log corrections
+Previously unaudited operations — now all call writeAudit():
+- diary_entry_created — POST /diary/entries (diary.ts)
+- diary_entry_deleted — DELETE /diary/entries/:id (diary.ts)
+- notification_acknowledged — PATCH /notifications/:id/acknowledge
+  (notifications.ts)
+- notification_broadcast — actor field corrected from user.userId (string)
+  to user (JwtPayload). actorId and actorRole now correctly populated.
+
+### Locked pupils endpoint
+New endpoint: GET /api/auth/locked-pupils
+File: artifacts/api-server/src/routes/auth.ts
+Auth: requireRole("coordinator", "head_teacher")
+Returns: [{ id, firstName, lastName, className, yearGroup, lockedUntil,
+failedLoginAttempts }] for pupils where lockedUntil > now(), scoped by
+schoolId. Returns empty array when none locked.
+Declared before parameterised routes in auth.ts (line 91).
+
+Unlock action: uses existing POST /api/schools/pupils/reset-pin/:pupilId
+(in schools.ts) — confirmed to clear lockedUntil = null and
+failedLoginAttempts = 0 in a single operation. Also generates a new PIN.
+Coordinator sees new PIN in green badge after reset.
+
+OPEN ITEM: Verify schools.ts reset-pin endpoint calls writeAudit() —
+not confirmed from build report. Check before Phase 2.
+
+Last reviewed: 2026-04-12 (updated after RR-2026-04-10-006)

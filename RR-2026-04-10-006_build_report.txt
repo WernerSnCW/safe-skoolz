@@ -75,6 +75,9 @@ CHANGE 5 — FIX-02: Locked pupils endpoint
   - Added requireRole to import on line 10
   - FIX-02 unlock path: Using existing reset-pin endpoint
     (POST /api/schools/pupils/reset-pin/:pupilId) — no new endpoint
+  - Audit log CONFIRMED: reset-pin endpoint in schools.ts calls
+    writeAudit() with eventType "pin_reset" (line 240). Audit trail
+    is complete for the unlock action.
 
 CHANGE 6 — FIX-02 UI: Locked pupils card
   File: artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx
