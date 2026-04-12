@@ -1,7 +1,7 @@
 # CTX_ARCHITECTURE
 Project: Safeskoolz
 Version: 2026-04-12 — incorporating RR-2026-04-10-001
-through RR-2026-04-10-006
+through RR-2026-04-12-007
 
 ---
 
@@ -25,6 +25,8 @@ through RR-2026-04-10-006
 - PDF generation: pdfkit (installed in artifacts/api-server package).
   Server-side, Buffer-based. Do not use stream piping — return Buffer
   and send via res.send()
+- Email: Resend (installed in artifacts/api-server). Non-blocking,
+  plain text only. See "Email notifications" section below
 - Deployment: Replit autoscale
 
 ---
@@ -347,6 +349,38 @@ Only renders when locked pupils exist. Shows per-pupil:
 
 ---
 
+## Email notifications (RR-2026-04-12-007)
+
+Provider: Resend (installed in artifacts/api-server package)
+Helper: artifacts/api-server/src/lib/emailHelper.ts
+
+Env vars:
+- RESEND_API_KEY: Resend API key. If absent, all emails skipped
+  (console warning, no error).
+- EMAIL_FROM_ADDRESS: sender address. Defaults to "noreply@safeskoolz.com".
+
+sendEmail() signature:
+  { to, toName, subject, bodyText, trigger, recipientId, schoolId }
+Never throws. Audits failures with eventType "email_send_failed".
+
+Three triggers:
+1. **Disclosure approved** (incidents.ts): when parent approves a
+   disclosure request (decision === "approved"), email sent to parent
+   with incident referenceNumber. Non-blocking, fires after response.
+   Skips silently if parent has no email.
+2. **Tier 2/3 incident** (incidents.ts): when escalationTier >= 2,
+   email sent to all active coordinators + head_teachers with email.
+   Non-blocking, fires after res.status(201).json().
+3. **Pattern alert amber/red** (patternDetection.ts): inside
+   createAlert() after successful insert, if alertLevel is "amber"
+   or "red". Email sent to all active coordinators + head_teachers.
+   Non-blocking.
+
+All emails plain text only. No HTML templates. No frontend changes.
+Existing in-app notifications unchanged — email is purely additive.
+
+---
+
 ## Known architectural weaknesses (do not resolve without a dedicated phase)
 
 These are documented technical debt items. Do not address them as part of
@@ -405,10 +439,16 @@ From RR-2026-04-10-006:
   coordinator sees amber card → clicks Reset → new PIN shown → pupil
   logs in with new PIN)
 
+From RR-2026-04-12-007 (require RESEND_API_KEY):
+- Disclosure approved: parent receives email after approving disclosure
+- Tier 2/3 incident: coordinators/head_teachers receive email on creation
+- Pattern alert amber/red: coordinators/head_teachers receive email
+- Email failure: audit_log entry with eventType "email_send_failed"
+
 ---
 
 ## Out of date?
 
 If a spec describes something that contradicts this file, flag it in Step 4.
 Do not silently apply the older constraint.
-Last reviewed against codebase: 2026-04-12 (updated after RR-2026-04-10-006)
+Last reviewed against codebase: 2026-04-12 (updated after RR-2026-04-12-007)

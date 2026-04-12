@@ -48,3 +48,9 @@ id = "8h0CYrtPWMNi9jzMxSIkH"
 uri = "file://RR-2026-04-10-006_build_report.txt"
 type = "text"
 title = "Build Report — RR-2026-04-10-006"
+
+[[outputs]]
+id = "HUNNj8hukrHhPiaDhexWg"
+uri = "file://RR-2026-04-12-007_build_report.txt"
+type = "text"
+title = "Build Report — RR-2026-04-12-007 (Email Notifications)"

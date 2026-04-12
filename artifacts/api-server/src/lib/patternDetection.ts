@@ -1,5 +1,6 @@
 import { db, incidentsTable, patternAlertsTable, notificationsTable, usersTable, schoolsTable, pupilDiaryTable } from "@workspace/db";
 import { eq, and, gte, sql, inArray, lte } from "drizzle-orm";
+import { sendEmail } from "./emailHelper";
 
 export async function runPatternDetection(incident: typeof incidentsTable.$inferSelect) {
   const thirtyDaysAgo = new Date();
@@ -303,6 +304,33 @@ async function createAlert(data: {
     linkedIncidentIds: data.linkedIncidentIds,
     status: "open",
   });
+
+  if (data.alertLevel === "amber" || data.alertLevel === "red") {
+    (async () => {
+      try {
+        const [school] = await db.select({ name: schoolsTable.name }).from(schoolsTable).where(eq(schoolsTable.id, data.schoolId));
+        const schoolName = school?.name || "your school";
+        const levelLabel = data.alertLevel.charAt(0).toUpperCase() + data.alertLevel.slice(1);
+        const emailRecipients = await db.select().from(usersTable).where(
+          and(eq(usersTable.schoolId, data.schoolId), inArray(usersTable.role, ["coordinator", "head_teacher"]), eq(usersTable.active, true))
+        );
+        const emailBody = `A ${levelLabel} pattern alert has been detected at ${schoolName}.\n\nAlert: ${data.ruleLabel}\nDetected: ${new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}\n\nPlease log in to Safeskoolz to review this alert.\n\nThis is an automated alert from Safeskoolz.`;
+        await Promise.all(
+          emailRecipients
+            .filter(r => r.email)
+            .map(r => sendEmail({
+              to: r.email!,
+              toName: `${r.firstName} ${r.lastName}`,
+              subject: `Safeskoolz — ${levelLabel} Pattern Alert: ${data.ruleLabel}`,
+              bodyText: emailBody,
+              trigger: "pattern_alert",
+              recipientId: r.id,
+              schoolId: data.schoolId,
+            }))
+        );
+      } catch {}
+    })();
+  }
 
   return true;
 }

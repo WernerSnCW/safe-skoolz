@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, gte, lte, desc, sql, inArray } from "drizzle-orm";
-import { db, incidentsTable, usersTable, notificationsTable, patternAlertsTable, disclosurePermissionsTable } from "@workspace/db";
+import { db, incidentsTable, usersTable, notificationsTable, patternAlertsTable, disclosurePermissionsTable, schoolsTable } from "@workspace/db";
 import {
   CreateIncidentBody,
   ListIncidentsQueryParams,
@@ -12,6 +12,7 @@ import { determineEscalationTier, isSafeguardingTrigger, buildProtocolGuidance }
 import { generateIncidentRef } from "../lib/referenceNumber";
 import { writeAudit } from "../lib/auditHelper";
 import { runPatternDetection } from "../lib/patternDetection";
+import { sendEmail } from "../lib/emailHelper";
 
 const router: IRouter = Router();
 
@@ -254,6 +255,33 @@ router.post("/incidents", authMiddleware, async (req, res): Promise<void> => {
   }
 
   res.status(201).json(result);
+
+  if (escalationTier >= 2) {
+    (async () => {
+      try {
+        const [school] = await db.select({ name: schoolsTable.name }).from(schoolsTable).where(eq(schoolsTable.id, user.schoolId));
+        const schoolName = school?.name || "your school";
+        const tierLabel = `Tier ${escalationTier}`;
+        const emailRecipients = await db.select().from(usersTable).where(
+          and(eq(usersTable.schoolId, user.schoolId), inArray(usersTable.role, ["coordinator", "head_teacher"]), eq(usersTable.active, true))
+        );
+        const emailBody = `A ${tierLabel} safeguarding incident has been reported at ${schoolName}.\n\nReference: ${referenceNumber}\nCategory: ${data.category}\nReported: ${new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}\n\nPlease log in to Safeskoolz to review and assess this incident.\n\nThis is an automated alert from Safeskoolz.`;
+        await Promise.all(
+          emailRecipients
+            .filter(r => r.email)
+            .map(r => sendEmail({
+              to: r.email!,
+              toName: `${r.firstName} ${r.lastName}`,
+              subject: `Safeskoolz — ${tierLabel} Incident Reported: ${referenceNumber}`,
+              bodyText: emailBody,
+              trigger: "tier2_3_incident",
+              recipientId: r.id,
+              schoolId: user.schoolId,
+            }))
+        );
+      } catch {}
+    })();
+  }
 });
 
 router.get("/incidents/my-disclosures", authMiddleware, requireRole("parent"), async (req, res): Promise<void> => {
@@ -659,6 +687,25 @@ router.patch("/incidents/:id/disclosure-respond", authMiddleware, requireRole("p
     res.json(enriched[0]);
   } else {
     res.json({ success: true, permission: updated });
+  }
+
+  if (decision === "approved" && parent?.email) {
+    (async () => {
+      try {
+        const [school] = await db.select({ name: schoolsTable.name }).from(schoolsTable).where(eq(schoolsTable.id, user.schoolId));
+        const schoolName = school?.name || "your school";
+        const refNum = incident?.referenceNumber || "N/A";
+        await sendEmail({
+          to: parent.email!,
+          toName: parent.firstName,
+          subject: `Safeskoolz — Incident information shared with you`,
+          bodyText: `Dear ${parent.firstName},\n\nThe school has shared information about a safeguarding incident (${refNum}) with you.\n\nPlease log in to Safeskoolz to view the details and acknowledge receipt.\n\nIf you have any concerns, please contact the school directly.\n\nThis message was sent by ${schoolName} via Safeskoolz.\nThis email is confidential. Please do not forward it.`,
+          trigger: "disclosure_approved",
+          recipientId: user.userId,
+          schoolId: user.schoolId,
+        });
+      } catch {}
+    })();
   }
 });
 

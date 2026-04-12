@@ -1,0 +1,280 @@
+# PHASE DOC — SAFESKOOLZ PHASE 2: EMAIL NOTIFICATIONS
+Build ID: RR-2026-04-12-007
+Sub-phase: 001 (single pass)
+Track: A — new external service, new env vars, touches existing incident
+and pattern alert creation flows
+Status: STEP 2 COMPLETE — ready for Step 3
+
+---
+
+## STEP 2 SIGN-OFF
+
+**Agreed idea (one paragraph):**
+Add email notifications for three high-priority safeguarding events that
+currently only produce in-app notifications. The three triggers are:
+(1) a parent receives an incident disclosure — email sent to the parent's
+email address; (2) a new Tier 2 or Tier 3 incident is created — email
+sent to the school's coordinator(s) and head_teacher(s); (3) a pattern
+alert is created at Amber or Red severity — email sent to coordinator(s)
+and head_teacher(s). All three use the same email delivery infrastructure.
+Replit AI must scan for existing email packages before choosing a
+provider — the gate from the PDF build applies here. Email sending is
+non-blocking: if the email fails, the primary operation (incident
+creation, pattern alert creation, disclosure) still succeeds. A failed
+email send is logged to the audit trail but does not return an error to
+the caller.
+
+**Open assumptions going into Step 3:**
+- No email infrastructure currently exists — confirmed from Step 1 scan
+  (no SendGrid, Resend, or Nodemailer packages found). Replit AI must
+  scan package.json files across the monorepo to confirm before choosing
+  a provider.
+- Coordinator and head_teacher email addresses exist in usersTable —
+  confirmed from data model (email field nullable). Replit AI must verify
+  that seeded coordinator/head_teacher accounts have non-null emails
+  before implementing recipient lookup.
+- Parent email addresses exist in usersTable — same check required.
+- The disclosure endpoint in incidents.ts triggers when a disclosure
+  request is responded to with "approved" — Replit AI to confirm the
+  exact location in incidents.ts before adding email send.
+- Pattern alert creation in patternDetection.ts uses a direct DB insert —
+  Replit AI to confirm this is the single place to hook into.
+- Incident creation tier check in incidents.ts — Replit AI to confirm
+  escalationTier is set at creation time and is available in the POST
+  /incidents handler.
+
+**Scope boundary:**
+This build covers:
+- Mandatory provider gate: scan all package.json files, choose one
+  provider (Resend preferred if not installed — lightweight, modern API;
+  otherwise use what's present), install if needed, state choice in build
+  report
+- New email helper: artifacts/api-server/src/lib/emailHelper.ts —
+  sendEmail(to, subject, body) function, non-blocking, catches and logs
+  failures, wraps chosen provider
+- Email trigger 1: incident disclosure approved → email to parent
+- Email trigger 2: new Tier 2/3 incident created → email to coordinator
+  + head_teacher
+- Email trigger 3: pattern alert created (Amber or Red) → email to
+  coordinator + head_teacher
+- New env var: EMAIL_FROM_ADDRESS (the "from" address for all emails)
+- New env var: provider API key (name depends on chosen provider)
+- Audit log entry on email send failure: eventType "email_send_failed",
+  details: { trigger, recipientId, error }
+
+This build does NOT cover:
+- Help Now email (not selected)
+- Diary scan skipped email (not selected)
+- Email preferences or unsubscribe management
+- HTML email templates (plain text only for this build)
+- Email open/click tracking
+- Bulk email or digest emails
+- Any schema changes
+- Any frontend changes
+
+---
+
+## WHAT WILL BE BUILT
+
+### MANDATORY GATE — provider selection
+
+Before writing any implementation code, Replit AI must:
+1. Read package.json in artifacts/api-server/ and the monorepo root
+2. Check for: resend, @sendgrid/mail, nodemailer, postmark, or any other
+   email package
+3. If none found: install resend (npm install resend in api-server package)
+   and use it
+4. If one is already present: use it
+5. State the chosen provider and version in the build report before
+   proceeding
+
+---
+
+### New file: artifacts/api-server/src/lib/emailHelper.ts
+
+```
+sendEmail({
+  to: string,           // recipient email address
+  toName: string,       // recipient display name (for personalisation)
+  subject: string,
+  bodyText: string,     // plain text body
+  trigger: string,      // event type — for audit log on failure
+  recipientId: string,  // userId — for audit log on failure
+  schoolId: string,     // for audit log on failure
+}): Promise<void>
+```
+
+Behaviour:
+- Calls the chosen provider's send function
+- FROM address: process.env.EMAIL_FROM_ADDRESS ?? "noreply@safeskoolz.com"
+- If send succeeds: return silently
+- If send throws or returns an error: catch, call writeAudit() with
+  eventType "email_send_failed", details: { trigger, recipientId,
+  error: error.message }, then return silently (do not rethrow)
+- Never throws — caller is never interrupted by email failures
+
+---
+
+### Email trigger 1: Incident disclosure approved → parent email
+
+**File:** artifacts/api-server/src/routes/incidents.ts
+
+Find the disclosure response endpoint (where status is set to "approved").
+After the DB update succeeds and after any existing in-app notification,
+add a non-blocking email send:
+
+Recipient: the parent user (look up by disclosure.parentId →
+usersTable to get email and firstName)
+
+Subject: "Safeskoolz — Incident information shared with you"
+
+Body (plain text):
+```
+Dear [parent firstName],
+
+The school has shared information about a safeguarding incident
+([referenceNumber]) with you.
+
+Please log in to Safeskoolz to view the details and acknowledge receipt.
+
+If you have any concerns, please contact the school directly.
+
+This message was sent by [school name] via Safeskoolz.
+This email is confidential. Please do not forward it.
+```
+
+If parent has no email address: skip send silently (log to console,
+do not audit — not an error condition).
+
+---
+
+### Email trigger 2: New Tier 2 or Tier 3 incident → coordinator email
+
+**File:** artifacts/api-server/src/routes/incidents.ts
+
+Find the POST /incidents handler. After the incident is inserted and
+escalationTier is determined, if escalationTier >= 2, after any existing
+in-app notifications, add a non-blocking email send to all active
+coordinator and head_teacher users in the school:
+
+Look up recipients: usersTable WHERE schoolId = school AND role IN
+("coordinator", "head_teacher") AND active = true AND email IS NOT NULL
+
+Subject: "Safeskoolz — [Tier 2/Tier 3] Incident Reported: [referenceNumber]"
+
+Body (plain text):
+```
+A [Tier 2 / Tier 3] safeguarding incident has been reported at [school name].
+
+Reference: [referenceNumber]
+Category: [category]
+Reported: [date and time]
+
+Please log in to Safeskoolz to review and assess this incident.
+
+This is an automated alert from Safeskoolz.
+```
+
+If no coordinator/head_teacher has an email address: skip silently.
+Send one email per recipient (not a single bulk email).
+Each send is independent — one failure does not block others.
+
+---
+
+### Email trigger 3: Pattern alert created (Amber or Red) → coordinator email
+
+**File:** artifacts/api-server/src/lib/patternDetection.ts
+
+Find where patternAlertsTable inserts happen (confirmed from scan:
+runPatternDetection and runMoodDeclineScan). After each insert, if
+alertLevel is "amber" or "red", add a non-blocking email send to all
+active coordinator and head_teacher users in the school.
+
+Same recipient lookup as trigger 2.
+
+Subject: "Safeskoolz — [Amber/Red] Pattern Alert: [ruleLabel]"
+
+Body (plain text):
+```
+A [Amber / Red] pattern alert has been detected at [school name].
+
+Alert: [ruleLabel]
+Detected: [date and time]
+
+Please log in to Safeskoolz to review this alert.
+
+This is an automated alert from Safeskoolz.
+```
+
+Note: patternDetection.ts already has db access. Import emailHelper
+and call sendEmail after each successful alert insert.
+
+---
+
+## CONSTRAINTS
+
+- Provider gate must be completed and stated before any implementation
+- emailHelper.ts must never throw — all errors caught internally
+- Email sends are always non-blocking — do not await in a way that
+  delays the HTTP response to the caller
+- Implement as: after res.json() or after the primary operation, fire
+  email sends with Promise.all(...).catch(() => {}) or equivalent
+- No HTML emails — plain text only in this build
+- EMAIL_FROM_ADDRESS must be read from env var with fallback
+- One new env var for provider API key — name must match the provider:
+  RESEND_API_KEY, SENDGRID_API_KEY, etc.
+- Both env vars must be added to .replit or documented in the build
+  report as required env vars
+- No schema changes
+- writeAudit() on email failure only — do not audit successful sends
+  (would create excessive log noise)
+- Pattern detection runs on a schedule — emailHelper must be importable
+  from patternDetection.ts without circular dependency issues. Verify
+  import path before implementing.
+- Backward compatibility: existing in-app notifications are unchanged —
+  email is additive
+
+---
+
+## ACCEPTANCE CRITERIA
+
+### Provider gate
+- [ ] Build report states which provider was chosen and why
+- [ ] Provider package installed (if new) or confirmed present
+
+### emailHelper.ts
+- [ ] sendEmail function exists and matches the signature above
+- [ ] Returns void on success (no return value)
+- [ ] Catches all errors — never throws to caller
+- [ ] On failure: writes audit log with eventType "email_send_failed"
+- [ ] EMAIL_FROM_ADDRESS env var used with fallback
+
+### Trigger 1: Disclosure email
+- [ ] Email sent to parent when disclosure status set to "approved"
+- [ ] Email not sent if parent has no email address
+- [ ] Email send does not delay or block the disclosure response
+  Manual test required: approve a disclosure for a parent with an email
+  address, confirm email received (or check provider dashboard/logs)
+
+### Trigger 2: Tier 2/3 incident email
+- [ ] Email sent to all coordinators + head_teachers with email addresses
+  when a Tier 2 or Tier 3 incident is created
+- [ ] No email sent for Tier 1 incidents
+- [ ] Email send does not delay or block the incident creation response
+  Manual test required: submit a Tier 2 incident, confirm coordinator
+  receives email
+
+### Trigger 3: Pattern alert email
+- [ ] Email sent to all coordinators + head_teachers when an Amber or
+  Red pattern alert is inserted
+- [ ] No email sent for Green alerts (if any exist)
+- [ ] Email send does not block or delay pattern detection scan
+  Manual test required: trigger pattern detection, confirm alert email
+  received when Amber/Red alert created
+
+### Failure handling
+- [ ] If email provider is unavailable or returns error: primary
+  operation still succeeds
+- [ ] Audit log entry written with eventType "email_send_failed" on
+  provider error
+- [ ] No unhandled promise rejection on email failure

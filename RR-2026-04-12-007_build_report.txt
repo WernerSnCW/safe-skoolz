@@ -1,0 +1,173 @@
+========================================================================
+BUILD REPORT — RR-2026-04-12-007
+Track: A
+Date: 2026-04-12
+========================================================================
+
+PRE-READ FINDINGS
+------------------------------------------------------------------------
+
+1. artifacts/api-server/package.json and root package.json:
+   NO email packages found (no resend, @sendgrid/mail, nodemailer,
+   postmark, or mailgun). Provider gate confirmed clear.
+
+2. Provider decision: RESEND chosen — lightweight, modern API, no
+   existing provider to prefer. Installed resend (latest) in
+   artifacts/api-server via pnpm add resend. Version resolved by pnpm.
+
+3. Disclosure response endpoint: PATCH /incidents/:id/disclosure-respond
+   in incidents.ts (line 629). Parent responds with "approved" or
+   "declined". The `parent` user record is fetched at line 657, with
+   email available. The `incident` record is fetched at line 683,
+   providing referenceNumber.
+
+4. Incident creation: POST /incidents in incidents.ts (line 142).
+   escalationTier computed at line 151 via determineEscalationTier().
+   Currently only sends in-app notifications at tier >= 3. Email
+   trigger added for tier >= 2.
+
+5. Pattern alert creation: createAlert() function in
+   patternDetection.ts (line 269). Returns true when new alert
+   created, false for duplicates. alertLevel available in data.alertLevel.
+   All callers already check the return value.
+
+6. schoolsTable.name confirmed (varchar 255) in lib/db/src/schema/schools.ts.
+   schoolsTable already imported in patternDetection.ts. Added to
+   incidents.ts import.
+
+7. No circular dependency risk: emailHelper.ts imports only from
+   auditHelper.ts + resend package. patternDetection.ts already imports
+   from @workspace/db. Adding emailHelper import creates no cycle.
+
+========================================================================
+
+CHANGES IMPLEMENTED
+------------------------------------------------------------------------
+
+NEW FILE: artifacts/api-server/src/lib/emailHelper.ts
+  - sendEmail() function matching specified signature
+  - Uses Resend SDK, lazily initialised singleton client
+  - FROM address: process.env.EMAIL_FROM_ADDRESS ?? "noreply@safeskoolz.com"
+  - Gracefully handles missing RESEND_API_KEY (logs warning, returns)
+  - Checks both Resend API response errors and thrown exceptions
+  - On any failure: writes audit log with eventType "email_send_failed",
+    details include trigger, recipientId, and error message
+  - Console.error on failures for observability
+  - Never throws — all errors caught internally
+
+TRIGGER 1: Disclosure approved email
+  File: artifacts/api-server/src/routes/incidents.ts
+  Location: After res.json() in PATCH /incidents/:id/disclosure-respond
+  Fires when: decision === "approved" AND parent has email address
+  Non-blocking: wrapped in (async () => { ... })() fire-and-forget
+  Recipient: parent (from existing DB lookup at line 657)
+  Subject: "Safeskoolz — Incident information shared with you"
+  Body: Plain text with parent firstName, referenceNumber, school name
+  Skips silently if parent has no email (not an error condition)
+
+TRIGGER 2: Tier 2/3 incident email
+  File: artifacts/api-server/src/routes/incidents.ts
+  Location: After res.status(201).json() in POST /incidents
+  Fires when: escalationTier >= 2
+  Non-blocking: wrapped in (async () => { ... })() fire-and-forget
+  Recipients: all active coordinators + head_teachers with email in school
+  One email per recipient (Promise.all, each independent)
+  Subject: "Safeskoolz — [Tier N] Incident Reported: [referenceNumber]"
+  Body: Plain text with tier label, referenceNumber, category, date/time,
+  school name
+
+TRIGGER 3: Pattern alert email
+  File: artifacts/api-server/src/lib/patternDetection.ts
+  Location: Inside createAlert() function, after successful insert
+  Fires when: alertLevel is "amber" or "red" (not green)
+  Non-blocking: wrapped in (async () => { ... })() fire-and-forget
+  Recipients: all active coordinators + head_teachers with email in school
+  Subject: "Safeskoolz — [Amber/Red] Pattern Alert: [ruleLabel]"
+  Body: Plain text with alert level, ruleLabel, date/time, school name
+
+========================================================================
+
+FILES MODIFIED
+------------------------------------------------------------------------
+1. artifacts/api-server/src/lib/emailHelper.ts (NEW)
+2. artifacts/api-server/src/routes/incidents.ts (triggers 1 + 2)
+3. artifacts/api-server/src/lib/patternDetection.ts (trigger 3)
+4. artifacts/api-server/package.json (resend dependency added)
+
+========================================================================
+
+ENV VARS REQUIRED
+------------------------------------------------------------------------
+1. RESEND_API_KEY — Resend API key. If absent, all email sends are
+   skipped with a console warning. No error.
+2. EMAIL_FROM_ADDRESS — sender address. Defaults to
+   "noreply@safeskoolz.com" if not set.
+
+========================================================================
+
+ISSUES ENCOUNTERED
+------------------------------------------------------------------------
+1. Code review flagged that Resend API can return errors in the response
+   body (not just throw). Fixed: emailHelper.ts now checks both the
+   { error } response field and catches thrown exceptions. Both paths
+   write audit logs and console.error for observability.
+
+========================================================================
+
+SERVER STARTUP CONFIRMATION
+------------------------------------------------------------------------
+API Server: Started cleanly on port 8080
+  - No compilation errors
+  - No import errors
+  - emailHelper imports without circular dependency issues
+  - "[cron] Pattern detection scan scheduled every 60 minutes"
+  - "Server listening on port 8080"
+  - "[db] Audit log immutability trigger applied"
+
+Frontend: Unmodified, running cleanly.
+
+========================================================================
+
+VERIFICATION RESULTS
+------------------------------------------------------------------------
+1. Both servers start cleanly with no errors: PASS
+2. Frontend compiles without errors: PASS
+3. e2e tests: PASS (status: "success")
+4. No circular dependency issues: PASS
+5. emailHelper gracefully handles missing RESEND_API_KEY: PASS (console
+   warning only, no errors)
+
+========================================================================
+
+CONSTRAINTS COMPLIANCE
+------------------------------------------------------------------------
+- Provider gate completed and stated before implementation: YES
+- emailHelper.ts never throws: YES
+- Email sends non-blocking (fire after response): YES
+- Plain text only (no HTML): YES
+- EMAIL_FROM_ADDRESS from env var with fallback: YES
+- writeAudit on failure only: YES
+- No schema changes: YES
+- No frontend changes: YES
+- Existing in-app notifications unchanged: YES
+- No circular dependencies: YES
+
+========================================================================
+
+ACCEPTANCE CRITERIA STATUS
+------------------------------------------------------------------------
+[x] Provider gate: Resend chosen, installed, stated
+[x] emailHelper.ts: matches signature, never throws, audits failures
+[x] Trigger 1: disclosure email wired, skips if no email
+[x] Trigger 2: Tier 2/3 email wired, no email for Tier 1
+[x] Trigger 3: pattern alert email for amber/red only
+[x] Failure handling: primary ops unaffected, audit on failure
+
+Manual tests deferred (require RESEND_API_KEY):
+[ ] Trigger 1: approve disclosure, confirm parent receives email
+[ ] Trigger 2: submit Tier 2 incident, confirm coordinator email
+[ ] Trigger 3: trigger pattern detection, confirm alert email
+
+========================================================================
+END OF REPORT
+========================================================================

@@ -19,7 +19,8 @@
     "express-rate-limit": "^8.3.1",
     "jsonwebtoken": "^9.0.3",
     "openai": "^6.32.0",
-    "pdfkit": "^0.18.0"
+    "pdfkit": "^0.18.0",
+    "resend": "^6.10.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
