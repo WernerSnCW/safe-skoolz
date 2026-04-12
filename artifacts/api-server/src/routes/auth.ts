@@ -1,13 +1,76 @@
 import { Router, type IRouter } from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { eq, and, isNull, gt } from "drizzle-orm";
+import { eq, and, isNull, gt, inArray } from "drizzle-orm";
 import { db, usersTable, schoolLoginCodesTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
+
+const ROLE_LABELS: Record<string, string> = {
+  coordinator: "Safeguarding Coordinator",
+  head_teacher: "Head Teacher",
+  teacher: "Teacher",
+  head_of_year: "Head of Year",
+  senco: "SENCO",
+  support_staff: "Support Staff",
+  parent: "Parent",
+  pta: "PTA",
+};
+
+const STAFF_ROLES = ["coordinator", "head_teacher", "teacher", "head_of_year", "senco", "support_staff"];
+
+router.get("/auth/login-accounts", async (req, res): Promise<void> => {
+  const { schoolId, type } = req.query;
+  if (!schoolId || typeof schoolId !== "string") {
+    res.status(400).json({ error: "schoolId is required" });
+    return;
+  }
+  const validTypes = ["staff", "parent", "pta"];
+  const accountType = typeof type === "string" && validTypes.includes(type) ? type : "staff";
+
+  let roles: string[];
+  if (accountType === "parent") {
+    roles = ["parent"];
+  } else if (accountType === "pta") {
+    roles = ["pta"];
+  } else {
+    roles = STAFF_ROLES;
+  }
+
+  const users = await db
+    .select({
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+      role: usersTable.role,
+      className: usersTable.className,
+      yearGroup: usersTable.yearGroup,
+    })
+    .from(usersTable)
+    .where(
+      and(
+        eq(usersTable.schoolId, schoolId),
+        eq(usersTable.active, true),
+        inArray(usersTable.role, roles)
+      )
+    );
+
+  const accounts = users
+    .filter(u => u.email)
+    .map(u => {
+      const name = `${u.firstName} ${u.lastName || ""}`.trim();
+      let subtitle = ROLE_LABELS[u.role] || u.role;
+      if (u.className) subtitle += ` · ${u.className}`;
+      else if (u.yearGroup) subtitle += ` · ${u.yearGroup}`;
+      return { label: name, subtitle, email: u.email };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  res.json(accounts);
+});
 
 const PUPIL_LOCK_MINUTES = 15;
 const PUPIL_LOCK_THRESHOLD = 3;

@@ -50,14 +50,32 @@ export default function Login() {
       .catch(() => {});
   }, []);
 
-  const [demoAccounts, setDemoAccounts] = useState<{ staff: DemoAccount[]; parent: DemoAccount[]; pta: DemoAccount[] }>({ staff: [], parent: [], pta: [] });
+  const [loginAccounts, setLoginAccounts] = useState<{ staff: DemoAccount[]; parent: DemoAccount[]; pta: DemoAccount[] }>({ staff: [], parent: [], pta: [] });
   useEffect(() => {
-    if (demoEnabled) {
-      import("./demo-accounts").then((mod) => {
-        setDemoAccounts({ staff: mod.STAFF_ACCOUNTS, parent: mod.PARENT_ACCOUNTS, pta: mod.PTA_ACCOUNTS });
-      });
-    }
-  }, [demoEnabled]);
+    if (!selectedSchoolId) return;
+    const base = (() => {
+      const b = import.meta.env.BASE_URL || "/";
+      return b.endsWith("/") ? b : b + "/";
+    })();
+    const loadAccounts = async () => {
+      try {
+        const [staffRes, parentRes, ptaRes] = await Promise.all([
+          fetch(`${base}api/auth/login-accounts?schoolId=${selectedSchoolId}&type=staff`),
+          fetch(`${base}api/auth/login-accounts?schoolId=${selectedSchoolId}&type=parent`),
+          fetch(`${base}api/auth/login-accounts?schoolId=${selectedSchoolId}&type=pta`),
+        ]);
+        const [staff, parent, pta] = await Promise.all([
+          staffRes.ok ? staffRes.json() : [],
+          parentRes.ok ? parentRes.json() : [],
+          ptaRes.ok ? ptaRes.json() : [],
+        ]);
+        setLoginAccounts({ staff, parent, pta });
+      } catch {
+        setLoginAccounts({ staff: [], parent: [], pta: [] });
+      }
+    };
+    loadAccounts();
+  }, [selectedSchoolId]);
 
   const [pupilStep, setPupilStep] = useState<PupilLoginStep>("school");
   const [accessCode, setAccessCode] = useState("");
@@ -154,36 +172,36 @@ export default function Login() {
     try {
       let res;
       if (activeTab === "staff") {
-        const accounts = demoAccounts.staff;
+        const accounts = loginAccounts.staff;
         const selected = accounts.find(a => a.email === selectedStaffEmail);
         const loginEmail = selected?.email || email;
-        const loginPassword = selected?.password || password;
+        const loginPassword = password;
         if (!loginEmail || !loginPassword) {
-          setError("Please select your name or enter your credentials.");
+          setError("Please select your name and enter your password.");
           return;
         }
         res = await staffLogin.mutateAsync({
           data: { email: loginEmail, password: loginPassword }
         });
       } else if (activeTab === "parent") {
-        const accounts = demoAccounts.parent;
+        const accounts = loginAccounts.parent;
         const selected = accounts.find(a => a.email === selectedStaffEmail);
         const loginEmail = selected?.email || email;
-        const loginPassword = selected?.password || password;
+        const loginPassword = password;
         if (!loginEmail || !loginPassword) {
-          setError("Please select your name or enter your credentials.");
+          setError("Please select your name and enter your password.");
           return;
         }
         res = await parentLogin.mutateAsync({
           data: { email: loginEmail, password: loginPassword }
         });
       } else {
-        const accounts = demoAccounts.pta;
+        const accounts = loginAccounts.pta;
         const selected = accounts.find(a => a.email === selectedStaffEmail);
         const loginEmail = selected?.email || email;
-        const loginPassword = selected?.password || password;
+        const loginPassword = password;
         if (!loginEmail || !loginPassword) {
-          setError("Please select your name or enter your credentials.");
+          setError("Please select your name and enter your password.");
           return;
         }
         res = await staffLogin.mutateAsync({
@@ -529,7 +547,7 @@ export default function Login() {
               <form onSubmit={handleStaffSubmit} className="space-y-5">
                 <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                   {(() => {
-                    const accounts = activeTab === "parent" ? demoAccounts.parent : activeTab === "pta" ? demoAccounts.pta : demoAccounts.staff;
+                    const accounts = activeTab === "parent" ? loginAccounts.parent : activeTab === "pta" ? loginAccounts.pta : loginAccounts.staff;
                     const selectedAccount = accounts.find(a => a.email === selectedStaffEmail);
                     const hasAccounts = accounts.length > 0;
                     return (
@@ -582,19 +600,19 @@ export default function Login() {
                                 autoComplete="email"
                               />
                             </div>
-                            <div>
-                              <Label htmlFor="password">Password</Label>
-                              <Input
-                                id="password"
-                                type="password"
-                                placeholder="Enter your password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                autoComplete="current-password"
-                              />
-                            </div>
                           </>
                         )}
+                        <div>
+                          <Label htmlFor="password">Password</Label>
+                          <Input
+                            id="password"
+                            type="password"
+                            placeholder="Enter your password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            autoComplete="current-password"
+                          />
+                        </div>
                       </>
                     );
                   })()}
