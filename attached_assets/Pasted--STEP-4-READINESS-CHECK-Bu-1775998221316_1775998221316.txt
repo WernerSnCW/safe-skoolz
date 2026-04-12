@@ -1,0 +1,158 @@
+========================================================================
+STEP 4 — READINESS CHECK
+Build ID: RR-2026-04-12-007
+Date: 2026-04-12
+CTX file: CTX_architecture_safeskoolz_v1_0.md available.
+========================================================================
+
+CHANGES MADE
+------------------------------------------------------------------------
+1. (TYPE B) Resend API response error check added — code review caught
+   that Resend returns errors in the response body, not just via throw.
+   emailHelper.ts now checks both { error } response field and caught
+   exceptions. Both paths write audit log and console.error. Critical
+   fix — without it, silent email failures would go undetected.
+
+2. (TYPE B) Trigger 2 fires at tier >= 2, not >= 3 — build report
+   confirms escalationTier >= 2 condition. Phase doc specified Tier 2
+   or Tier 3. Correct.
+
+3. (TYPE B) School name sourced from schoolsTable — schoolsTable.name
+   confirmed available and imported in both incidents.ts and
+   patternDetection.ts. Email body personalisation correct.
+
+Assumption-based changes:
+- No circular dependency risk confirmed from pre-read (emailHelper
+  imports only auditHelper + resend — no cycle possible).
+- Parent email availability checked at point of send — correct pattern
+  (skip silently if null, not an error).
+- Resend lazy singleton initialisation — correct pattern matching
+  openaiClient in diary.ts.
+
+------------------------------------------------------------------------
+REQUIRES USER CONFIRMATION
+------------------------------------------------------------------------
+None.
+
+------------------------------------------------------------------------
+POST-BUILD VERIFICATION AGAINST ACCEPTANCE CRITERIA
+------------------------------------------------------------------------
+
+Provider gate:
+[x] Build report states Resend chosen — no prior email packages existed
+[x] resend package installed in artifacts/api-server via pnpm add
+
+emailHelper.ts:
+[x] sendEmail() function matches specified signature
+[x] Returns void on success
+[x] Never throws — all errors caught internally
+[x] On failure: writes audit log eventType "email_send_failed"
+[x] Checks both Resend { error } response field and thrown exceptions
+[x] EMAIL_FROM_ADDRESS from env var with fallback to noreply@safeskoolz.com
+[x] Handles missing RESEND_API_KEY gracefully (console warning, return)
+
+Trigger 1 — Disclosure email:
+[x] Fires when disclosure status set to "approved"
+[x] Skips silently if parent has no email address
+[x] Non-blocking — fire-and-forget after res.json()
+[ ] Parent receives email — DEFERRED (requires RESEND_API_KEY)
+
+Trigger 2 — Tier 2/3 incident email:
+[x] Fires when escalationTier >= 2
+[x] No email for Tier 1 incidents
+[x] One email per recipient, sends independent (Promise.all)
+[x] Non-blocking — fire-and-forget after res.status(201).json()
+[ ] Coordinator receives email — DEFERRED (requires RESEND_API_KEY)
+
+Trigger 3 — Pattern alert email:
+[x] Fires inside createAlert() after successful insert
+[x] Only for alertLevel "amber" or "red"
+[x] Non-blocking — fire-and-forget after insert
+[x] No circular dependency confirmed
+[ ] Alert email received — DEFERRED (requires RESEND_API_KEY)
+
+Failure handling:
+[x] Primary operations unaffected if email fails
+[x] Audit log written with eventType "email_send_failed" on failure
+[x] No unhandled promise rejection on email failure
+[x] Console.error for observability
+
+------------------------------------------------------------------------
+DEFERRED ACCEPTANCE CRITERIA
+------------------------------------------------------------------------
+All three require RESEND_API_KEY to be set in the environment:
+
+1. Trigger 1: Approve a disclosure for a parent with email address.
+   Confirm email received (or visible in Resend dashboard).
+
+2. Trigger 2: Submit a Tier 2 or Tier 3 incident. Confirm coordinator
+   and head_teacher receive email within seconds.
+
+3. Trigger 3: Trigger pattern detection (wait for scheduled scan or
+   manually invoke). Confirm Amber/Red alert email received.
+
+To verify in Resend without a real email server: use the Resend test
+mode or check the Resend dashboard for sent email logs.
+
+------------------------------------------------------------------------
+ENV VAR CHECKLIST (must be set before going live)
+------------------------------------------------------------------------
+[ ] RESEND_API_KEY — obtain from resend.com account. Without this,
+    all email sends are skipped silently. No error in logs beyond
+    console warning.
+[ ] EMAIL_FROM_ADDRESS — must be a verified sender domain in Resend.
+    Without domain verification, Resend will reject sends even with
+    a valid API key. Use the Resend dashboard to verify the domain.
+
+NOTE: EMAIL_FROM_ADDRESS domain verification is a Resend account
+requirement — not a code issue. If emails are not received in testing,
+check domain verification status in Resend dashboard before debugging
+the code.
+
+------------------------------------------------------------------------
+CTX UPDATE REQUIRED
+------------------------------------------------------------------------
+Add to CTX_architecture_safeskoolz_v1_0.md:
+
+Email infrastructure (RR-2026-04-12-007):
+- Provider: Resend (resend npm package, installed in api-server)
+- Helper: artifacts/api-server/src/lib/emailHelper.ts
+  sendEmail({ to, toName, subject, bodyText, trigger, recipientId,
+  schoolId }): Promise<void>
+  Never throws. Catches both { error } response field and exceptions.
+  Writes audit log eventType "email_send_failed" on any failure.
+  Skips silently if RESEND_API_KEY not set (console warning only).
+- Env vars required: RESEND_API_KEY, EMAIL_FROM_ADDRESS
+  EMAIL_FROM_ADDRESS defaults to "noreply@safeskoolz.com" if unset.
+  Domain must be verified in Resend account before live use.
+- All email sends are non-blocking — fire-and-forget after response.
+  Do not await email sends in request handlers.
+- Three active triggers:
+  1. Disclosure approved → parent email (incidents.ts)
+  2. Tier 2/3 incident created → coordinator + head_teacher email
+     (incidents.ts)
+  3. Amber/Red pattern alert created → coordinator + head_teacher email
+     (patternDetection.ts)
+- Plain text only — no HTML emails in this build.
+- Do not add new email triggers without a phase doc. Do not introduce
+  HTML templates without speccing the template system first.
+
+------------------------------------------------------------------------
+VERDICT: READY FOR BUILD [x] — phase COMPLETE
+------------------------------------------------------------------------
+Build complete. All verifiable ACs pass. Three deferred ACs require
+RESEND_API_KEY and a verified sender domain. One important note: domain
+verification in Resend is a deployment prerequisite — without it emails
+will not send regardless of code correctness.
+
+Phase status: COMPLETE (with 3 deferred ACs — all require live email env)
+
+------------------------------------------------------------------------
+REMAINING PHASE QUEUE
+------------------------------------------------------------------------
+Phase 3 — Test coverage sprint
+Phase 4 — Multilingual support (i18n + Catalan)
+Phase 5 — Audit log viewer
+Phase 6 — FIX-05 + FIX-11 (housekeeping)
+FIX-04 — In-memory state / autoscale (separate dedicated session)
+========================================================================

@@ -351,33 +351,37 @@ Only renders when locked pupils exist. Shows per-pupil:
 
 ## Email notifications (RR-2026-04-12-007)
 
-Provider: Resend (installed in artifacts/api-server package)
+Provider: Resend (resend npm package, installed in artifacts/api-server)
 Helper: artifacts/api-server/src/lib/emailHelper.ts
 
+sendEmail({ to, toName, subject, bodyText, trigger, recipientId,
+schoolId }): Promise<void>
+Never throws. Catches both Resend { error } response field and thrown
+exceptions. Writes audit log eventType "email_send_failed" on any
+failure. Skips silently if RESEND_API_KEY not set (console warning only).
+
 Env vars:
-- RESEND_API_KEY: Resend API key. If absent, all emails skipped
-  (console warning, no error).
+- RESEND_API_KEY: Resend API key. If absent, all emails skipped.
 - EMAIL_FROM_ADDRESS: sender address. Defaults to "noreply@safeskoolz.com".
+  Domain must be verified in Resend account before live use.
 
-sendEmail() signature:
-  { to, toName, subject, bodyText, trigger, recipientId, schoolId }
-Never throws. Audits failures with eventType "email_send_failed".
+All email sends are non-blocking — fire-and-forget after response.
+Do not await email sends in request handlers.
 
-Three triggers:
+Three active triggers:
 1. **Disclosure approved** (incidents.ts): when parent approves a
    disclosure request (decision === "approved"), email sent to parent
-   with incident referenceNumber. Non-blocking, fires after response.
-   Skips silently if parent has no email.
+   with incident referenceNumber. Skips silently if parent has no email.
 2. **Tier 2/3 incident** (incidents.ts): when escalationTier >= 2,
    email sent to all active coordinators + head_teachers with email.
-   Non-blocking, fires after res.status(201).json().
 3. **Pattern alert amber/red** (patternDetection.ts): inside
    createAlert() after successful insert, if alertLevel is "amber"
    or "red". Email sent to all active coordinators + head_teachers.
-   Non-blocking.
 
-All emails plain text only. No HTML templates. No frontend changes.
-Existing in-app notifications unchanged — email is purely additive.
+Plain text only — no HTML emails in this build. Do not add new email
+triggers without a phase doc. Do not introduce HTML templates without
+speccing the template system first. Existing in-app notifications
+unchanged — email is purely additive.
 
 ---
 
