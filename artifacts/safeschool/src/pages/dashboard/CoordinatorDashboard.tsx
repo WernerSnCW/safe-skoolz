@@ -8,7 +8,7 @@ import { Button } from "@/components/ui-polished";
 import {
   AlertTriangle, ShieldAlert, FileText, Activity,
   TrendingUp, BarChart3, PieChart as PieChartIcon, Eye,
-  MapPin, Users, CheckCircle2, Clock, Download, Loader2, GraduationCap, ChevronRight
+  MapPin, Users, CheckCircle2, Clock, Download, Loader2, GraduationCap, ChevronRight, Lock, Unlock
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -76,6 +76,48 @@ export default function CoordinatorDashboardView() {
       return res.json();
     },
   });
+
+  const { data: lockedPupilsData, refetch: refetchLockedPupils } = useQuery<any[]>({
+    queryKey: ["/api/auth/locked-pupils"],
+    queryFn: async () => {
+      const token = localStorage.getItem("safeschool_token");
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+      const res = await fetch(`${apiBase}api/auth/locked-pupils`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: canManageReports,
+  });
+
+  const lockedPupils = lockedPupilsData || [];
+  const [unlockingId, setUnlockingId] = useState<string | null>(null);
+  const [unlockResult, setUnlockResult] = useState<{ pupilId: string; newPin: string } | null>(null);
+
+  const handleUnlockPupil = async (pupilId: string) => {
+    setUnlockingId(pupilId);
+    setUnlockResult(null);
+    try {
+      const token = localStorage.getItem("safeschool_token");
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const apiBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+      const res = await fetch(`${apiBase}api/schools/pupils/reset-pin/${pupilId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUnlockResult({ pupilId, newPin: data.newPin });
+        refetchLockedPupils();
+      }
+    } catch {}
+    setUnlockingId(null);
+  };
 
   if (isLoading) return <div className="animate-pulse space-y-8">
     <div className="h-10 bg-muted rounded w-64"></div>
@@ -205,6 +247,59 @@ export default function CoordinatorDashboardView() {
               </Card>
             </Link>
           </div>
+
+          {lockedPupils.length > 0 && (
+            <Card className="border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600">
+                    <Lock size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-amber-900 dark:text-amber-200">Locked Pupil Accounts</h3>
+                    <p className="text-sm text-amber-700 dark:text-amber-400">{lockedPupils.length} pupil{lockedPupils.length !== 1 ? "s" : ""} locked out due to failed login attempts</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {lockedPupils.map((pupil: any) => {
+                    const isAdminLocked = new Date(pupil.lockedUntil).getTime() > Date.now() + 24 * 60 * 60 * 1000;
+                    const lockedLabel = isAdminLocked
+                      ? "Admin reset required"
+                      : `Locked until ${new Date(pupil.lockedUntil).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+
+                    return (
+                      <div key={pupil.id} className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-background border border-amber-200 dark:border-amber-800/50">
+                        <div>
+                          <p className="font-semibold text-sm">{pupil.firstName} {pupil.lastName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {pupil.className || pupil.yearGroup || "—"} · {lockedLabel} · {pupil.failedLoginAttempts} failed attempt{pupil.failedLoginAttempts !== 1 ? "s" : ""}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {unlockResult?.pupilId === pupil.id && (
+                            <span className="text-xs font-mono font-bold text-green-700 bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded">New PIN: {unlockResult.newPin}</span>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleUnlockPupil(pupil.id)}
+                            disabled={unlockingId === pupil.id}
+                            className="border-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-800 dark:text-amber-300"
+                          >
+                            {unlockingId === pupil.id ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <><Unlock size={14} className="mr-1" />Reset lockout</>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <Link href="/training-status">
             <Card className="hover:border-primary/50 transition-all cursor-pointer group">

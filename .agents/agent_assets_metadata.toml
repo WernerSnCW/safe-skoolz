@@ -42,3 +42,9 @@ id = "PXM25zJYk0MpXGlLK1AVO"
 uri = "file://SCAN_OUTPUT_2026-04-12.md"
 type = "text"
 title = "Code Scan Output — 12 April 2026"
+
+[[outputs]]
+id = "8h0CYrtPWMNi9jzMxSIkH"
+uri = "file://RR-2026-04-10-006_build_report.txt"
+type = "text"
+title = "Build Report — RR-2026-04-10-006"

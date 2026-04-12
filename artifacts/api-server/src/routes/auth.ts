@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { eq, and, isNull, gt, inArray } from "drizzle-orm";
 import { db, usersTable, schoolLoginCodesTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
-import { signToken, authMiddleware, type JwtPayload } from "../lib/auth";
+import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
@@ -84,6 +84,32 @@ setInterval(() => {
     if (session.expiresAt < now) loginSessions.delete(key);
   }
 }, 60_000);
+
+router.get("/auth/locked-pupils", authMiddleware, requireRole("coordinator", "head_teacher"), async (req, res): Promise<void> => {
+  const user = (req as any).user as JwtPayload;
+
+  const lockedPupils = await db
+    .select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      className: usersTable.className,
+      yearGroup: usersTable.yearGroup,
+      lockedUntil: usersTable.lockedUntil,
+      failedLoginAttempts: usersTable.failedLoginAttempts,
+    })
+    .from(usersTable)
+    .where(
+      and(
+        eq(usersTable.schoolId, user.schoolId),
+        eq(usersTable.role, "pupil"),
+        gt(usersTable.lockedUntil, new Date())
+      )
+    )
+    .orderBy(usersTable.lockedUntil);
+
+  res.json(lockedPupils.reverse());
+});
 
 router.post("/auth/pupil/start", async (req, res): Promise<void> => {
   const { schoolId, accessCode } = req.body;

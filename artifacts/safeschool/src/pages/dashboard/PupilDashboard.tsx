@@ -222,7 +222,7 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
               recipientId: t.id,
               body: `${body}${location ? ` [Location: ${location}]` : ""}`,
               priority: "urgent",
-              type: "message",
+              type: "urgent_help",
               location: location || null,
             }),
           });

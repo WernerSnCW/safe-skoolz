@@ -59,6 +59,15 @@ router.patch("/notifications/:id/acknowledge", authMiddleware, async (req, res):
     return;
   }
 
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "notification_acknowledged",
+    actor: user,
+    targetType: "notification",
+    targetId: id,
+    req,
+  });
+
   res.json({
     id: notification.id,
     schoolId: notification.schoolId,
@@ -143,7 +152,7 @@ router.post("/notifications/broadcast", authMiddleware, async (req, res): Promis
   await writeAudit({
     schoolId: user.schoolId,
     eventType: "notification_broadcast",
-    actor: user.userId,
+    actor: user,
     targetType: "notification",
     targetId: audience,
     details: { subject, audience, category, recipientCount: recipients.length },

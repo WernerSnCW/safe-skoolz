@@ -197,6 +197,15 @@ router.post(
       })
       .returning();
 
+    await writeAudit({
+      schoolId: user.schoolId,
+      eventType: "diary_entry_created",
+      actor: user,
+      targetType: "diary_entry",
+      targetId: entry.id,
+      req,
+    });
+
     res.status(201).json(entry);
 
     if (trimmedNote && trimmedNote.length >= 10) {
@@ -226,6 +235,15 @@ router.delete(
     await db
       .delete(pupilDiaryTable)
       .where(and(eq(pupilDiaryTable.id, id), eq(pupilDiaryTable.pupilId, user.userId)));
+
+    await writeAudit({
+      schoolId: user.schoolId,
+      eventType: "diary_entry_deleted",
+      actor: user,
+      targetType: "diary_entry",
+      targetId: id,
+      req,
+    });
 
     res.json({ success: true });
   }

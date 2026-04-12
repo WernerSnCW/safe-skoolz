@@ -1,0 +1,214 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASTE INTO: Safeskoolz Replit
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OUTPUT INSTRUCTION: When this build is complete, write your full build
+report as a downloadable TXT file that can be opened and edited. Do not
+paste the report inline. The file should be named:
+RR-2026-04-10-006_build_report.txt
+
+---
+
+# BUILD PROMPT — RR-2026-04-10-006
+Track: B
+This is a Track B build. Scope boundary is fixed. Do not add features
+or refactor code outside the changes listed below.
+
+---
+
+## BEFORE YOU START
+
+Read the following files before writing any code:
+1. artifacts/api-server/src/routes/auth.ts — confirm line 226 type field
+   in UrgentHelpDialog; also read the reset-pin endpoint to determine
+   if it clears lockedUntil and failedLoginAttempts
+2. artifacts/api-server/src/routes/schools.ts — read the existing
+   POST /pupils/reset-pin/:id endpoint in full before deciding whether
+   a new unlock endpoint is needed
+3. artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx —
+   confirm the Overview tab structure before adding the locked pupils card
+
+State what you found in each file before implementing anything.
+
+---
+
+## CHANGES TO MAKE
+
+### CHANGE 1 — FIX-00 (CRITICAL — do this first)
+
+File: artifacts/safeschool/src/pages/dashboard/PupilDashboard.tsx
+
+In the UrgentHelpDialog component, find the POST /api/messages call
+(line ~226). Change:
+  type: "message"
+to:
+  type: "urgent_help"
+
+Do not change anything else in this component.
+
+Verify: the GET /messages/child-alerts endpoint in messages.ts filters
+on type === "urgent_help". Confirm this fix makes urgent help messages
+visible to parents via that endpoint.
+
+---
+
+### CHANGE 2 — FIX-01a: Diary audit logs
+
+File: artifacts/api-server/src/routes/diary.ts
+
+POST /diary/entries handler: after the successful db.insert() call and
+before the res.status(201).json() response, add:
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "diary_entry_created",
+    actor: user,
+    targetType: "diary_entry",
+    targetId: newEntry.id,
+    req,
+  });
+
+DELETE /diary/entries/:id handler: after the successful db.delete() call,
+add:
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "diary_entry_deleted",
+    actor: user,
+    targetType: "diary_entry",
+    targetId: id,
+    req,
+  });
+
+Both calls must happen AFTER the successful database operation, not before.
+
+---
+
+### CHANGE 3 — FIX-01b: Notification acknowledge audit log
+
+File: artifacts/api-server/src/routes/notifications.ts
+
+PATCH /notifications/:id/acknowledge handler: after the successful
+db.update() call, add:
+
+  await writeAudit({
+    schoolId: user.schoolId,
+    eventType: "notification_acknowledged",
+    actor: user,
+    targetType: "notification",
+    targetId: id,
+    req,
+  });
+
+---
+
+### CHANGE 4 — FIX-01c: Broadcast actor field correction
+
+File: artifacts/api-server/src/routes/notifications.ts
+
+POST /notifications/broadcast handler: find the writeAudit() call.
+It currently passes actor: user.userId (a string). Change to actor: user
+(the full JwtPayload object). writeAudit() reads .role and .userId from
+the actor — passing a string causes both fields to be undefined in the
+audit log.
+
+Change:
+  actor: user.userId
+to:
+  actor: user
+
+---
+
+### CHANGE 5 — FIX-02: Locked pupils endpoint
+
+File: artifacts/api-server/src/routes/auth.ts (or schools.ts — see
+decision below)
+
+DECISION REQUIRED: First read POST /pupils/reset-pin/:id in schools.ts.
+If it already sets lockedUntil = null and failedLoginAttempts = 0:
+  - Use that endpoint as the unlock action from the UI
+  - No new unlock endpoint needed
+  - State "Using existing reset-pin endpoint" in the build report
+
+If it does NOT clear lockedUntil and failedLoginAttempts:
+  - Add a new endpoint POST /api/auth/unlock-pupil/:id
+  - Auth: requireRole("coordinator", "head_teacher")
+  - Sets lockedUntil = null, failedLoginAttempts = 0
+  - Writes audit log: eventType "pupil_lockout_cleared"
+  - State "New unlock endpoint created" in the build report
+
+Regardless of which path is taken, add:
+
+GET /api/auth/locked-pupils
+- Auth: requireRole("coordinator", "head_teacher")
+- Query: usersTable WHERE schoolId = user.schoolId AND role = "pupil"
+  AND lockedUntil > new Date()
+- Returns: array of { id, firstName, lastName, className, yearGroup,
+  lockedUntil, failedLoginAttempts }
+- Returns empty array (not 404) when no pupils are locked
+- Ordered by lockedUntil desc
+
+CRITICAL: declare this static GET route BEFORE any existing parameterised
+/:id routes in the same router file.
+
+Mount in routes/index.ts if adding to a new file. If adding to auth.ts,
+it is already mounted.
+
+---
+
+### CHANGE 6 — FIX-02 UI: Locked pupils card
+
+File: artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx
+
+Add to the Overview tab, below the existing stat cards and above the
+training completion card:
+
+- Fetch GET /api/auth/locked-pupils on mount using the same raw fetch
+  pattern already used in this file (with auth token from localStorage)
+- If the array is empty: do not render the card
+- If locked pupils exist: render an amber warning card
+  - Heading: "Locked Pupil Accounts"
+  - List each locked pupil: name, class/year group, "Locked until [time]"
+  - Per-pupil button: "Reset lockout"
+  - On click: call the unlock endpoint (reset-pin or unlock-pupil),
+    refresh the locked pupils list on success
+  - On success: show brief confirmation inline, remove pupil from list
+
+---
+
+## CONSTRAINTS
+
+- FIX-00 must be implemented and verified before any other change
+- Do not change anything outside the listed files and functions
+- writeAudit() calls must happen AFTER successful database operations
+- No new npm packages
+- No schema changes
+- Static routes before parameterised routes — required for the new
+  GET /api/auth/locked-pupils endpoint
+- Do not refactor UrgentHelpDialog beyond the single type field change
+
+---
+
+## VERIFICATION
+
+After all changes:
+1. Restart both servers
+2. Confirm both servers start cleanly with no errors
+3. Test GET /api/auth/locked-pupils returns 401 without auth (route exists)
+4. Confirm frontend compiles without errors
+5. Run e2e tests
+
+---
+
+## BUILD REPORT
+
+Write the complete build report as a downloadable TXT file named:
+RR-2026-04-10-006_build_report.txt
+
+The report must include:
+- Which path was taken for FIX-02 (existing reset-pin vs new endpoint)
+- Confirmation of FIX-00 line number changed
+- All files modified
+- Any issues encountered and how they were resolved
+- Server startup confirmation
+- Test results
