@@ -1,0 +1,534 @@
+========================================================================
+100 — CURRENT STATE SCAN
+Build ID: Phase 3 pre-scan
+Date: 2026-04-12
+CTX: CTX_architecture_safeskoolz_v1_0.md (v2026-04-12)
+========================================================================
+
+### 0. Scan coverage
+
+**Scope:** Scoped to files specified in prompt
+**Fully scanned:**
+- package.json (monorepo root)
+- artifacts/api-server/package.json
+- artifacts/safeschool/package.json
+- artifacts/api-server/src/routes/incidents.ts (POST handler + escalation
+  logic, lines 143–285)
+- artifacts/api-server/src/routes/auth.ts (lockout logic — constants at
+  lines 75–86, POST /auth/pupil/login at lines 188–287)
+- artifacts/api-server/src/lib/patternDetection.ts (createAlert function
+  lines 270–336, runPatternDetection signature line 5, runMoodDeclineScan
+  signature line 200, runScheduledPatternScan signature line 235)
+- artifacts/api-server/src/lib/escalation.ts (full file, 253 lines)
+- artifacts/api-server/src/lib/emailHelper.ts (full file, 71 lines)
+- artifacts/api-server/src/lib/pdfExport.ts (full file, 291 lines —
+  function signatures extracted)
+- Entire monorepo searched for *.test.ts, *.spec.ts, vitest.config.*,
+  jest.config.*, playwright.config.*
+**Summarised at directory level:** none
+**Could not reach:** none
+**Limitations:** Only node_modules test files found (vendor tests from
+zod, svix, pg-protocol — not project tests). No project-owned test files
+exist.
+
+------------------------------------------------------------------------
+
+### 1. Key files
+
+#### `package.json` (monorepo root)
+**What it does:** Root workspace config for pnpm monorepo. Defines
+preinstall guard (pnpm-only), build and typecheck scripts.
+**Key functions, variables, data structures:**
+- `scripts.preinstall`: blocks npm/yarn, enforces pnpm
+- `scripts.build`: runs typecheck then builds all packages
+- `scripts.typecheck`: builds libs first, then checks artifacts
+- devDependencies: typescript ~5.9.2, prettier ^3.8.1
+
+#### `artifacts/api-server/package.json`
+**What it does:** API server package config. Express 5 backend with
+Drizzle ORM, JWT auth, bcrypt, AI (OpenAI), PDF (pdfkit), email
+(resend), rate limiting.
+**Key dependencies:**
+- `@workspace/api-zod` (workspace) — shared Zod validation schemas
+- `@workspace/db` (workspace) — shared Drizzle schema + db instance
+- `bcrypt` ^6.0.0 — password/PIN hashing
+- `express` ^5 — HTTP framework
+- `express-rate-limit` ^8.3.1 — request throttling
+- `jsonwebtoken` ^9.0.3 — JWT creation/verification
+- `openai` ^6.32.0 — AI integration (gpt-5-nano via proxy)
+- `pdfkit` ^0.18.0 — server-side PDF generation
+- `resend` ^6.10.0 — email delivery
+- `drizzle-orm` (catalog) — ORM
+- dev: tsx (runtime), esbuild (bundler), type packages
+
+#### `artifacts/safeschool/package.json`
+**What it does:** Frontend React + Vite SPA package config. Uses Radix
+UI primitives, TanStack Query, Tailwind CSS, wouter for routing.
+**Key dependencies:**
+- React + react-dom (catalog)
+- Vite + @vitejs/plugin-react (catalog)
+- Radix UI: accordion, alert-dialog, avatar, checkbox, dialog,
+  dropdown-menu, label, popover, progress, radio-group, scroll-area,
+  select, separator, slider, switch, tabs, toast, toggle, toggle-group,
+  tooltip (and more)
+- @tanstack/react-query (catalog) — data fetching/caching
+- @workspace/api-client-react (workspace) — generated API client hooks
+- tailwindcss (catalog) + @tailwindcss/typography, tw-animate-css
+- wouter ^3.3.5 — client-side routing
+- zod (catalog) — runtime validation
+- recharts ^2.15.4 — charts
+- framer-motion (catalog) — animations
+- lucide-react (catalog) — icons
+- react-hook-form ^7.71.2 + @hookform/resolvers — form handling
+- date-fns ^3.6.0 — date formatting
+- sonner ^2.0.7 — toast notifications
+- cmdk ^1.1.1 — command palette
+
+No test runner (vitest, jest, playwright) in either package.json.
+
+#### `artifacts/api-server/src/routes/incidents.ts` (POST handler)
+**What it does:** Defines the POST /incidents endpoint. Creates an
+incident, determines escalation tier and safeguarding trigger, generates
+a reference number, writes audit log, sends in-app notifications, runs
+pattern detection, returns protocol guidance for non-pupil reporters,
+and fires non-blocking email to coordinators for tier >= 2.
+**Key functions, variables, data structures:**
+- `router.post("/incidents", ...)` (line 143): Main incident creation
+  handler. Auth required. Parses body with CreateIncidentBody Zod schema.
+- `determineEscalationTier(category)`: imported from escalation.ts.
+  Returns 1, 2, or 3 based on category string.
+- `isSafeguardingTrigger(category)`: imported from escalation.ts.
+  Returns boolean — true for sexual/coercive.
+- `generateIncidentRef()`: imported from referenceNumber.ts. Returns
+  `SS-YYYY-NNNN` format string.
+- `writeAudit(...)`: called immediately after insert with
+  eventType "incident_created".
+- In-app notification for reporter (if not anonymous): trigger
+  "incident_confirmation".
+- In-app notification for coordinators + head_teachers: only if
+  escalationTier >= 3 OR safeguardingTrigger is true (line 218).
+- `runPatternDetection(incident)`: fire-and-forget (.catch(console.error))
+  after notifications, before response (line 244).
+- `buildProtocolGuidance(...)`: appended to response for non-pupil users.
+- Response: `res.status(201).json(result)` at line 257.
+- Email trigger (tier >= 2): non-blocking IIFE after response (lines
+  259–284). Looks up school name, fetches coordinator/head_teacher users,
+  sends one email per recipient via sendEmail(). Promise.all with
+  catch(){} wrapper.
+
+#### `artifacts/api-server/src/routes/auth.ts` (lockout logic)
+**What it does:** Defines pupil PIN login with progressive lockout.
+Three failed attempts trigger a 15-minute lock. Five failed attempts
+trigger an admin-reset lock (lockedUntil set to 2099-12-31).
+**Key functions, variables, data structures:**
+- `PUPIL_LOCK_MINUTES = 15` (line 75): duration of timed lockout
+- `PUPIL_LOCK_THRESHOLD = 3` (line 76): attempts before timed lock
+- `PUPIL_ADMIN_RESET_THRESHOLD = 5` (line 77): attempts before
+  permanent admin lock
+- `loginSessions` (line 79): **in-memory Map** storing pupil login
+  sessions { schoolId, profiles[], expiresAt }. Cleaned every 60s via
+  setInterval. NOT shared across autoscale instances (known FIX-04).
+- `POST /auth/pupil/login` (line 188): validates loginSessionToken +
+  loginKey + pin. Checks lockedUntil before PIN comparison. On failure:
+  increments failedLoginAttempts, applies timed or admin lock. On
+  success: resets failedLoginAttempts and lockedUntil, issues JWT.
+- Lockout detection: if lockedUntil > now + 24h → admin-reset required
+  (status 423, adminResetRequired: true). Otherwise → timed lock
+  (status 423, minutesRemaining).
+
+#### `artifacts/api-server/src/lib/patternDetection.ts`
+**What it does:** Pattern detection engine. Analyses incidents for repeat
+victimisation, escalating severity, category-specific patterns (sexual,
+physical, psychological, online), and mood diary decline. Creates alerts
+in patternAlertsTable and sends in-app + email notifications.
+**Key functions:**
+- `runPatternDetection(incident)` (line 5, exported): Entry point.
+  Called with a single incident record. Runs sexual-any check, repeat
+  victim check (30-day window), escalating severity check, category
+  frequency checks, perpetrator pattern check.
+- `runMoodDeclineScan()` (line 200, exported): Scans all active schools
+  for pupils with avg mood <= 2.0 over 14 days with >= 5 entries.
+  Creates "amber" alert with ruleId "mood_decline".
+- `runScheduledPatternScan()` (line 235, exported): Called by cron every
+  60 minutes. Iterates all active schools, runs runPatternDetection on
+  every incident from the last 30 days, then runs runMoodDeclineScan.
+- `createAlert(data)` (line 270, private): Deduplicates by ruleId +
+  schoolId + victimId + status "open". Inserts into patternAlertsTable.
+  If alertLevel is "amber" or "red": fires non-blocking email IIFE to
+  coordinators + head_teachers (lines 308–332).
+- `notifyCoordinators(schoolId, message, reference?)` (line 338,
+  private): Calls notifyByRole for coordinator and head_teacher.
+- `notifyByRole(schoolId, role, message, reference?)` (line 343,
+  private): Inserts in-app notification for all active users of given
+  role in school.
+
+#### `artifacts/api-server/src/lib/escalation.ts`
+**What it does:** Escalation tier classification, mandatory referral
+checks, and protocol guidance generation for Spanish safeguarding law
+(LOPIVI, Convivèxit, Machista Violence).
+**Key functions, variables, data structures:**
+- `TIER_3_CATEGORIES = ["sexual", "coercive"]` (line 1)
+- `TIER_2_CATEGORIES = ["physical", "psychological", "online"]` (line 2)
+- `MANDATORY_REFERRAL_CATEGORIES = ["sexual", "coercive"]` (line 4)
+- `parseCategories(category)` (line 6, private): splits comma-separated
+  category string into lowercase trimmed array.
+- `determineEscalationTier(category): number` (line 10, exported):
+  Returns 3 if any TIER_3 match, 2 if any TIER_2 match, else 1.
+- `isSafeguardingTrigger(category): boolean` (line 17, exported):
+  Returns true if any TIER_3 category present.
+- `checkMandatoryReferral(opts): MandatoryReferralResult` (line 28,
+  exported): Checks tier >= 3, mandatory referral categories, and repeat
+  red alerts. Returns { required, reasons[], suggestedBody }.
+- `buildProtocolGuidance(categories, escalationTier,
+  safeguardingTrigger): ProtocolGuidance | null` (line 78, exported):
+  Returns null for tier <= 1 without safeguarding trigger. Otherwise
+  returns full protocol guidance object with immediateSteps, doNots,
+  whoToNotify, timeframe, legalBasis, externalReferral. Covers:
+  - sexual → LOPIVI (tier 3, critical, 6 steps)
+  - coercive → LOPIVI (tier 3, critical, 5 steps)
+  - physical → Convivèxit (tier 2, serious, 6 steps)
+  - psychological → Convivèxit (tier 2, serious, 5 steps)
+  - online → Convivèxit + LOPIVI Digital (tier 2, serious, 5 steps)
+- `ProtocolGuidance` interface (line 64): { tier, severity, protocol,
+  protocolFullName, headline, immediateSteps[], doNots[], whoToNotify[],
+  timeframe, legalBasis, externalReferral }
+- `MandatoryReferralResult` interface (line 22): { required, reasons[],
+  suggestedBody }
+
+#### `artifacts/api-server/src/lib/emailHelper.ts`
+**What it does:** Email delivery wrapper using Resend. Provides
+sendEmail() that never throws. Audits failures.
+**Key functions, variables, data structures:**
+- `resendClient` (line 4): module-level lazy singleton, null until first
+  call with valid RESEND_API_KEY.
+- `getResend(): Resend | null` (line 6, private): Returns cached client
+  or creates one. Returns null if no API key set.
+- `sendEmail(opts): Promise<void>` (line 14, exported): Sends plain
+  text email via Resend. Parameters: to, toName, subject, bodyText,
+  trigger, recipientId, schoolId. FROM address from
+  EMAIL_FROM_ADDRESS env var, defaults to "noreply@safeskoolz.com".
+  On missing API key: logs warning, returns silently.
+  On Resend API error (response.error): console.error + writeAudit
+  with eventType "email_send_failed".
+  On thrown exception: console.error + writeAudit with
+  eventType "email_send_failed".
+  Never rethrows — caller is never interrupted.
+
+#### `artifacts/api-server/src/lib/pdfExport.ts`
+**What it does:** Server-side PDF generation for incident reports and
+protocol reports using pdfkit. Returns Buffer (not stream).
+**Key functions:**
+- `generateIncidentPdf(data): Promise<Buffer>` (line 73, exported):
+  Generates A4 incident report PDF. Parameters:
+  { incident: any, schoolName: string, generatedBy: string }.
+  Includes header, incident details (ref, date, category, tier,
+  location, emotional state, description), people involved (reporter,
+  victims, perpetrators, witnesses), assessment section, protocol
+  guidance for tier 2+, CONFIDENTIAL footer on every page.
+- `generateProtocolPdf(data): Promise<Buffer>` (line 178, exported):
+  Generates A4 protocol report PDF. Parameters:
+  { protocol: any, caseTasks: any[], schoolName: string,
+  generatedBy: string }. Includes protocol details, risk assessment,
+  people, referral info, case tasks list, resolution section, linked
+  incidents count.
+- Internal helpers (not exported): formatDatePdf, formatDateTimePdf,
+  addHeader, addSectionTitle, addField, addFieldInline, addFooter.
+- Both functions use Buffer collection pattern: doc.on("data") pushes
+  chunks, doc.on("end") resolves with Buffer.concat(). No stream piping.
+
+------------------------------------------------------------------------
+
+### 2. Data model
+
+Scoped to types and schemas observed in the scanned files:
+
+- **CreateIncidentBody** (Zod, @workspace/api-zod): parsed in POST
+  /incidents. Fields: category, incidentDate, incidentTime?, location?,
+  description?, anonymous?, victimIds[]?, perpetratorIds[]?,
+  personInvolvedText?, unknownPersonDescriptions?, witnessIds[]?,
+  witnessText?, emotionalState?, emotionalFreetext?, happeningToMe?,
+  happeningToSomeoneElse?, iSawIt?, childrenSeparated?,
+  coordinatorNotified?, immediateActionTaken?, partOfKnownPattern?,
+  toldByChild?, childConsentToShare?, formalResponseRequested?,
+  requestExternalReferral?, confidentialFlag?
+
+- **incidentsTable** (Drizzle, @workspace/db): Columns observed from
+  insert: id, referenceNumber, schoolId, reporterId, reporterRole,
+  anonymous, category, escalationTier, safeguardingTrigger, incidentDate,
+  incidentTime, location, description, victimIds (uuid[]),
+  perpetratorIds (uuid[]), personInvolvedText,
+  unknownPersonDescriptions, witnessIds (uuid[]), witnessText,
+  emotionalState, emotionalFreetext, happeningToMe,
+  happeningToSomeoneElse, iSawIt, childrenSeparated,
+  coordinatorNotified, immediateActionTaken, partOfKnownPattern,
+  toldByChild, childConsentToShare, formalResponseRequested,
+  requestExternalReferral, confidentialFlag, status, createdAt
+
+- **usersTable** (Drizzle, @workspace/db): Fields observed: id, schoolId,
+  role, active, email, firstName, lastName, pinHash,
+  failedLoginAttempts, lockedUntil, parentOf (uuid[]), lastLogin
+
+- **patternAlertsTable** (Drizzle, @workspace/db): Fields observed: id,
+  schoolId, ruleId, ruleLabel, alertLevel, victimId, perpetratorIds,
+  linkedIncidentIds, status
+
+- **notificationsTable** (Drizzle, @workspace/db): Fields observed:
+  schoolId, recipientId, trigger, channel, subject, body, reference,
+  delivered
+
+- **disclosurePermissionsTable** (Drizzle, @workspace/db): Fields
+  observed: schoolId, requestedFromParentId, status
+
+- **schoolsTable** (Drizzle, @workspace/db): Fields observed: id, name,
+  active
+
+- **pupilDiaryTable** (Drizzle, @workspace/db): Fields observed (from
+  raw SQL): pupil_id, school_id, mood, created_at
+
+- **MandatoryReferralResult** (interface, escalation.ts):
+  { required: boolean, reasons: string[], suggestedBody: string | null }
+
+- **ProtocolGuidance** (interface, escalation.ts):
+  { tier: number, severity: "critical"|"serious"|"standard",
+  protocol: string, protocolFullName: string, headline: string,
+  immediateSteps: {step,action,detail}[], doNots: string[],
+  whoToNotify: string[], timeframe: string, legalBasis: string,
+  externalReferral: {required,body} }
+
+- **JwtPayload** (type, auth.ts): { userId, schoolId, role, email }
+
+------------------------------------------------------------------------
+
+### 3. Data flow
+
+- **Incident creation flow:**
+  1. Client POST /incidents with auth token → auth middleware extracts
+     JwtPayload
+  2. Body parsed with CreateIncidentBody Zod schema
+  3. `determineEscalationTier(category)` → tier 1/2/3
+  4. `isSafeguardingTrigger(category)` → boolean
+  5. `generateIncidentRef()` → reference number (SS-YYYY-NNNN)
+  6. DB insert into incidentsTable → returning incident record
+  7. `writeAudit()` → audit_log row (eventType "incident_created")
+  8. In-app notification to reporter (if not anonymous)
+  9. In-app notifications to coordinators + head_teachers (if tier >= 3
+     or safeguardingTrigger)
+  10. `runPatternDetection(incident)` → fire-and-forget (pattern analysis
+      + potential alert creation + potential email)
+  11. `buildProtocolGuidance()` → attach to response (non-pupil only)
+  12. `res.status(201).json(result)` → response sent
+  13. Non-blocking email to coordinators + head_teachers (if tier >= 2)
+      → fire-and-forget IIFE after response
+
+- **Pattern detection flow:**
+  1. `runPatternDetection(incident)` called with single incident
+  2. Checks sexual category → immediate red alert via createAlert()
+  3. Checks repeat victim (same victim, 3+ incidents in 30 days) → amber
+  4. Checks escalating severity (tier increase pattern) → amber
+  5. Checks category frequency (3+ same category from same perpetrator
+     in 30 days) → amber
+  6. Each check calls `createAlert()` which deduplicates, inserts, and
+     fires email for amber/red alerts
+  7. `notifyCoordinators()` creates in-app notifications
+
+- **Pupil login lockout flow:**
+  1. Client POST /auth/pupil/login with loginSessionToken, loginKey, pin
+  2. loginSessions Map looked up (in-memory — NOT persistent)
+  3. User record fetched from DB (including lockedUntil,
+     failedLoginAttempts)
+  4. If lockedUntil > now → check if admin lock (> 24h from now) or
+     timed lock → return 423 with appropriate message
+  5. PIN compared via bcrypt
+  6. If wrong: increment failedLoginAttempts. At 5 → admin lock
+     (2099-12-31). At 3 → 15-minute lock. Below 3 → warn with remaining
+     attempts.
+  7. If correct: reset failedLoginAttempts and lockedUntil, issue JWT
+
+- **Email delivery flow:**
+  1. Caller invokes sendEmail() with opts
+  2. getResend() returns cached Resend client (or null if no API key)
+  3. If null → log warning, return silently
+  4. Call client.emails.send() with from, to, subject, text
+  5. If response has { error } → console.error + writeAudit
+  6. If exception thrown → console.error + writeAudit
+  7. Never rethrows — caller is never interrupted
+
+- **PDF generation flow:**
+  1. Route handler calls generateIncidentPdf() or generateProtocolPdf()
+  2. PDFDocument created with A4 size, buffered pages
+  3. Content written via addHeader, addSectionTitle, addField helpers
+  4. Buffer collected via doc.on("data") chunk accumulation
+  5. doc.on("end") resolves Promise<Buffer>
+  6. Route handler sends buffer via res.send(buffer)
+
+------------------------------------------------------------------------
+
+### 4. Dependencies between files
+
+- **incidents.ts** depends on:
+  - `escalation.ts` for determineEscalationTier, isSafeguardingTrigger,
+    buildProtocolGuidance
+  - `referenceNumber.ts` for generateIncidentRef
+  - `auditHelper.ts` for writeAudit
+  - `patternDetection.ts` for runPatternDetection
+  - `emailHelper.ts` for sendEmail
+  - `auth.ts` for authMiddleware, requireRole, JwtPayload
+  - `@workspace/db` for db, incidentsTable, usersTable,
+    notificationsTable, patternAlertsTable, disclosurePermissionsTable,
+    schoolsTable
+  - `@workspace/api-zod` for CreateIncidentBody, ListIncidentsQueryParams,
+    UpdateIncidentStatusBody, AssessIncidentBody
+
+- **patternDetection.ts** depends on:
+  - `emailHelper.ts` for sendEmail
+  - `@workspace/db` for db, incidentsTable, patternAlertsTable,
+    notificationsTable, usersTable, schoolsTable, pupilDiaryTable
+
+- **emailHelper.ts** depends on:
+  - `resend` package for Resend class
+  - `auditHelper.ts` for writeAudit
+
+- **escalation.ts** depends on:
+  - nothing external (pure logic, no imports)
+
+- **pdfExport.ts** depends on:
+  - `pdfkit` package for PDFDocument
+
+- **auth.ts** depends on (lockout section):
+  - `@workspace/db` for db, usersTable
+  - `bcrypt` for compare
+  - `jsonwebtoken` for sign
+  - In-memory loginSessions Map (no external dependency)
+
+------------------------------------------------------------------------
+
+### 5. Test coverage
+
+**No project-owned test files exist.**
+
+Search results:
+- *.test.ts: only vendor files in node_modules (zod, svix, pg-protocol)
+- *.spec.ts: no files found
+- vitest.config.*: no files found
+- jest.config.*: no files found
+- playwright.config.*: no files found
+
+No test runner is installed in any package.json (no vitest, jest,
+playwright, or mocha in dependencies or devDependencies).
+
+No test scripts defined in any package.json.
+
+Coverage: 0% — no unit tests, no integration tests, no e2e tests exist
+in the project codebase.
+
+------------------------------------------------------------------------
+
+### 6. External services
+
+- **Resend** (resend ^6.10.0): Email delivery. Used in emailHelper.ts.
+  Requires RESEND_API_KEY env var. Sends plain text emails for three
+  triggers (disclosure approved, tier 2/3 incident, amber/red pattern
+  alert). Gracefully skips if API key missing.
+
+- **OpenAI** (openai ^6.32.0): AI integration via Replit AI Integrations
+  proxy. Model: gpt-5-nano. Used for AI-assisted features (diary
+  analysis). Requires AI_INTEGRATIONS_OPENAI_API_KEY.
+
+- **PostgreSQL**: Primary datastore via Drizzle ORM. Accessed through
+  DATABASE_URL env var.
+
+- **pdfkit** (pdfkit ^0.18.0): Server-side PDF generation. No external
+  API calls — generates PDFs in-process.
+
+------------------------------------------------------------------------
+
+### 7. Patterns and conventions
+
+- **Non-blocking email sends:** All email triggers fire after the HTTP
+  response via `(async () => { ... })()` fire-and-forget IIFE pattern.
+  Promise.all wraps individual sends. Outer catch(){} silences
+  unhandled rejections. New email triggers must follow this pattern.
+
+- **Audit-on-failure only:** sendEmail() audits only on failure
+  (eventType "email_send_failed"). Successful sends are not audited.
+
+- **Pattern detection deduplication:** createAlert() checks for existing
+  open alert with same ruleId + schoolId + victimId before inserting.
+  Prevents duplicate alerts.
+
+- **In-app notification pattern:** Direct insert to notificationsTable
+  with trigger identifier, channel "in_app", delivered: true. No
+  notification service abstraction.
+
+- **Escalation tier classification:** Pure function (no DB access).
+  Category string → tier number. Tier 3 = sexual/coercive, Tier 2 =
+  physical/psychological/online, Tier 1 = everything else.
+
+- **Progressive lockout:** Timed lock (15 min) at 3 failed attempts,
+  admin lock (2099-12-31) at 5 failed attempts. Admin lock requires
+  coordinator PIN reset. Threshold constants at module level.
+
+- **PDF generation:** Buffer-based (not stream). Collect chunks via
+  event listener, resolve Promise<Buffer>. Route sends via
+  res.send(buffer). Do not use stream piping.
+
+- **In-memory state (auth.ts):** loginSessions Map is process-local.
+  Known architectural weakness (FIX-04). Not shared across autoscale
+  instances.
+
+- **Route ordering:** Static routes declared before parameterised
+  `:id` routes in same router to prevent matching conflicts.
+
+- **Reference number format:** Incidents = SS-YYYY-NNNN, Protocols =
+  PROT-YYYY-NNN.
+
+- **Zod validation:** Request bodies parsed with .safeParse() (not
+  .parse()). Error returns 400 with error message.
+
+- **Auth middleware chain:** authMiddleware extracts JWT → requireRole()
+  checks role(s). JwtPayload: { userId, schoolId, role, email }.
+
+------------------------------------------------------------------------
+
+### 8. Inconsistencies and flags
+
+- **In-app notification tier threshold mismatch:** In-app notifications
+  to coordinators fire at `escalationTier >= 3 || safeguardingTrigger`
+  (line 218 of incidents.ts), but email notifications fire at
+  `escalationTier >= 2` (line 259). This means Tier 2 incidents
+  (physical, psychological, online) trigger an email but NOT an in-app
+  notification to coordinators. This is intentional per phase doc
+  RR-2026-04-12-007 but may confuse coordinators who receive an email
+  without a corresponding in-app notification.
+
+- **loginSessions in-memory Map:** Not persistent, not shared across
+  instances. Known FIX-04. If the process restarts during a pupil login
+  flow, the session is lost. If multiple instances run, a pupil's login
+  session exists only on the instance that created it.
+
+- **Empty catch blocks:** Both email trigger IIFEs (incidents.ts line
+  282, patternDetection.ts line 331) use `catch {}` which silently
+  swallows errors. The individual sendEmail() calls within already
+  handle their own errors, so this outer catch is a safety net, but it
+  means any error in the email recipient lookup (DB query failure) would
+  also be silently swallowed.
+
+- **No test infrastructure:** Zero test coverage across the entire
+  monorepo. No test runner installed, no test config files, no test
+  scripts. Any code change relies entirely on manual testing and e2e
+  Playwright runs (external to the codebase).
+
+- **`incident` parameter typing in patternDetection.ts:**
+  `runPatternDetection` accepts `typeof incidentsTable.$inferSelect`
+  which is the full inferred row type. This couples pattern detection
+  directly to the Drizzle schema. If the schema changes, the function
+  signature auto-updates but callers may break silently.
+
+- **Raw SQL in runMoodDeclineScan:** Uses `db.execute(sql\`...\`)` with
+  raw column names (pupil_id, school_id, mood, created_at) and casts
+  result rows as `any[]`. This bypasses Drizzle's type safety and will
+  not catch column rename errors at compile time.
+
+========================================================================
+END OF SCAN
+========================================================================
