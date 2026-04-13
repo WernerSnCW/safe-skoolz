@@ -1,0 +1,245 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASTE INTO: Safeskoolz Replit
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OUTPUT INSTRUCTION: When this build is complete, write your full build
+report as a downloadable TXT file named:
+RR-2026-04-12-008_build_report.txt
+
+Do not paste the report inline.
+
+---
+
+# BUILD PROMPT — RR-2026-04-12-008
+Track: A
+This is a Track A build. Scope boundary is fixed. Do not add tests
+beyond those listed, do not refactor source files beyond the one
+specified fix.
+
+---
+
+## BEFORE YOU START
+
+Read the following before writing any code:
+
+1. artifacts/api-server/src/routes/incidents.ts — find the in-app
+   notification block for coordinators. State the exact line number
+   and current condition before changing anything.
+
+2. artifacts/api-server/src/lib/patternDetection.ts — confirm whether
+   createAlert is exported or private. State what you find.
+
+3. artifacts/api-server/tsconfig.json — confirm vitest will be
+   compatible with the existing TypeScript config (check module,
+   target, and strict settings).
+
+State findings before implementing anything.
+
+---
+
+## STEP 1 — Test infrastructure
+
+Install as devDependencies in artifacts/api-server:
+  pnpm add -D vitest @vitest/coverage-v8
+
+Create artifacts/api-server/vitest.config.ts:
+
+  import { defineConfig } from "vitest/config";
+
+  export default defineConfig({
+    test: {
+      globals: true,
+      environment: "node",
+      coverage: {
+        provider: "v8",
+        reporter: ["text", "json-summary"],
+        include: ["src/lib/**/*.ts", "src/routes/**/*.ts"],
+        exclude: ["src/lib/seed.ts"],
+      },
+    },
+  });
+
+Add to artifacts/api-server/package.json scripts:
+  "test": "vitest run",
+  "test:coverage": "vitest run --coverage"
+
+---
+
+## STEP 2 — Write the Tier 2 notification test FIRST
+
+Before applying the fix to incidents.ts, write this test file so it
+fails, proving the bug exists:
+
+File: artifacts/api-server/src/__tests__/incidents.escalation.test.ts
+
+Test the in-app notification logic for coordinator notifications.
+You will need to mock @workspace/db to capture DB inserts.
+
+Tests to write:
+- Tier 1 incident (category "verbal") → no coordinator notification
+  inserted into notificationsTable
+- Tier 2 incident (category "physical") → coordinator notification
+  inserted (THIS TEST MUST FAIL BEFORE THE FIX)
+- Tier 3 incident (category "sexual") → coordinator notification
+  inserted
+
+Run the tests. Confirm the Tier 2 test fails. State the failure output
+in the build report.
+
+---
+
+## STEP 3 — Apply the fix
+
+File: artifacts/api-server/src/routes/incidents.ts
+
+Find the in-app notification condition for coordinators (the line you
+identified in the pre-read). Change:
+  escalationTier >= 3
+to:
+  escalationTier >= 2
+
+(Keep the || safeguardingTrigger part unchanged.)
+
+State the exact line number, old condition, and new condition in the
+build report.
+
+Run the Tier 2 test again. Confirm it now passes.
+
+---
+
+## STEP 4 — Write remaining test files
+
+### Test file 1: src/__tests__/escalation.test.ts
+
+Import from artifacts/api-server/src/lib/escalation.ts.
+No mocks needed — pure functions.
+
+Write tests for determineEscalationTier:
+- "sexual" → 3
+- "coercive" → 3
+- "physical" → 2
+- "psychological" → 2
+- "online" → 2
+- "verbal" → 1
+- "other" → 1
+- "sexual,physical" → 3 (highest wins)
+- "physical,online" → 2
+- "" → 1
+- "SEXUAL" → 3 (case insensitive)
+
+Write tests for isSafeguardingTrigger:
+- "sexual" → true
+- "coercive" → true
+- "physical" → false
+- "verbal" → false
+- "sexual,physical" → true
+
+Write tests for buildProtocolGuidance:
+- tier 1, no safeguarding trigger → null
+- "sexual" → non-null, protocol includes "LOPIVI", tier 3,
+  severity "critical", immediateSteps.length > 0
+- "physical" → non-null, protocol includes "Convivèxit", tier 2,
+  severity "serious"
+- "online" → non-null, tier 2
+- Returned guidance has all required fields: tier, severity, protocol,
+  protocolFullName, headline, immediateSteps, doNots, whoToNotify,
+  timeframe, legalBasis, externalReferral
+
+---
+
+### Test file 2: src/__tests__/auth.lockout.test.ts
+
+Import lockout constants from auth.ts. If they are not exported,
+add export keyword to the three constants only (do not export
+anything else).
+
+Write tests:
+- PUPIL_LOCK_THRESHOLD === 3
+- PUPIL_ADMIN_RESET_THRESHOLD === 5
+- PUPIL_LOCK_MINUTES === 15
+
+If the lockout boundary logic (increment + lock assignment) can be
+extracted into a pure helper function without mocking Express:
+extract it, export it with @internal JSDoc, and test:
+- 2 failed attempts → no lock
+- 3 failed attempts → timed lock applied (lockedUntil ≈ now + 15 min)
+- 5 failed attempts → admin lock (lockedUntil year = 2099)
+
+If extraction requires mocking the full Express request/response chain:
+skip boundary tests, write only the constant assertions, and document
+"lockout boundary logic requires integration test" in the build report.
+Do not over-engineer.
+
+---
+
+### Test file 3: src/__tests__/emailHelper.test.ts
+
+Mock the resend package using vi.mock("resend").
+Mock writeAudit using vi.mock("../lib/auditHelper").
+
+Write tests:
+- When RESEND_API_KEY env var is not set: sendEmail() resolves void,
+  writeAudit not called
+- When Resend client.emails.send() returns { error: "some error" }:
+  sendEmail() resolves void (does not throw), writeAudit called once
+  with eventType "email_send_failed"
+- When Resend client.emails.send() throws: sendEmail() resolves void
+  (does not throw), writeAudit called once with eventType
+  "email_send_failed"
+- When Resend succeeds (returns { id: "..." }): sendEmail() resolves
+  void, writeAudit not called
+
+---
+
+### Test file 4: src/__tests__/patternDetection.test.ts
+
+If createAlert is not exported: add export keyword to createAlert
+in patternDetection.ts. Add @internal JSDoc comment. State this
+in the build report.
+
+Mock @workspace/db using vi.mock("@workspace/db").
+Mock emailHelper using vi.mock("../lib/emailHelper").
+
+Write tests:
+- First createAlert call with unique ruleId + victimId + schoolId →
+  db.insert called, returns true
+- Second createAlert call with same ruleId + victimId + schoolId +
+  status "open" already in DB → db.insert NOT called, returns false
+- createAlert with alertLevel "red" → sendEmail called
+- createAlert with alertLevel "amber" → sendEmail called
+
+---
+
+## STEP 5 — Run all tests
+
+Run: pnpm test
+
+All tests must pass. If any test fails for a reason other than a
+genuine bug:
+- Fix the test (not the source code) if the test is wrong
+- Fix the source code if the source code is wrong
+- State what failed and what you changed in the build report
+
+Report the final test count and pass rate.
+
+---
+
+## STEP 6 — Verify servers still start
+
+Restart both servers. Confirm clean startup with no errors.
+
+---
+
+## BUILD REPORT (write as TXT file)
+
+The report must include:
+- Pre-read findings (line numbers for incidents.ts condition,
+  createAlert export status, tsconfig compatibility)
+- Tier 2 test failure output (before fix)
+- Tier 2 test pass output (after fix)
+- Exact line number and old/new condition for incidents.ts fix
+- Whether lockout boundary tests were written or deferred and why
+- Whether createAlert was exported or tested indirectly
+- Final test count and pass/fail breakdown per file
+- Any test that was skipped and why
+- Server startup confirmation

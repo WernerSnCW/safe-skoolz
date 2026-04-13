@@ -1,7 +1,7 @@
 # CTX_ARCHITECTURE
 Project: Safeskoolz
-Version: 2026-04-12 — incorporating RR-2026-04-10-001
-through RR-2026-04-12-007
+Version: 2026-04-13 — incorporating RR-2026-04-10-001
+through RR-2026-04-12-008
 
 ---
 
@@ -385,6 +385,39 @@ unchanged — email is purely additive.
 
 ---
 
+## Test infrastructure (RR-2026-04-12-008)
+
+Runner: vitest 4.x (devDependency in artifacts/api-server)
+Coverage: @vitest/coverage-v8
+Config: artifacts/api-server/vitest.config.ts
+Scripts: `pnpm test` (vitest run), `pnpm test:coverage` (with v8)
+
+Test files (38 tests total, all passing):
+- src/__tests__/escalation.test.ts — 21 tests, pure function tests for
+  determineEscalationTier, isSafeguardingTrigger, buildProtocolGuidance
+- src/__tests__/auth.lockout.test.ts — 6 tests, lockout constant
+  assertions + computeLockoutAction boundary tests
+- src/__tests__/emailHelper.test.ts — 4 tests, sendEmail with mocked
+  Resend (missing key, API error, thrown error, success)
+- src/__tests__/incidents.escalation.test.ts — 3 tests, coordinator
+  in-app notification logic for Tier 1/2/3
+- src/__tests__/patternDetection.test.ts — 4 tests, createAlert
+  deduplication + email send for amber/red alerts
+
+Exported for testing (@internal):
+- auth.ts: PUPIL_LOCK_MINUTES, PUPIL_LOCK_THRESHOLD,
+  PUPIL_ADMIN_RESET_THRESHOLD (constants), computeLockoutAction()
+- patternDetection.ts: createAlert() (was private, now exported)
+
+Bug fix applied (RR-2026-04-12-008):
+- incidents.ts line 218 (now 221): coordinator in-app notification
+  condition changed from `escalationTier >= 3` to `escalationTier >= 2`.
+  This aligns in-app notifications with the email trigger threshold
+  (both now fire at tier >= 2). The || safeguardingTrigger part is
+  unchanged.
+
+---
+
 ## Known architectural weaknesses (do not resolve without a dedicated phase)
 
 These are documented technical debt items. Do not address them as part of
@@ -455,4 +488,4 @@ From RR-2026-04-12-007 (require RESEND_API_KEY):
 
 If a spec describes something that contradicts this file, flag it in Step 4.
 Do not silently apply the older constraint.
-Last reviewed against codebase: 2026-04-12 (updated after RR-2026-04-12-007)
+Last reviewed against codebase: 2026-04-13 (updated after RR-2026-04-12-008)

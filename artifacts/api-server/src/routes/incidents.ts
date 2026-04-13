@@ -215,7 +215,7 @@ router.post("/incidents", authMiddleware, async (req, res): Promise<void> => {
     });
   }
 
-  if (escalationTier >= 3 || safeguardingTrigger) {
+  if (escalationTier >= 2 || safeguardingTrigger) {
     const coordinators = await db
       .select()
       .from(usersTable)

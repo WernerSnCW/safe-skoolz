@@ -60,3 +60,9 @@ id = "OEAH8BUczvoFHlfklHkML"
 uri = "file://100_scan_phase3_safeskoolz.txt"
 type = "text"
 title = "100 Scan — Phase 3 Pre-Scan (safeskoolz)"
+
+[[outputs]]
+id = "9gcy-EZx-6penlRZGkLhw"
+uri = "file://RR-2026-04-12-008_build_report.txt"
+type = "text"
+title = "Build Report — RR-2026-04-12-008 (Test Infrastructure + Tier 2 Fix)"

@@ -267,7 +267,8 @@ export async function runScheduledPatternScan() {
   console.log(`[cron] Pattern scan complete for ${schools.length} school(s)`);
 }
 
-async function createAlert(data: {
+/** @internal */
+export async function createAlert(data: {
   schoolId: string;
   ruleId: string;
   ruleLabel: string;

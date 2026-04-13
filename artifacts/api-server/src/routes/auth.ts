@@ -72,9 +72,21 @@ router.get("/auth/login-accounts", async (req, res): Promise<void> => {
   res.json(accounts);
 });
 
-const PUPIL_LOCK_MINUTES = 15;
-const PUPIL_LOCK_THRESHOLD = 3;
-const PUPIL_ADMIN_RESET_THRESHOLD = 5;
+export const PUPIL_LOCK_MINUTES = 15;
+export const PUPIL_LOCK_THRESHOLD = 3;
+export const PUPIL_ADMIN_RESET_THRESHOLD = 5;
+
+/** @internal */
+export function computeLockoutAction(failedAttempts: number): { action: "none" | "timed_lock" | "admin_lock"; lockedUntil: Date | null; attemptsRemaining: number } {
+  const newAttempts = failedAttempts + 1;
+  if (newAttempts >= PUPIL_ADMIN_RESET_THRESHOLD) {
+    return { action: "admin_lock", lockedUntil: new Date("2099-12-31"), attemptsRemaining: 0 };
+  }
+  if (newAttempts >= PUPIL_LOCK_THRESHOLD) {
+    return { action: "timed_lock", lockedUntil: new Date(Date.now() + PUPIL_LOCK_MINUTES * 60 * 1000), attemptsRemaining: 0 };
+  }
+  return { action: "none", lockedUntil: null, attemptsRemaining: PUPIL_LOCK_THRESHOLD - newAttempts };
+}
 
 const loginSessions = new Map<string, { schoolId: string; profiles: { loginKey: string; pupilId: string }[]; expiresAt: number }>();
 
