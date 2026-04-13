@@ -339,6 +339,29 @@ export default function Login() {
             ))}
           </div>
 
+          {demoEnabled && (
+            <div className="px-6 sm:px-8 py-3 border-b border-border/30 bg-primary/5">
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={!!demoLoading}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-primary hover:bg-primary/10 transition-colors disabled:opacity-50"
+              >
+                {demoLoading ? (
+                  <>
+                    <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                    {t("startingDemo")}
+                  </>
+                ) : (
+                  <>
+                    <Play size={16} className="fill-primary/20" />
+                    {activeTab === "pupil" ? t("showMeAround") : activeTab === "parent" ? t("showMeAroundParent") : activeTab === "pta" ? t("showMeAroundPta") : t("showMeAroundStaff")}
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -650,28 +673,7 @@ export default function Login() {
               </form>
             )}
 
-            {demoEnabled && (
-              <div className="mt-4 pt-4 border-t border-border/50">
-                <button
-                  type="button"
-                  onClick={handleDemoLogin}
-                  disabled={!!demoLoading}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50"
-                >
-                  {demoLoading ? (
-                    <>
-                      <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
-                      {t("startingDemo")}
-                    </>
-                  ) : (
-                    <>
-                      <Play size={16} className="fill-primary/20" />
-                      {activeTab === "pupil" ? t("showMeAround") : activeTab === "parent" ? t("showMeAroundParent") : activeTab === "pta" ? t("showMeAroundPta") : t("showMeAroundStaff")}
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
+            
           </CardContent>
         </Card>
 
