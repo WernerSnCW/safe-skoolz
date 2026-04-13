@@ -1,0 +1,141 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASTE INTO: Safeskoolz Replit
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OUTPUT INSTRUCTION: Write your full scan output as a downloadable TXT
+file named: 100_scan_phase4_safeskoolz.txt
+
+Do not paste the output inline. Write the file and confirm it is ready
+to download.
+
+---
+
+# 100 — CURRENT STATE PROMPT (i18n pre-scan)
+Version: 1.4
+
+SCOPE: This scan has a specific purpose — inventorying all user-facing
+strings across the frontend before adding i18n support. Complete the
+standard template AND the additional string inventory below.
+
+Scan the following:
+- artifacts/safeschool/package.json (dependencies only)
+- artifacts/safeschool/src/App.tsx
+- artifacts/safeschool/src/components/layout/AppLayout.tsx
+- artifacts/safeschool/src/pages/login.tsx
+- artifacts/safeschool/src/pages/dashboard/PupilDashboard.tsx
+- artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx
+- artifacts/safeschool/src/pages/dashboard/TeacherDashboard.tsx
+- artifacts/safeschool/src/pages/dashboard/ParentDashboard.tsx
+- artifacts/safeschool/src/pages/report-incident.tsx
+- artifacts/safeschool/src/pages/incidents/index.tsx
+- artifacts/safeschool/src/pages/incidents/detail.tsx
+- artifacts/safeschool/src/pages/protocols/index.tsx
+- artifacts/safeschool/src/pages/protocols/detail.tsx
+- artifacts/safeschool/src/pages/protocols/new.tsx
+- artifacts/safeschool/src/pages/diary.tsx
+- artifacts/safeschool/src/pages/messages.tsx
+- artifacts/safeschool/src/pages/alerts.tsx
+- artifacts/safeschool/src/pages/learn.tsx
+- artifacts/safeschool/src/pages/learnings.tsx
+- artifacts/safeschool/src/pages/settings.tsx
+- artifacts/safeschool/src/pages/pta.tsx
+- artifacts/safeschool/src/pages/caseload.tsx
+- artifacts/safeschool/src/pages/behaviour.tsx
+- artifacts/safeschool/src/pages/my-class.tsx
+- artifacts/safeschool/src/pages/diagnostics.tsx
+- artifacts/safeschool/src/pages/training-status.tsx
+- artifacts/safeschool/src/hooks/use-auth.tsx
+
+---
+
+SIGNIFICANCE RULE:
+A file is significant if it defines business logic, routing, persistence,
+validation, shared types, UI composition, tests, configuration, migrations,
+or integration code. When uncertain: include it.
+
+ANTI-INFERENCE RULE:
+Describe only files and structures that actually exist in this codebase.
+If a file's purpose is unclear from code inspection, write: "Purpose
+unclear from scan."
+
+SCAN COVERAGE RULE:
+If the codebase is too large to describe every significant file in full,
+state this explicitly.
+
+---
+
+## STANDARD CURRENT STATE OUTPUT
+
+### 0. Scan coverage
+**Scope:** scoped to i18n pre-scan file list above
+**Fully scanned:** [list]
+**Summarised at directory level:** [list or "none"]
+**Could not reach:** [list or "none"]
+**Limitations:** [any known gaps or "none"]
+
+---
+
+### 1. Key files (brief — focus on what matters for i18n)
+
+For each file, state:
+- Does it contain hardcoded user-facing strings? YES / NO
+- Approximate string count (rough estimate)
+- Any dynamic strings (interpolated values like pupil names, dates,
+  counts) — list the pattern if present
+- Any existing i18n setup (i18next, react-intl, custom context) — YES/NO
+
+---
+
+### 2. String inventory (CRITICAL SECTION)
+
+For each page/component file, list every unique user-facing string
+category present. Do not list every individual string — group by
+category. For each category give 2-3 example strings.
+
+Format:
+#### [filename]
+- [Category name]: [example 1], [example 2]
+- Dynamic strings: [pattern, e.g. "Welcome, {name}!", "X of Y completed"]
+
+---
+
+### 3. Navigation strings
+
+List every navigation label currently in AppLayout.tsx (sidebar and
+bottom nav). These become the nav translation namespace.
+
+---
+
+### 4. Existing i18n infrastructure
+
+- Any i18n library installed? (check package.json)
+- Any translation files present? (check src/locales/ or similar)
+- Any useTranslation or t() calls anywhere?
+
+If none: state "No i18n infrastructure exists."
+
+---
+
+### 5. Language selection surface
+
+Where does the user currently select language (if anywhere)?
+If nowhere: state "No language selection exists."
+
+---
+
+### 6. Flags and risks for i18n implementation
+
+- Any strings that are particularly complex to translate (plurals,
+  gender agreement, legal terminology)?
+- Any strings that must NOT be translated (reference numbers, role
+  names used as API values, legal protocol names like LOPIVI)?
+- Any components that render strings from the backend (API responses
+  that contain English text which would also need translation)?
+
+---
+
+### 7. Test coverage note
+
+After adding i18n, pnpm test must still pass. Note any test files
+that reference hardcoded English strings that would break after
+translation wrapping.
