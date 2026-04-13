@@ -30,6 +30,7 @@ timeoutMs = 20000
 [userenv.shared]
 
 [userenv.development]
+DEMO_MODE = "true"
 
 [nix]
 channel = "stable-25_05"
