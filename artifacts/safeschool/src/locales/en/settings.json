@@ -1,0 +1,23 @@
+{
+  "settings": "Settings",
+  "editProfile": "Edit Profile",
+  "pickYourAvatar": "Pick Your Avatar",
+  "appearance": "Appearance",
+  "accountDetails": "Account Details",
+  "changeNameOrAvatar": "Change your name or pick a new avatar",
+  "updateProfile": "Update your profile information",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "email": "Email",
+  "saved": "Saved",
+  "saveChanges": "Save Changes",
+  "light": "Light",
+  "dark": "Dark",
+  "system": "System",
+  "role": "Role:",
+  "year": "Year:",
+  "class": "Class:",
+  "yourFirstName": "Your first name",
+  "yourLastName": "Your last name",
+  "yourEmail": "your.email@school.dev"
+}

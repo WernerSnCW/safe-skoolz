@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useListProtocols } from "@workspace/api-client-react";
 import { Card, CardContent, Button } from "@/components/ui-polished";
 import { formatDate } from "@/lib/utils";
 import { FileText, Shield, ArrowRight } from "lucide-react";
 
 export default function ProtocolsList() {
+  const { t } = useTranslation("protocols");
   const { data, isLoading } = useListProtocols({ limit: 50 });
   const protocols = data?.data || [];
 
@@ -13,11 +15,11 @@ export default function ProtocolsList() {
     <div className="space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-display font-bold">Safeguarding Protocols</h1>
-          <p className="text-muted-foreground mt-1">Manage active formal investigations and procedures.</p>
+          <h1 className="text-3xl font-display font-bold">{t("safeguardingProtocols")}</h1>
+          <p className="text-muted-foreground mt-1">{t("manageActive")}</p>
         </div>
         <Link href="/protocols/new">
-          <Button><Shield className="mr-2" size={18}/> Open Protocol</Button>
+          <Button><Shield className="mr-2" size={18}/> {t("openProtocol")}</Button>
         </Link>
       </div>
 
@@ -53,8 +55,8 @@ export default function ProtocolsList() {
                     </div>
                     <h3 className="font-bold text-xl capitalize text-foreground">{prot.protocolType.replace(/_/g, ' ')}</h3>
                     <p className="text-sm text-muted-foreground mt-1 flex gap-4">
-                      <span>Victim: <strong>{prot.victimName || 'Unknown'}</strong></span>
-                      <span>Opened: {formatDate(prot.openedAt)}</span>
+                      <span>{t("common:victims")}: <strong>{prot.victimName || t("common:unknown")}</strong></span>
+                      <span>{t("opened")} {formatDate(prot.openedAt)}</span>
                     </p>
                   </div>
                   
@@ -70,8 +72,8 @@ export default function ProtocolsList() {
           {protocols.length === 0 && (
             <div className="text-center py-16 px-4 bg-muted/30 rounded-3xl border border-border border-dashed">
               <Shield className="mx-auto text-muted-foreground/50 mb-4" size={48}/>
-              <h3 className="text-lg font-bold text-foreground">No active protocols</h3>
-              <p className="text-muted-foreground mt-1">Formal safeguarding protocols will appear here.</p>
+              <h3 className="text-lg font-bold text-foreground">{t("noActiveProtocols")}</h3>
+              <p className="text-muted-foreground mt-1">{t("formalProtocolsAppear")}</p>
             </div>
           )}
         </div>

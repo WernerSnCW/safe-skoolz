@@ -1,0 +1,11 @@
+{
+  "patternAlerts": "Alertes de tendances",
+  "automatedAlerts": "Alertes automatiques déclenchées par le système.",
+  "behaviourPatternDetected": "Tendance comportementale détectée",
+  "alert": "Alerte",
+  "systemIdentifiedPattern": "Le système a identifié une tendance impliquant...",
+  "linkedToRecent": "Lié à des incidents récents.",
+  "noActiveAlerts": "Aucune alerte de tendance active.",
+  "incident": "Incident",
+  "viewIncident": "Voir l'incident"
+}

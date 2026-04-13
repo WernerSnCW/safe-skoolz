@@ -5,13 +5,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui-polished";
 import { Trash2, Lock, Palette, Info, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const MOODS = [
-  { value: 1, emoji: "\uD83D\uDE22", label: "Sad" },
-  { value: 2, emoji: "\uD83D\uDE1F", label: "Worried" },
-  { value: 3, emoji: "\uD83D\uDE10", label: "Meh" },
-  { value: 4, emoji: "\uD83D\uDE0A", label: "Happy" },
-  { value: 5, emoji: "\uD83E\uDD29", label: "Amazing" },
+  { value: 1, emoji: "\uD83D\uDE22", labelKey: "sad" },
+  { value: 2, emoji: "\uD83D\uDE1F", labelKey: "worried" },
+  { value: 3, emoji: "\uD83D\uDE10", labelKey: "meh" },
+  { value: 4, emoji: "\uD83D\uDE0A", labelKey: "happy" },
+  { value: 5, emoji: "\uD83E\uDD29", labelKey: "amazing" },
 ];
 
 const EXTRA_EMOJIS = [
@@ -156,6 +157,7 @@ function groupEntriesByDate(entries: any[]) {
 }
 
 function ThemePicker({ current, onSelect, onClose }: { current: string; onSelect: (id: string) => void; onClose: () => void }) {
+  const { t: tr } = useTranslation("diary");
   return (
     <motion.div
       initial={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -164,7 +166,7 @@ function ThemePicker({ current, onSelect, onClose }: { current: string; onSelect
       transition={{ duration: 0.15 }}
       className="absolute right-0 top-full mt-2 z-50 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 w-56"
     >
-      <p className="text-xs font-semibold mb-2 text-gray-500 dark:text-gray-400 uppercase tracking-wider">Diary Style</p>
+      <p className="text-xs font-semibold mb-2 text-gray-500 dark:text-gray-400 uppercase tracking-wider">{tr("diaryStyle")}</p>
       <div className="grid grid-cols-3 gap-2">
         {THEMES.map(theme => (
           <button
@@ -199,6 +201,8 @@ export default function DiaryPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
 
+  const { t: tr } = useTranslation("diary");
+
   if (user?.role !== "pupil") {
     setLocation("/");
     return null;
@@ -213,7 +217,7 @@ export default function DiaryPage() {
   const [showExtraEmojis, setShowExtraEmojis] = useState(false);
   const [currentPrompt] = useState(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
 
-  const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
+  const theme = THEMES.find(th => th.id === themeId) || THEMES[0];
 
   const handleThemeChange = (id: string) => {
     setThemeId(id);
@@ -395,11 +399,11 @@ export default function DiaryPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold" style={{ fontFamily: "'Georgia', serif" }}>
-              My Diary
+              {tr("myDiary")}
             </h1>
             <div className="flex items-center gap-1.5 mt-1 text-xs" style={{ color: t.text.muted }}>
               <Lock size={11} />
-              <span>Private — only you can see this</span>
+              <span>{tr("privateOnly")}</span>
               <button
                 type="button"
                 onClick={() => setShowAiInfo(!showAiInfo)}
@@ -407,7 +411,7 @@ export default function DiaryPage() {
                 style={{ color: t.text.muted }}
               >
                 <Info size={10} />
-                <span>About big worries</span>
+                <span>{tr("aboutBigWorries")}</span>
               </button>
             </div>
             <AnimatePresence>
@@ -420,13 +424,13 @@ export default function DiaryPage() {
                 >
                   <div className="mt-2 p-3 rounded-xl text-xs leading-relaxed border" style={{ background: `${t.paper.bg}`, borderColor: t.paper.lines, color: t.text.primary }}>
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <p className="font-bold text-[11px]">🛡️ Your diary is private</p>
+                      <p className="font-bold text-[11px]">{tr("diaryPrivate")}</p>
                       <button type="button" onClick={() => setShowAiInfo(false)} className="opacity-50 hover:opacity-100">
                         <X size={12} />
                       </button>
                     </div>
                     <p style={{ color: t.text.muted }}>
-                      If your diary shows big worries about being hurt or very sad, the system might send a secret "please check on me" message to a trusted adult in school. They still cannot read your diary page.
+                      {tr("diaryWarning")}
                     </p>
                   </div>
                 </motion.div>
@@ -468,10 +472,10 @@ export default function DiaryPage() {
               <div className="text-center relative z-10">
                 <p className="text-2xl mb-2">{t.emoji}</p>
                 <p className="font-bold text-base" style={{ fontFamily: "'Georgia', serif" }}>
-                  {firstName ? `${firstName}'s Diary` : "My Diary"}
+                  {firstName ? `${firstName}'s ${tr("myDiary")}` : tr("myDiary")}
                 </p>
                 <p className="text-xs mt-2 opacity-70">{todayFull}</p>
-                <p className="text-xs mt-3 opacity-60 italic">tap to write...</p>
+                <p className="text-xs mt-3 opacity-60 italic">{tr("tapToWrite")}</p>
               </div>
             </button>
           </motion.div>
@@ -493,7 +497,7 @@ export default function DiaryPage() {
               </div>
 
               <div className="mb-4">
-                <p className="text-sm mb-2" style={{ color: t.text.primary }}>How I'm feeling:</p>
+                <p className="text-sm mb-2" style={{ color: t.text.primary }}>{tr("howImFeeling")}</p>
                 <div className="flex gap-1">
                   {MOODS.map(mood => (
                     <button
@@ -507,7 +511,7 @@ export default function DiaryPage() {
                       }`}
                     >
                       <span className="text-xl">{mood.emoji}</span>
-                      <span className="text-[9px]" style={{ color: t.text.muted }}>{mood.label}</span>
+                      <span className="text-[9px]" style={{ color: t.text.muted }}>{tr(mood.labelKey)}</span>
                     </button>
                   ))}
                 </div>
@@ -518,7 +522,7 @@ export default function DiaryPage() {
                   className="text-[10px] mt-1.5 underline cursor-pointer"
                   style={{ color: t.text.faint }}
                 >
-                  {showExtraEmojis ? "less" : "more feelings..."}
+                  {showExtraEmojis ? tr("less") : tr("moreFeelings")}
                 </button>
 
                 <AnimatePresence>
@@ -550,7 +554,7 @@ export default function DiaryPage() {
                   rows={6}
                   maxLength={1000}
                   className="diary-entry-text w-full bg-transparent border-none outline-none resize-none text-sm p-0"
-                  placeholder="Dear diary..."
+                  placeholder={tr("dearDiary")}
                 />
                 <div className="flex items-center justify-between mt-2">
                   <p className="text-[10px]" style={{ color: t.text.faint }}>
@@ -571,7 +575,7 @@ export default function DiaryPage() {
                   className="text-xs px-3 py-1.5 rounded"
                   style={{ color: t.text.muted }}
                 >
-                  Cancel
+                  {tr("common:cancel")}
                 </button>
                 <Button
                   onClick={() => createMutation.mutate()}
@@ -580,7 +584,7 @@ export default function DiaryPage() {
                   className="flex-1 text-xs"
                   style={{ background: t.btn.bg, borderColor: t.btn.border }}
                 >
-                  {createMutation.isPending ? "Saving..." : "Save entry \u2713"}
+                  {createMutation.isPending ? tr("common:saving") : `${tr("saveEntry")} \u2713`}
                 </Button>
               </div>
 
@@ -595,7 +599,7 @@ export default function DiaryPage() {
       {entries.length === 0 && !isWriting && (
         <div className="text-center py-6">
           <p className="text-sm italic" style={{ color: t.text.faint }}>
-            Your diary is empty — tap the cover above to start writing
+            {tr("tapToWrite")}
           </p>
         </div>
       )}
@@ -631,14 +635,14 @@ export default function DiaryPage() {
                               </p>
                             ) : (
                               <p className="text-xs italic" style={{ color: t.text.faint }}>
-                                {moodInfo ? `${moodInfo.label} — no note` : "No note"}
+                                {moodInfo ? `${tr(moodInfo.labelKey)}` : ""}
                               </p>
                             )}
                           </div>
                           <button
                             type="button"
                             onClick={() => {
-                              if (confirm("Delete this entry?")) {
+                              if (confirm(tr("deleteEntry") + "?")) {
                                 deleteMutation.mutate(entry.id);
                               }
                             }}

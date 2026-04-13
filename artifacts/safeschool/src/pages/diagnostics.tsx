@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
@@ -13,23 +14,25 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
 } from "recharts";
 
-const FACE_EMOJIS = [
-  { value: 1, emoji: "\uD83D\uDE1E", label: "Not at all" },
-  { value: 2, emoji: "\uD83D\uDE15", label: "A little" },
-  { value: 3, emoji: "\uD83D\uDE10", label: "Sort of" },
-  { value: 4, emoji: "\uD83D\uDE42", label: "Yes" },
-  { value: 5, emoji: "\uD83D\uDE04", label: "Definitely!" },
+const FACE_EMOJI_KEYS = ["notAtAll", "aLittle", "sortOf", "yes", "definitely"] as const;
+
+const FACE_EMOJIS_BASE = [
+  { value: 1, emoji: "\uD83D\uDE1E", labelKey: "notAtAll" },
+  { value: 2, emoji: "\uD83D\uDE15", labelKey: "aLittle" },
+  { value: 3, emoji: "\uD83D\uDE10", labelKey: "sortOf" },
+  { value: 4, emoji: "\uD83D\uDE42", labelKey: "yes" },
+  { value: 5, emoji: "\uD83D\uDE04", labelKey: "definitely" },
 ];
 
-const FACE_EMOJIS_REVERSED = [
-  { value: 1, emoji: "\uD83D\uDE04", label: "Not at all" },
-  { value: 2, emoji: "\uD83D\uDE42", label: "A little" },
-  { value: 3, emoji: "\uD83D\uDE10", label: "Sort of" },
-  { value: 4, emoji: "\uD83D\uDE15", label: "Yes" },
-  { value: 5, emoji: "\uD83D\uDE1E", label: "Definitely!" },
+const FACE_EMOJIS_REVERSED_BASE = [
+  { value: 1, emoji: "\uD83D\uDE04", labelKey: "notAtAll" },
+  { value: 2, emoji: "\uD83D\uDE42", labelKey: "aLittle" },
+  { value: 3, emoji: "\uD83D\uDE10", labelKey: "sortOf" },
+  { value: 4, emoji: "\uD83D\uDE15", labelKey: "yes" },
+  { value: 5, emoji: "\uD83D\uDE1E", labelKey: "definitely" },
 ];
 
-const LIKERT_LABELS = ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"];
+const LIKERT_KEYS = ["stronglyDisagree", "disagree", "neutral", "agree", "stronglyAgree"] as const;
 
 const CATEGORY_COLORS: Record<string, string> = {
   "Awareness & Prevalence": "bg-blue-500",
@@ -59,6 +62,7 @@ function fetchWithAuth(url: string, opts: RequestInit = {}) {
 
 export default function Diagnostics() {
   const { user } = useAuth();
+  const { t } = useTranslation("diagnostics");
   if (!user) return null;
 
   const isCoordinator = ["coordinator", "head_teacher"].includes(user.role);
@@ -68,12 +72,12 @@ export default function Diagnostics() {
       <div>
         <h1 className="text-3xl font-display font-bold flex items-center gap-3">
           <ClipboardCheck className="text-primary" size={32} />
-          School Diagnostic
+          {t("schoolDiagnostic")}
         </h1>
         <p className="text-muted-foreground mt-2">
           {isCoordinator
-            ? "Understand your school's safeguarding culture through the eyes of pupils, staff, and parents."
-            : "Help your school understand how everyone feels about safety, kindness, and bullying."}
+            ? t("understandCulture")
+            : t("helpSchoolUnderstand")}
         </p>
       </div>
 
@@ -83,6 +87,7 @@ export default function Diagnostics() {
 }
 
 function CoordinatorView({ user }: { user: any }) {
+  const { t } = useTranslation("diagnostics");
   const queryClient = useQueryClient();
   const { data: activeData, isLoading: activeLoading } = useQuery({
     queryKey: ["/api/diagnostics/active"],
@@ -148,10 +153,9 @@ function CoordinatorView({ user }: { user: any }) {
         <Card className="border-dashed border-2">
           <CardContent className="p-8 text-center">
             <ClipboardCheck size={48} className="mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-xl font-bold mb-2">No Active Diagnostic</h2>
+            <h2 className="text-xl font-bold mb-2">{t("noActiveDiagnostic")}</h2>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Launch a diagnostic survey to understand your school's safeguarding climate.
-              Pupils, staff, and parents will each answer role-appropriate questions.
+              {t("launchDescription")}
             </p>
             <Button
               onClick={() => createMutation.mutate()}
@@ -159,7 +163,7 @@ function CoordinatorView({ user }: { user: any }) {
               size="lg"
             >
               <Play size={18} className="mr-2" />
-              {createMutation.isPending ? "Creating..." : "Launch Diagnostic"}
+              {createMutation.isPending ? t("creating") : t("launchDiagnostic")}
             </Button>
           </CardContent>
         </Card>
@@ -170,13 +174,13 @@ function CoordinatorView({ user }: { user: any }) {
               <div>
                 <CardTitle>{activeSurvey.title}</CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Active since {new Date(activeSurvey.createdAt).toLocaleDateString()}
+                  {t("activeSince")} {new Date(activeSurvey.createdAt).toLocaleDateString()}
                 </p>
               </div>
               <div className="flex gap-2">
                 <Link href={`/diagnostics/${activeSurvey.id}/results`}>
                   <Button variant="outline" size="sm">
-                    <BarChart3 size={16} className="mr-2" /> View Results
+                    <BarChart3 size={16} className="mr-2" /> {t("viewResults")}
                   </Button>
                 </Link>
                 <Button
@@ -186,7 +190,7 @@ function CoordinatorView({ user }: { user: any }) {
                   disabled={closeMutation.isPending}
                 >
                   <Lock size={16} className="mr-2" />
-                  {closeMutation.isPending ? "Closing..." : "Close Survey"}
+                  {closeMutation.isPending ? t("closing") : t("closeSurvey")}
                 </Button>
                 <Button
                   variant="outline"
@@ -199,7 +203,7 @@ function CoordinatorView({ user }: { user: any }) {
                   disabled={closeMutation.isPending || createMutation.isPending}
                 >
                   <Play size={16} className="mr-2" />
-                  New Diagnostic
+                  {t("newDiagnostic")}
                 </Button>
               </div>
             </CardHeader>
@@ -208,9 +212,9 @@ function CoordinatorView({ user }: { user: any }) {
           {!hasCompleted && (
             <Card className="border-primary/30 bg-primary/5">
               <CardContent className="p-6">
-                <h3 className="font-bold mb-2">Your turn!</h3>
+                <h3 className="font-bold mb-2">{t("yourTurn")}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  You haven't completed the diagnostic yet. Your perspective as a coordinator is important.
+                  {t("coordinatorPerspective")}
                 </p>
                 <SurveyForm surveyId={activeSurvey.id} questions={activeData.questions} user={user} />
               </CardContent>
@@ -219,7 +223,7 @@ function CoordinatorView({ user }: { user: any }) {
           {hasCompleted && (
             <div className="flex items-center gap-2 text-primary text-sm font-medium p-4 rounded-xl bg-primary/5 border border-primary/20">
               <CheckCircle2 size={18} />
-              You have completed this diagnostic. View the results to see how different groups responded.
+              {t("surveyCompleted")}
             </div>
           )}
         </>
@@ -227,7 +231,7 @@ function CoordinatorView({ user }: { user: any }) {
 
       {allSurveys && allSurveys.filter((s: any) => s.status === "closed").length > 0 && (
         <div>
-          <h3 className="text-lg font-bold mb-3">Previous Diagnostics</h3>
+          <h3 className="text-lg font-bold mb-3">{t("previousDiagnostics")}</h3>
           <div className="space-y-2">
             {allSurveys.filter((s: any) => s.status === "closed").map((s: any) => (
               <Link key={s.id} href={`/diagnostics/${s.id}/results`}>
@@ -236,7 +240,7 @@ function CoordinatorView({ user }: { user: any }) {
                     <div>
                       <p className="font-bold">{s.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        Closed {s.closedAt ? new Date(s.closedAt).toLocaleDateString() : ""}
+                        {t("surveyClosedLabel")} {s.closedAt ? new Date(s.closedAt).toLocaleDateString() : ""}
                       </p>
                     </div>
                     <ArrowRight size={16} className="text-muted-foreground" />
@@ -252,6 +256,7 @@ function CoordinatorView({ user }: { user: any }) {
 }
 
 function ActionsLink({ surveyId }: { surveyId: string }) {
+  const { t } = useTranslation("diagnostics");
   const { data } = useQuery({
     queryKey: ["/api/diagnostics", surveyId, "actions"],
     queryFn: async () => {
@@ -269,9 +274,9 @@ function ActionsLink({ surveyId }: { surveyId: string }) {
       <Card className="hover:border-primary/30 transition-colors cursor-pointer">
         <CardContent className="p-4 flex items-center justify-between">
           <div>
-            <p className="font-bold text-sm">View Agreed Actions</p>
+            <p className="font-bold text-sm">{t("viewAgreedActions")}</p>
             <p className="text-xs text-muted-foreground">
-              See what the school has committed to based on the diagnostic
+              {t("agreedActionsDescription")}
             </p>
           </div>
           <ArrowRight size={16} className="text-muted-foreground" />
@@ -282,6 +287,7 @@ function ActionsLink({ surveyId }: { surveyId: string }) {
 }
 
 function RespondentView({ user }: { user: any }) {
+  const { t } = useTranslation("diagnostics");
   const { data, isLoading } = useQuery({
     queryKey: ["/api/diagnostics/active"],
     queryFn: async () => {
@@ -304,12 +310,12 @@ function RespondentView({ user }: { user: any }) {
         <CardContent className="p-8 text-center">
           <ClipboardCheck size={48} className="mx-auto text-muted-foreground mb-4" />
           <h2 className="text-xl font-bold mb-2">
-            {user.role === "pupil" ? "Nothing here yet!" : "No Active Diagnostic"}
+            {user.role === "pupil" ? t("nothingHereYet") : t("noActiveDiagnostic")}
           </h2>
           <p className="text-muted-foreground max-w-md mx-auto">
             {user.role === "pupil"
-              ? "Your school hasn't started a survey yet. Check back soon!"
-              : "There's no active diagnostic survey at the moment. Your school coordinator will let you know when one is available."}
+              ? t("noSurveyPupil")
+              : t("noSurveyOther")}
           </p>
         </CardContent>
       </Card>
@@ -341,7 +347,7 @@ function RespondentView({ user }: { user: any }) {
                 transition={{ delay: 0.4 }}
                 className="text-2xl font-bold mb-2 text-emerald-900 dark:text-emerald-100"
               >
-                {isPupil ? "You're a star!" : "Thank you for responding!"}
+                {isPupil ? t("youreAStar") : t("thankYouForResponding")}
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0 }}
@@ -350,8 +356,8 @@ function RespondentView({ user }: { user: any }) {
                 className="text-emerald-700 dark:text-emerald-300 max-w-sm mx-auto text-sm leading-relaxed"
               >
                 {isPupil
-                  ? "Your answers help make your school a safer, happier place for everyone. That's really important!"
-                  : "Your responses have been recorded and will help shape the school's safeguarding approach. The coordinator will share the combined results."}
+                  ? t("starMessage")
+                  : t("respondentThankYouMessage")}
               </motion.p>
               {isPupil && (
                 <motion.div
@@ -361,7 +367,7 @@ function RespondentView({ user }: { user: any }) {
                   className="mt-6 inline-flex items-center gap-2 bg-white/60 dark:bg-white/10 rounded-full px-4 py-2 text-sm text-emerald-700 dark:text-emerald-300"
                 >
                   <span className="text-lg">🎉</span>
-                  Survey complete — well done!
+                  {t("surveyComplete")}
                 </motion.div>
               )}
             </div>
@@ -385,11 +391,16 @@ function RespondentView({ user }: { user: any }) {
 }
 
 function SurveyForm({ surveyId, questions, user }: { surveyId: string; questions: any[]; user: any }) {
+  const { t } = useTranslation("diagnostics");
   const queryClient = useQueryClient();
   const isPupil = user.role === "pupil";
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [submitted, setSubmitted] = useState(false);
+
+  const FACE_EMOJIS = FACE_EMOJIS_BASE.map(f => ({ ...f, label: t(f.labelKey) }));
+  const FACE_EMOJIS_REVERSED = FACE_EMOJIS_REVERSED_BASE.map(f => ({ ...f, label: t(f.labelKey) }));
+  const LIKERT_LABELS = LIKERT_KEYS.map(k => t(k));
 
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -435,7 +446,7 @@ function SurveyForm({ surveyId, questions, user }: { surveyId: string; questions
             transition={{ delay: 0.35 }}
             className="text-2xl font-bold mb-2 text-emerald-900 dark:text-emerald-100"
           >
-            {isPupil ? "Brilliant! You did it!" : "Thank you!"}
+            {isPupil ? t("brilliant") : t("thankYou")}
           </motion.h3>
           <motion.p
             initial={{ opacity: 0 }}
@@ -444,8 +455,8 @@ function SurveyForm({ surveyId, questions, user }: { surveyId: string; questions
             className="text-emerald-700 dark:text-emerald-300 max-w-sm mx-auto text-sm leading-relaxed"
           >
             {isPupil
-              ? "Your answers help your school be the best it can be. You should be really proud!"
-              : "Your responses have been recorded. The coordinator will share the combined results."}
+              ? t("brilliantMessage")
+              : t("thankYouMessage")}
           </motion.p>
           {isPupil && (
             <motion.div
@@ -546,7 +557,7 @@ function SurveyForm({ surveyId, questions, user }: { surveyId: string; questions
             disabled={currentIndex === 0}
             size="sm"
           >
-            <ChevronLeft size={16} className="mr-1" /> Back
+            <ChevronLeft size={16} className="mr-1" /> {t("common:back")}
           </Button>
 
           {currentIndex === questions.length - 1 && allAnswered ? (
@@ -554,7 +565,7 @@ function SurveyForm({ surveyId, questions, user }: { surveyId: string; questions
               onClick={() => submitMutation.mutate()}
               disabled={submitMutation.isPending}
             >
-              {submitMutation.isPending ? "Sending..." : "All done!"}
+              {submitMutation.isPending ? t("common:sending") : t("allDone")}
             </Button>
           ) : (
             <Button
@@ -563,7 +574,7 @@ function SurveyForm({ surveyId, questions, user }: { surveyId: string; questions
               disabled={currentIndex === questions.length - 1}
               size="sm"
             >
-              Skip <ChevronRight size={16} className="ml-1" />
+              {t("skip")} <ChevronRight size={16} className="ml-1" />
             </Button>
           )}
         </div>
@@ -632,7 +643,7 @@ function SurveyForm({ surveyId, questions, user }: { surveyId: string; questions
           disabled={!allAnswered || submitMutation.isPending}
           size="lg"
         >
-          {submitMutation.isPending ? "Submitting..." : `Submit Responses (${Object.keys(answers).length}/${questions.length})`}
+          {submitMutation.isPending ? t("submitting") : t("submitResponses", { answered: Object.keys(answers).length, total: questions.length })}
         </Button>
       </div>
       {submitMutation.isError && (

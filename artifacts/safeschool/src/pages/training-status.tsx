@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
@@ -17,25 +18,25 @@ const MODULE_IDS = [
   "dashboardOverview",
 ];
 
-const MODULE_LABELS: Record<string, string> = {
-  loggingIncident: "Logging an Incident",
-  assessingIncident: "Assessing an Incident",
-  managingPupilPins: "Managing Pupil PINs",
-  behaviourPoints: "Behaviour Points",
-  respondingToMessages: "Responding to Messages",
-  understandingAlerts: "Understanding Alerts",
-  managingProtocols: "Managing Protocols",
-  sencoCaseload: "SENCO Caseload",
-  dashboardOverview: "Dashboard Overview",
+const MODULE_LABEL_KEYS: Record<string, string> = {
+  loggingIncident: "loggingAnIncident",
+  assessingIncident: "assessingAnIncident",
+  managingPupilPins: "managingPupilPins",
+  behaviourPoints: "behaviourPoints",
+  respondingToMessages: "respondingToMessages",
+  understandingAlerts: "understandingAlerts",
+  managingProtocols: "managingProtocols",
+  sencoCaseload: "sencoCaseload",
+  dashboardOverview: "dashboardOverview",
 };
 
-const ROLE_LABELS: Record<string, string> = {
-  coordinator: "Coordinator",
-  head_teacher: "Head Teacher",
-  teacher: "Teacher",
-  head_of_year: "Head of Year",
-  senco: "SENCO",
-  support_staff: "Support Staff",
+const ROLE_LABEL_KEYS: Record<string, string> = {
+  coordinator: "coordinator",
+  head_teacher: "headTeacher",
+  teacher: "teacher",
+  head_of_year: "headOfYear",
+  senco: "senco",
+  support_staff: "supportStaff",
 };
 
 type StaffMember = {
@@ -52,6 +53,7 @@ function formatDate(d: string): string {
 
 export default function TrainingStatusPage() {
   const { user } = useAuth();
+  const { t } = useTranslation("training");
   const userRole = user?.role || "";
 
   const { data: staffData, isLoading } = useQuery<StaffMember[]>({
@@ -72,9 +74,9 @@ export default function TrainingStatusPage() {
   if (!["coordinator", "head_teacher"].includes(userRole)) {
     return (
       <div className="p-8 text-center">
-        <p className="text-destructive font-bold">Access denied</p>
+        <p className="text-destructive font-bold">{t("accessDenied")}</p>
         <Link href="/">
-          <Button variant="outline" className="mt-4">Return to dashboard</Button>
+          <Button variant="outline" className="mt-4">{t("returnToDashboard")}</Button>
         </Link>
       </div>
     );
@@ -98,13 +100,13 @@ export default function TrainingStatusPage() {
   ).length;
 
   const handleExportCsv = () => {
-    const headers = ["Name", "Role", ...MODULE_IDS.map(m => MODULE_LABELS[m] || m)];
+    const headers = ["Name", "Role", ...MODULE_IDS.map(m => t(MODULE_LABEL_KEYS[m] || m))];
     const rows = staff.map(s => {
       const completionMap: Record<string, string> = {};
       for (const c of s.completions) completionMap[c.moduleId] = c.completedAt;
       return [
         `${s.firstName} ${s.lastName}`,
-        ROLE_LABELS[s.role] || s.role,
+        t(ROLE_LABEL_KEYS[s.role] || s.role),
         ...MODULE_IDS.map(m => completionMap[m] ? new Date(completionMap[m]).toLocaleDateString("en-GB") : ""),
       ];
     });
@@ -132,15 +134,15 @@ export default function TrainingStatusPage() {
         <div className="flex-1">
           <h1 className="text-3xl font-display font-bold flex items-center gap-3">
             <GraduationCap size={28} className="text-primary" />
-            Staff Training Completion
+            {t("staffTrainingCompletion")}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {allCompleteCount} of {staff.length} staff have completed all modules
+            {t("completedAllModules", { completed: allCompleteCount, total: staff.length })}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleExportCsv}>
           <Download size={14} className="mr-1.5" />
-          Export CSV
+          {t("exportCsv")}
         </Button>
       </div>
 
@@ -152,7 +154,7 @@ export default function TrainingStatusPage() {
             <Card key={m} className="text-center">
               <CardContent className="p-4">
                 <p className="text-2xl font-bold text-primary">{pct}%</p>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{MODULE_LABELS[m]}</p>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{t(MODULE_LABEL_KEYS[m])}</p>
                 <p className="text-xs text-muted-foreground">{count}/{staff.length}</p>
               </CardContent>
             </Card>
@@ -164,7 +166,7 @@ export default function TrainingStatusPage() {
         <CardHeader className="border-b border-border/50 bg-muted/10">
           <CardTitle className="text-lg flex items-center gap-2">
             <Users size={18} className="text-primary" />
-            Staff Completion Matrix
+            {t("staffCompletionMatrix")}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -172,11 +174,11 @@ export default function TrainingStatusPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
-                  <th className="text-left px-4 py-3 font-bold text-xs uppercase tracking-wider sticky left-0 bg-muted/30 min-w-[180px]">Staff Member</th>
-                  <th className="text-left px-3 py-3 font-bold text-xs uppercase tracking-wider min-w-[80px]">Role</th>
+                  <th className="text-left px-4 py-3 font-bold text-xs uppercase tracking-wider sticky left-0 bg-muted/30 min-w-[180px]">{t("staffMember")}</th>
+                  <th className="text-left px-3 py-3 font-bold text-xs uppercase tracking-wider min-w-[80px]">{t("role")}</th>
                   {MODULE_IDS.map(m => (
                     <th key={m} className="text-center px-2 py-3 font-bold text-xs uppercase tracking-wider min-w-[90px]">
-                      <span className="block leading-tight">{MODULE_LABELS[m]}</span>
+                      <span className="block leading-tight">{t(MODULE_LABEL_KEYS[m])}</span>
                     </th>
                   ))}
                 </tr>
@@ -188,7 +190,7 @@ export default function TrainingStatusPage() {
                   return (
                     <tr key={s.userId} className="border-b border-border/30 hover:bg-muted/20 transition-colors">
                       <td className="px-4 py-3 font-semibold sticky left-0 bg-background">{s.firstName} {s.lastName}</td>
-                      <td className="px-3 py-3 text-muted-foreground text-xs">{ROLE_LABELS[s.role] || s.role}</td>
+                      <td className="px-3 py-3 text-muted-foreground text-xs">{t(ROLE_LABEL_KEYS[s.role] || s.role)}</td>
                       {MODULE_IDS.map(m => (
                         <td key={m} className="text-center px-2 py-3">
                           {completionMap[m] ? (
@@ -206,13 +208,13 @@ export default function TrainingStatusPage() {
                 })}
                 {staff.length === 0 && (
                   <tr>
-                    <td colSpan={MODULE_IDS.length + 2} className="text-center py-8 text-muted-foreground">No staff members found</td>
+                    <td colSpan={MODULE_IDS.length + 2} className="text-center py-8 text-muted-foreground">{t("noStaffFound")}</td>
                   </tr>
                 )}
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-border bg-muted/20">
-                  <td className="px-4 py-3 font-bold text-xs uppercase sticky left-0 bg-muted/20" colSpan={2}>Completion Rate</td>
+                  <td className="px-4 py-3 font-bold text-xs uppercase sticky left-0 bg-muted/20" colSpan={2}>{t("completionRate")}</td>
                   {MODULE_IDS.map(m => {
                     const pct = staff.length > 0 ? Math.round((moduleCompletionCounts[m] / staff.length) * 100) : 0;
                     return (

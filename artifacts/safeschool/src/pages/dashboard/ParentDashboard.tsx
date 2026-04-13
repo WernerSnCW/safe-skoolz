@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useListNotifications } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
@@ -16,68 +17,63 @@ import {
   PieChart, Pie, Cell, LineChart, Line
 } from "recharts";
 
-const PERIOD_OPTIONS = [
-  { label: "Last 30 days", days: 30 },
-  { label: "Last 3 months", days: 90 },
-  { label: "Last 6 months", days: 180 },
-  { label: "All time", days: 9999 },
-];
-
 const CHART_COLORS_PARENT = ["#0d9488", "#6366f1", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#10b981"];
 
-const PARENT_STATUS_LABELS: Record<string, string> = {
-  open: "Open",
-  submitted: "Submitted",
-  investigating: "Being looked into",
-  closed: "Resolved",
-  escalated: "Escalated",
-};
-
-const PARENT_CATEGORY_LABELS: Record<string, string> = {
-  verbal: "Unkind words",
-  physical: "Physical",
-  psychological: "Emotional",
-  exclusion: "Left out",
-  online: "Online",
-  neglect: "Welfare",
-  safeguarding: "Safeguarding",
-  relational: "Friendship issues",
-  sexual: "Safeguarding concern",
-  "verbal,physical": "Unkind words & physical",
-  "verbal,psychological": "Unkind words & emotional",
-};
-
-const PARENT_EMOTION_LABELS: Record<string, { label: string; emoji: string }> = {
-  scared: { label: "Scared", emoji: "😨" },
-  sad: { label: "Sad", emoji: "😢" },
-  angry: { label: "Angry", emoji: "😠" },
-  worried: { label: "Worried", emoji: "😟" },
-  confused: { label: "Confused", emoji: "😕" },
-  okay: { label: "Okay", emoji: "😐" },
-};
-
-const PARENT_LOCATION_LABELS: Record<string, string> = {
-  playground: "Playground",
-  classroom: "Classroom",
-  corridor: "Corridor",
-  canteen: "Canteen / Dining hall",
-  toilets: "Toilets",
-  sports_field: "Sports field",
-  changing_rooms: "Changing rooms",
-  bus_stop: "Bus stop / Pick-up area",
-  online: "Online / Social media",
-  off_site: "Off school grounds",
-  other: "Other",
-};
-
-const PARENT_TIER_LABELS: Record<number, { label: string; color: string }> = {
-  1: { label: "Low level", color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" },
-  2: { label: "Moderate", color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" },
-  3: { label: "Serious", color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" },
-};
-
 function ParentReportCard({ inc }: { inc: any }) {
+  const { t } = useTranslation("dashboard");
   const [expanded, setExpanded] = useState(false);
+
+  const PARENT_STATUS_LABELS: Record<string, string> = {
+    open: t("statusOpen"),
+    submitted: t("parentStatusSubmitted"),
+    investigating: t("parentStatusInvestigating"),
+    closed: t("statusResolved"),
+    escalated: t("statusEscalated"),
+  };
+
+  const PARENT_CATEGORY_LABELS: Record<string, string> = {
+    verbal: t("parentCategoryVerbal"),
+    physical: t("parentCategoryPhysical"),
+    psychological: t("parentCategoryPsychological"),
+    exclusion: t("parentCategoryExclusion"),
+    online: t("parentCategoryOnline"),
+    neglect: t("parentCategoryNeglect"),
+    safeguarding: t("parentCategorySafeguarding"),
+    relational: t("parentCategoryRelational"),
+    sexual: t("parentCategorySexual"),
+    "verbal,physical": t("parentCategoryVerbalPhysical"),
+    "verbal,psychological": t("parentCategoryVerbalPsychological"),
+  };
+
+  const PARENT_EMOTION_LABELS: Record<string, { label: string; emoji: string }> = {
+    scared: { label: t("emotionScared"), emoji: "😨" },
+    sad: { label: t("emotionSad"), emoji: "😢" },
+    angry: { label: t("emotionAngry"), emoji: "😠" },
+    worried: { label: t("emotionWorried"), emoji: "😟" },
+    confused: { label: t("emotionConfused"), emoji: "😕" },
+    okay: { label: t("emotionOkay"), emoji: "😐" },
+  };
+
+  const PARENT_LOCATION_LABELS: Record<string, string> = {
+    playground: t("locationPlayground"),
+    classroom: t("locationClassroom"),
+    corridor: t("locationCorridor"),
+    canteen: t("locationCanteen"),
+    toilets: t("locationToilets"),
+    sports_field: t("locationSportsField"),
+    changing_rooms: t("locationChangingRooms"),
+    bus_stop: t("locationBusStop"),
+    online: t("locationOnline"),
+    off_site: t("locationOffSite"),
+    other: t("locationOther"),
+  };
+
+  const PARENT_TIER_LABELS: Record<number, { label: string; color: string }> = {
+    1: { label: t("lowLevel"), color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" },
+    2: { label: t("moderate"), color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" },
+    3: { label: t("serious"), color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" },
+  };
+
   const emotion = inc.emotionalState ? PARENT_EMOTION_LABELS[inc.emotionalState] : null;
   const tierInfo = inc.escalationTier ? PARENT_TIER_LABELS[inc.escalationTier] : null;
 
@@ -110,7 +106,7 @@ function ParentReportCard({ inc }: { inc: any }) {
               )}
               {inc.addedToFile && (
                 <span className="px-2 py-0.5 rounded-full text-xs bg-secondary/10 text-secondary font-bold">
-                  On File
+                  {t("onFile")}
                 </span>
               )}
             </div>
@@ -163,21 +159,21 @@ function ParentReportCard({ inc }: { inc: any }) {
             <div className="mt-3 pt-3 border-t border-border/50 space-y-3">
               {inc.description && (
                 <div className="bg-muted/30 rounded-xl p-4">
-                  <p className="text-xs font-bold text-muted-foreground mb-1 uppercase tracking-wider">School's Summary</p>
+                  <p className="text-xs font-bold text-muted-foreground mb-1 uppercase tracking-wider">{t("schoolsSummary")}</p>
                   <p className="text-sm text-foreground leading-relaxed">{inc.description}</p>
                 </div>
               )}
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div className="bg-muted/20 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground font-medium">Child</p>
+                  <p className="text-xs text-muted-foreground font-medium">{t("child")}</p>
                   <p className="text-sm font-bold mt-0.5">{inc.childName}</p>
                   {inc.childYearGroup && (
                     <p className="text-xs text-muted-foreground mt-0.5">{inc.childYearGroup} &middot; {inc.childClassName}</p>
                   )}
                 </div>
                 <div className="bg-muted/20 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground font-medium">Date & Time</p>
+                  <p className="text-xs text-muted-foreground font-medium">{t("dateAndTime")}</p>
                   <p className="text-sm font-bold mt-0.5">{formatDate(inc.incidentDate)}</p>
                   {inc.incidentTime && (
                     <p className="text-xs text-muted-foreground mt-0.5">{inc.incidentTime}</p>
@@ -185,22 +181,22 @@ function ParentReportCard({ inc }: { inc: any }) {
                 </div>
                 {inc.location && (
                   <div className="bg-muted/20 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground font-medium">Where</p>
+                    <p className="text-xs text-muted-foreground font-medium">{t("where")}</p>
                     <p className="text-sm font-bold mt-0.5">{PARENT_LOCATION_LABELS[inc.location] || inc.location.replace(/_/g, " ")}</p>
                   </div>
                 )}
                 <div className="bg-muted/20 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground font-medium">Type</p>
+                  <p className="text-xs text-muted-foreground font-medium">{t("type")}</p>
                   <p className="text-sm font-bold mt-0.5">{PARENT_CATEGORY_LABELS[inc.category] || inc.category}</p>
                 </div>
                 {emotion && (
                   <div className="bg-muted/20 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground font-medium">How they felt</p>
+                    <p className="text-xs text-muted-foreground font-medium">{t("howTheyFelt")}</p>
                     <p className="text-sm font-bold mt-0.5">{emotion.emoji} {emotion.label}</p>
                   </div>
                 )}
                 <div className="bg-muted/20 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground font-medium">Current Status</p>
+                  <p className="text-xs text-muted-foreground font-medium">{t("currentStatus")}</p>
                   <p className="text-sm font-bold mt-0.5">{PARENT_STATUS_LABELS[inc.status] || inc.status}</p>
                 </div>
               </div>
@@ -209,16 +205,15 @@ function ParentReportCard({ inc }: { inc: any }) {
                 <div className="flex items-center gap-2 text-xs text-muted-foreground bg-primary/5 rounded-lg p-3">
                   <UserCheck size={14} className="text-primary" aria-hidden="true" />
                   <span>
-                    Reviewed by <strong className="text-foreground">{inc.assessedBy || "Staff"}</strong>
-                    {inc.assessedAt && <> on {formatDate(inc.assessedAt)}</>}
+                    {t("reviewedBy", { name: inc.assessedBy || "Staff", date: inc.assessedAt ? formatDate(inc.assessedAt) : "" })}
                   </span>
                 </div>
               )}
 
               <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
-                <span>Reported: {formatDate(inc.createdAt)}</span>
+                <span>{t("reported")}: {formatDate(inc.createdAt)}</span>
                 {inc.updatedAt && inc.updatedAt !== inc.createdAt && (
-                  <span>&middot; Last updated: {formatDate(inc.updatedAt)}</span>
+                  <span>&middot; {t("lastUpdated")}: {formatDate(inc.updatedAt)}</span>
                 )}
               </div>
             </div>
@@ -230,6 +225,7 @@ function ParentReportCard({ inc }: { inc: any }) {
 }
 
 function ContactPTACard() {
+  const { t } = useTranslation("dashboard");
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [subject, setSubject] = useState("");
@@ -279,9 +275,9 @@ function ContactPTACard() {
               <MessageCircle size={24} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <h3 className="font-bold">Contact Your PTA</h3>
+              <h3 className="font-bold">{t("contactYourPta")}</h3>
               <p className="text-xs text-muted-foreground">
-                {ptaContacts.length} PTA {ptaContacts.length === 1 ? "member" : "members"}: {ptaContacts.map((c: any) => c.name).join(", ")}
+                {t("ptaMemberCount", { count: ptaContacts.length })}: {ptaContacts.map((c: any) => c.name).join(", ")}
               </p>
             </div>
           </div>
@@ -292,7 +288,7 @@ function ContactPTACard() {
             className="border-purple-300 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/30"
           >
             <Send size={14} className="mr-1" />
-            {isOpen ? "Close" : "Send Message"}
+            {isOpen ? t("common:close") : t("sendMessage")}
           </Button>
         </div>
 
@@ -307,29 +303,29 @@ function ContactPTACard() {
               {sent ? (
                 <div className="mt-4 p-4 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/30 text-center">
                   <CheckCircle2 size={32} className="mx-auto text-green-500 mb-2" />
-                  <p className="font-bold text-sm">Message sent!</p>
+                  <p className="font-bold text-sm">{t("messageSent")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Your PTA representatives will receive your message and get back to you.
+                    {t("messageSentPta")}
                   </p>
                 </div>
               ) : (
                 <div className="mt-4 space-y-3">
                   <div>
-                    <label className="text-xs font-bold text-muted-foreground block mb-1">Subject (optional)</label>
+                    <label className="text-xs font-bold text-muted-foreground block mb-1">{t("subjectOptional")}</label>
                     <input
                       type="text"
                       value={subject}
                       onChange={e => setSubject(e.target.value)}
-                      placeholder="e.g. Question about the diagnostic actions"
+                      placeholder={t("subjectPlaceholder")}
                       className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-muted-foreground block mb-1">Your message</label>
+                    <label className="text-xs font-bold text-muted-foreground block mb-1">{t("yourMessage")}</label>
                     <textarea
                       value={message}
                       onChange={e => setMessage(e.target.value)}
-                      placeholder="Write your message to the PTA here..."
+                      placeholder={t("writeMessageToPta")}
                       rows={3}
                       className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
                     />
@@ -342,11 +338,11 @@ function ContactPTACard() {
                       className="bg-purple-600 hover:bg-purple-700"
                     >
                       <Send size={14} className="mr-1" />
-                      {sendMutation.isPending ? "Sending..." : "Send to PTA"}
+                      {sendMutation.isPending ? t("common:sending") : t("sendToPta")}
                     </Button>
                   </div>
                   {sendMutation.isError && (
-                    <p className="text-destructive text-xs">Failed to send. Please try again.</p>
+                    <p className="text-destructive text-xs">{t("failedToSend")}</p>
                   )}
                 </div>
               )}
@@ -359,10 +355,40 @@ function ContactPTACard() {
 }
 
 export default function ParentDashboard({ user }: { user: any }) {
+  const { t } = useTranslation("dashboard");
   const [periodDays, setPeriodDays] = useState(180);
   const { data: notificationsData } = useListNotifications();
   const notifications = notificationsData?.data || [];
   const unread = notifications.filter((n: any) => !n.acknowledgedAt);
+
+  const PERIOD_OPTIONS = [
+    { label: t("last30Days"), days: 30 },
+    { label: t("last3Months"), days: 90 },
+    { label: t("last6Months"), days: 180 },
+    { label: t("allTime"), days: 9999 },
+  ];
+
+  const PARENT_STATUS_LABELS: Record<string, string> = {
+    open: t("statusOpen"),
+    submitted: t("parentStatusSubmitted"),
+    investigating: t("parentStatusInvestigating"),
+    closed: t("statusResolved"),
+    escalated: t("statusEscalated"),
+  };
+
+  const PARENT_CATEGORY_LABELS: Record<string, string> = {
+    verbal: t("parentCategoryVerbal"),
+    physical: t("parentCategoryPhysical"),
+    psychological: t("parentCategoryPsychological"),
+    exclusion: t("parentCategoryExclusion"),
+    online: t("parentCategoryOnline"),
+    neglect: t("parentCategoryNeglect"),
+    safeguarding: t("parentCategorySafeguarding"),
+    relational: t("parentCategoryRelational"),
+    sexual: t("parentCategorySexual"),
+    "verbal,physical": t("parentCategoryVerbalPhysical"),
+    "verbal,psychological": t("parentCategoryVerbalPsychological"),
+  };
 
   const { data: parentData, isLoading } = useQuery({
     queryKey: ["/api/dashboard/parent"],
@@ -474,7 +500,7 @@ export default function ParentDashboard({ user }: { user: any }) {
     ? `${childrenList[0].firstName} ${childrenList[0].lastName}`
     : childrenList.length > 1
     ? childrenList.map((c: any) => c.firstName).join(" & ")
-    : "your child";
+    : t("yourChild");
 
   if (isLoading) {
     return (
@@ -498,9 +524,9 @@ export default function ParentDashboard({ user }: { user: any }) {
     <div className="space-y-8 max-w-5xl mx-auto">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold">Welcome, {user.firstName}</h1>
+          <h1 className="text-3xl font-display font-bold">{t("welcomeBack", { name: user.firstName })}</h1>
           <p className="text-muted-foreground mt-1">
-            Stay informed about {childName}'s wellbeing at school.
+            {t("stayInformed", { child: childName })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -530,17 +556,15 @@ export default function ParentDashboard({ user }: { user: any }) {
                     <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm">Action required — Incident disclosure</h3>
-                    <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                      The school has shared details of incident <strong className="font-mono">{disc.referenceNumber}</strong> with you. Please acknowledge receipt.
-                    </p>
+                    <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm">{t("actionRequired")}</h3>
+                    <p className="text-sm text-amber-700 dark:text-amber-400 mt-1" dangerouslySetInnerHTML={{ __html: t("schoolSharedDetails", { ref: disc.referenceNumber }) }} />
 
                     {ackDisclosureId === disc.id ? (
                       <div className="mt-3 space-y-2">
                         <textarea
                           value={ackResponse}
                           onChange={(e) => setAckResponse(e.target.value)}
-                          placeholder="Add a response — optional"
+                          placeholder={t("addResponseOptional")}
                           maxLength={1000}
                           rows={2}
                           className="w-full px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-300"
@@ -553,7 +577,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                             className="bg-amber-600 hover:bg-amber-700 text-white"
                           >
                             <CheckCircle2 size={14} className="mr-1" />
-                            {acknowledgeMutation.isPending ? "Confirming..." : "Confirm Acknowledgement"}
+                            {acknowledgeMutation.isPending ? t("confirming") : t("confirmAcknowledgement")}
                           </Button>
                           <Button
                             size="sm"
@@ -561,11 +585,11 @@ export default function ParentDashboard({ user }: { user: any }) {
                             onClick={() => { setAckDisclosureId(null); setAckResponse(""); }}
                             className="text-muted-foreground"
                           >
-                            Cancel
+                            {t("common:cancel")}
                           </Button>
                         </div>
                         {acknowledgeMutation.isError && (
-                          <p className="text-xs text-destructive">Failed to acknowledge. Please try again.</p>
+                          <p className="text-xs text-destructive">{t("failedToAcknowledge")}</p>
                         )}
                       </div>
                     ) : (
@@ -575,7 +599,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                         className="mt-2 bg-amber-600 hover:bg-amber-700 text-white"
                       >
                         <CheckCircle2 size={14} className="mr-1" />
-                        Acknowledge
+                        {t("acknowledge")}
                       </Button>
                     )}
                   </div>
@@ -591,21 +615,21 @@ export default function ParentDashboard({ user }: { user: any }) {
           <CardContent className="p-5 text-center">
             <FileText className="mx-auto text-primary mb-2" size={28} aria-hidden="true" />
             <p className="text-3xl font-bold">{filteredIncidents.length}</p>
-            <p className="text-xs text-muted-foreground font-medium mt-1">Total Reports</p>
+            <p className="text-xs text-muted-foreground font-medium mt-1">{t("totalReports")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5 text-center">
             <AlertTriangle className="mx-auto text-warning mb-2" size={28} aria-hidden="true" />
             <p className="text-3xl font-bold">{filteredIncidents.filter((i: any) => i.status !== "closed").length}</p>
-            <p className="text-xs text-muted-foreground font-medium mt-1">Active</p>
+            <p className="text-xs text-muted-foreground font-medium mt-1">{t("active")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5 text-center">
             <Activity className="mx-auto text-green-600 mb-2" size={28} aria-hidden="true" />
             <p className="text-3xl font-bold">{filteredIncidents.filter((i: any) => i.status === "closed").length}</p>
-            <p className="text-xs text-muted-foreground font-medium mt-1">Resolved</p>
+            <p className="text-xs text-muted-foreground font-medium mt-1">{t("statusResolved")}</p>
           </CardContent>
         </Card>
         <Link href="/notifications">
@@ -613,7 +637,7 @@ export default function ParentDashboard({ user }: { user: any }) {
             <CardContent className="p-5 text-center">
               <Bell className="mx-auto text-secondary mb-2" size={28} aria-hidden="true" />
               <p className="text-3xl font-bold">{unread.length}</p>
-              <p className="text-xs text-muted-foreground font-medium mt-1">Unread Updates</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">{t("unreadUpdates")}</p>
             </CardContent>
             {unread.length > 0 && (
               <span className="absolute top-2 right-2 w-3 h-3 rounded-full bg-destructive animate-pulse"></span>
@@ -630,8 +654,8 @@ export default function ParentDashboard({ user }: { user: any }) {
                 <AlertTriangle size={28} />
               </div>
               <div>
-                <h2 className="text-lg font-bold">Report a Concern</h2>
-                <p className="text-sm text-muted-foreground">If you are worried about something, let the school know.</p>
+                <h2 className="text-lg font-bold">{t("reportAConcern")}</h2>
+                <p className="text-sm text-muted-foreground">{t("worriedAboutSomething")}</p>
               </div>
             </CardContent>
           </Card>
@@ -659,7 +683,7 @@ export default function ParentDashboard({ user }: { user: any }) {
         <div className="space-y-4">
           <h2 className="text-xl font-display font-bold flex items-center gap-2">
             <Gauge size={20} className="text-primary" aria-hidden="true" />
-            Behaviour Standing
+            {t("behaviourStanding")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {childBehaviourData.map((child: any) => {
@@ -689,7 +713,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold">{child.totalPoints}</p>
-                          <p className="text-xs opacity-80">points</p>
+                          <p className="text-xs opacity-80">{t("points")}</p>
                         </div>
                       </div>
                     </div>
@@ -698,7 +722,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                         <span className="text-muted-foreground">{child.level.description}</span>
                         {child.pointsToNextLevel !== null && (
                           <span className="text-muted-foreground font-medium">
-                            {child.pointsToNextLevel} to next level
+                            {t("toNextLevel", { count: child.pointsToNextLevel })}
                           </span>
                         )}
                       </div>
@@ -723,7 +747,7 @@ export default function ParentDashboard({ user }: { user: any }) {
         <Card>
           <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp size={18} aria-hidden="true" /> Reports Over Time
+              <TrendingUp size={18} aria-hidden="true" /> {t("reportsOverTime")}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -747,7 +771,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                     return `${months[parseInt(mo) - 1]} ${y}`;
                   }}
                 />
-                <Line type="monotone" dataKey="count" stroke="#0d9488" strokeWidth={2} dot={{ r: 4 }} name="Reports" />
+                <Line type="monotone" dataKey="count" stroke="#0d9488" strokeWidth={2} dot={{ r: 4 }} name={t("totalReports")} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -759,7 +783,7 @@ export default function ParentDashboard({ user }: { user: any }) {
           <Card>
             <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <BarChart3 size={18} aria-hidden="true" /> Types of Reports
+                <BarChart3 size={18} aria-hidden="true" /> {t("typesOfReports")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -769,7 +793,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                   <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
                   <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={100} />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name="Reports" />
+                  <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name={t("totalReports")} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -780,7 +804,7 @@ export default function ParentDashboard({ user }: { user: any }) {
           <Card>
             <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <PieChartIcon size={18} aria-hidden="true" /> Report Status
+                <PieChartIcon size={18} aria-hidden="true" /> {t("reportStatus")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -803,18 +827,18 @@ export default function ParentDashboard({ user }: { user: any }) {
         <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
-              <BarChart3 size={18} aria-hidden="true" /> School Overview
+              <BarChart3 size={18} aria-hidden="true" /> {t("schoolOverview")}
             </CardTitle>
             <Button
               variant={showSchoolOverview ? "default" : "outline"}
               size="sm"
               onClick={() => setShowSchoolOverview(!showSchoolOverview)}
             >
-              {showSchoolOverview ? "Hide" : "View School Analytics"}
+              {showSchoolOverview ? t("hide") : t("viewSchoolAnalytics")}
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            See how the school is handling safeguarding overall — no individual names shown.
+            {t("schoolAnalyticsDesc")}
           </p>
         </CardHeader>
         <AnimatePresence>
@@ -834,26 +858,26 @@ export default function ParentDashboard({ user }: { user: any }) {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center p-4 rounded-xl bg-muted/50">
                         <p className="text-2xl font-bold text-primary">{schoolData.totalIncidents}</p>
-                        <p className="text-xs text-muted-foreground font-medium mt-1">Total Reports</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-1">{t("totalReports")}</p>
                       </div>
                       <div className="text-center p-4 rounded-xl bg-muted/50">
                         <p className="text-2xl font-bold text-green-600">{schoolData.resolutionRate}%</p>
-                        <p className="text-xs text-muted-foreground font-medium mt-1">Resolution Rate</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-1">{t("resolutionRate")}</p>
                       </div>
                       <div className="text-center p-4 rounded-xl bg-muted/50">
                         <p className="text-2xl font-bold text-secondary">{schoolData.totalPupils}</p>
-                        <p className="text-xs text-muted-foreground font-medium mt-1">Pupils Enrolled</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-1">{t("pupilsEnrolled")}</p>
                       </div>
                       <div className="text-center p-4 rounded-xl bg-muted/50">
                         <p className="text-2xl font-bold text-amber-600">{schoolData.resolvedCount}</p>
-                        <p className="text-xs text-muted-foreground font-medium mt-1">Cases Resolved</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-1">{t("casesResolved")}</p>
                       </div>
                     </div>
 
                     {schoolData.monthlyTrend?.length > 1 && (
                       <div>
                         <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
-                          <TrendingUp size={14} aria-hidden="true" /> School-Wide Trend
+                          <TrendingUp size={14} aria-hidden="true" /> {t("schoolWideTrend")}
                         </h3>
                         <ResponsiveContainer width="100%" height={200}>
                           <LineChart data={schoolData.monthlyTrend}>
@@ -875,7 +899,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                                 return `${months[parseInt(mo) - 1]} ${y}`;
                               }}
                             />
-                            <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={{ r: 3 }} name="Reports" />
+                            <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={{ r: 3 }} name={t("totalReports")} />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
@@ -885,7 +909,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                       {schoolData.byCategory?.length > 0 && (
                         <div>
                           <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
-                            <PieChartIcon size={14} aria-hidden="true" /> Report Types
+                            <PieChartIcon size={14} aria-hidden="true" /> {t("reportTypes")}
                           </h3>
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={schoolData.byCategory} layout="vertical" margin={{ left: 10 }}>
@@ -893,7 +917,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                               <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                               <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={90} />
                               <Tooltip />
-                              <Bar dataKey="count" fill="#6366f1" radius={[0, 6, 6, 0]} name="Reports" />
+                              <Bar dataKey="count" fill="#6366f1" radius={[0, 6, 6, 0]} name={t("totalReports")} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -902,7 +926,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                       {schoolData.topLocations?.length > 0 && (
                         <div>
                           <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
-                            <MapPin size={14} aria-hidden="true" /> Where Reports Happen
+                            <MapPin size={14} aria-hidden="true" /> {t("whereReportsHappen")}
                           </h3>
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={schoolData.topLocations} layout="vertical" margin={{ left: 10 }}>
@@ -910,7 +934,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                               <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                               <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={90} />
                               <Tooltip />
-                              <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name="Reports" />
+                              <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name={t("totalReports")} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -920,7 +944,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                     {schoolData.byEscalationTier?.length > 0 && (
                       <div>
                         <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
-                          <Shield size={14} aria-hidden="true" /> Severity Levels
+                          <Shield size={14} aria-hidden="true" /> {t("severityLevels")}
                         </h3>
                         <div className="grid grid-cols-3 gap-3">
                           {schoolData.byEscalationTier.map((tier: any) => (
@@ -947,14 +971,14 @@ export default function ParentDashboard({ user }: { user: any }) {
       <Card>
         <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <FileText size={18} aria-hidden="true" /> Report History
+            <FileText size={18} aria-hidden="true" /> {t("reportHistory")}
           </CardTitle>
-          <p className="text-xs text-muted-foreground mt-1">Tap any report to see full details</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("tapToSeeDetails")}</p>
         </CardHeader>
         <CardContent className="p-0">
           {filteredIncidents.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
-              <p className="text-sm">No reports found for this time period.</p>
+              <p className="text-sm">{t("noReportsForPeriod")}</p>
             </div>
           ) : (
             <div className="divide-y divide-border">
@@ -970,14 +994,14 @@ export default function ParentDashboard({ user }: { user: any }) {
         <Card>
           <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Bell size={18} aria-hidden="true" /> Recent Updates
+              <Bell size={18} aria-hidden="true" /> {t("recentUpdates")}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="space-y-3">
               {unread.slice(0, 5).map((n: any) => (
                 <div key={n.id} className="p-4 rounded-xl border border-border bg-primary/5">
-                  <p className="font-bold text-sm">{n.title || "School Notification"}</p>
+                  <p className="font-bold text-sm">{n.title || t("schoolNotification")}</p>
                   <p className="text-sm text-muted-foreground mt-1">{n.message}</p>
                   <p className="text-xs text-muted-foreground mt-2">{formatDate(n.createdAt)}</p>
                 </div>

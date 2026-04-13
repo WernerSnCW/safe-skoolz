@@ -1,0 +1,11 @@
+{
+  "patternAlerts": "Patroonmeldingen",
+  "automatedAlerts": "Automatische meldingen geactiveerd door het systeem.",
+  "behaviourPatternDetected": "Gedragspatroon gedetecteerd",
+  "alert": "Melding",
+  "systemIdentifiedPattern": "Systeem heeft een patroon geïdentificeerd met betrekking tot...",
+  "linkedToRecent": "Gekoppeld aan recente incidenten.",
+  "noActiveAlerts": "Geen actieve patroonmeldingen.",
+  "incident": "Incident",
+  "viewIncident": "Incident bekijken"
+}

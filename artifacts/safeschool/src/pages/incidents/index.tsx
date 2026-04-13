@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useSearch } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, Button, Input } from "@/components/ui-polished";
 import { formatDate } from "@/lib/utils";
@@ -32,6 +33,7 @@ interface Incident {
 }
 
 export default function IncidentsList() {
+  const { t } = useTranslation("incidents");
   const { user } = useAuth();
   const isParent = user?.role === "parent";
   const searchString = useSearch();
@@ -89,14 +91,14 @@ export default function IncidentsList() {
   };
 
   const pageTitle = isParent
-    ? "Your Child's Incident Reports"
+    ? t("yourChildsReports")
     : filterPupilName
-    ? `Incidents involving ${filterPupilName}`
+    ? t("incidentsInvolving", { name: filterPupilName })
     : filterYearGroup
-    ? `Incidents — Year ${filterYearGroup}`
+    ? t("incidentsYear", { year: filterYearGroup })
     : filterClass
-    ? `Incidents — Class ${filterClass}`
-    : "Incidents Log";
+    ? t("incidentsClass", { cls: filterClass })
+    : t("incidentsLog");
 
   return (
     <div className="space-y-6">
@@ -105,12 +107,12 @@ export default function IncidentsList() {
           <h1 className="text-3xl font-display font-bold">{pageTitle}</h1>
           <p className="text-muted-foreground mt-1">
             {isParent
-              ? data ? `${data.total} report${data.total !== 1 ? "s" : ""} shared with you` : "Loading..."
-              : data ? `${data.total} incident${data.total !== 1 ? "s" : ""} found` : "Loading..."}
+              ? data ? t("reportCount", { count: data.total }) : t("common:loading")
+              : data ? t("incidentCount", { count: data.total }) : t("common:loading")}
           </p>
         </div>
         <Link href="/report">
-          <Button>{isParent ? "Report a Concern" : "File New Report"}</Button>
+          <Button>{isParent ? t("reportAConcern") : t("fileNewReport")}</Button>
         </Link>
       </div>
 
@@ -118,7 +120,7 @@ export default function IncidentsList() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <Input
-            placeholder={isParent ? "Search reports..." : "Search by ref, category, child name..."}
+            placeholder={isParent ? t("searchReports") : t("searchByRef")}
             className="pl-10"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -131,7 +133,7 @@ export default function IncidentsList() {
             onClick={() => setShowFilters(!showFilters)}
           >
             <Filter size={18} className="mr-2" />
-            Filters
+            {t("common:filters")}
             {activeFilterCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-white text-[10px] font-bold flex items-center justify-center">
                 {activeFilterCount}
@@ -145,61 +147,61 @@ export default function IncidentsList() {
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-bold">Filter Incidents</p>
+              <p className="text-sm font-bold">{t("filterIncidents")}</p>
               {activeFilterCount > 0 && (
                 <button onClick={clearFilters} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-                  <X size={12} /> Clear all
+                  <X size={12} /> {t("common:clearAll")}
                 </button>
               )}
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
-                <label className="text-xs font-bold text-muted-foreground mb-1 block">Category</label>
+                <label className="text-xs font-bold text-muted-foreground mb-1 block">{t("common:category")}</label>
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
                   className="w-full h-9 rounded-lg border border-input bg-background px-3 text-sm"
                 >
-                  <option value="">All categories</option>
+                  <option value="">{t("allCategories")}</option>
                   {CATEGORIES.map(c => (
                     <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-bold text-muted-foreground mb-1 block">Status</label>
+                <label className="text-xs font-bold text-muted-foreground mb-1 block">{t("common:status")}</label>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full h-9 rounded-lg border border-input bg-background px-3 text-sm"
                 >
-                  <option value="">All statuses</option>
+                  <option value="">{t("allStatuses")}</option>
                   {STATUSES.map(s => (
                     <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-bold text-muted-foreground mb-1 block">Year Group</label>
+                <label className="text-xs font-bold text-muted-foreground mb-1 block">{t("common:yearGroup")}</label>
                 <select
                   value={filterYearGroup}
                   onChange={(e) => { setFilterYearGroup(e.target.value); setFilterClass(""); }}
                   className="w-full h-9 rounded-lg border border-input bg-background px-3 text-sm"
                 >
-                  <option value="">All years</option>
+                  <option value="">{t("allYears")}</option>
                   {YEAR_GROUPS.map(y => (
                     <option key={y} value={y}>{y}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-bold text-muted-foreground mb-1 block">Class</label>
+                <label className="text-xs font-bold text-muted-foreground mb-1 block">{t("byClass")}</label>
                 <select
                   value={filterClass}
                   onChange={(e) => setFilterClass(e.target.value)}
                   className="w-full h-9 rounded-lg border border-input bg-background px-3 text-sm"
                 >
-                  <option value="">All classes</option>
+                  <option value="">{t("allClasses")}</option>
                   {CLASSES.map(c => (
                     <option key={c} value={c}>{c}</option>
                   ))}
@@ -211,7 +213,7 @@ export default function IncidentsList() {
               <div className="mt-3 flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-bold">
                   <Users size={12} />
-                  Filtered to: {filterPupilName}
+                  {t("filteredTo", { name: filterPupilName })}
                   <button onClick={() => { setFilterPupilId(""); setFilterPupilName(""); }} className="ml-1 hover:text-destructive">
                     <X size={12} />
                   </button>
@@ -248,16 +250,16 @@ export default function IncidentsList() {
                         inc.escalationTier === 2 ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" :
                         "bg-muted text-muted-foreground"
                       }`}>
-                        Tier {inc.escalationTier}
+                        {t("tier", { number: inc.escalationTier })}
                       </span>
                       {inc.safeguardingTrigger && (
                         <span className="px-2 py-0.5 rounded-sm bg-destructive text-white text-[10px] font-bold uppercase tracking-wider">
-                          Safeguarding
+                          {t("common:safeguarding")}
                         </span>
                       )}
                       {inc.anonymous && (
                         <span className="px-2 py-0.5 rounded-sm bg-slate-800 text-white text-[10px] font-bold uppercase tracking-wider">
-                          Anonymous
+                          {t("common:anonymous")}
                         </span>
                       )}
                     </div>
@@ -268,18 +270,18 @@ export default function IncidentsList() {
                       <div className="flex flex-wrap gap-2 mt-1">
                         {inc.victimNames?.map((name, i) => (
                           <span key={`v-${i}`} className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 font-medium">
-                            Victim: {name}
+                            {t("victim", { name })}
                           </span>
                         ))}
                         {inc.perpetratorNames?.map((name, i) => (
                           <span key={`p-${i}`} className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 font-medium">
-                            Involved: {name}
+                            {t("involvedPerson", { name })}
                           </span>
                         ))}
                       </div>
                     ) : null}
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                      {inc.description || "No description provided."}
+                      {inc.description || t("common:noDescriptionProvided")}
                     </p>
                   </div>
 
@@ -304,8 +306,8 @@ export default function IncidentsList() {
           {filtered.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
               <ShieldAlert size={48} className="mx-auto mb-4 opacity-30" />
-              <p className="text-lg font-bold">No incidents found</p>
-              <p className="text-sm mt-1">Try adjusting your filters or search terms.</p>
+              <p className="text-lg font-bold">{t("noIncidentsFound")}</p>
+              <p className="text-sm mt-1">{t("tryAdjustingFilters")}</p>
             </div>
           )}
         </div>

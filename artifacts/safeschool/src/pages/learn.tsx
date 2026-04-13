@@ -3,10 +3,12 @@ import { BookOpen, GraduationCap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Education from "./education";
 import TrainingPage from "./training";
+import { useTranslation } from "react-i18next";
 
 type LearnTab = "safeguarding" | "using";
 
 export default function LearnPage() {
+  const { t } = useTranslation("learn");
   const [activeTab, setActiveTab] = useState<LearnTab>("safeguarding");
 
   return (
@@ -21,7 +23,7 @@ export default function LearnPage() {
           }`}
         >
           <BookOpen size={18} />
-          About Safeguarding
+          {t("aboutSafeguarding")}
         </button>
         <button
           onClick={() => setActiveTab("using")}

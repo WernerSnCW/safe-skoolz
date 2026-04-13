@@ -1,0 +1,23 @@
+{
+  "settings": "Configuración",
+  "editProfile": "Editar perfil",
+  "pickYourAvatar": "Elige tu avatar",
+  "appearance": "Apariencia",
+  "accountDetails": "Detalles de la cuenta",
+  "changeNameOrAvatar": "Cambia tu nombre o elige un nuevo avatar",
+  "updateProfile": "Actualiza la información de tu perfil",
+  "firstName": "Nombre",
+  "lastName": "Apellido",
+  "email": "Correo electrónico",
+  "saved": "Guardado",
+  "saveChanges": "Guardar cambios",
+  "light": "Claro",
+  "dark": "Oscuro",
+  "system": "Sistema",
+  "role": "Rol:",
+  "year": "Año:",
+  "class": "Clase:",
+  "yourFirstName": "Tu nombre",
+  "yourLastName": "Tu apellido",
+  "yourEmail": "tu.email@colegio.edu"
+}

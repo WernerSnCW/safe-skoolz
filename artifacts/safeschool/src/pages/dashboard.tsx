@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui-polished";
@@ -11,16 +12,18 @@ import TeacherDashboard from "./dashboard/TeacherDashboard";
 import ParentDashboard from "./dashboard/ParentDashboard";
 
 function PtaDashboardRedirect() {
+  const { t } = useTranslation("dashboard");
   const [_, setLocation] = useLocation();
   useEffect(() => { setLocation("/pta"); }, []);
   return (
     <div className="max-w-3xl mx-auto py-12 text-center">
-      <h1 className="text-2xl font-bold">Redirecting to PTA Portal...</h1>
+      <h1 className="text-2xl font-bold">{t("redirectingToPta")}</h1>
     </div>
   );
 }
 
 function DemoTourBanner() {
+  const { t } = useTranslation("dashboard");
   const { startDemo, isActive } = useDemo();
   if (isActive) return null;
   return (
@@ -35,14 +38,15 @@ function DemoTourBanner() {
         <Play size={16} className="fill-primary/20 group-hover:fill-white/20" />
       </div>
       <div className="text-left flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground">Take a guided tour</p>
-        <p className="text-xs text-muted-foreground">See what every feature does — step by step</p>
+        <p className="text-sm font-semibold text-foreground">{t("takeGuidedTour")}</p>
+        <p className="text-xs text-muted-foreground">{t("guidedTourDesc")}</p>
       </div>
     </motion.button>
   );
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation("dashboard");
   const { user } = useAuth();
   if (!user) return null;
 
@@ -61,10 +65,10 @@ export default function Dashboard() {
         <TeacherDashboard user={user} />
       ) : (
         <div className="max-w-3xl mx-auto py-12 text-center">
-          <h1 className="text-3xl font-display font-bold">Welcome back, {user.firstName}</h1>
-          <p className="text-muted-foreground mt-4 text-lg">Use the navigation menu to get started.</p>
+          <h1 className="text-3xl font-display font-bold">{t("welcomeBack", { name: user.firstName })}</h1>
+          <p className="text-muted-foreground mt-4 text-lg">{t("useNavToStart")}</p>
           <Link href="/report">
-            <Button size="lg" className="mt-8">Report an Incident</Button>
+            <Button size="lg" className="mt-8">{t("reportAnIncident")}</Button>
           </Link>
         </div>
       )}

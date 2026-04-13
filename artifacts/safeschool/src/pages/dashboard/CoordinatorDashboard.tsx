@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGetCoordinatorDashboard } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -17,34 +18,35 @@ import {
 
 const CHART_COLORS = ["#14b8a6", "#6366f1", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#ec4899", "#3b82f6", "#f97316", "#06b6d4"];
 
-const CATEGORY_LABELS: Record<string, string> = {
-  bullying: "Bullying",
-  cyberbullying: "Cyberbullying",
-  physical: "Physical",
-  verbal: "Verbal",
-  emotional: "Emotional",
-  sexual: "Sexual",
-  neglect: "Neglect",
-  discrimination: "Discrimination",
-  safeguarding: "Safeguarding",
-  other: "Other",
-  coercive_control: "Coercive Control",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  open: "Open",
-  under_investigation: "Under Investigation",
-  resolved: "Resolved",
-  escalated: "Escalated",
-  closed: "Closed",
-};
-
 export default function CoordinatorDashboardView() {
+  const { t } = useTranslation("dashboard");
   const [activeTab, setActiveTab] = useState<"overview" | "analytics" | "reports">("overview");
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const canManageReports = ["coordinator", "head_teacher"].includes(user?.role || "");
   const { data, isLoading } = useGetCoordinatorDashboard();
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    bullying: t("categoryBullying"),
+    cyberbullying: t("categoryCyberbullying"),
+    physical: t("categoryPhysical"),
+    verbal: t("categoryVerbal"),
+    emotional: t("categoryEmotional"),
+    sexual: t("categorySexual"),
+    neglect: t("categoryNeglect"),
+    discrimination: t("categoryDiscrimination"),
+    safeguarding: t("categorySafeguarding"),
+    other: t("categoryOther"),
+    coercive_control: t("categoryCoerciveControl"),
+  };
+
+  const STATUS_LABELS: Record<string, string> = {
+    open: t("statusOpen"),
+    under_investigation: t("statusUnderInvestigation"),
+    resolved: t("statusResolved"),
+    escalated: t("statusEscalated"),
+    closed: t("statusClosed"),
+  };
 
   const { data: trainingData } = useQuery<any[]>({
     queryKey: ["/api/training/staff-status"],
@@ -125,10 +127,10 @@ export default function CoordinatorDashboardView() {
   </div>;
 
   const stats = [
-    { label: "Total Incidents", value: analytics?.totalIncidents || 0, icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: "Open Protocols", value: data?.openProtocols || 0, icon: ShieldAlert, color: "text-violet-500", bg: "bg-violet-500/10" },
-    { label: "Safeguarding", value: analytics?.safeguardingCount || 0, icon: AlertTriangle, color: "text-destructive", bg: "bg-destructive/10" },
-    { label: "Reports (Month)", value: data?.reportsThisMonth || 0, icon: Activity, color: "text-primary", bg: "bg-primary/10" },
+    { label: t("totalIncidents"), value: analytics?.totalIncidents || 0, icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { label: t("openProtocols"), value: data?.openProtocols || 0, icon: ShieldAlert, color: "text-violet-500", bg: "bg-violet-500/10" },
+    { label: t("common:safeguarding"), value: analytics?.safeguardingCount || 0, icon: AlertTriangle, color: "text-destructive", bg: "bg-destructive/10" },
+    { label: t("reportsMonth"), value: data?.reportsThisMonth || 0, icon: Activity, color: "text-primary", bg: "bg-primary/10" },
   ];
 
   const categoryData = (analytics?.byCategory || []).map((c: any) => ({
@@ -152,8 +154,8 @@ export default function CoordinatorDashboardView() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Safeguarding overview and incident analytics.</p>
+          <h1 className="text-3xl font-display font-bold">{t("dashboard")}</h1>
+          <p className="text-muted-foreground mt-1">{t("safeguardingOverview")}</p>
         </div>
         <div className="flex gap-1 bg-muted p-1 rounded-xl" role="tablist" aria-label="Dashboard view">
           <button
@@ -163,7 +165,7 @@ export default function CoordinatorDashboardView() {
             onClick={() => setActiveTab("overview")}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "overview" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            Overview
+            {t("overview")}
           </button>
           <button
             role="tab"
@@ -172,7 +174,7 @@ export default function CoordinatorDashboardView() {
             onClick={() => setActiveTab("analytics")}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "analytics" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            <BarChart3 size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />Analytics
+            <BarChart3 size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />{t("analytics")}
           </button>
           {canManageReports && (
             <button
@@ -182,7 +184,7 @@ export default function CoordinatorDashboardView() {
               onClick={() => setActiveTab("reports")}
               className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "reports" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
-              <FileText size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />PTA Reports
+              <FileText size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />{t("ptaReports")}
             </button>
           )}
         </div>
@@ -214,8 +216,8 @@ export default function CoordinatorDashboardView() {
                     <FileText size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold">View Incidents</h3>
-                    <p className="text-sm text-muted-foreground">Review all reported incidents</p>
+                    <h3 className="font-bold">{t("viewIncidents")}</h3>
+                    <p className="text-sm text-muted-foreground">{t("reviewAllIncidents")}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -227,8 +229,8 @@ export default function CoordinatorDashboardView() {
                     <ShieldAlert size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold">Protocols</h3>
-                    <p className="text-sm text-muted-foreground">Manage safeguarding protocols</p>
+                    <h3 className="font-bold">{t("protocols")}</h3>
+                    <p className="text-sm text-muted-foreground">{t("manageSafeguardingProtocols")}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -240,8 +242,8 @@ export default function CoordinatorDashboardView() {
                     <AlertTriangle size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold">Report Incident</h3>
-                    <p className="text-sm text-muted-foreground">Log a new incident or concern</p>
+                    <h3 className="font-bold">{t("reportIncident")}</h3>
+                    <p className="text-sm text-muted-foreground">{t("logNewIncidentOrConcern")}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -256,28 +258,28 @@ export default function CoordinatorDashboardView() {
                     <Lock size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-amber-900 dark:text-amber-200">Locked Pupil Accounts</h3>
-                    <p className="text-sm text-amber-700 dark:text-amber-400">{lockedPupils.length} pupil{lockedPupils.length !== 1 ? "s" : ""} locked out due to failed login attempts</p>
+                    <h3 className="font-bold text-amber-900 dark:text-amber-200">{t("lockedPupilAccounts")}</h3>
+                    <p className="text-sm text-amber-700 dark:text-amber-400">{t("lockedPupilCount", { count: lockedPupils.length })}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   {lockedPupils.map((pupil: any) => {
                     const isAdminLocked = new Date(pupil.lockedUntil).getTime() > Date.now() + 24 * 60 * 60 * 1000;
                     const lockedLabel = isAdminLocked
-                      ? "Admin reset required"
-                      : `Locked until ${new Date(pupil.lockedUntil).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+                      ? t("adminResetRequired")
+                      : t("lockedUntil", { time: new Date(pupil.lockedUntil).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) });
 
                     return (
                       <div key={pupil.id} className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-background border border-amber-200 dark:border-amber-800/50">
                         <div>
                           <p className="font-semibold text-sm">{pupil.firstName} {pupil.lastName}</p>
                           <p className="text-xs text-muted-foreground">
-                            {pupil.className || pupil.yearGroup || "—"} · {lockedLabel} · {pupil.failedLoginAttempts} failed attempt{pupil.failedLoginAttempts !== 1 ? "s" : ""}
+                            {pupil.className || pupil.yearGroup || "—"} · {lockedLabel} · {t("failedAttemptCount", { count: pupil.failedLoginAttempts })}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
                           {unlockResult?.pupilId === pupil.id && (
-                            <span className="text-xs font-mono font-bold text-green-700 bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded">New PIN: {unlockResult.newPin}</span>
+                            <span className="text-xs font-mono font-bold text-green-700 bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded">{t("newPin", { pin: unlockResult.newPin })}</span>
                           )}
                           <Button
                             size="sm"
@@ -289,7 +291,7 @@ export default function CoordinatorDashboardView() {
                             {unlockingId === pupil.id ? (
                               <Loader2 size={14} className="animate-spin" />
                             ) : (
-                              <><Unlock size={14} className="mr-1" />Reset lockout</>
+                              <><Unlock size={14} className="mr-1" />{t("resetLockout")}</>
                             )}
                           </Button>
                         </div>
@@ -308,11 +310,11 @@ export default function CoordinatorDashboardView() {
                   <GraduationCap size={24} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold">Staff Training Completion</h3>
+                  <h3 className="font-bold">{t("staffTrainingCompletion")}</h3>
                   <p className="text-sm text-muted-foreground">
                     {trainingStaff.length > 0
-                      ? `${allTrainedCount} of ${trainingStaff.length} staff have completed all modules`
-                      : "View staff training progress"}
+                      ? t("staffCompletedAllModules", { trained: allTrainedCount, total: trainingStaff.length })
+                      : t("viewStaffTrainingProgress")}
                   </p>
                 </div>
                 <ChevronRight size={18} className="text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -329,7 +331,7 @@ export default function CoordinatorDashboardView() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <BarChart3 size={18} className="text-primary" aria-hidden="true" />
-                  Incidents by Type
+                  {t("incidentsByType")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -341,11 +343,11 @@ export default function CoordinatorDashboardView() {
                         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
                         <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
-                        <Bar dataKey="count" fill="#14b8a6" radius={[0, 6, 6, 0]} name="Incidents" />
+                        <Bar dataKey="count" fill="#14b8a6" radius={[0, 6, 6, 0]} name={t("incidents")} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                ) : <p className="text-muted-foreground text-sm py-8 text-center">No data yet.</p>}
+                ) : <p className="text-muted-foreground text-sm py-8 text-center">{t("common:noDataYet")}</p>}
               </CardContent>
             </Card>
 
@@ -353,7 +355,7 @@ export default function CoordinatorDashboardView() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <PieChartIcon size={18} className="text-violet-500" aria-hidden="true" />
-                  Incidents by Year Group
+                  {t("incidentsByYearGroup")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -371,7 +373,7 @@ export default function CoordinatorDashboardView() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                ) : <p className="text-muted-foreground text-sm py-8 text-center">No data yet.</p>}
+                ) : <p className="text-muted-foreground text-sm py-8 text-center">{t("common:noDataYet")}</p>}
               </CardContent>
             </Card>
           </div>
@@ -381,7 +383,7 @@ export default function CoordinatorDashboardView() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <TrendingUp size={18} className="text-blue-500" aria-hidden="true" />
-                  Monthly Trend
+                  {t("monthlyTrend")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -393,11 +395,11 @@ export default function CoordinatorDashboardView() {
                         <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                         <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))" }} />
-                        <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={{ r: 4, fill: "#6366f1" }} name="Incidents" />
+                        <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={{ r: 4, fill: "#6366f1" }} name={t("incidents")} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
-                ) : <p className="text-muted-foreground text-sm py-8 text-center">No data yet.</p>}
+                ) : <p className="text-muted-foreground text-sm py-8 text-center">{t("common:noDataYet")}</p>}
               </CardContent>
             </Card>
 
@@ -405,7 +407,7 @@ export default function CoordinatorDashboardView() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <PieChartIcon size={18} className="text-amber-500" aria-hidden="true" />
-                  Incident Status
+                  {t("incidentStatus")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -423,7 +425,7 @@ export default function CoordinatorDashboardView() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                ) : <p className="text-muted-foreground text-sm py-8 text-center">No data yet.</p>}
+                ) : <p className="text-muted-foreground text-sm py-8 text-center">{t("common:noDataYet")}</p>}
               </CardContent>
             </Card>
           </div>
@@ -434,7 +436,7 @@ export default function CoordinatorDashboardView() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <ShieldAlert size={18} className="text-red-500" aria-hidden="true" />
-                    Escalation Tiers
+                    {t("escalationTiers")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -444,7 +446,7 @@ export default function CoordinatorDashboardView() {
                       <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                       <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                       <Tooltip />
-                      <Bar dataKey="count" name="Incidents">
+                      <Bar dataKey="count" name={t("incidents")}>
                         {escalationData.map((_: any, i: number) => (
                           <Cell key={i} fill={["#22c55e", "#f59e0b", "#ef4444"][i] || "#6366f1"} />
                         ))}
@@ -460,7 +462,7 @@ export default function CoordinatorDashboardView() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <BarChart3 size={18} className="text-teal-500" aria-hidden="true" />
-                    Top Locations
+                    {t("topLocations")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -470,7 +472,7 @@ export default function CoordinatorDashboardView() {
                       <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
                       <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
                       <Tooltip />
-                      <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name="Incidents" />
+                      <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name={t("incidents")} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -484,7 +486,7 @@ export default function CoordinatorDashboardView() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Eye size={18} className="text-blue-500" aria-hidden="true" />
-                    Most Involved Victims
+                    {t("mostInvolvedVictims")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -511,7 +513,7 @@ export default function CoordinatorDashboardView() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Users size={18} className="text-amber-500" aria-hidden="true" />
-                    Most Named Perpetrators
+                    {t("mostNamedPerpetrators")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -530,7 +532,7 @@ export default function CoordinatorDashboardView() {
                         </Link>
                       ))}
                     </div>
-                  ) : <p className="text-muted-foreground text-sm py-4 text-center">No data yet.</p>}
+                  ) : <p className="text-muted-foreground text-sm py-4 text-center">{t("common:noDataYet")}</p>}
                 </CardContent>
               </Card>
             )}
@@ -555,6 +557,7 @@ export default function CoordinatorDashboardView() {
 }
 
 function AnnualReportManager() {
+  const { t } = useTranslation("dashboard");
   const queryClient = useQueryClient();
 
   const { data: reportsData, isLoading } = useQuery<any>({
@@ -587,7 +590,7 @@ function AnnualReportManager() {
       queryClient.invalidateQueries({ queryKey: ["/api/pta/report/all"] });
     },
     onError: () => {
-      setErrorMsg("Failed to generate report. Please try again.");
+      setErrorMsg(t("failedToGenerate"));
     },
   });
 
@@ -610,7 +613,7 @@ function AnnualReportManager() {
       queryClient.invalidateQueries({ queryKey: ["/api/pta/report/all"] });
     },
     onError: () => {
-      setErrorMsg("Failed to approve report. Please try again.");
+      setErrorMsg(t("failedToApprove"));
     },
   });
 
@@ -618,8 +621,8 @@ function AnnualReportManager() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const STATUS_STYLES: Record<string, { icon: any; label: string; color: string; bg: string }> = {
-    draft: { icon: Clock, label: "Draft", color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50" },
-    approved: { icon: CheckCircle2, label: "Approved", color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900/50" },
+    draft: { icon: Clock, label: t("draft"), color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50" },
+    approved: { icon: CheckCircle2, label: t("approvedStatus"), color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900/50" },
   };
 
   if (isLoading) {
@@ -635,8 +638,8 @@ function AnnualReportManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">PTA Annual Reports</h2>
-          <p className="text-sm text-muted-foreground mt-1">Generate and approve safeguarding reports for the PTA.</p>
+          <h2 className="text-xl font-bold">{t("ptaAnnualReports")}</h2>
+          <p className="text-sm text-muted-foreground mt-1">{t("generateApproveReports")}</p>
         </div>
         <Button
           onClick={() => generateMutation.mutate()}
@@ -644,9 +647,9 @@ function AnnualReportManager() {
           className="bg-primary"
         >
           {generateMutation.isPending ? (
-            <><Loader2 size={14} className="mr-1.5 animate-spin" />Generating...</>
+            <><Loader2 size={14} className="mr-1.5 animate-spin" />{t("generating")}</>
           ) : (
-            <><FileText size={14} className="mr-1.5" />Generate New Report</>
+            <><FileText size={14} className="mr-1.5" />{t("generateNewReport")}</>
           )}
         </Button>
       </div>
@@ -662,9 +665,9 @@ function AnnualReportManager() {
         <Card>
           <CardContent className="p-8 text-center">
             <FileText size={48} className="mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-bold mb-2">No reports yet</h3>
+            <h3 className="text-lg font-bold mb-2">{t("noReportsYet")}</h3>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Generate your first annual report to share safeguarding data with the PTA. The report will include incident statistics, protocol outcomes, and alert summaries for the current academic year.
+              {t("noReportsYetDesc")}
             </p>
           </CardContent>
         </Card>
@@ -680,11 +683,11 @@ function AnnualReportManager() {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="font-bold text-lg">Academic Year {report.academicYear}</h3>
+                      <h3 className="font-bold text-lg">{t("academicYear", { year: report.academicYear })}</h3>
                       <p className="text-sm text-muted-foreground">
-                        Generated {new Date(report.createdAt).toLocaleDateString()}
-                        {report.approvedAt && ` · Approved ${new Date(report.approvedAt).toLocaleDateString()}`}
-                        {report.accessedByPtaAt && ` · Viewed by PTA ${new Date(report.accessedByPtaAt).toLocaleDateString()}`}
+                        {t("generated", { date: new Date(report.createdAt).toLocaleDateString() })}
+                        {report.approvedAt && ` · ${t("approvedOn", { date: new Date(report.approvedAt).toLocaleDateString() })}`}
+                        {report.accessedByPtaAt && ` · ${t("viewedByPta", { date: new Date(report.accessedByPtaAt).toLocaleDateString() })}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -702,7 +705,7 @@ function AnnualReportManager() {
                           {approveMutation.isPending ? (
                             <Loader2 size={12} className="animate-spin" />
                           ) : (
-                            <><CheckCircle2 size={12} className="mr-1" />Approve & Publish</>
+                            <><CheckCircle2 size={12} className="mr-1" />{t("approveAndPublish")}</>
                           )}
                         </Button>
                       )}
@@ -713,23 +716,23 @@ function AnnualReportManager() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/30 text-center">
                         <p className="text-2xl font-bold text-blue-600">{rd.totalIncidents ?? 0}</p>
-                        <p className="text-xs text-muted-foreground">Total Incidents</p>
+                        <p className="text-xs text-muted-foreground">{t("totalIncidents")}</p>
                       </div>
                       <div className="p-3 rounded-xl bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900/30 text-center">
                         <p className="text-2xl font-bold text-violet-600">{rd.incidentsByCategory?.length ?? 0}</p>
-                        <p className="text-xs text-muted-foreground">Categories</p>
+                        <p className="text-xs text-muted-foreground">{t("categories")}</p>
                       </div>
                       <div className="p-3 rounded-xl bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-900/30 text-center">
                         <p className="text-2xl font-bold text-teal-600">
                           {rd.protocolsByStatus?.reduce((a: number, p: any) => a + (Number(p.count) || 0), 0) ?? 0}
                         </p>
-                        <p className="text-xs text-muted-foreground">Protocols</p>
+                        <p className="text-xs text-muted-foreground">{t("protocolsCount")}</p>
                       </div>
                       <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 text-center">
                         <p className="text-2xl font-bold text-amber-600">
                           {rd.alertsSummary?.reduce((a: number, al: any) => a + (Number(al.count) || 0), 0) ?? 0}
                         </p>
-                        <p className="text-xs text-muted-foreground">Pattern Alerts</p>
+                        <p className="text-xs text-muted-foreground">{t("patternAlerts")}</p>
                       </div>
                     </div>
                   )}

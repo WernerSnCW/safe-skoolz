@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,21 +13,32 @@ import {
   ThumbsUp, ThumbsDown, Minus, Calendar, FileText
 } from "lucide-react";
 
-const RATING_LABELS: Record<number, string> = { 1: "Struggling", 2: "Some concerns", 3: "Getting there", 4: "Good", 5: "Excellent" };
-const FEELING_ICONS = [
-  { value: 1, icon: Frown, label: "Very unhappy", color: "text-red-500" },
-  { value: 2, icon: Frown, label: "Unhappy", color: "text-orange-500" },
-  { value: 3, icon: Meh, label: "OK", color: "text-yellow-500" },
-  { value: 4, icon: Smile, label: "Happy", color: "text-lime-500" },
-  { value: 5, icon: Smile, label: "Very happy", color: "text-green-500" },
+const RATING_LABEL_KEYS: Record<number, string> = { 1: "struggling", 2: "someConcerns", 3: "gettingThere", 4: "good", 5: "excellent" };
+const FEELING_ICON_DEFS = [
+  { value: 1, icon: Frown, labelKey: "veryUnhappy", color: "text-red-500" },
+  { value: 2, icon: Frown, labelKey: "unhappy", color: "text-orange-500" },
+  { value: 3, icon: Meh, labelKey: "ok", color: "text-yellow-500" },
+  { value: 4, icon: Smile, labelKey: "happyFeeling", color: "text-lime-500" },
+  { value: 5, icon: Smile, labelKey: "veryHappy", color: "text-green-500" },
 ];
-const ATTITUDE_ICONS = [
-  { value: 1, icon: ThumbsDown, label: "Very negative", color: "text-red-500" },
-  { value: 2, icon: ThumbsDown, label: "Negative", color: "text-orange-500" },
-  { value: 3, icon: Minus, label: "Neutral", color: "text-yellow-500" },
-  { value: 4, icon: ThumbsUp, label: "Positive", color: "text-lime-500" },
-  { value: 5, icon: ThumbsUp, label: "Very positive", color: "text-green-500" },
+const ATTITUDE_ICON_DEFS = [
+  { value: 1, icon: ThumbsDown, labelKey: "veryNegative", color: "text-red-500" },
+  { value: 2, icon: ThumbsDown, labelKey: "negative", color: "text-orange-500" },
+  { value: 3, icon: Minus, labelKey: "neutral", color: "text-yellow-500" },
+  { value: 4, icon: ThumbsUp, labelKey: "positive", color: "text-lime-500" },
+  { value: 5, icon: ThumbsUp, labelKey: "veryPositive", color: "text-green-500" },
 ];
+
+function useLocalizedIcons() {
+  const { t } = useTranslation("caseload");
+  const FEELING_ICONS = FEELING_ICON_DEFS.map(f => ({ ...f, label: t(f.labelKey) }));
+  const ATTITUDE_ICONS = ATTITUDE_ICON_DEFS.map(a => ({ ...a, label: t(a.labelKey) }));
+  const RATING_LABELS: Record<number, string> = {};
+  for (const [k, v] of Object.entries(RATING_LABEL_KEYS)) {
+    RATING_LABELS[Number(k)] = t(v);
+  }
+  return { FEELING_ICONS, ATTITUDE_ICONS, RATING_LABELS };
+}
 
 function getToken() {
   return localStorage.getItem("safeschool_token") || "";
@@ -66,9 +78,11 @@ function RatingSelector({ label, value, onChange, icons }: {
 }
 
 function ProgressSlider({ value, onChange }: { value: number | null; onChange: (v: number) => void }) {
+  const { t } = useTranslation("caseload");
+  const { RATING_LABELS } = useLocalizedIcons();
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-foreground">Progress</label>
+      <label className="text-sm font-medium text-foreground">{t("progress")}</label>
       <div className="flex gap-2 items-center">
         {[1, 2, 3, 4, 5].map((v) => (
           <button
@@ -93,6 +107,8 @@ function ProgressSlider({ value, onChange }: { value: number | null; onChange: (
 }
 
 function TrackingHistory({ caseloadId }: { caseloadId: string }) {
+  const { t } = useTranslation("caseload");
+  const { FEELING_ICONS, ATTITUDE_ICONS, RATING_LABELS } = useLocalizedIcons();
   const { data: history, isLoading } = useQuery({
     queryKey: ["senco-tracking", caseloadId],
     queryFn: async () => {
@@ -104,12 +120,12 @@ function TrackingHistory({ caseloadId }: { caseloadId: string }) {
     },
   });
 
-  if (isLoading) return <p className="text-sm text-muted-foreground py-2">Loading history...</p>;
-  if (!history || history.length === 0) return <p className="text-sm text-muted-foreground py-2">No tracking entries yet. Add the first one above.</p>;
+  if (isLoading) return <p className="text-sm text-muted-foreground py-2">{t("loadingHistory")}</p>;
+  if (!history || history.length === 0) return <p className="text-sm text-muted-foreground py-2">{t("noTrackingEntries")}</p>;
 
   return (
     <div className="space-y-3 mt-4">
-      <h4 className="text-sm font-semibold flex items-center gap-2"><Calendar size={14} /> Tracking History</h4>
+      <h4 className="text-sm font-semibold flex items-center gap-2"><Calendar size={14} /> {t("trackingHistory")}</h4>
       {history.map((entry: any) => (
         <div key={entry.id} className="border border-border rounded-xl p-3 bg-muted/20 space-y-2">
           <div className="flex justify-between items-center">
@@ -121,25 +137,25 @@ function TrackingHistory({ caseloadId }: { caseloadId: string }) {
             {entry.progressRating && (
               <div className="flex items-center gap-1.5">
                 <TrendingUp size={12} className="text-blue-500" />
-                <span>Progress: <strong>{RATING_LABELS[entry.progressRating]}</strong></span>
+                <span>{t("progress")}: <strong>{RATING_LABELS[entry.progressRating]}</strong></span>
               </div>
             )}
             {entry.feelingsRating && (
               <div className="flex items-center gap-1.5">
                 <Heart size={12} className="text-pink-500" />
-                <span>Feelings: <strong>{FEELING_ICONS[entry.feelingsRating - 1]?.label}</strong></span>
+                <span>{t("feelings")}: <strong>{FEELING_ICONS[entry.feelingsRating - 1]?.label}</strong></span>
               </div>
             )}
             {entry.attitudeToLearning && (
               <div className="flex items-center gap-1.5">
                 <BookOpen size={12} className="text-indigo-500" />
-                <span>Learning: <strong>{ATTITUDE_ICONS[entry.attitudeToLearning - 1]?.label}</strong></span>
+                <span>{t("learning")}: <strong>{ATTITUDE_ICONS[entry.attitudeToLearning - 1]?.label}</strong></span>
               </div>
             )}
             {entry.attitudeToOthers && (
               <div className="flex items-center gap-1.5">
                 <Users size={12} className="text-teal-500" />
-                <span>With Others: <strong>{ATTITUDE_ICONS[entry.attitudeToOthers - 1]?.label}</strong></span>
+                <span>{t("withOthers")}: <strong>{ATTITUDE_ICONS[entry.attitudeToOthers - 1]?.label}</strong></span>
               </div>
             )}
           </div>
@@ -153,6 +169,8 @@ function TrackingHistory({ caseloadId }: { caseloadId: string }) {
 }
 
 function AddTrackingForm({ caseloadId, onSuccess }: { caseloadId: string; onSuccess: () => void }) {
+  const { t } = useTranslation("caseload");
+  const { FEELING_ICONS, ATTITUDE_ICONS } = useLocalizedIcons();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [progress, setProgress] = useState<number | null>(null);
@@ -194,26 +212,28 @@ function AddTrackingForm({ caseloadId, onSuccess }: { caseloadId: string; onSucc
   return (
     <div className="space-y-4">
       <ProgressSlider value={progress} onChange={setProgress} />
-      <RatingSelector label="How are they feeling?" value={feelings} onChange={setFeelings} icons={FEELING_ICONS} />
-      <RatingSelector label="Attitude to learning" value={learning} onChange={setLearning} icons={ATTITUDE_ICONS} />
-      <RatingSelector label="Attitude to others" value={others} onChange={setOthers} icons={ATTITUDE_ICONS} />
+      <RatingSelector label={t("howAreTheyFeeling")} value={feelings} onChange={setFeelings} icons={FEELING_ICONS} />
+      <RatingSelector label={t("attitudeToLearning")} value={learning} onChange={setLearning} icons={ATTITUDE_ICONS} />
+      <RatingSelector label={t("attitudeToOthers")} value={others} onChange={setOthers} icons={ATTITUDE_ICONS} />
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Notes (optional)</label>
+        <label className="text-sm font-medium text-foreground">{t("notesOptional")}</label>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Any observations, actions taken, or next steps..."
+          placeholder={t("notesPlaceholder")}
           rows={3}
         />
       </div>
       <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !hasAnyRating} className="w-full">
-        {mutation.isPending ? "Saving..." : "Save Observation"}
+        {mutation.isPending ? t("common:saving") : t("saveObservation")}
       </Button>
     </div>
   );
 }
 
 function PupilCard({ entry }: { entry: any }) {
+  const { t } = useTranslation("caseload");
+  const { FEELING_ICONS, RATING_LABELS } = useLocalizedIcons();
   const [expanded, setExpanded] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const queryClient = useQueryClient();
@@ -267,7 +287,7 @@ function PupilCard({ entry }: { entry: any }) {
               )}
             </div>
           ) : (
-            <Badge variant="outline" className="text-[10px]">No entries yet</Badge>
+            <Badge variant="outline" className="text-[10px]">{t("noEntriesYet")}</Badge>
           )}
           {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </div>
@@ -277,16 +297,16 @@ function PupilCard({ entry }: { entry: any }) {
         <CardContent className="border-t border-border/50 pt-4 space-y-4">
           {entry.reason && (
             <div className="text-xs bg-muted/30 rounded-lg p-3">
-              <span className="font-medium">Reason added:</span> {entry.reason}
+              <span className="font-medium">{t("reasonAdded")}</span> {entry.reason}
             </div>
           )}
 
           <div className="flex gap-2">
             <Button size="sm" variant={showAddForm ? "secondary" : "default"} onClick={() => setShowAddForm(!showAddForm)} className="flex-1">
-              <Plus size={14} className="mr-1" /> {showAddForm ? "Hide Form" : "Add Observation"}
+              <Plus size={14} className="mr-1" /> {showAddForm ? t("hideForm") : t("addObservation")}
             </Button>
             <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => removeMutation.mutate()}>
-              <X size={14} className="mr-1" /> Remove
+              <X size={14} className="mr-1" /> {t("common:remove")}
             </Button>
           </div>
 
@@ -300,6 +320,7 @@ function PupilCard({ entry }: { entry: any }) {
 }
 
 function AddPupilModal({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation("caseload");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedPupil, setSelectedPupil] = useState("");
@@ -352,7 +373,7 @@ function AddPupilModal({ onClose }: { onClose: () => void }) {
       <div className="relative">
         <input
           type="text"
-          placeholder="Search pupils by name or class..."
+          placeholder={t("searchPupilsByName")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -383,19 +404,19 @@ function AddPupilModal({ onClose }: { onClose: () => void }) {
       )}
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Reason for support (optional)</label>
+        <label className="text-sm font-medium">{t("reasonForSupport")}</label>
         <Textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="e.g. Emotional regulation support, bullying concerns..."
+          placeholder={t("reasonPlaceholder")}
           rows={2}
         />
       </div>
 
       <div className="flex gap-2 justify-end">
-        <Button variant="outline" onClick={onClose}>Cancel</Button>
+        <Button variant="outline" onClick={onClose}>{t("common:cancel")}</Button>
         <Button onClick={() => addMutation.mutate()} disabled={!selectedPupil || addMutation.isPending}>
-          {addMutation.isPending ? "Adding..." : "Add to Caseload"}
+          {addMutation.isPending ? t("adding") : t("addToCaseload")}
         </Button>
       </div>
     </div>
@@ -403,6 +424,7 @@ function AddPupilModal({ onClose }: { onClose: () => void }) {
 }
 
 export default function CaseloadPage() {
+  const { t } = useTranslation("caseload");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const { data: caseload, isLoading } = useQuery({
@@ -422,21 +444,21 @@ export default function CaseloadPage() {
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold flex items-center gap-3">
             <ClipboardList className="text-primary" size={28} />
-            My Caseload
+            {t("myCaseload")}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Track the pupils you're supporting — their progress, feelings, and attitudes
+            {t("trackPupils")}
           </p>
         </div>
         <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <UserPlus size={16} className="mr-2" /> Add Pupil
+              <UserPlus size={16} className="mr-2" /> {t("addPupil")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Add a Pupil to Your Caseload</DialogTitle>
+              <DialogTitle>{t("addPupilToCaseload")}</DialogTitle>
             </DialogHeader>
             <AddPupilModal onClose={() => setAddDialogOpen(false)} />
           </DialogContent>
@@ -454,13 +476,13 @@ export default function CaseloadPage() {
               <ClipboardList size={32} className="text-primary" />
             </div>
             <div>
-              <h3 className="font-display font-bold text-lg">No pupils on your caseload yet</h3>
+              <h3 className="font-display font-bold text-lg">{t("noPupilsOnCaseload")}</h3>
               <p className="text-muted-foreground text-sm mt-1">
-                Add the pupils you're supporting to start tracking their progress.
+                {t("addPupilsToStart")}
               </p>
             </div>
             <Button onClick={() => setAddDialogOpen(true)}>
-              <UserPlus size={16} className="mr-2" /> Add Your First Pupil
+              <UserPlus size={16} className="mr-2" /> {t("addYourFirstPupil")}
             </Button>
           </CardContent>
         </Card>

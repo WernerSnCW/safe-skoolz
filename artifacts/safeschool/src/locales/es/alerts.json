@@ -1,0 +1,11 @@
+{
+  "patternAlerts": "Alertas de patrones",
+  "automatedAlerts": "Alertas automáticas activadas por el sistema.",
+  "behaviourPatternDetected": "Patrón de comportamiento detectado",
+  "alert": "Alerta",
+  "systemIdentifiedPattern": "El sistema identificó un patrón que involucra...",
+  "linkedToRecent": "Vinculado a incidentes recientes.",
+  "noActiveAlerts": "Sin alertas de patrones activas.",
+  "incident": "Incidente",
+  "viewIncident": "Ver incidente"
+}

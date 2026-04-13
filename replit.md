@@ -57,6 +57,7 @@ The project is a pnpm workspace monorepo, separating deployable applications (`a
 - **Protocol Guidance on Serious Incidents:** Post-submission guidance for Tier 2/3 incidents, displaying detailed protocols (LOPIVI, Convivèxit) with steps, warnings, legal basis, and referral requirements.
 - **Diagnostic Perception Gaps:** Diagnostic results for parents/non-leadership include a "Perception Gaps" card highlighting significant differences in respondent group scores.
 - **Teacher School Updates (Learnings):** Staff can broadcast posts with various categories and audience targeting. A "Heads Up" category provides prominent observation guidance for staff.
+- **Internationalization (i18n):** Full i18n across all 24 components using i18next + react-i18next. 4 languages (en, es, nl, fr) with 16 namespaces. Language picker on login page. Language stored in `localStorage["safeskoolz_lang"]`. Brand names (safeskoolz, Cloudworkz, Convivèxit, LOPIVI, Machista Violence) are never translated. Translation files at `src/locales/{lang}/{namespace}.json`.
 
 # External Dependencies
 
@@ -67,6 +68,7 @@ The project is a pnpm workspace monorepo, separating deployable applications (`a
 - **Build Tool:** Vite
 - **Styling:** TailwindCSS
 - **Animation Library:** Framer Motion
+- **Internationalization:** i18next + react-i18next (4 languages: en/es/nl/fr, 16 namespaces)
 - **Validation:** Zod
 - **API Code Generation:** Orval
 - **Authentication Hashing:** bcrypt

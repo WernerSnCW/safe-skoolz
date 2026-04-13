@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
@@ -9,6 +10,7 @@ import { formatDate } from "@/lib/utils";
 type ContactInfo = { id: string; firstName: string; lastName: string; role: string; displayRole: string; isChildsTeacher?: boolean; className?: string | null };
 
 function ConversationList({ onSelect, selectedId }: { onSelect: (id: string) => void; selectedId: string | null }) {
+  const { t } = useTranslation("messages");
   const { data: conversations, isLoading } = useQuery({
     queryKey: ["/api/messages/conversations"],
     queryFn: async () => {
@@ -26,8 +28,8 @@ function ConversationList({ onSelect, selectedId }: { onSelect: (id: string) => 
     return (
       <div className="p-8 text-center">
         <MessageCircle size={48} className="mx-auto text-muted-foreground/30 mb-3" />
-        <p className="text-muted-foreground font-medium">No messages yet</p>
-        <p className="text-sm text-muted-foreground/70 mt-1">When pupils send you messages, they will appear here.</p>
+        <p className="text-muted-foreground font-medium">{t("noMessagesYet")}</p>
+        <p className="text-sm text-muted-foreground/70 mt-1">{t("messagesAppearHere")}</p>
       </div>
     );
   }
@@ -52,11 +54,11 @@ function ConversationList({ onSelect, selectedId }: { onSelect: (id: string) => 
               <span className="text-[10px] text-muted-foreground shrink-0">{formatDate(conv.lastMessageAt)}</span>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {conv.lastMessageType === "urgent_help" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400">URGENT</span>}
-              {conv.lastMessageType === "chat_request" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">CHAT REQ</span>}
-              {conv.lastMessagePriority === "important" && conv.lastMessageType === "message" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">IMPORTANT</span>}
+              {conv.lastMessageType === "urgent_help" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400">{t("urgent")}</span>}
+              {conv.lastMessageType === "chat_request" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">{t("chatReq")}</span>}
+              {conv.lastMessagePriority === "important" && conv.lastMessageType === "message" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">{t("important")}</span>}
               <p className="text-xs text-muted-foreground truncate">
-                {conv.lastMessageIsFromMe ? "You: " : ""}{conv.lastMessage}
+                {conv.lastMessageIsFromMe ? t("you") : ""}{conv.lastMessage}
               </p>
             </div>
             <p className="text-[10px] text-muted-foreground/70 mt-0.5">{conv.contactRole} {conv.contactClass ? `· ${conv.contactClass}` : ""}</p>
@@ -73,6 +75,7 @@ function ConversationList({ onSelect, selectedId }: { onSelect: (id: string) => 
 }
 
 function ConversationThread({ contactId }: { contactId: string }) {
+  const { t } = useTranslation("messages");
   const [reply, setReply] = useState("");
   const queryClient = useQueryClient();
 
@@ -122,7 +125,7 @@ function ConversationThread({ contactId }: { contactId: string }) {
   if (isLoading) return <div className="p-8 text-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto" /></div>;
 
   const sortedMessages = [...(messages || [])].reverse();
-  const contactName = sortedMessages.find((m: any) => !m.isFromMe)?.senderName || sortedMessages[0]?.recipientName || "Student";
+  const contactName = sortedMessages.find((m: any) => !m.isFromMe)?.senderName || sortedMessages[0]?.recipientName || t("student");
 
   return (
     <div className="flex flex-col h-full">
@@ -147,13 +150,13 @@ function ConversationThread({ contactId }: { contactId: string }) {
               {m.type === "urgent_help" && (
                 <div className="flex items-center gap-1.5 mb-1">
                   <Zap size={14} />
-                  <span className="text-xs font-bold uppercase">Urgent help request</span>
+                  <span className="text-xs font-bold uppercase">{t("urgentHelpRequest")}</span>
                 </div>
               )}
               {m.type === "chat_request" && (
                 <div className="flex items-center gap-1.5 mb-1">
                   <MessageCircle size={14} />
-                  <span className="text-xs font-bold uppercase">Chat request</span>
+                  <span className="text-xs font-bold uppercase">{t("chatRequest")}</span>
                 </div>
               )}
               <p className="text-sm">{m.body}</p>
@@ -177,7 +180,7 @@ function ConversationThread({ contactId }: { contactId: string }) {
           <input
             value={reply}
             onChange={e => setReply(e.target.value)}
-            placeholder="Type your reply..."
+            placeholder={t("typeReply")}
             className="flex-1 rounded-xl border-2 border-border bg-background px-4 py-2.5 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all"
           />
           <Button type="submit" disabled={!reply.trim() || sendReply.isPending} size="default">
@@ -190,6 +193,7 @@ function ConversationThread({ contactId }: { contactId: string }) {
 }
 
 function NewParentMessage({ onStartConversation }: { onStartConversation: (contactId: string) => void }) {
+  const { t } = useTranslation("messages");
   const [open, setOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<ContactInfo | null>(null);
   const [body, setBody] = useState("");
@@ -242,7 +246,7 @@ function NewParentMessage({ onStartConversation }: { onStartConversation: (conta
     return (
       <Button onClick={() => setOpen(true)} className="gap-2">
         <UserPlus size={16} />
-        New Message
+        {t("newMessage")}
       </Button>
     );
   }
@@ -251,11 +255,11 @@ function NewParentMessage({ onStartConversation }: { onStartConversation: (conta
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setOpen(false)}>
       <Card className="w-full max-w-md" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
         <CardHeader className="border-b border-border/50">
-          <CardTitle className="text-lg">New Message</CardTitle>
+          <CardTitle className="text-lg">{t("newMessage")}</CardTitle>
         </CardHeader>
         <CardContent className="p-4 space-y-4">
           <div>
-            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1">Send to</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1">{t("sendTo")}</label>
             <select
               value={selectedContact?.id || ""}
               onChange={(e) => {
@@ -264,21 +268,21 @@ function NewParentMessage({ onStartConversation }: { onStartConversation: (conta
               }}
               className="w-full h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
-              <option value="" disabled>Choose a staff member...</option>
+              <option value="" disabled>{t("chooseStaff")}</option>
               {contacts?.map(c => (
                 <option key={c.id} value={c.id}>
-                  {c.firstName} {c.lastName} — {c.displayRole}{c.isChildsTeacher ? " (your child's teacher)" : ""}
+                  {c.firstName} {c.lastName} — {c.displayRole}{c.isChildsTeacher ? ` (${t("childsTeacher")})` : ""}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1">Message</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1">{t("message")}</label>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={4}
-              placeholder="Write your message..."
+              placeholder={t("writeMessage")}
               className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
@@ -288,10 +292,10 @@ function NewParentMessage({ onStartConversation }: { onStartConversation: (conta
           <div className="flex gap-2">
             <Button onClick={handleSend} disabled={!selectedContact || !body.trim() || sending} className="flex-1 gap-2">
               <Send size={14} />
-              {sending ? "Sending..." : "Send Message"}
+              {sending ? t("common:sending") : t("sendMessage")}
             </Button>
             <Button variant="ghost" onClick={() => { setOpen(false); setSelectedContact(null); setBody(""); setError(""); }}>
-              Cancel
+              {t("common:cancel")}
             </Button>
           </div>
         </CardContent>
@@ -301,6 +305,7 @@ function NewParentMessage({ onStartConversation }: { onStartConversation: (conta
 }
 
 function ChildEmergencyAlerts() {
+  const { t } = useTranslation("messages");
   const [expanded, setExpanded] = useState(true);
 
   const { data: alerts, isLoading } = useQuery<any[]>({
@@ -317,12 +322,12 @@ function ChildEmergencyAlerts() {
   if (isLoading || !alerts || alerts.length === 0) return null;
 
   const roleLabels: Record<string, string> = {
-    teacher: "Teacher",
-    head_of_year: "Head of Year",
+    teacher: t("roleTeacher"),
+    head_of_year: t("roleHeadOfYear"),
     senco: "SENCO",
-    coordinator: "Safeguarding Coordinator",
-    head_teacher: "Head Teacher",
-    support_staff: "Support Staff",
+    coordinator: t("roleCoordinator"),
+    head_teacher: t("roleHeadTeacher"),
+    support_staff: t("roleSupportStaff"),
   };
 
   const formatDateTime = (iso: string) => {
@@ -336,14 +341,14 @@ function ChildEmergencyAlerts() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2 text-red-700 dark:text-red-400">
             <ShieldAlert size={20} />
-            Emergency Alerts ({alerts.length})
+            {t("emergencyAlerts")} ({alerts.length})
           </CardTitle>
           <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 dark:text-red-400">
             {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </Button>
         </div>
         <p className="text-sm text-red-600/80 dark:text-red-400/80 mt-1">
-          Urgent help requests your child has sent to school staff
+          {t("urgentHelpRequests")}
         </p>
       </CardHeader>
       <AnimatePresence>
@@ -368,7 +373,7 @@ function ChildEmergencyAlerts() {
                       <div>
                         <p className="font-bold text-sm">{alert.childName}</p>
                         <p className="text-xs text-muted-foreground">
-                          Sent to {alert.recipientName}{alert.recipientRole ? ` (${roleLabels[alert.recipientRole] || alert.recipientRole})` : ""}
+                          {t("sentTo")} {alert.recipientName}{alert.recipientRole ? ` (${roleLabels[alert.recipientRole] || alert.recipientRole})` : ""}
                         </p>
                       </div>
                     </div>
@@ -394,6 +399,7 @@ function ChildEmergencyAlerts() {
 }
 
 export default function MessagesPage() {
+  const { t } = useTranslation("messages");
   const { user } = useAuth();
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
 
@@ -403,7 +409,7 @@ export default function MessagesPage() {
   if (!allowedRoles.includes(user.role || "")) {
     return (
       <div className="p-8 text-center">
-        <p className="text-muted-foreground">Messages are available for staff and parents.</p>
+        <p className="text-muted-foreground">{t("messagesAvailable")}</p>
       </div>
     );
   }
@@ -415,8 +421,8 @@ export default function MessagesPage() {
     <div className="max-w-6xl mx-auto">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">Messages</h1>
-          <p className="text-muted-foreground mt-1">{isParent ? "Message your child's teachers and school staff" : "View and respond to messages"}</p>
+          <h1 className="text-3xl font-display font-bold text-foreground">{t("messages")}</h1>
+          <p className="text-muted-foreground mt-1">{isParent ? t("parentSubtitle") : t("staffSubtitle")}</p>
         </div>
         {isParent && (
           <NewParentMessage onStartConversation={(contactId) => setSelectedContactId(contactId)} />
@@ -435,7 +441,7 @@ export default function MessagesPage() {
               <>
                 <div className="md:hidden p-2 border-b border-border">
                   <button onClick={() => setSelectedContactId(null)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-                    <ArrowLeft size={16} /> Back
+                    <ArrowLeft size={16} /> {t("common:back")}
                   </button>
                 </div>
                 <ConversationThread contactId={selectedContactId} />
@@ -444,9 +450,9 @@ export default function MessagesPage() {
               <div className="flex-1 flex items-center justify-center text-center p-8">
                 <div>
                   <MessageCircle size={48} className="mx-auto text-muted-foreground/30 mb-3" />
-                  <p className="text-muted-foreground font-medium">Select a conversation</p>
+                  <p className="text-muted-foreground font-medium">{t("selectConversation")}</p>
                   <p className="text-sm text-muted-foreground/70 mt-1">
-                    {isParent ? "Choose a staff member or start a new message" : "Choose a contact from the list to view their messages"}
+                    {isParent ? t("chooseStaffOrStart") : t("chooseContact")}
                   </p>
                 </div>
               </div>

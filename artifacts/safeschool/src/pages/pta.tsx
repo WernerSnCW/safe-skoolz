@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -26,16 +27,17 @@ import {
   PieChart, Pie, Cell, Legend, LineChart, Line
 } from "recharts";
 
-const TABS = [
-  { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-  { id: "messages", label: "Coordinator Channel", icon: MessageCircle },
-  { id: "policy", label: "Policy", icon: Shield },
-  { id: "report", label: "Annual Report", icon: FileText },
-  { id: "codesign", label: "Co-Design", icon: Lightbulb },
-  { id: "resources", label: "Resources", icon: BookOpen },
-] as const;
+const TAB_KEYS = ["dashboard", "messages", "policy", "report", "codesign", "resources"] as const;
+const TAB_ICONS = {
+  dashboard: BarChart3,
+  messages: MessageCircle,
+  policy: Shield,
+  report: FileText,
+  codesign: Lightbulb,
+  resources: BookOpen,
+} as const;
 
-type TabId = typeof TABS[number]["id"];
+type TabId = typeof TAB_KEYS[number];
 
 const CATEGORY_COLORS: Record<string, string> = {
   physical: "#ef4444",
@@ -58,24 +60,28 @@ const LEVEL_COLORS: Record<string, string> = {
   "Full Exclusion": "#450a0a",
 };
 
-const CONCERN_CATEGORIES = [
-  { value: "policy", label: "Policy" },
-  { value: "incident_pattern", label: "Incident Pattern" },
-  { value: "communication", label: "Communication" },
-  { value: "resources", label: "Resources" },
-  { value: "other", label: "Other" },
-];
+const CONCERN_CATEGORY_KEYS = ["policy", "incident_pattern", "communication", "resources", "other"] as const;
 
 export default function PtaPortal() {
+  const { t } = useTranslation("pta");
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+
+  const TAB_LABELS: Record<TabId, string> = {
+    dashboard: t("ptaDashboard"),
+    messages: t("coordinatorChannel"),
+    policy: t("policy"),
+    report: t("annualReport"),
+    codesign: t("coDesign"),
+    resources: t("resources"),
+  };
 
   if (!user || user.role !== "pta") {
     return (
       <div className="p-8 text-center">
         <Shield className="mx-auto mb-4 text-muted-foreground" size={48} />
-        <h2 className="text-xl font-bold">Access Restricted</h2>
-        <p className="text-muted-foreground mt-2">The PTA portal is only available to PTA members.</p>
+        <h2 className="text-xl font-bold">{t("accessRestricted")}</h2>
+        <p className="text-muted-foreground mt-2">{t("ptaOnlyAccess")}</p>
       </div>
     );
   }
@@ -85,31 +91,34 @@ export default function PtaPortal() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Users size={24} className="text-primary" />
-          PTA Portal
+          {t("ptaPortal")}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Anonymised school-wide safeguarding overview for PTA governance
+          {t("anonymisedOverview")}
         </p>
       </div>
 
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2" role="tablist" aria-label="PTA portal sections">
-        {TABS.map((tab) => (
+        {TAB_KEYS.map((tabId) => {
+          const Icon = TAB_ICONS[tabId];
+          return (
           <button
-            key={tab.id}
+            key={tabId}
             role="tab"
-            aria-selected={activeTab === tab.id}
-            aria-controls={`tabpanel-pta-${tab.id}`}
-            onClick={() => setActiveTab(tab.id)}
+            aria-selected={activeTab === tabId}
+            aria-controls={`tabpanel-pta-${tabId}`}
+            onClick={() => setActiveTab(tabId)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === tab.id
+              activeTab === tabId
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "bg-muted/50 text-muted-foreground hover:bg-muted"
             }`}
           >
-            <tab.icon size={16} aria-hidden="true" />
-            {tab.label}
+            <Icon size={16} aria-hidden="true" />
+            {TAB_LABELS[tabId]}
           </button>
-        ))}
+          );
+        })}
       </div>
 
       <motion.div
@@ -130,6 +139,7 @@ export default function PtaPortal() {
 }
 
 function PtaDashboardTab() {
+  const { t } = useTranslation("pta");
   const { data, isLoading } = useGetPtaDashboard();
   const { data: moodData } = useQuery({
     queryKey: ["/api/pta/mood-trends"],
@@ -147,7 +157,7 @@ function PtaDashboardTab() {
     return <div className="flex justify-center p-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   }
 
-  if (!data) return <p className="text-muted-foreground p-4">No data available.</p>;
+  if (!data) return <p className="text-muted-foreground p-4">{t("noDataAvailable")}</p>;
 
   const trend = data.incidentsThisTerm - data.incidentsLastTerm;
   const trendPct = data.incidentsLastTerm > 0
@@ -158,30 +168,30 @@ function PtaDashboardTab() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
-          title="Incidents This Term"
+          title={t("incidentsThisTerm")}
           value={data.incidentsThisTerm}
-          subtitle={`${trend >= 0 ? "+" : ""}${trendPct}% vs last term`}
+          subtitle={`${trend >= 0 ? "+" : ""}${trendPct}% ${t("vsLastTerm")}`}
           icon={AlertTriangle}
           color={trend > 0 ? "text-amber-600" : "text-green-600"}
         />
         <KpiCard
-          title="Open Protocols"
+          title={t("openProtocols")}
           value={data.protocols.open}
-          subtitle={`${data.protocols.closedThisTerm} closed this term`}
+          subtitle={`${data.protocols.closedThisTerm} ${t("closedThisTerm")}`}
           icon={Shield}
           color="text-blue-600"
         />
         <KpiCard
-          title="Amber Alerts"
+          title={t("amberAlerts")}
           value={data.alerts.amber}
-          subtitle={`${data.alerts.resolvedThisTerm} resolved this term`}
+          subtitle={`${data.alerts.resolvedThisTerm} ${t("resolvedThisTerm")}`}
           icon={Activity}
           color="text-amber-600"
         />
         <KpiCard
-          title="Red Alerts"
+          title={t("redAlerts")}
           value={data.alerts.red}
-          subtitle="Immediate response"
+          subtitle={t("immediateResponse")}
           icon={AlertTriangle}
           color="text-red-600"
         />
@@ -191,7 +201,7 @@ function PtaDashboardTab() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <BarChart3 size={16} /> Incidents by Category
+              <BarChart3 size={16} /> {t("incidentsByCategory")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -210,7 +220,7 @@ function PtaDashboardTab() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">No incidents this term</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t("noIncidentsThisTerm")}</p>
             )}
           </CardContent>
         </Card>
@@ -218,7 +228,7 @@ function PtaDashboardTab() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <TrendingUp size={16} /> Monthly Trend (Rolling 12 Months)
+              <TrendingUp size={16} /> {t("monthlyTrend")} ({t("rolling12Months")})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -233,7 +243,7 @@ function PtaDashboardTab() {
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">No trend data available</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t("noTrendData")}</p>
             )}
           </CardContent>
         </Card>
@@ -242,12 +252,12 @@ function PtaDashboardTab() {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <ArrowUpDown size={16} /> Behaviour Level Distribution
+            <ArrowUpDown size={16} /> {t("behaviourLevelDist")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-xs text-muted-foreground mb-3">
-            How many pupils are at each behaviour level across the school (anonymised — no names shown)
+            {t("behaviourLevelDesc")}
           </p>
           {data.behaviourDistribution.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
@@ -264,7 +274,7 @@ function PtaDashboardTab() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">No behaviour data available</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t("noBehaviourData")}</p>
           )}
         </CardContent>
       </Card>
@@ -273,12 +283,12 @@ function PtaDashboardTab() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Heart size={16} className="text-pink-500" /> Pupil Wellbeing Trend (Anonymised)
+              <Heart size={16} className="text-pink-500" /> {t("pupilWellbeingTrend")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground mb-3">
-              School-wide average mood from the pupil feelings diary — no individual entries or names are shown
+              {t("moodTrendDesc")}
             </p>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={moodData.weeks}>
@@ -293,10 +303,10 @@ function PtaDashboardTab() {
                 />
                 <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 11 }} />
                 <Tooltip
-                  formatter={(value: number) => [`${value.toFixed(2)} / 5`, "Avg Mood"]}
+                  formatter={(value: number) => [`${value.toFixed(2)} / 5`, t("avgMood")]}
                   labelFormatter={(label: string) => {
                     const d = new Date(label);
-                    return `Week of ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`;
+                    return `${t("weekOf")} ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`;
                   }}
                 />
                 <Line type="monotone" dataKey="avgMood" stroke="#ec4899" strokeWidth={2} dot={{ r: 4, fill: "#ec4899" }} />
@@ -309,7 +319,7 @@ function PtaDashboardTab() {
       <div className="bg-muted/30 rounded-xl p-4 border border-border/50">
         <p className="text-xs text-muted-foreground flex items-center gap-2">
           <Shield size={14} />
-          All data on this dashboard is anonymised and aggregated. No individual pupil records or personally identifiable information is accessible to PTA members.
+          {t("allDataAnonymisedFull")}
         </p>
       </div>
     </div>
@@ -338,6 +348,7 @@ function KpiCard({ title, value, subtitle, icon: Icon, color }: {
 }
 
 function PtaMessagesTab() {
+  const { t } = useTranslation("pta");
   const { user } = useAuth();
   const { data, refetch } = useListPtaMessages();
   const sendMessage = useSendPtaMessage();
@@ -356,7 +367,7 @@ function PtaMessagesTab() {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <MessageCircle size={16} /> PTA–Coordinator Channel
+            <MessageCircle size={16} /> {t("ptaCoordinatorChannel")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -387,7 +398,7 @@ function PtaMessagesTab() {
               ))
             ) : (
               <p className="text-sm text-muted-foreground text-center py-8">
-                No messages yet. Start a conversation with the coordinator.
+                {t("noMessagesStartConversation")}
               </p>
             )}
           </div>
@@ -396,7 +407,7 @@ function PtaMessagesTab() {
             <Input
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Type a message to the coordinator..."
+              placeholder={t("typeMessageCoordinator")}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
             />
             <Button onClick={handleSend} disabled={!body.trim() || sendMessage.isPending} size="sm">
@@ -410,14 +421,14 @@ function PtaMessagesTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Flag size={16} /> Submit a Formal Concern
+              <Flag size={16} /> {t("submitFormalConcern")}
             </CardTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowConcernForm(!showConcernForm)}
             >
-              {showConcernForm ? "Cancel" : "New Concern"}
+              {showConcernForm ? t("common:cancel") : t("newConcern")}
             </Button>
           </div>
         </CardHeader>
@@ -432,6 +443,7 @@ function PtaMessagesTab() {
 }
 
 function ConcernForm({ onSubmitted }: { onSubmitted: () => void }) {
+  const { t } = useTranslation("pta");
   const submitConcern = useSubmitPtaConcern();
   const [category, setCategory] = useState("");
   const [subject, setSubject] = useState("");
@@ -447,46 +459,47 @@ function ConcernForm({ onSubmitted }: { onSubmitted: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="text-sm font-medium block mb-1">Category</label>
+        <label className="text-sm font-medium block mb-1">{t("common:category")}</label>
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm"
           required
         >
-          <option value="">Select category...</option>
-          {CONCERN_CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>{c.label}</option>
+          <option value="">{t("selectCategory")}</option>
+          {CONCERN_CATEGORY_KEYS.map((key) => (
+            <option key={key} value={key}>{t(`concernCategory_${key}`)}</option>
           ))}
         </select>
       </div>
       <div>
-        <label className="text-sm font-medium block mb-1">Subject</label>
+        <label className="text-sm font-medium block mb-1">{t("subject")}</label>
         <Input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          placeholder="Brief description of your concern"
+          placeholder={t("briefDescription")}
           required
         />
       </div>
       <div>
-        <label className="text-sm font-medium block mb-1">Details</label>
+        <label className="text-sm font-medium block mb-1">{t("common:details")}</label>
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder="Please provide full details of your concern..."
+          placeholder={t("fullDetails")}
           className="w-full h-24 rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none"
           required
         />
       </div>
       <Button type="submit" disabled={submitConcern.isPending}>
-        {submitConcern.isPending ? "Submitting..." : "Submit Concern"}
+        {submitConcern.isPending ? t("submitting") : t("submitConcern")}
       </Button>
     </form>
   );
 }
 
 function PtaPolicyTab() {
+  const { t } = useTranslation("pta");
   const { data, isLoading, refetch } = useGetPtaPolicy();
   const acknowledgeMutation = useAcknowledgePtaPolicy();
   const flagMutation = useFlagPtaPolicy();
@@ -543,28 +556,28 @@ function PtaPolicyTab() {
           <div className="flex gap-2 mt-6">
             <Button onClick={handleAcknowledge} disabled={acknowledgeMutation.isPending}>
               <CheckCircle2 size={16} className="mr-2" />
-              {acknowledgeMutation.isPending ? "Recording..." : "Acknowledge Policy"}
+              {acknowledgeMutation.isPending ? t("recording") : t("acknowledgePolicy")}
             </Button>
             <Button
               variant="outline"
               onClick={() => setShowFlagForm(!showFlagForm)}
             >
               <Flag size={16} className="mr-2" />
-              Flag Disagreement
+              {t("flagDisagreement")}
             </Button>
           </div>
 
           {showFlagForm && (
             <div className="mt-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
-              <p className="text-sm font-medium mb-2">Raise a formal disagreement with this policy:</p>
+              <p className="text-sm font-medium mb-2">{t("raiseDisagreement")}</p>
               <textarea
                 value={flagComment}
                 onChange={(e) => setFlagComment(e.target.value)}
-                placeholder="Explain your disagreement..."
+                placeholder={t("explainDisagreement")}
                 className="w-full h-20 rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none mb-2"
               />
               <Button onClick={handleFlag} variant="destructive" size="sm" disabled={flagMutation.isPending || !flagComment.trim()}>
-                Submit Formal Disagreement
+                {t("submitFormalDisagreement")}
               </Button>
             </div>
           )}
@@ -573,7 +586,7 @@ function PtaPolicyTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">Acknowledgement Trail</CardTitle>
+          <CardTitle className="text-sm font-medium">{t("acknowledgementTrail")}</CardTitle>
         </CardHeader>
         <CardContent>
           {acks.length > 0 ? (
@@ -587,7 +600,7 @@ function PtaPolicyTab() {
                   )}
                   <div className="flex-1">
                     <p className="text-sm font-medium">
-                      {a.userFirstName} {a.userLastName} — {a.actionType === "acknowledge" ? "Acknowledged" : "Flagged disagreement"}
+                      {a.userFirstName} {a.userLastName} — {a.actionType === "acknowledge" ? t("acknowledged") : t("flaggedDisagreement")}
                     </p>
                     {a.comment && <p className="text-xs text-muted-foreground">{a.comment}</p>}
                   </div>
@@ -598,7 +611,7 @@ function PtaPolicyTab() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No acknowledgements recorded yet.</p>
+            <p className="text-sm text-muted-foreground">{t("noAcknowledgements")}</p>
           )}
         </CardContent>
       </Card>
@@ -607,6 +620,7 @@ function PtaPolicyTab() {
 }
 
 function PtaReportTab() {
+  const { t } = useTranslation("pta");
   const { data, isLoading } = useGetLatestPtaReport();
 
   if (isLoading) {
@@ -620,10 +634,9 @@ function PtaReportTab() {
       <Card>
         <CardContent className="p-8 text-center">
           <FileText className="mx-auto mb-4 text-muted-foreground" size={48} />
-          <h3 className="text-lg font-bold">No Annual Report Available</h3>
+          <h3 className="text-lg font-bold">{t("noAnnualReport")}</h3>
           <p className="text-muted-foreground mt-2">
-            The coordinator has not yet generated and approved the annual safeguarding report.
-            Once approved, it will appear here for review and download.
+            {t("noAnnualReportDesc")}
           </p>
         </CardContent>
       </Card>
@@ -637,7 +650,7 @@ function PtaReportTab() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText size={18} /> Annual Safeguarding Report — {report.academicYear}
+            <FileText size={18} /> {t("annualSafeguardingReport")} — {report.academicYear}
           </CardTitle>
           <p className="text-xs text-muted-foreground">
             Status: <span className="font-medium text-green-600">{report.status}</span>
@@ -647,11 +660,11 @@ function PtaReportTab() {
         <CardContent className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-muted/30 border">
-              <p className="text-sm font-medium mb-2">Total Incidents</p>
+              <p className="text-sm font-medium mb-2">{t("totalIncidents")}</p>
               <p className="text-3xl font-bold">{rd.totalIncidents}</p>
             </div>
             <div className="p-4 rounded-xl bg-muted/30 border">
-              <p className="text-sm font-medium mb-2">Incidents by Category</p>
+              <p className="text-sm font-medium mb-2">{t("incidentsByCategory")}</p>
               {rd.incidentsByCategory?.map((c: any) => (
                 <div key={c.category} className="flex justify-between text-sm py-0.5">
                   <span className="capitalize">{c.category}</span>
@@ -663,7 +676,7 @@ function PtaReportTab() {
 
           {rd.protocolsByStatus && rd.protocolsByStatus.length > 0 && (
             <div className="p-4 rounded-xl bg-muted/30 border">
-              <p className="text-sm font-medium mb-2">Protocols by Status</p>
+              <p className="text-sm font-medium mb-2">{t("protocolsByStatus")}</p>
               {rd.protocolsByStatus.map((p: any) => (
                 <div key={p.status} className="flex justify-between text-sm py-0.5">
                   <span className="capitalize">{p.status.replace(/_/g, " ")}</span>
@@ -675,7 +688,7 @@ function PtaReportTab() {
 
           {rd.alertsSummary && rd.alertsSummary.length > 0 && (
             <div className="p-4 rounded-xl bg-muted/30 border">
-              <p className="text-sm font-medium mb-2">Pattern Alerts Summary</p>
+              <p className="text-sm font-medium mb-2">{t("patternAlertsSummary")}</p>
               {rd.alertsSummary.map((a: any, i: number) => (
                 <div key={i} className="flex justify-between text-sm py-0.5">
                   <span className="capitalize">{a.level} — {a.status}</span>
@@ -691,6 +704,7 @@ function PtaReportTab() {
 }
 
 function PtaCodesignTab() {
+  const { t } = useTranslation("pta");
   const { data, isLoading, refetch } = useGetPtaCodesign();
   const submitResponse = useSubmitPtaCodesignResponse();
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -714,11 +728,10 @@ function PtaCodesignTab() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Lightbulb size={18} /> Co-Design Workspace
+            <Lightbulb size={18} /> {t("coDesignWorkspace")}
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            Share your preferences for how safeskoolz should work for parents at Morna.
-            Your input shapes the platform configuration.
+            {t("coDesignDesc")}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -744,7 +757,7 @@ function PtaCodesignTab() {
                   <Input
                     value={answers[q.key] || ""}
                     onChange={(e) => setAnswers(prev => ({ ...prev, [q.key]: e.target.value }))}
-                    placeholder="Enter your preference..."
+                    placeholder={t("enterPreference")}
                   />
                   <Button
                     size="sm"
@@ -764,6 +777,7 @@ function PtaCodesignTab() {
 }
 
 function PtaResourcesTab() {
+  const { t } = useTranslation("pta");
   const { data, isLoading } = useGetPtaResources();
 
   if (isLoading) {
@@ -778,10 +792,10 @@ function PtaResourcesTab() {
   };
 
   const categoryLabels: Record<string, string> = {
-    legal: "Legal Framework",
-    protocol: "Protocol Guides",
-    template: "Template Letters",
-    governance: "Governance",
+    legal: t("legalFramework"),
+    protocol: t("protocolGuides"),
+    template: t("templateLetters"),
+    governance: t("governance"),
   };
 
   const grouped = (data?.resources || []).reduce((acc: any, r: any) => {

@@ -1,0 +1,23 @@
+{
+  "settings": "Instellingen",
+  "editProfile": "Profiel bewerken",
+  "pickYourAvatar": "Kies je avatar",
+  "appearance": "Uiterlijk",
+  "accountDetails": "Accountgegevens",
+  "changeNameOrAvatar": "Wijzig je naam of kies een nieuwe avatar",
+  "updateProfile": "Werk je profielinformatie bij",
+  "firstName": "Voornaam",
+  "lastName": "Achternaam",
+  "email": "E-mail",
+  "saved": "Opgeslagen",
+  "saveChanges": "Wijzigingen opslaan",
+  "light": "Licht",
+  "dark": "Donker",
+  "system": "Systeem",
+  "role": "Rol:",
+  "year": "Jaar:",
+  "class": "Klas:",
+  "yourFirstName": "Jouw voornaam",
+  "yourLastName": "Jouw achternaam",
+  "yourEmail": "je.email@school.dev"
+}

@@ -1,0 +1,179 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASTE INTO: Safeskoolz Replit
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OUTPUT INSTRUCTION: When this build is complete, write your full build
+report as a downloadable TXT file named:
+RR-2026-04-13-009_build_report.txt
+
+Do not paste the report inline.
+
+---
+
+# BUILD PROMPT — RR-2026-04-13-009
+Track: A
+This is a Track A build. Scope boundary is fixed. This is a large
+frontend-only build. Work through the steps in order.
+
+---
+
+## STEP 1 — Install packages
+
+In artifacts/safeschool:
+  pnpm add i18next react-i18next
+
+Confirm installation before proceeding.
+
+---
+
+## STEP 2 — Create i18n initialisation file
+
+Create artifacts/safeschool/src/lib/i18n.ts:
+
+- Import i18next and initReactI18next
+- Import all translation JSON files for all 4 languages and all
+  16 namespaces (64 imports total)
+- Initialise with:
+  - lng: localStorage.getItem("safeskoolz_lang") ?? "en"
+  - fallbackLng: "en"
+  - interpolation: { escapeValue: false }
+  - defaultNS: "common"
+- Export default i18n
+
+Add import of i18n.ts to artifacts/safeschool/src/main.tsx
+(before the App render call, as a side-effect import):
+  import "./lib/i18n";
+
+---
+
+## STEP 3 — Create translation file structure
+
+Create these directories:
+  src/locales/en/
+  src/locales/es/
+  src/locales/nl/
+  src/locales/fr/
+
+Create these 16 namespace JSON files in EACH language directory
+(64 files total):
+  common.json, nav.json, login.json, dashboard.json,
+  incidents.json, protocols.json, diary.json, messages.json,
+  alerts.json, learn.json, settings.json, pta.json,
+  behaviour.json, caseload.json, diagnostics.json, training.json
+
+RULES FOR TRANSLATION FILES:
+- Flat key structure only — no nested objects
+- Keys are camelCase descriptive names
+- Values in en/ are the exact English strings from the source code
+- Values in es/, nl/, fr/ are machine translations
+- Preserve {{interpolation}} placeholders exactly — do not translate
+  the content inside {{ }}
+- Plural forms use i18next suffix convention:
+  "key_one": "{{count}} item", "key_other": "{{count}} items"
+- DO NOT include these in any translation file (leave unwrapped in
+  source): LOPIVI, Convivèxit, Machista Violence, SENCO, GBV, PTA,
+  safeskoolz, role API values, reference number formats
+
+NAMESPACE ASSIGNMENTS:
+- nav.json: all sidebar and bottom nav labels from AppLayout.tsx
+- login.json: all strings in login.tsx
+- dashboard.json: strings from all 4 dashboard components
+- incidents.json: strings from incidents/index.tsx, incidents/detail.tsx,
+  report-incident.tsx
+- protocols.json: strings from protocols/index.tsx, protocols/detail.tsx,
+  protocols/new.tsx
+- diary.json: diary.tsx
+- messages.json: messages.tsx
+- alerts.json: alerts.tsx
+- learn.json: learn.tsx
+- settings.json: settings.tsx
+- pta.json: pta.tsx
+- behaviour.json: behaviour.tsx
+- caseload.json: caseload.tsx
+- diagnostics.json: diagnostics.tsx
+- training.json: training-status.tsx
+- common.json: shared strings used across multiple namespaces
+  (button labels like "Save", "Cancel", "Submit", "Delete",
+  status labels like "Open", "Closed", "Pending",
+  common error messages, date/time labels)
+
+---
+
+## STEP 4 — Wrap strings in all 24 components
+
+For each component, add at the top of the function body:
+  const { t } = useTranslation("namespace");
+
+Replace hardcoded strings with t("key") calls.
+
+PLURALISATION — convert all 6 inline ternary plural patterns:
+1. `${data.total} incident${data.total !== 1 ? "s" : ""}`
+   → t("incidents:incidentCount", { count: data.total })
+   en: { "incidentCount_one": "{{count}} incident",
+         "incidentCount_other": "{{count}} incidents" }
+
+2. `${data.total} report${data.total !== 1 ? "s" : ""}`
+   → t("incidents:reportCount", { count: data.total })
+
+3. `${lockedPupils.length} pupil${lockedPupils.length !== 1 ? "s" : ""}`
+   → t("dashboard:lockedPupilCount", { count: lockedPupils.length })
+
+4. `${ptaContacts.length} PTA ${ptaContacts.length === 1 ? "member" : "members"}`
+   → t("dashboard:ptaMemberCount", { count: ptaContacts.length })
+
+5. Behaviour report count (similar pattern in behaviour.tsx)
+   → t("behaviour:reportCount", { count: N })
+
+6. `${pupil.failedLoginAttempts} failed attempt${...}`
+   → t("dashboard:failedAttemptCount", { count: pupil.failedLoginAttempts })
+
+DO NOT WRAP in t() — leave as raw strings:
+- "LOPIVI", "Convivèxit", "Machista Violence"
+- "SENCO", "GBV", "PTA", "safeskoolz"
+- Reference numbers (SS-YYYY-NNNN format strings)
+- Role values used in conditionals ("coordinator", "pupil", etc.)
+- API error messages (data.error, data.message from fetch responses)
+- User-authored content (inc.description, msg.body, post.body, etc.)
+- Date values formatted from API (display as-is)
+
+---
+
+## STEP 5 — Language picker on login screen
+
+Add to login.tsx, above the tab strip:
+
+- Four language buttons: English / Español / Nederlands / Français
+- Show which language is currently active (highlight/bold)
+- On click:
+    i18n.changeLanguage(code)
+    localStorage.setItem("safeskoolz_lang", code)
+- Import useTranslation and i18n from react-i18next / i18next
+- Use existing Button component or a simple inline button strip
+- The picker must be visible before the user is authenticated
+
+---
+
+## STEP 6 — Verify
+
+1. Run: pnpm test
+   All 38 tests must still pass. Report result.
+
+2. Confirm frontend compiles without TypeScript errors.
+
+3. Confirm both servers start cleanly.
+
+---
+
+## BUILD REPORT (write as TXT file)
+
+The report must include:
+- Confirmation of package installation
+- Total count of t() calls added across all files
+- List of any translation terms Replit was uncertain about
+  (legal terms, school jargon — note the English term and the
+  translation choice made)
+- Confirmation that DO NOT TRANSLATE strings are left unwrapped
+- Any namespace assignment decisions that were non-obvious
+- pnpm test result (pass count)
+- Server startup confirmation
+- Any strings skipped or deferred and why

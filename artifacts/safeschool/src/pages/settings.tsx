@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, Button, Input, Label } from "@/components/ui-polished";
 import { User, Save, CheckCircle2, Mail, BookOpen, GraduationCap, Moon, Sun, Monitor } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 type ThemePref = "light" | "dark" | "system";
 
@@ -54,6 +55,7 @@ const ANIMAL_AVATARS = [
 ];
 
 export default function Settings() {
+  const { t } = useTranslation("settings");
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [firstName, setFirstName] = useState(user?.firstName || "");
@@ -117,9 +119,9 @@ export default function Settings() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold">Settings</h1>
+        <h1 className="text-3xl font-display font-bold">{t("settings")}</h1>
         <p className="text-muted-foreground mt-2">
-          {isPupil ? "Change your name or pick a new avatar" : "Update your profile information"}
+          {isPupil ? t("changeNameOrAvatar") : t("updateProfile")}
         </p>
       </div>
 
@@ -141,27 +143,27 @@ export default function Settings() {
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               <User size={20} className="text-primary" />
-              Edit Profile
+              {t("editProfile")}
             </h3>
 
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">{t("firstName")}</Label>
                   <Input
                     id="firstName"
                     value={firstName}
                     onChange={e => setFirstName(e.target.value)}
-                    placeholder="Your first name"
+                    placeholder={t("yourFirstName")}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">{t("lastName")}</Label>
                   <Input
                     id="lastName"
                     value={lastName}
                     onChange={e => setLastName(e.target.value)}
-                    placeholder="Your last name"
+                    placeholder={t("yourLastName")}
                   />
                 </div>
               </div>
@@ -170,14 +172,14 @@ export default function Settings() {
                 <div>
                   <Label htmlFor="email">
                     <Mail size={14} className="inline mr-1" />
-                    Email
+                    {t("email")}
                   </Label>
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    placeholder="your.email@school.dev"
+                    placeholder={t("yourEmail")}
                   />
                 </div>
               )}
@@ -186,7 +188,7 @@ export default function Settings() {
 
           {isPupil && (
             <div>
-              <h3 className="text-lg font-bold mb-4">Pick Your Avatar</h3>
+              <h3 className="text-lg font-bold mb-4">{t("pickYourAvatar")}</h3>
               <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
                 {ANIMAL_AVATARS.map(a => (
                   <button
@@ -217,15 +219,15 @@ export default function Settings() {
                 animate={{ opacity: 1, x: 0 }}
                 className="text-primary text-sm font-medium flex items-center gap-1 flex-1"
               >
-                <CheckCircle2 size={16} /> Saved
+                <CheckCircle2 size={16} /> {t("saved")}
               </motion.p>
             )}
             <div className="flex-1" />
             <Button onClick={handleSave} disabled={isSaving} className="min-w-[120px]">
-              {isSaving ? "Saving..." : (
+              {isSaving ? t("common:saving") : (
                 <>
                   <Save size={16} className="mr-2" />
-                  Save Changes
+                  {t("saveChanges")}
                 </>
               )}
             </Button>
@@ -234,13 +236,13 @@ export default function Settings() {
           <div className="pt-4 border-t border-border">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               {themePref === "dark" ? <Moon size={20} className="text-primary" /> : <Sun size={20} className="text-primary" />}
-              Appearance
+              {t("appearance")}
             </h3>
             <div className="flex gap-2">
               {([
-                { value: "light" as ThemePref, label: "Light", icon: Sun },
-                { value: "dark" as ThemePref, label: "Dark", icon: Moon },
-                { value: "system" as ThemePref, label: "System", icon: Monitor },
+                { value: "light" as ThemePref, label: t("light"), icon: Sun },
+                { value: "dark" as ThemePref, label: t("dark"), icon: Moon },
+                { value: "system" as ThemePref, label: t("system"), icon: Monitor },
               ]).map(opt => (
                 <button
                   key={opt.value}
@@ -260,22 +262,22 @@ export default function Settings() {
           </div>
 
           <div className="pt-4 border-t border-border">
-            <h3 className="text-sm font-bold text-muted-foreground mb-3">Account Details</h3>
+            <h3 className="text-sm font-bold text-muted-foreground mb-3">{t("accountDetails")}</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <GraduationCap size={14} />
-                <span>Role: <span className="font-medium text-foreground capitalize">{user.role.replace("_", " ")}</span></span>
+                <span>{t("role")} <span className="font-medium text-foreground capitalize">{user.role.replace("_", " ")}</span></span>
               </div>
               {user.yearGroup && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <BookOpen size={14} />
-                  <span>Year: <span className="font-medium text-foreground">{user.yearGroup}</span></span>
+                  <span>{t("year")} <span className="font-medium text-foreground">{user.yearGroup}</span></span>
                 </div>
               )}
               {user.className && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <BookOpen size={14} />
-                  <span>Class: <span className="font-medium text-foreground">{user.className}</span></span>
+                  <span>{t("class")} <span className="font-medium text-foreground">{user.className}</span></span>
                 </div>
               )}
               {user.email && (

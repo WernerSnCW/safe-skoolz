@@ -1,19 +1,14 @@
 import { useState } from "react";
 import { useRoute, Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useGetProtocol } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { formatDateTime, formatDate } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowLeft, Shield, FileText, AlertTriangle, Users, Calendar, CheckCircle, Download, Loader2 } from "lucide-react";
 
-const RISK_LEVEL_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  low: { bg: "bg-green-100 dark:bg-green-950/30", text: "text-green-700 dark:text-green-400", label: "Low" },
-  medium: { bg: "bg-amber-100 dark:bg-amber-950/30", text: "text-amber-700 dark:text-amber-400", label: "Medium" },
-  high: { bg: "bg-orange-100 dark:bg-orange-950/30", text: "text-orange-700 dark:text-orange-400", label: "High" },
-  critical: { bg: "bg-red-100 dark:bg-red-950/30", text: "text-red-700 dark:text-red-400", label: "Critical" },
-};
-
 export default function ProtocolDetail() {
+  const { t } = useTranslation("protocols");
   const [, params] = useRoute("/protocols/:id");
   const id = params?.id || "";
   const { user } = useAuth();
@@ -55,15 +50,25 @@ export default function ProtocolDetail() {
 
   if (!detail) return (
     <div className="p-8 text-center">
-      <p className="text-destructive text-lg font-bold">Protocol not found</p>
+      <p className="text-destructive text-lg font-bold">{t("protocolNotFound")}</p>
       <Link href="/protocols">
-        <Button variant="outline" className="mt-4">Back to Protocols</Button>
+        <Button variant="outline" className="mt-4">{t("backToProtocols")}</Button>
       </Link>
     </div>
   );
 
   const prot = detail.protocol || detail;
-  const rlStyle = RISK_LEVEL_STYLES[prot.riskLevel || ""] || null;
+  const rlStyle = prot.riskLevel ? {
+    bg: prot.riskLevel === "low" ? "bg-green-100 dark:bg-green-950/30" :
+        prot.riskLevel === "medium" ? "bg-amber-100 dark:bg-amber-950/30" :
+        prot.riskLevel === "high" ? "bg-orange-100 dark:bg-orange-950/30" :
+        prot.riskLevel === "critical" ? "bg-red-100 dark:bg-red-950/30" : "",
+    text: prot.riskLevel === "low" ? "text-green-700 dark:text-green-400" :
+          prot.riskLevel === "medium" ? "text-amber-700 dark:text-amber-400" :
+          prot.riskLevel === "high" ? "text-orange-700 dark:text-orange-400" :
+          prot.riskLevel === "critical" ? "text-red-700 dark:text-red-400" : "",
+    label: t(prot.riskLevel),
+  } : null;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -75,7 +80,7 @@ export default function ProtocolDetail() {
         </Link>
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-display font-bold">Protocol {prot.referenceNumber}</h1>
+            <h1 className="text-3xl font-display font-bold">{t("protocolRef", { ref: prot.referenceNumber })}</h1>
             <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
               prot.status === "open" ? "bg-primary text-white" :
               prot.status === "closed" ? "bg-muted text-muted-foreground" :
@@ -85,7 +90,7 @@ export default function ProtocolDetail() {
             </span>
           </div>
           <p className="text-muted-foreground text-sm mt-1">
-            Opened on {formatDateTime(prot.openedAt)}
+            {t("openedOn", { date: formatDateTime(prot.openedAt) })}
           </p>
         </div>
         {canExport && (
@@ -97,7 +102,7 @@ export default function ProtocolDetail() {
             className="ml-auto shrink-0"
           >
             {isExporting ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Download size={14} className="mr-1.5" />}
-            {isExporting ? "Exporting..." : "Export PDF"}
+            {isExporting ? t("common:exporting") : t("common:exportPdf")}
           </Button>
         )}
       </div>
@@ -105,25 +110,25 @@ export default function ProtocolDetail() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-2">
           <CardHeader className="border-b border-border/50 bg-muted/10">
-            <CardTitle className="text-lg">Protocol Details</CardTitle>
+            <CardTitle className="text-lg">{t("protocolDetails")}</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-background border border-border p-4 rounded-xl">
-                <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Type</p>
+                <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">{t("common:type")}</p>
                 <p className="font-semibold capitalize">{prot.protocolType?.replace(/_/g, " ")}</p>
               </div>
               <div className="bg-background border border-border p-4 rounded-xl">
-                <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Source</p>
-                <p className="font-semibold capitalize">{prot.protocolSource?.replace(/_/g, " ") || "Not specified"}</p>
+                <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">{t("source")}</p>
+                <p className="font-semibold capitalize">{prot.protocolSource?.replace(/_/g, " ") || t("common:notSpecified")}</p>
               </div>
               <div className="bg-background border border-border p-4 rounded-xl">
-                <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Victim</p>
-                <p className="font-semibold">{prot.victimName || "Unknown"}</p>
+                <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">{t("common:victims")}</p>
+                <p className="font-semibold">{prot.victimName || t("common:unknown")}</p>
               </div>
               <div className="bg-background border border-border p-4 rounded-xl">
-                <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Parent Notified</p>
-                <p className="font-semibold">{prot.parentNotificationSent ? "Yes" : "Not yet"}</p>
+                <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">{t("parentNotified")}</p>
+                <p className="font-semibold">{prot.parentNotificationSent ? t("common:yes", "Yes") : t("common:notYet", "Not yet")}</p>
               </div>
             </div>
 
@@ -131,14 +136,14 @@ export default function ProtocolDetail() {
               <div className="p-4 rounded-xl bg-destructive/5 border border-destructive/20">
                 <p className="font-bold text-destructive flex items-center gap-2">
                   <AlertTriangle size={16} />
-                  Gender-based violence protocol active
+                  {t("gbvProtocolActive")}
                 </p>
               </div>
             )}
 
             {prot.context && (
               <div>
-                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">Context</h4>
+                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">{t("context")}</h4>
                 <p className="bg-muted/30 p-4 rounded-xl text-foreground leading-relaxed whitespace-pre-wrap">
                   {prot.context}
                 </p>
@@ -147,7 +152,7 @@ export default function ProtocolDetail() {
 
             {prot.resolutionNotes && (
               <div>
-                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">Resolution Notes</h4>
+                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">{t("resolutionNotes")}</h4>
                 <p className="bg-muted/30 p-4 rounded-xl text-foreground leading-relaxed whitespace-pre-wrap">
                   {prot.resolutionNotes}
                 </p>
@@ -159,12 +164,12 @@ export default function ProtocolDetail() {
         <div className="space-y-6">
           <Card>
             <CardHeader className="border-b border-border/50 bg-muted/10">
-              <CardTitle className="text-lg">Status</CardTitle>
+              <CardTitle className="text-lg">{t("common:status")}</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               {prot.externalReferralRequired && (
                 <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
-                  <p className="text-sm font-bold text-amber-700 dark:text-amber-400">External referral required</p>
+                  <p className="text-sm font-bold text-amber-700 dark:text-amber-400">{t("externalReferralRequired")}</p>
                   {prot.externalReferralBody && (
                     <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">{prot.externalReferralBody}</p>
                   )}
@@ -172,12 +177,12 @@ export default function ProtocolDetail() {
               )}
               <div className="text-sm space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Interviews required</span>
-                  <span className="font-bold">{prot.interviewsRequired ? "Yes" : "No"}</span>
+                  <span className="text-muted-foreground">{t("interviewsRequired")}</span>
+                  <span className="font-bold">{prot.interviewsRequired ? t("common:yes", "Yes") : t("common:no", "No")}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Parent notified</span>
-                  <span className="font-bold">{prot.parentNotificationSent ? "Yes" : "Not yet"}</span>
+                  <span className="text-muted-foreground">{t("parentNotified")}</span>
+                  <span className="font-bold">{prot.parentNotificationSent ? t("common:yes", "Yes") : t("common:notYet", "Not yet")}</span>
                 </div>
               </div>
             </CardContent>
@@ -186,7 +191,7 @@ export default function ProtocolDetail() {
           {detail.linkedIncidents && detail.linkedIncidents.length > 0 && (
             <Card>
               <CardHeader className="border-b border-border/50 bg-muted/10">
-                <CardTitle className="text-lg">Linked Incidents</CardTitle>
+                <CardTitle className="text-lg">{t("linkedIncidents")}</CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-2">
                 {detail.linkedIncidents.map((inc: any) => (
@@ -209,19 +214,19 @@ export default function ProtocolDetail() {
       {(rlStyle || (prot.riskFactors && prot.riskFactors.length > 0) || (prot.protectiveFactors && prot.protectiveFactors.length > 0) || prot.riskAssessment) && (
         <Card>
           <CardHeader className="border-b border-border/50 bg-muted/10">
-            <CardTitle className="text-lg">Risk Assessment</CardTitle>
+            <CardTitle className="text-lg">{t("riskAssessment")}</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             {rlStyle && (
               <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm ${rlStyle.bg} ${rlStyle.text}`}>
                 <Shield size={16} />
-                Risk Level: {rlStyle.label}
+                {t("riskLevel", { level: rlStyle.label })}
               </div>
             )}
 
             {prot.riskFactors && prot.riskFactors.length > 0 && (
               <div>
-                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Risk Factors</h4>
+                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">{t("riskFactors")}</h4>
                 <div className="flex flex-wrap gap-2">
                   {prot.riskFactors.map((rf: string, i: number) => (
                     <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 border border-orange-200 text-orange-700 text-sm font-medium dark:bg-orange-950/20 dark:border-orange-800 dark:text-orange-400">
@@ -235,7 +240,7 @@ export default function ProtocolDetail() {
 
             {prot.protectiveFactors && prot.protectiveFactors.length > 0 && (
               <div>
-                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Protective Factors</h4>
+                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">{t("protectiveFactors")}</h4>
                 <div className="flex flex-wrap gap-2">
                   {prot.protectiveFactors.map((pf: string, i: number) => (
                     <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm font-medium dark:bg-green-950/20 dark:border-green-800 dark:text-green-400">
@@ -249,7 +254,7 @@ export default function ProtocolDetail() {
 
             {prot.riskAssessment && (
               <div>
-                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">Additional Risk Notes</h4>
+                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">{t("additionalRiskNotes")}</h4>
                 <p className="bg-muted/30 p-4 rounded-xl text-foreground leading-relaxed whitespace-pre-wrap">
                   {prot.riskAssessment}
                 </p>
@@ -258,7 +263,7 @@ export default function ProtocolDetail() {
 
             {prot.protectiveMeasures && prot.protectiveMeasures.length > 0 && (
               <div>
-                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">Protective Measures</h4>
+                <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">{t("protectiveMeasures")}</h4>
                 <ul className="space-y-2">
                   {prot.protectiveMeasures.map((m: string, i: number) => (
                     <li key={i} className="flex items-center gap-2 text-sm">

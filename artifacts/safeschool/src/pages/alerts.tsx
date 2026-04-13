@@ -4,8 +4,10 @@ import { formatDate } from "@/lib/utils";
 import { Activity, AlertTriangle, ShieldAlert, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 
 export default function AlertsList() {
+  const { t } = useTranslation("alerts");
   const { data, isLoading } = useListAlerts({ limit: 50 });
   const alerts = data?.data || [];
 
@@ -13,10 +15,10 @@ export default function AlertsList() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-display font-bold flex items-center gap-3">
-          <Activity className="text-primary" size={32} /> Pattern Alerts
+          <Activity className="text-primary" size={32} /> {t("patternAlerts")}
         </h1>
         <p className="text-muted-foreground mt-2 max-w-2xl">
-          Automated alerts triggered by the system detecting concerning patterns across multiple incidents (e.g., escalating behaviors, repeat victims).
+          {t("automatedAlerts")}
         </p>
       </div>
 
@@ -46,14 +48,14 @@ export default function AlertsList() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${alert.alertLevel === 'red' ? 'bg-destructive text-white' : 'bg-warning text-warning-foreground'}`}>
-                          {alert.alertLevel} Alert
+                          {alert.alertLevel} {t("alert")}
                         </span>
                         <span className="text-xs text-muted-foreground">{formatDate(alert.triggeredAt)}</span>
                       </div>
-                      <h3 className="font-bold text-lg text-foreground">{alert.ruleLabel || 'Behavior Pattern Detected'}</h3>
+                      <h3 className="font-bold text-lg text-foreground">{alert.ruleLabel || t("behaviourPatternDetected")}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        System identified a pattern involving <strong>{alert.victimName || 'multiple students'}</strong>. 
-                        Linked to {incidentIds.length || 0} recent incidents.
+                        {t("systemIdentifiedPattern")} <strong>{alert.victimName || ''}</strong>. 
+                        {t("linkedToRecent")}
                       </p>
                     </div>
 
@@ -69,7 +71,7 @@ export default function AlertsList() {
                           className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline px-3 py-1.5 rounded-lg hover:bg-primary/5 transition-colors"
                         >
                           <ExternalLink size={14} />
-                          View Incident
+                          {t("viewIncident")}
                         </Link>
                       )}
                       {incidentIds.length > 1 && (
@@ -80,7 +82,7 @@ export default function AlertsList() {
                               href={`/incidents/${id}`}
                               className="text-[10px] text-primary hover:underline px-2 py-0.5 rounded bg-primary/5 hover:bg-primary/10 transition-colors"
                             >
-                              Incident {i + 2}
+                              {t("incident")} {i + 2}
                             </Link>
                           ))}
                         </div>
@@ -93,7 +95,7 @@ export default function AlertsList() {
           })}
           {alerts.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
-              No active pattern alerts.
+              {t("noActiveAlerts")}
             </div>
           )}
         </div>

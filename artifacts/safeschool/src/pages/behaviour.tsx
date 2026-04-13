@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ function getToken() {
 function LevelGauge({ level, totalPoints, nextLevel, pointsToNext }: {
   level: any; totalPoints: number; nextLevel: any; pointsToNext: number | null;
 }) {
+  const { t } = useTranslation("behaviour");
   const maxDisplayPoints = nextLevel ? level.minPoints + (nextLevel.minPoints - level.minPoints) : totalPoints + 5;
   const progress = nextLevel
     ? ((totalPoints - level.minPoints) / (nextLevel.minPoints - level.minPoints)) * 100
@@ -53,13 +55,13 @@ function LevelGauge({ level, totalPoints, nextLevel, pointsToNext }: {
               <Gauge size={28} />
             </div>
             <div>
-              <p className="text-sm font-medium opacity-80">Current Level</p>
+              <p className="text-sm font-medium opacity-80">{t("currentLevel")}</p>
               <h3 className="text-2xl font-display font-bold">{level.name}</h3>
             </div>
           </div>
           <div className="text-right">
             <p className="text-3xl font-bold">{totalPoints}</p>
-            <p className="text-sm opacity-80">points total</p>
+            <p className="text-sm opacity-80">{t("pointsTotal")}</p>
           </div>
         </div>
         <p className="text-sm opacity-90 mt-2">{level.description}</p>
@@ -79,7 +81,7 @@ function LevelGauge({ level, totalPoints, nextLevel, pointsToNext }: {
             </div>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground text-center">Maximum escalation level reached.</p>
+          <p className="text-sm text-muted-foreground text-center">{t("maxEscalation")}</p>
         )}
       </CardContent>
     </Card>
@@ -87,6 +89,7 @@ function LevelGauge({ level, totalPoints, nextLevel, pointsToNext }: {
 }
 
 function LevelLadder({ currentLevel }: { currentLevel: number }) {
+  const { t } = useTranslation("behaviour");
   const { data: config } = useQuery({
     queryKey: ["behaviour-levels"],
     queryFn: async () => {
@@ -102,7 +105,7 @@ function LevelLadder({ currentLevel }: { currentLevel: number }) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <Target size={16} /> Escalation Ladder
+          <Target size={16} /> {t("escalationLadder")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -131,7 +134,7 @@ function LevelLadder({ currentLevel }: { currentLevel: number }) {
                   <p className="text-[10px] text-muted-foreground">{lvl.minPoints}–{lvl.maxPoints === Infinity ? "∞" : lvl.maxPoints} pts</p>
                 </div>
                 {isCurrent && (
-                  <Badge variant="default" className="text-[10px]">YOU ARE HERE</Badge>
+                  <Badge variant="default" className="text-[10px]">{t("youAreHere")}</Badge>
                 )}
               </div>
             );
@@ -143,12 +146,13 @@ function LevelLadder({ currentLevel }: { currentLevel: number }) {
 }
 
 function PointHistory({ history }: { history: any[] }) {
+  const { t } = useTranslation("behaviour");
   if (history.length === 0) return (
     <Card>
       <CardContent className="py-8 text-center text-muted-foreground">
         <Shield size={32} className="mx-auto mb-2 text-green-500" />
-        <p className="font-medium">No behaviour points recorded</p>
-        <p className="text-sm">A clean record — well done!</p>
+        <p className="font-medium">{t("noPointsRecorded")}</p>
+        <p className="text-sm">{t("cleanRecord")}</p>
       </CardContent>
     </Card>
   );
@@ -157,7 +161,7 @@ function PointHistory({ history }: { history: any[] }) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <Calendar size={16} /> Point History
+          <Calendar size={16} /> {t("pointHistory")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -171,7 +175,7 @@ function PointHistory({ history }: { history: any[] }) {
                 <p className="text-sm font-medium">{entry.reason}</p>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
                   <Badge variant="outline" className="text-[10px]">{entry.category}</Badge>
-                  {entry.issuedBy && <span className="text-[10px] text-muted-foreground">by {entry.issuedBy}</span>}
+                  {entry.issuedBy && <span className="text-[10px] text-muted-foreground">{t("by")} {entry.issuedBy}</span>}
                 </div>
                 {entry.note && <p className="text-xs text-muted-foreground mt-1">{entry.note}</p>}
               </div>
@@ -187,6 +191,7 @@ function PointHistory({ history }: { history: any[] }) {
 }
 
 function AddPointsForm({ pupilId, pupilName, onClose }: { pupilId: string; pupilName: string; onClose: () => void }) {
+  const { t } = useTranslation("behaviour");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [category, setCategory] = useState("");
@@ -242,7 +247,7 @@ function AddPointsForm({ pupilId, pupilName, onClose }: { pupilId: string; pupil
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Category</label>
+        <label className="text-sm font-medium">{t("common:category")}</label>
         <div className="grid grid-cols-2 gap-2">
           {(config?.categories || []).map((cat: any) => (
             <button
@@ -263,7 +268,7 @@ function AddPointsForm({ pupilId, pupilName, onClose }: { pupilId: string; pupil
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Points (1–10)</label>
+        <label className="text-sm font-medium">{t("pointsRange")}</label>
         <div className="flex gap-1.5">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
             <button
@@ -285,30 +290,30 @@ function AddPointsForm({ pupilId, pupilName, onClose }: { pupilId: string; pupil
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Reason</label>
+        <label className="text-sm font-medium">{t("reason")}</label>
         <input
           type="text"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="Brief description of the behaviour..."
+          placeholder={t("reasonPlaceholder")}
           className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Additional note (optional)</label>
+        <label className="text-sm font-medium">{t("additionalNote")}</label>
         <Textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Any context or follow-up needed..."
+          placeholder={t("notePlaceholder")}
           rows={2}
         />
       </div>
 
       <div className="flex gap-2 justify-end">
-        <Button variant="outline" onClick={onClose}>Cancel</Button>
+        <Button variant="outline" onClick={onClose}>{t("common:cancel")}</Button>
         <Button onClick={() => mutation.mutate()} disabled={!category || !reason || mutation.isPending}>
-          {mutation.isPending ? "Saving..." : `Add ${points} Point${points > 1 ? "s" : ""}`}
+          {mutation.isPending ? t("common:saving") : `${t("common:add")} ${points} ${points > 1 ? t("addPoints") : t("addPoint")}`}
         </Button>
       </div>
     </div>
@@ -316,6 +321,7 @@ function AddPointsForm({ pupilId, pupilName, onClose }: { pupilId: string; pupil
 }
 
 function PupilBehaviourView({ pupilId, showIssuePts }: { pupilId: string; showIssuePts: boolean }) {
+  const { t } = useTranslation("behaviour");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
@@ -330,7 +336,7 @@ function PupilBehaviourView({ pupilId, showIssuePts }: { pupilId: string; showIs
   });
 
   if (isLoading) return <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
-  if (!data) return <p className="text-destructive text-center py-8">Failed to load behaviour record.</p>;
+  if (!data) return <p className="text-destructive text-center py-8">{t("failedToLoad")}</p>;
 
   return (
     <div className="space-y-6">
@@ -343,12 +349,12 @@ function PupilBehaviourView({ pupilId, showIssuePts }: { pupilId: string; showIs
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="destructive" size="sm">
-                <Plus size={14} className="mr-1" /> Issue Points
+                <Plus size={14} className="mr-1" /> {t("issuePoints")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>Issue Behaviour Points — {data.pupil.firstName}</DialogTitle>
+                <DialogTitle>{t("issueBehaviourPoints")} — {data.pupil.firstName}</DialogTitle>
               </DialogHeader>
               <AddPointsForm pupilId={pupilId} pupilName={data.pupil.firstName} onClose={() => setAddDialogOpen(false)} />
             </DialogContent>
@@ -376,6 +382,7 @@ function PupilBehaviourView({ pupilId, showIssuePts }: { pupilId: string; showIs
 }
 
 function StaffBehaviourOverview() {
+  const { t } = useTranslation("behaviour");
   const [selectedPupilId, setSelectedPupilId] = useState<string | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -411,7 +418,7 @@ function StaffBehaviourOverview() {
     return (
       <div className="space-y-4">
         <Button variant="ghost" size="sm" onClick={() => setSelectedPupilId(null)}>
-          ← Back to overview
+          ← {t("backToOverview")}
         </Button>
         <PupilBehaviourView pupilId={selectedPupilId} showIssuePts={true} />
       </div>
@@ -434,21 +441,21 @@ function StaffBehaviourOverview() {
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold flex items-center gap-3">
             <AlertTriangle className="text-primary" size={28} />
-            Behaviour Tracker
+            {t("behaviourTracker")}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Track behaviour points and see where each pupil stands on the escalation ladder
+            {t("trackBehaviour")}
           </p>
         </div>
         <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="destructive">
-              <Plus size={16} className="mr-2" /> Issue Points
+              <Plus size={16} className="mr-2" /> {t("issuePoints")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Issue Behaviour Points</DialogTitle>
+              <DialogTitle>{t("issueBehaviourPoints")}</DialogTitle>
             </DialogHeader>
             <QuickIssuePicker onSelect={(pupilId, pupilName) => {
               setAddDialogOpen(false);
@@ -462,7 +469,7 @@ function StaffBehaviourOverview() {
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
-          placeholder="Search pupils..."
+          placeholder={t("searchPupils")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-lg border border-input bg-background pl-10 pr-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -478,9 +485,9 @@ function StaffBehaviourOverview() {
               <Shield size={32} className="text-green-600" />
             </div>
             <div>
-              <h3 className="font-display font-bold text-lg">No behaviour points issued yet</h3>
+              <h3 className="font-display font-bold text-lg">{t("noPointsIssuedYet")}</h3>
               <p className="text-muted-foreground text-sm mt-1">
-                All pupils are in good standing. Use "Issue Points" when you need to record a behaviour event.
+                {t("allGoodStanding")}
               </p>
             </div>
           </CardContent>
@@ -518,7 +525,7 @@ function StaffBehaviourOverview() {
             <div className="mt-6">
               <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
                 <Shield size={14} className="text-green-500" />
-                Good Standing ({pupilsWithNoPoints.length} pupils with no points)
+                {t("goodStandingCount", { count: pupilsWithNoPoints.length })}
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {pupilsWithNoPoints.map((p: any) => (
@@ -541,6 +548,7 @@ function StaffBehaviourOverview() {
 }
 
 function QuickIssuePicker({ onSelect }: { onSelect: (pupilId: string, name: string) => void }) {
+  const { t } = useTranslation("behaviour");
   const [search, setSearch] = useState("");
 
   const { data: allPupils, isLoading } = useQuery({
@@ -566,12 +574,12 @@ function QuickIssuePicker({ onSelect }: { onSelect: (pupilId: string, name: stri
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">Select a pupil to issue behaviour points:</p>
+      <p className="text-sm text-muted-foreground">{t("selectPupilToIssue")}</p>
       <div className="relative">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
-          placeholder="Search pupil..."
+          placeholder={t("searchPupils")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-lg border border-input bg-background pl-9 pr-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -598,6 +606,7 @@ function QuickIssuePicker({ onSelect }: { onSelect: (pupilId: string, name: stri
 }
 
 function PupilOwnView() {
+  const { t } = useTranslation("behaviour");
   const { data, isLoading } = useQuery({
     queryKey: ["behaviour-my-record"],
     queryFn: async () => {
@@ -610,17 +619,17 @@ function PupilOwnView() {
   });
 
   if (isLoading) return <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
-  if (!data) return <p className="text-destructive text-center py-8">Could not load your record.</p>;
+  if (!data) return <p className="text-destructive text-center py-8">{t("couldNotLoadRecord")}</p>;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl md:text-3xl font-display font-bold flex items-center gap-3">
           <Gauge className="text-primary" size={28} />
-          My Behaviour Record
+          {t("myBehaviourRecord")}
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
-          See where you stand and what you can work on
+          {t("seeWhereYouStand")}
         </p>
       </div>
 
@@ -644,6 +653,7 @@ function PupilOwnView() {
 }
 
 function ParentView() {
+  const { t } = useTranslation("behaviour");
   const { user } = useAuth();
 
   const { data: parentUser } = useQuery({
@@ -663,8 +673,8 @@ function ParentView() {
   if (childIds.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-display font-bold">Behaviour Record</h1>
-        <p className="text-muted-foreground">No children linked to your account.</p>
+        <h1 className="text-2xl font-display font-bold">{t("behaviourRecord")}</h1>
+        <p className="text-muted-foreground">{t("noChildrenLinked")}</p>
       </div>
     );
   }
@@ -675,9 +685,9 @@ function ParentView() {
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold flex items-center gap-3">
             <Gauge className="text-primary" size={28} />
-            Behaviour Record
+            {t("behaviourRecord")}
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">Your child's behaviour standing at school</p>
+          <p className="text-muted-foreground text-sm mt-1">{t("childBehaviourStanding")}</p>
         </div>
         <PupilBehaviourView pupilId={childIds[0]} showIssuePts={false} />
       </div>
@@ -689,9 +699,9 @@ function ParentView() {
       <div>
         <h1 className="text-2xl md:text-3xl font-display font-bold flex items-center gap-3">
           <Gauge className="text-primary" size={28} />
-          Behaviour Records
+          {t("behaviourRecords")}
         </h1>
-        <p className="text-muted-foreground text-sm mt-1">Your children's behaviour standing at school</p>
+        <p className="text-muted-foreground text-sm mt-1">{t("childrenBehaviourStanding")}</p>
       </div>
       {childIds.map((id: string) => (
         <PupilBehaviourView key={id} pupilId={id} showIssuePts={false} />

@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { 
@@ -46,6 +47,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user, logout } = useAuth();
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t } = useTranslation("nav");
 
   // Get notifications count
   const { data: notificationsData } = useListNotifications();
@@ -56,120 +58,120 @@ export function AppLayout({ children }: AppLayoutProps) {
   const role = user.role;
 
   const getNavItems = () => {
-    const base = [{ name: "Dashboard", href: "/", icon: Home }];
+    const base = [{ name: t("dashboard"), href: "/", icon: Home }];
     
     if (user.role === "pupil") {
       return [
         ...base,
-        { name: "Report Incident", href: "/report", icon: AlertTriangle },
-        { name: "My Diary", href: "/diary", icon: BookHeart },
-        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
-        { name: "My Behaviour", href: "/behaviour", icon: Gauge },
-        { name: "Learn", href: "/learn", icon: BookOpen },
-        { name: "Case Studies", href: "/case-studies", icon: BookMarked },
-        { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
-        { name: "My Settings", href: "/settings", icon: Settings },
+        { name: t("reportIncident"), href: "/report", icon: AlertTriangle },
+        { name: t("myDiary"), href: "/diary", icon: BookHeart },
+        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
+        { name: t("myBehaviour"), href: "/behaviour", icon: Gauge },
+        { name: t("learn"), href: "/learn", icon: BookOpen },
+        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
+        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
+        { name: t("mySettings"), href: "/settings", icon: Settings },
       ];
     }
     
     if (user.role === "parent") {
       return [
         ...base,
-        { name: "Report Incident", href: "/report", icon: AlertTriangle },
-        { name: "Incidents", href: "/incidents", icon: FileText },
-        { name: "Behaviour", href: "/behaviour", icon: Gauge },
-        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
-        { name: "Messages", href: "/messages", icon: MessageCircle },
-        { name: "Learn", href: "/learn", icon: BookOpen },
-        { name: "Case Studies", href: "/case-studies", icon: BookMarked },
-        { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
-        { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: "Settings", href: "/settings", icon: Settings },
+        { name: t("reportIncident"), href: "/report", icon: AlertTriangle },
+        { name: t("incidents"), href: "/incidents", icon: FileText },
+        { name: t("behaviour"), href: "/behaviour", icon: Gauge },
+        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
+        { name: t("messages"), href: "/messages", icon: MessageCircle },
+        { name: t("learn"), href: "/learn", icon: BookOpen },
+        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
+        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
+        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
+        { name: t("settings"), href: "/settings", icon: Settings },
       ];
     }
 
     if (user.role === "teacher" || user.role === "head_of_year") {
       return [
         ...base,
-        { name: "Log Incident", href: "/report", icon: AlertTriangle },
-        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
-        { name: "Behaviour", href: "/behaviour", icon: Gauge },
-        { name: user.role === "head_of_year" ? "My Year Group" : "My Class", href: "/class", icon: Users },
-        { name: "Messages", href: "/messages", icon: MessageCircle },
-        { name: "Incidents", href: "/incidents", icon: FileText },
-        { name: "Alerts", href: "/alerts", icon: Activity },
-        { name: "Learn", href: "/learn", icon: BookOpen },
-        { name: "Case Studies", href: "/case-studies", icon: BookMarked },
-        { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
-        { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: "Settings", href: "/settings", icon: Settings },
+        { name: t("logIncident"), href: "/report", icon: AlertTriangle },
+        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
+        { name: t("behaviour"), href: "/behaviour", icon: Gauge },
+        { name: user.role === "head_of_year" ? t("myYearGroup") : t("myClass"), href: "/class", icon: Users },
+        { name: t("messages"), href: "/messages", icon: MessageCircle },
+        { name: t("incidents"), href: "/incidents", icon: FileText },
+        { name: t("alerts"), href: "/alerts", icon: Activity },
+        { name: t("learn"), href: "/learn", icon: BookOpen },
+        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
+        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
+        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
+        { name: t("settings"), href: "/settings", icon: Settings },
       ];
     }
 
     if (user.role === "support_staff") {
       return [
         ...base,
-        { name: "Log Incident", href: "/report", icon: AlertTriangle },
-        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
-        { name: "Behaviour", href: "/behaviour", icon: Gauge },
-        { name: "My Pupils", href: "/class", icon: Users },
-        { name: "Messages", href: "/messages", icon: MessageCircle },
-        { name: "Learn", href: "/learn", icon: BookOpen },
-        { name: "Case Studies", href: "/case-studies", icon: BookMarked },
-        { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
-        { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: "Settings", href: "/settings", icon: Settings },
+        { name: t("logIncident"), href: "/report", icon: AlertTriangle },
+        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
+        { name: t("behaviour"), href: "/behaviour", icon: Gauge },
+        { name: t("myPupils"), href: "/class", icon: Users },
+        { name: t("messages"), href: "/messages", icon: MessageCircle },
+        { name: t("learn"), href: "/learn", icon: BookOpen },
+        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
+        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
+        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
+        { name: t("settings"), href: "/settings", icon: Settings },
       ];
     }
 
     if (user.role === "senco") {
       return [
         ...base,
-        { name: "My Caseload", href: "/caseload", icon: ClipboardList },
-        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
-        { name: "Behaviour", href: "/behaviour", icon: Gauge },
-        { name: "Log Incident", href: "/report", icon: AlertTriangle },
-        { name: "Incidents", href: "/incidents", icon: FileText },
-        { name: "All Pupils", href: "/class", icon: Users },
-        { name: "Messages", href: "/messages", icon: MessageCircle },
-        { name: "Protocols", href: "/protocols", icon: Shield },
-        { name: "Alerts", href: "/alerts", icon: Activity },
-        { name: "Learn", href: "/learn", icon: BookOpen },
-        { name: "Case Studies", href: "/case-studies", icon: BookMarked },
-        { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
-        { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: "Settings", href: "/settings", icon: Settings },
+        { name: t("myCaseload"), href: "/caseload", icon: ClipboardList },
+        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
+        { name: t("behaviour"), href: "/behaviour", icon: Gauge },
+        { name: t("logIncident"), href: "/report", icon: AlertTriangle },
+        { name: t("incidents"), href: "/incidents", icon: FileText },
+        { name: t("allPupils"), href: "/class", icon: Users },
+        { name: t("messages"), href: "/messages", icon: MessageCircle },
+        { name: t("protocols"), href: "/protocols", icon: Shield },
+        { name: t("alerts"), href: "/alerts", icon: Activity },
+        { name: t("learn"), href: "/learn", icon: BookOpen },
+        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
+        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
+        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
+        { name: t("settings"), href: "/settings", icon: Settings },
       ];
     }
 
     if (user.role === "pta") {
       return [
-        { name: "PTA Dashboard", href: "/pta", icon: Home },
-        { name: "Noticeboard", href: "/learnings", icon: Megaphone },
-        { name: "Learn", href: "/learn", icon: BookOpen },
-        { name: "Case Studies", href: "/case-studies", icon: BookMarked },
-        { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
-        { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: "Settings", href: "/settings", icon: Settings },
+        { name: t("ptaDashboard"), href: "/pta", icon: Home },
+        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
+        { name: t("learn"), href: "/learn", icon: BookOpen },
+        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
+        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
+        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
+        { name: t("settings"), href: "/settings", icon: Settings },
       ];
     }
 
     // Coordinator, Head Teacher
     return [
       ...base,
-      { name: "Noticeboard", href: "/learnings", icon: Megaphone },
-      { name: "Behaviour", href: "/behaviour", icon: Gauge },
-      { name: "Log Incident", href: "/report", icon: AlertTriangle },
-      { name: "Incidents", href: "/incidents", icon: FileText },
-      { name: "All Pupils", href: "/class", icon: Users },
-      { name: "Messages", href: "/messages", icon: MessageCircle },
-      { name: "Protocols", href: "/protocols", icon: Shield },
-      { name: "Alerts", href: "/alerts", icon: Activity },
-      { name: "Diagnostic", href: "/diagnostics", icon: ClipboardCheck },
-      { name: "Learn", href: "/learn", icon: BookOpen },
-      { name: "Case Studies", href: "/case-studies", icon: BookMarked },
-      { name: "Notifications", href: "/notifications", icon: Bell, badge: unreadCount },
-      { name: "Settings", href: "/settings", icon: Settings },
+      { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
+      { name: t("behaviour"), href: "/behaviour", icon: Gauge },
+      { name: t("logIncident"), href: "/report", icon: AlertTriangle },
+      { name: t("incidents"), href: "/incidents", icon: FileText },
+      { name: t("allPupils"), href: "/class", icon: Users },
+      { name: t("messages"), href: "/messages", icon: MessageCircle },
+      { name: t("protocols"), href: "/protocols", icon: Shield },
+      { name: t("alerts"), href: "/alerts", icon: Activity },
+      { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
+      { name: t("learn"), href: "/learn", icon: BookOpen },
+      { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
+      { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
+      { name: t("settings"), href: "/settings", icon: Settings },
     ];
   };
 
@@ -236,9 +238,9 @@ export function AppLayout({ children }: AppLayoutProps) {
             className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors font-medium"
           >
             <LogOut size={20} />
-            Sign Out
+            {t("common:signOut")}
           </button>
-          <p className="text-center text-[9px] text-muted-foreground/50 mt-3 pb-1">Powered by Cloudworkz</p>
+          <p className="text-center text-[9px] text-muted-foreground/50 mt-3 pb-1">{t("common:poweredByCloudworkz")}</p>
         </div>
       </aside>
 
@@ -251,7 +253,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="p-2 text-foreground"
-          aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-label={isMobileMenuOpen ? t("closeNavMenu") : t("openNavMenu")}
           aria-expanded={isMobileMenuOpen}
         >
           {isMobileMenuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
@@ -278,7 +280,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <hr className="my-2 border-border" />
             <button onClick={logout} className="flex items-center gap-3 px-4 py-3 rounded-xl text-destructive font-medium hover:bg-destructive/10">
               <LogOut size={20} />
-              Sign Out
+              {t("common:signOut")}
             </button>
           </motion.div>
         )}

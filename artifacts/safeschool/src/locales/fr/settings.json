@@ -1,0 +1,23 @@
+{
+  "settings": "Paramètres",
+  "editProfile": "Modifier le profil",
+  "pickYourAvatar": "Choisissez votre avatar",
+  "appearance": "Apparence",
+  "accountDetails": "Détails du compte",
+  "changeNameOrAvatar": "Changez votre nom ou choisissez un nouvel avatar",
+  "updateProfile": "Mettez à jour vos informations de profil",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "email": "E-mail",
+  "saved": "Enregistré",
+  "saveChanges": "Enregistrer les modifications",
+  "light": "Clair",
+  "dark": "Sombre",
+  "system": "Système",
+  "role": "Rôle :",
+  "year": "Année :",
+  "class": "Classe :",
+  "yourFirstName": "Votre prénom",
+  "yourLastName": "Votre nom",
+  "yourEmail": "votre.email@ecole.edu"
+}

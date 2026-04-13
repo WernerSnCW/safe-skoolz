@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import {
@@ -9,42 +10,43 @@ import {
 import { motion } from "framer-motion";
 import { formatDate } from "@/lib/utils";
 
-const QUICK_PHRASES = [
-  "Someone is being unkind to me",
-  "I don't feel safe",
-  "I need to talk to someone",
-  "Something happened and I'm upset",
-  "I'm worried about a friend",
-  "Someone is hurting me",
-];
-
-const SCHOOL_LOCATIONS_MSG = [
-  { id: "playground", label: "Playground" },
-  { id: "classroom", label: "Classroom" },
-  { id: "corridor", label: "Corridor" },
-  { id: "canteen", label: "Canteen" },
-  { id: "toilets", label: "Toilets" },
-  { id: "sports_field", label: "Sports field" },
-  { id: "changing_rooms", label: "Changing rooms" },
-  { id: "bus_stop", label: "Bus stop" },
-  { id: "library", label: "Library" },
-  { id: "entrance_gate", label: "Entrance gate" },
-  { id: "other", label: "Somewhere else" },
-];
-
-const PRIORITY_OPTIONS = [
-  { id: "normal", label: "Just letting you know", color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400", icon: MessageCircle },
-  { id: "important", label: "I need help soon", color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400", icon: AlertTriangle },
-  { id: "urgent", label: "I need help now", color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400", icon: Zap },
-];
-
 function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () => void; user: any }) {
+  const { t } = useTranslation("dashboard");
   const [body, setBody] = useState("");
   const [priority, setPriority] = useState("normal");
   const [location, setLocation] = useState("");
   const [type, setType] = useState<"message" | "chat_request">("message");
   const [sent, setSent] = useState(false);
   const queryClient = useQueryClient();
+
+  const QUICK_PHRASES = [
+    t("someoneUnkind"),
+    t("dontFeelSafe"),
+    t("needToTalk"),
+    t("somethingHappened"),
+    t("worriedAboutFriend"),
+    t("someoneHurtingMe"),
+  ];
+
+  const SCHOOL_LOCATIONS_MSG = [
+    { id: "playground", label: t("playground") },
+    { id: "classroom", label: t("classroom") },
+    { id: "corridor", label: t("corridor") },
+    { id: "canteen", label: t("canteen") },
+    { id: "toilets", label: t("toilets") },
+    { id: "sports_field", label: t("sportsField") },
+    { id: "changing_rooms", label: t("changingRooms") },
+    { id: "bus_stop", label: t("busStop") },
+    { id: "library", label: t("library") },
+    { id: "entrance_gate", label: t("entranceGate") },
+    { id: "other", label: t("somewhereElse") },
+  ];
+
+  const PRIORITY_OPTIONS = [
+    { id: "normal", label: t("justLettingYouKnow"), color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400", icon: MessageCircle },
+    { id: "important", label: t("needHelpSoon"), color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400", icon: AlertTriangle },
+    { id: "urgent", label: t("needHelpNow"), color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400", icon: Zap },
+  ];
 
   const sendMutation = useMutation({
     mutationFn: async () => {
@@ -70,11 +72,11 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
           <div className="w-16 h-16 bg-green-100 dark:bg-green-950/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 size={32} className="text-green-600" />
           </div>
-          <h3 className="text-xl font-bold mb-2">Message sent!</h3>
+          <h3 className="text-xl font-bold mb-2">{t("messageSentSuccess")}</h3>
           <p className="text-muted-foreground mb-6">
-            {contact.firstName} {contact.lastName} will see your message. You did the right thing by reaching out.
+            {t("didRightThing", { name: `${contact.firstName} ${contact.lastName}` })}
           </p>
-          <Button onClick={onClose} className="w-full">Done</Button>
+          <Button onClick={onClose} className="w-full">{t("common:done")}</Button>
         </motion.div>
       </div>
     );
@@ -94,7 +96,7 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
             </div>
             <div>
               <p className="font-bold">{contact.firstName} {contact.lastName}</p>
-              <p className="text-xs text-muted-foreground">{contact.displayRole}{contact.isFormTutor ? " (Your tutor)" : ""}</p>
+              <p className="text-xs text-muted-foreground">{contact.displayRole}{contact.isFormTutor ? ` (${t("yourTutor")})` : ""}</p>
             </div>
           </div>
           <button onClick={onClose} aria-label="Close message dialog" className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
@@ -105,18 +107,18 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
             onClick={() => setType("message")}
             className={`flex-1 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${type === "message" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
           >
-            <Send size={14} className="inline mr-1.5" aria-hidden="true" /> Send a message
+            <Send size={14} className="inline mr-1.5" aria-hidden="true" /> {t("sendAMessage")}
           </button>
           <button
             onClick={() => setType("chat_request")}
             className={`flex-1 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${type === "chat_request" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
           >
-            <MessageCircle size={14} className="inline mr-1.5" aria-hidden="true" /> Request a chat
+            <MessageCircle size={14} className="inline mr-1.5" aria-hidden="true" /> {t("requestAChat")}
           </button>
         </div>
 
         <div className="mb-4">
-          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">Quick phrases</p>
+          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">{t("quickPhrases")}</p>
           <div className="flex flex-wrap gap-1.5">
             {QUICK_PHRASES.map(phrase => (
               <button
@@ -133,19 +135,19 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
 
         <div className="mb-4">
           <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">
-            {type === "chat_request" ? "Why would you like to talk?" : "Your message"}
+            {type === "chat_request" ? t("whyWouldYouLikeToTalk") : t("yourMessageLabel")}
           </p>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={3}
             className="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all resize-none"
-            placeholder={type === "chat_request" ? "Tell them why you'd like to talk..." : "Type your message here..."}
+            placeholder={type === "chat_request" ? t("tellThemWhyTalk") : t("typeMessageHere")}
           />
         </div>
 
         <div className="mb-4">
-          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">How important is this?</p>
+          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">{t("howImportantIsThis")}</p>
           <div className="space-y-2">
             {PRIORITY_OPTIONS.map(opt => (
               <button
@@ -165,7 +167,7 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
 
         {priority === "urgent" && (
           <div className="mb-4">
-            <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">Where are you right now?</p>
+            <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">{t("whereAreYou")}</p>
             <div className="grid grid-cols-3 gap-1.5">
               {SCHOOL_LOCATIONS_MSG.map(loc => (
                 <button
@@ -189,7 +191,7 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
           className="w-full"
           size="lg"
         >
-          {sendMutation.isPending ? "Sending..." : type === "chat_request" ? "Request chat" : "Send message"}
+          {sendMutation.isPending ? t("sendingMessage") : type === "chat_request" ? t("requestChat") : t("sendMessage")}
         </Button>
       </motion.div>
     </div>
@@ -197,11 +199,26 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
 }
 
 function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClose: () => void; user: any }) {
+  const { t } = useTranslation("dashboard");
   const [location, setLocation] = useState("");
-  const [body, setBody] = useState("I need help right now");
+  const [body, setBody] = useState(t("iNeedHelpRightNow"));
   const [sent, setSent] = useState(false);
   const [sendError, setSendError] = useState(false);
   const queryClient = useQueryClient();
+
+  const SCHOOL_LOCATIONS_MSG = [
+    { id: "playground", label: t("playground") },
+    { id: "classroom", label: t("classroom") },
+    { id: "corridor", label: t("corridor") },
+    { id: "canteen", label: t("canteen") },
+    { id: "toilets", label: t("toilets") },
+    { id: "sports_field", label: t("sportsField") },
+    { id: "changing_rooms", label: t("changingRooms") },
+    { id: "bus_stop", label: t("busStop") },
+    { id: "library", label: t("library") },
+    { id: "entrance_gate", label: t("entranceGate") },
+    { id: "other", label: t("somewhereElse") },
+  ];
 
   const tutor = contacts.find((c: any) => c.isFormTutor);
   const coordinator = contacts.find((c: any) => c.role === "coordinator");
@@ -249,11 +266,11 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
           <div className="w-20 h-20 bg-green-100 dark:bg-green-950/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 size={40} className="text-green-600" />
           </div>
-          <h3 className="text-2xl font-bold mb-2">Help is on the way</h3>
+          <h3 className="text-2xl font-bold mb-2">{t("helpOnTheWay")}</h3>
           <p className="text-muted-foreground mb-6">
-            Your teachers have been alerted. Stay where you are — someone will come to you as quickly as possible.
+            {t("teachersAlerted")}
           </p>
-          <Button onClick={onClose} className="w-full">Done</Button>
+          <Button onClick={onClose} className="w-full">{t("common:done")}</Button>
         </motion.div>
       </div>
     );
@@ -272,15 +289,15 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
               <Zap size={24} className="text-red-600" />
             </div>
             <div>
-              <p className="text-lg font-bold text-red-700 dark:text-red-400">I Need Help NOW</p>
-              <p className="text-xs text-muted-foreground">This will alert your teachers immediately</p>
+              <p className="text-lg font-bold text-red-700 dark:text-red-400">{t("iNeedHelpNow")}</p>
+              <p className="text-xs text-muted-foreground">{t("alertTeachersImmediately")}</p>
             </div>
           </div>
           <button onClick={onClose} aria-label="Close urgent help dialog" className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
         </div>
 
         <div className="mb-4">
-          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">Where are you right now?</p>
+          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">{t("whereAreYou")}</p>
           <div className="grid grid-cols-3 gap-1.5">
             {SCHOOL_LOCATIONS_MSG.map(loc => (
               <button
@@ -298,25 +315,25 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
         </div>
 
         <div className="mb-3">
-          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">What's happening? (optional)</p>
+          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">{t("whatsHappening")}</p>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={2}
             className="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm focus-visible:outline-none focus-visible:border-red-400 focus-visible:ring-4 focus-visible:ring-red-100 transition-all resize-none"
-            placeholder="Tell us what's happening..."
+            placeholder={t("tellUsWhatsHappening")}
           />
         </div>
 
         {sendError && (
           <div className="mb-3 p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm font-medium">
-            Alert could not be sent. Please find a trusted adult in person right away.
+            {t("alertCouldNotBeSent")}
           </div>
         )}
 
         {targets.length === 0 ? (
           <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-sm font-medium text-center">
-            No contacts available right now. Please find a teacher or go to the school office immediately.
+            {t("noContactsAvailable")}
           </div>
         ) : (
           <Button
@@ -325,7 +342,7 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
             className="w-full bg-red-600 hover:bg-red-700 text-white"
             size="lg"
           >
-            {sendMutation.isPending ? "Sending alert..." : "Send urgent alert"}
+            {sendMutation.isPending ? t("sendingAlert") : t("sendUrgentAlert")}
           </Button>
         )}
       </motion.div>
@@ -334,6 +351,7 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
 }
 
 function PupilMyMessages({ user }: { user: any }) {
+  const { t } = useTranslation("dashboard");
   const { data: messages, isLoading } = useQuery({
     queryKey: ["/api/messages"],
     queryFn: async () => {
@@ -350,7 +368,7 @@ function PupilMyMessages({ user }: { user: any }) {
   return (
     <Card>
       <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
-        <CardTitle className="text-lg flex items-center gap-2"><MessageCircle size={18} aria-hidden="true" /> My Messages</CardTitle>
+        <CardTitle className="text-lg flex items-center gap-2"><MessageCircle size={18} aria-hidden="true" /> {t("myMessages")}</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="divide-y divide-border">
@@ -380,6 +398,7 @@ function PupilMyMessages({ user }: { user: any }) {
 }
 
 export default function PupilDashboard({ user }: { user: any }) {
+  const { t } = useTranslation("dashboard");
   const [messageContact, setMessageContact] = useState<any>(null);
   const [showUrgentHelp, setShowUrgentHelp] = useState(false);
 
@@ -398,8 +417,8 @@ export default function PupilDashboard({ user }: { user: any }) {
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <div className="text-center md:text-left">
-        <h1 className="text-4xl font-display font-bold text-foreground">Hi, {user.firstName}! {"👋"}</h1>
-        <p className="mt-2 text-xl text-muted-foreground">How are you feeling today?</p>
+        <h1 className="text-4xl font-display font-bold text-foreground">{t("hi", { name: user.firstName })}</h1>
+        <p className="mt-2 text-xl text-muted-foreground">{t("howAreYouFeeling")}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
@@ -411,11 +430,11 @@ export default function PupilDashboard({ user }: { user: any }) {
             <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-primary/30">
               <HeartHandshake size={32} />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Speak Up</h2>
-            <p className="text-muted-foreground mb-8">If something isn't right, let us know. We are here to help and listen to you.</p>
+            <h2 className="text-2xl font-bold mb-2">{t("speakUp")}</h2>
+            <p className="text-muted-foreground mb-8">{t("ifSomethingNotRight")}</p>
             <Link href="/report">
               <Button size="lg" className="w-full text-lg shadow-xl shadow-primary/20">
-                Report a Concern <ArrowRight className="ml-2" size={20} />
+                {t("reportAConcern")} <ArrowRight className="ml-2" size={20} />
               </Button>
             </Link>
           </CardContent>
@@ -427,8 +446,8 @@ export default function PupilDashboard({ user }: { user: any }) {
               <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center text-white mb-3 shadow-lg shadow-secondary/30">
                 <Users size={24} />
               </div>
-              <h2 className="text-xl font-bold mb-1">My Safe Contacts</h2>
-              <p className="text-sm text-muted-foreground">Tap a name to send them a message or request a chat.</p>
+              <h2 className="text-xl font-bold mb-1">{t("mySafeContacts")}</h2>
+              <p className="text-sm text-muted-foreground">{t("tapToSendMessage")}</p>
             </div>
             <div className="space-y-2 flex-1">
               {safeContacts.slice(0, 4).map((c: any) => (
@@ -443,7 +462,7 @@ export default function PupilDashboard({ user }: { user: any }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate">{c.firstName} {c.lastName}</p>
-                    <p className="text-xs text-muted-foreground">{c.displayRole}{c.isFormTutor ? " \u00b7 Your tutor" : ""}</p>
+                    <p className="text-xs text-muted-foreground">{c.displayRole}{c.isFormTutor ? ` \u00b7 ${t("yourTutor")}` : ""}</p>
                   </div>
                   <MessageCircle size={16} className="text-muted-foreground group-hover:text-primary transition-colors shrink-0" aria-hidden="true" />
                 </button>
@@ -462,8 +481,8 @@ export default function PupilDashboard({ user }: { user: any }) {
           <Zap size={24} />
         </div>
         <div className="text-left">
-          <p className="font-bold text-red-700 dark:text-red-400 text-lg">I need help NOW</p>
-          <p className="text-sm text-red-600/70 dark:text-red-400/70">Send an urgent alert to your teachers with your location</p>
+          <p className="font-bold text-red-700 dark:text-red-400 text-lg">{t("iNeedHelpNow")}</p>
+          <p className="text-sm text-red-600/70 dark:text-red-400/70">{t("sendUrgentAlertToTeachers")}</p>
         </div>
       </button>
 

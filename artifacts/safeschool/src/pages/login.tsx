@@ -5,6 +5,8 @@ import { useStaffLogin, useParentLogin, useListSchools } from "@workspace/api-cl
 import { Button, Input, Label, Card, CardContent } from "@/components/ui-polished";
 import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck, Building2, ChevronRight, Lock, ArrowLeft, Heart, Shield, BarChart3, Bell, Eye, ClipboardCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 type DemoAccount = { label: string; subtitle: string; email: string; password: string };
 
@@ -19,9 +21,17 @@ type PupilProfile = {
 
 type PupilLoginStep = "school" | "accessCode" | "selectProfile" | "enterPin";
 
+const LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+  { code: "nl", label: "Nederlands" },
+  { code: "fr", label: "Français" },
+] as const;
+
 export default function Login() {
   const [_, setLocation] = useLocation();
   const { setToken } = useAuth();
+  const { t } = useTranslation("login");
   const [activeTab, setActiveTab] = useState<"pupil" | "staff" | "parent" | "pta">("pupil");
   const staffLogin = useStaffLogin();
   const parentLogin = useParentLogin();
@@ -284,15 +294,31 @@ export default function Login() {
             <ShieldCheck size={40} strokeWidth={2.5} />
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-foreground">safeskoolz</h1>
-          <p className="mt-3 text-muted-foreground text-lg">A safe space to speak up and seek help.</p>
+          <p className="mt-3 text-muted-foreground text-lg">{t("tagline")}</p>
         </motion.div>
 
         <Card className="shadow-2xl shadow-primary/5 border-border/50 bg-background/80 backdrop-blur-xl">
-          <div className="grid grid-cols-4 p-1.5 gap-1 border-b border-border/50 bg-muted/30" role="tablist" aria-label="Login type">
+          <div className="flex items-center justify-center gap-1 px-4 pt-3 pb-1">
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => { i18n.changeLanguage(lang.code); localStorage.setItem("safeskoolz_lang", lang.code); }}
+                className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
+                  i18n.language === lang.code
+                    ? "bg-primary/10 text-primary font-bold"
+                    : "text-muted-foreground hover:bg-muted/50"
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-4 p-1.5 gap-1 border-b border-border/50 bg-muted/30" role="tablist" aria-label={t("loginType")}>
             {[
-              { id: "pupil" as const, label: "Pupil", icon: User },
-              { id: "staff" as const, label: "Staff", icon: GraduationCap },
-              { id: "parent" as const, label: "Parent", icon: Users },
+              { id: "pupil" as const, label: t("pupil"), icon: User },
+              { id: "staff" as const, label: t("staff"), icon: GraduationCap },
+              { id: "parent" as const, label: t("parent"), icon: Users },
               { id: "pta" as const, label: "PTA", icon: UserCheck },
             ].map((tab) => (
               <button
@@ -323,76 +349,76 @@ export default function Login() {
             >
               {activeTab === "pupil" && (
                 <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-teal-50/30 dark:bg-teal-950/10">
-                  <p className="text-sm font-bold text-teal-700 dark:text-teal-400 mb-2">What safeskoolz does for you</p>
+                  <p className="text-sm font-bold text-teal-700 dark:text-teal-400 mb-2">{t("whatSafeskoolzDoes")}</p>
                   <div className="grid gap-1.5">
                     <div className="flex items-start gap-2">
                       <Heart size={13} className="text-teal-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For me</span> — A safe way to tell someone if something is wrong, even anonymously</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMe")}</span> — {t("pupilForMe")}</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Users size={13} className="text-teal-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For my friends</span> — Report things happening to someone else without anyone knowing it was you</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMyFriends")}</span> — {t("pupilForFriends")}</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Building2 size={13} className="text-teal-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For my school</span> — Helps adults see problems early so they can keep everyone safe</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMySchool")}</span> — {t("pupilForSchool")}</p>
                     </div>
                   </div>
                 </div>
               )}
               {activeTab === "staff" && (
                 <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-indigo-50/30 dark:bg-indigo-950/10">
-                  <p className="text-sm font-bold text-indigo-700 dark:text-indigo-400 mb-2">What safeskoolz does for you</p>
+                  <p className="text-sm font-bold text-indigo-700 dark:text-indigo-400 mb-2">{t("whatSafeskoolzDoes")}</p>
                   <div className="grid gap-1.5">
                     <div className="flex items-start gap-2">
                       <ClipboardCheck size={13} className="text-indigo-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For me</span> — Log incidents in 60 seconds with guided protocol steps for serious cases</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMe")}</span> — {t("staffForMe")}</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Eye size={13} className="text-indigo-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For my pupils</span> — Spot patterns across classes that no single teacher could see alone</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMyPupils")}</span> — {t("staffForPupils")}</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Shield size={13} className="text-indigo-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For their parents</span> — Parents get notified privately when the school acts on something involving their child</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forTheirParents")}</span> — {t("staffForParents")}</p>
                     </div>
                   </div>
                 </div>
               )}
               {activeTab === "parent" && (
                 <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-amber-50/30 dark:bg-amber-950/10">
-                  <p className="text-sm font-bold text-amber-700 dark:text-amber-400 mb-2">What safeskoolz does for you</p>
+                  <p className="text-sm font-bold text-amber-700 dark:text-amber-400 mb-2">{t("whatSafeskoolzDoes")}</p>
                   <div className="grid gap-1.5">
                     <div className="flex items-start gap-2">
                       <Bell size={13} className="text-amber-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For me</span> — Get private notifications when the school identifies or acts on something involving your child</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMe")}</span> — {t("parentForMe")}</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Heart size={13} className="text-amber-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For my child</span> — Know your child has a safe, anonymous way to speak up if something is wrong</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMyChild")}</span> — {t("parentForChild")}</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <BarChart3 size={13} className="text-amber-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For my school</span> — See real data on how safe children feel, not just promises</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMySchool")}</span> — {t("parentForSchool")}</p>
                     </div>
                   </div>
                 </div>
               )}
               {activeTab === "pta" && (
                 <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-purple-50/30 dark:bg-purple-950/10">
-                  <p className="text-sm font-bold text-purple-700 dark:text-purple-400 mb-2">What safeskoolz does for you</p>
+                  <p className="text-sm font-bold text-purple-700 dark:text-purple-400 mb-2">{t("whatSafeskoolzDoes")}</p>
                   <div className="grid gap-1.5">
                     <div className="flex items-start gap-2">
                       <BarChart3 size={13} className="text-purple-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For me</span> — Anonymised safeguarding data you can share at governor meetings with confidence</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMe")}</span> — {t("ptaForMe")}</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Users size={13} className="text-purple-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For parents</span> — Give families evidence that their concerns are heard and acted on</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forParents")}</span> — {t("ptaForParents")}</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Shield size={13} className="text-purple-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">For the school</span> — Hold leadership accountable with outcome data, not just policies</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forTheSchool")}</span> — {t("ptaForSchool")}</p>
                     </div>
                   </div>
                 </div>
@@ -415,7 +441,7 @@ export default function Login() {
                 {pupilStep === "school" && (
                   <motion.div key="school" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
                     <div>
-                      <Label htmlFor="school">My School</Label>
+                      <Label htmlFor="school">{t("mySchool")}</Label>
                       <select
                         id="school"
                         value={selectedSchoolId}
@@ -424,7 +450,7 @@ export default function Login() {
                         style={{ fontSize: "16px" }}
                         required
                       >
-                        <option value="">Select your school...</option>
+                        <option value="">{t("selectYourSchool")}</option>
                         {schools?.map(s => (
                           <option key={s.id} value={s.id}>{s.name}</option>
                         ))}
@@ -437,7 +463,7 @@ export default function Login() {
                       disabled={!selectedSchoolId}
                       onClick={() => { setError(""); setPupilStep("accessCode"); }}
                     >
-                      Next
+                      {t("common:next")}
                     </Button>
                   </motion.div>
                 )}
@@ -445,18 +471,18 @@ export default function Login() {
                 {pupilStep === "accessCode" && (
                   <motion.div key="accessCode" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
                     <button type="button" onClick={() => setPupilStep("school")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors">
-                      <ArrowLeft size={14} /> Back
+                      <ArrowLeft size={14} /> {t("common:back")}
                     </button>
                     <div className="text-center py-2">
                       <Lock size={32} className="mx-auto text-primary/60 mb-2" />
-                      <p className="text-sm text-muted-foreground">Enter the class access code your teacher gave you</p>
+                      <p className="text-sm text-muted-foreground">{t("enterAccessCodePrompt")}</p>
                     </div>
                     <div>
-                      <Label htmlFor="accessCode">Class Access Code</Label>
+                      <Label htmlFor="accessCode">{t("classAccessCode")}</Label>
                       <Input
                         id="accessCode"
                         type="text"
-                        placeholder="e.g. 6A-MORNA"
+                        placeholder={t("accessCodePlaceholder")}
                         value={accessCode}
                         onChange={e => setAccessCode(e.target.value.toUpperCase())}
                         required
@@ -471,7 +497,7 @@ export default function Login() {
                       disabled={!accessCode || pupilLoading}
                       onClick={handleAccessCodeSubmit}
                     >
-                      {pupilLoading ? "Checking..." : "Enter"}
+                      {pupilLoading ? t("checking") : t("enter")}
                     </Button>
                   </motion.div>
                 )}
@@ -479,12 +505,12 @@ export default function Login() {
                 {pupilStep === "selectProfile" && (
                   <motion.div key="selectProfile" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-3">
                     <button type="button" onClick={resetPupilFlow} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors">
-                      <ArrowLeft size={14} /> Start over
+                      <ArrowLeft size={14} /> {t("common:startOver")}
                     </button>
-                    <p className="text-sm font-semibold text-center">Find your name</p>
+                    <p className="text-sm font-semibold text-center">{t("findYourName")}</p>
                     <Input
                       type="text"
-                      placeholder="Search by name..."
+                      placeholder={t("searchByName")}
                       value={profileSearch[0]}
                       onChange={e => profileSearch[1](e.target.value)}
                       className="text-sm"
@@ -513,7 +539,7 @@ export default function Login() {
                 {pupilStep === "enterPin" && selectedProfile && (
                   <motion.div key="enterPin" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
                     <button type="button" onClick={() => { setPupilStep("selectProfile"); setPin(""); setError(""); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors">
-                      <ArrowLeft size={14} /> Change name
+                      <ArrowLeft size={14} /> {t("common:changeName")}
                     </button>
                     <div className="text-center py-2">
                       <span className="text-4xl block mb-2">{selectedProfile.avatarValue || "👤"}</span>
@@ -522,7 +548,7 @@ export default function Login() {
                     </div>
                     <form onSubmit={handlePupilPinSubmit} className="space-y-4">
                       <div>
-                        <Label htmlFor="pin">Secret PIN</Label>
+                        <Label htmlFor="pin">{t("secretPin")}</Label>
                         <Input
                           id="pin"
                           type="password"
@@ -537,7 +563,7 @@ export default function Login() {
                         />
                       </div>
                       <Button type="submit" size="lg" className="w-full" disabled={pupilLoading || pin.length < 4}>
-                        {pupilLoading ? "Signing in..." : "Sign In securely"}
+                        {pupilLoading ? t("common:signingIn") : t("signInSecurely")}
                       </Button>
                     </form>
                   </motion.div>
@@ -554,7 +580,7 @@ export default function Login() {
                       <>
                         {hasAccounts && (
                           <div>
-                            <Label htmlFor="staffSelect">My Name</Label>
+                            <Label htmlFor="staffSelect">{t("myName")}</Label>
                             <select
                               id="staffSelect"
                               value={selectedStaffEmail}
@@ -566,7 +592,7 @@ export default function Login() {
                               className="w-full h-14 rounded-xl border border-input bg-background px-4 text-base appearance-none focus:outline-none focus:ring-2 focus:ring-primary/30"
                               style={{ fontSize: "16px" }}
                             >
-                              <option value="">Find my name...</option>
+                              <option value="">{t("findMyName")}</option>
                               {accounts.map(a => (
                                 <option key={a.email} value={a.email}>
                                   {a.label} — {a.subtitle}
@@ -585,16 +611,16 @@ export default function Login() {
                             {hasAccounts && (
                               <div className="flex items-center gap-3 text-muted-foreground text-xs">
                                 <div className="flex-1 h-px bg-border" />
-                                <span>or enter manually</span>
+                                <span>{t("orEnterManually")}</span>
                                 <div className="flex-1 h-px bg-border" />
                               </div>
                             )}
                             <div>
-                              <Label htmlFor="email">Email Address</Label>
+                              <Label htmlFor="email">{t("emailAddress")}</Label>
                               <Input
                                 id="email"
                                 type="email"
-                                placeholder="name@school.edu"
+                                placeholder={t("emailPlaceholder")}
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 autoComplete="email"
@@ -603,11 +629,11 @@ export default function Login() {
                           </>
                         )}
                         <div>
-                          <Label htmlFor="password">Password</Label>
+                          <Label htmlFor="password">{t("password")}</Label>
                           <Input
                             id="password"
                             type="password"
-                            placeholder="Enter your password"
+                            placeholder={t("enterYourPassword")}
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                             autoComplete="current-password"
@@ -619,7 +645,7 @@ export default function Login() {
                 </motion.div>
 
                 <Button type="submit" size="lg" className="w-full mt-6" disabled={isPending}>
-                  {isPending ? "Signing in..." : "Sign In securely"}
+                  {isPending ? t("common:signingIn") : t("signInSecurely")}
                 </Button>
               </form>
             )}
@@ -635,12 +661,12 @@ export default function Login() {
                   {demoLoading ? (
                     <>
                       <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
-                      Starting demo...
+                      {t("startingDemo")}
                     </>
                   ) : (
                     <>
                       <Play size={16} className="fill-primary/20" />
-                      {activeTab === "pupil" ? "Show me around" : activeTab === "parent" ? "Show me around as a parent" : activeTab === "pta" ? "Show me around as PTA" : "Show me around as staff"}
+                      {activeTab === "pupil" ? t("showMeAround") : activeTab === "parent" ? t("showMeAroundParent") : activeTab === "pta" ? t("showMeAroundPta") : t("showMeAroundStaff")}
                     </>
                   )}
                 </button>
@@ -661,8 +687,8 @@ export default function Login() {
                 <Play size={24} className="text-white fill-white/30" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-base">See how it works</p>
-                <p className="text-sm text-indigo-200 mt-0.5">Follow Sofia's story &mdash; see how pupils, parents, teachers, and coordinators work together</p>
+                <p className="font-bold text-base">{t("seeHowItWorks")}</p>
+                <p className="text-sm text-indigo-200 mt-0.5">{t("seeHowItWorksDesc")}</p>
               </div>
               <ChevronRight size={20} className="text-indigo-200 flex-shrink-0" />
             </div>
@@ -671,10 +697,10 @@ export default function Login() {
 
 
         <p className="text-center text-sm text-muted-foreground mt-4">
-          Protected by safeskoolz. Your reports are confidential.
+          {t("protectedBy")}
         </p>
         <p className="text-center text-[10px] text-muted-foreground/60 mt-2">
-          Powered by Cloudworkz
+          {t("common:poweredByCloudworkz")}
         </p>
       </div>
     </div>

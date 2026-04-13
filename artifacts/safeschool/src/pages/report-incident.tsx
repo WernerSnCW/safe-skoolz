@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useCreateIncident } from "@workspace/api-client-react";
 import { useForm } from "react-hook-form";
@@ -567,6 +568,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function ReportIncident() {
+  const { t } = useTranslation("incidents");
   const { user } = useAuth();
   const [_, setLocation] = useLocation();
   const createMutation = useCreateIncident();
@@ -651,11 +653,11 @@ export default function ReportIncident() {
             <div className="w-24 h-24 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/30">
               <CheckCircle2 size={48} />
             </div>
-            <h2 className="text-3xl font-display font-bold mb-4">Report Submitted</h2>
+            <h2 className="text-3xl font-display font-bold mb-4">{t("reportSubmitted")}</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Thank you for telling us. A trusted adult in school will read this and decide how to help. If you feel very scared or unsafe right now, tell an adult you trust straight away. You are safe.
+              {t("reportSubmittedPupilMsg")}
             </p>
-            <Button size="lg" onClick={() => setLocation("/")}>Return to Dashboard</Button>
+            <Button size="lg" onClick={() => setLocation("/")}>{t("returnToDashboard")}</Button>
           </Card>
         </div>
       );
@@ -667,12 +669,12 @@ export default function ReportIncident() {
           <div className="w-20 h-20 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl shadow-primary/30">
             <CheckCircle2 size={40} />
           </div>
-          <h2 className="text-2xl font-display font-bold mb-2">Incident Logged</h2>
-          {refNum && <p className="text-sm font-mono text-muted-foreground mb-2">Reference: {refNum}</p>}
+          <h2 className="text-2xl font-display font-bold mb-2">{t("incidentLogged")}</h2>
+          {refNum && <p className="text-sm font-mono text-muted-foreground mb-2">{t("reference", { ref: refNum })}</p>}
           <p className="text-muted-foreground">
             {guidance
-              ? "This incident has been classified as serious. Follow the protocol guidance below."
-              : "The incident has been recorded. The safeguarding team will be notified if escalation is required."}
+              ? t("classifiedSerious")
+              : t("incidentRecorded")}
           </p>
         </Card>
 
@@ -786,7 +788,7 @@ export default function ReportIncident() {
         )}
 
         <div className="flex justify-center pt-2">
-          <Button size="lg" onClick={() => setLocation("/")}>Return to Dashboard</Button>
+          <Button size="lg" onClick={() => setLocation("/")}>{t("returnToDashboard")}</Button>
         </div>
       </div>
     );
@@ -795,11 +797,11 @@ export default function ReportIncident() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold">{isPupil ? "Report a Concern" : "Log a Safeguarding Incident"}</h1>
+        <h1 className="text-3xl font-display font-bold">{isPupil ? t("reportAnIncident") : t("logNewIncident")}</h1>
         <p className="text-muted-foreground mt-2">
           {isPupil 
-            ? "You can tell us even if you are not sure it is 'bullying'. If it feels wrong or worrying, it matters. You don't have to share your name if you don't want to." 
-            : "Record an incident involving a pupil. You are reporting on behalf of a child, not about yourself."}
+            ? t("tellUsWhat") 
+            : t("recordDetails")}
         </p>
       </div>
 
@@ -809,7 +811,7 @@ export default function ReportIncident() {
             
             <div className="space-y-6">
               <div>
-                <Label className="text-base mb-3">{isPupil ? "What happened?" : "Incident category"} <span className="text-muted-foreground font-normal text-sm">(select all that apply)</span></Label>
+                <Label className="text-base mb-3">{isPupil ? t("whatKind") : t("whatKind")} <span className="text-muted-foreground font-normal text-sm">({t("selectAllThatApply")})</span></Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {CATEGORIES.map(cat => {
                     const isSelected = watchCategories.includes(cat.id);
@@ -864,9 +866,9 @@ export default function ReportIncident() {
               <div>
                 <Label className="text-base mb-3">
                   {isPupil 
-                    ? "How are you feeling about it?" 
-                    : "How was the child feeling? (if known)"}
-                  {" "}<span className="text-muted-foreground font-normal text-sm">(pick all that fit)</span>
+                    ? t("howAreYouFeeling") 
+                    : t("howWasChildFeeling")}
+                  {" "}<span className="text-muted-foreground font-normal text-sm">({t("pickAllThatFit")})</span>
                 </Label>
                 <div className="flex flex-wrap gap-3">
                   {EMOTIONS.map(emo => {
@@ -899,12 +901,12 @@ export default function ReportIncident() {
                 <div className="p-5 rounded-xl bg-blue-50/50 dark:bg-blue-950/10 border border-blue-200/50 dark:border-blue-800/30 space-y-4">
                   <h4 className="font-bold text-foreground flex items-center gap-2">
                     <Info size={18} className="text-blue-600 dark:text-blue-400"/>
-                    How did you become aware of this?
+                    {t("howBecameAware")}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {[
-                      { val: true, label: "A child told me directly", field: "toldByChild" as const },
-                      { val: true, label: "I witnessed it myself", field: "iSawIt" as const },
+                      { val: true, label: t("childToldMe"), field: "toldByChild" as const },
+                      { val: true, label: t("iWitnessedIt"), field: "iSawIt" as const },
                     ].map(item => (
                       <label key={item.field} className="flex items-center gap-3 p-3 rounded-xl bg-background border border-border cursor-pointer hover:border-primary/30 transition-colors">
                         <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary" {...register(item.field)} />
@@ -913,7 +915,7 @@ export default function ReportIncident() {
                     ))}
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground font-medium block mb-1">Other source (parent report, another staff member, etc.)</label>
+                    <label className="text-xs text-muted-foreground font-medium block mb-1">{t("otherSource")}</label>
                     <input
                       type="text"
                       {...register("personInvolvedText")}
@@ -926,12 +928,12 @@ export default function ReportIncident() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="date">{isPupil ? "When did it happen?" : "Date of incident"}</Label>
+                  <Label htmlFor="date">{isPupil ? t("whenAndWhere") : t("dateOfIncident")}</Label>
                   <Input id="date" type="date" {...register("incidentDate")} />
                   {errors.incidentDate && <p className="text-destructive text-sm mt-1">{errors.incidentDate.message}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="location">{isPupil ? "Where did it happen? (optional)" : "Location (optional)"}</Label>
+                  <Label htmlFor="location">{isPupil ? t("whereDidItHappen") : t("common:location")}</Label>
                   <select
                     value={locationChoice}
                     onChange={(e) => {
@@ -971,7 +973,7 @@ export default function ReportIncident() {
                 <CardContent className="p-5 space-y-5">
                   <h3 className="font-bold text-base flex items-center gap-2">
                     <Search size={18} className="text-primary" />
-                    {isPupil ? "Who was involved?" : "People Involved"}
+                    {isPupil ? t("whoWasInvolved") : t("whoWasInvolved")}
                   </h3>
 
                   <PupilSearchPicker
@@ -989,7 +991,7 @@ export default function ReportIncident() {
                       onClick={() => setShowDescribeVictim(!showDescribeVictim)}
                       className={`text-sm font-medium transition-colors ${showDescribeVictim ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
                     >
-                      {isPupil ? "I don't know their name" : "Describe unknown victim(s)"}
+                      {isPupil ? t("iDontKnowName") : t("describeUnknownVictims")}
                     </button>
                   </div>
                   <AnimatePresence>
@@ -1021,7 +1023,7 @@ export default function ReportIncident() {
                       onClick={() => setShowDescribePerp(!showDescribePerp)}
                       className={`text-sm font-medium transition-colors ${showDescribePerp ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
                     >
-                      {isPupil ? "I don't know their name" : "Describe unknown person(s)"}
+                      {isPupil ? t("iDontKnowName") : t("describeUnknown")}
                     </button>
                   </div>
                   <AnimatePresence>
@@ -1051,13 +1053,13 @@ export default function ReportIncident() {
               </Card>
 
               <div>
-                <Label htmlFor="desc">{isPupil ? "Can you tell us what happened?" : "Description of the incident"}</Label>
+                <Label htmlFor="desc">{isPupil ? t("tellUsWhatHappened") : t("incidentDescription")}</Label>
                 <textarea 
                   id="desc"
                   {...register("description")}
                   rows={4}
                   className="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all resize-none"
-                  placeholder={isPupil ? "Tell us what happened in your own words..." : "Describe what happened, who reported it, and any actions already taken..."}
+                  placeholder={isPupil ? t("tellUsInYourWords") : t("describeWhatHappened")}
                 ></textarea>
               </div>
 
@@ -1070,7 +1072,7 @@ export default function ReportIncident() {
                       className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
                       {...register("anonymous")} 
                     />
-                    <Label htmlFor="anon" className="mb-0 cursor-pointer font-bold">Keep this report anonymous</Label>
+                    <Label htmlFor="anon" className="mb-0 cursor-pointer font-bold">{t("keepAnonymous")}</Label>
                   </div>
                   <p className="text-xs text-muted-foreground ml-8">Adults will keep your information safe and will only tell other adults who need to know.</p>
                 </div>
@@ -1080,14 +1082,14 @@ export default function ReportIncident() {
                 <div className="p-5 rounded-xl bg-muted/30 border border-border space-y-4">
                   <h4 className="font-bold text-foreground flex items-center gap-2">
                     <ShieldCheck size={18} className="text-primary"/>
-                    Staff Safeguarding Checks
+                    {t("staffChecks")}
                   </h4>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="sep" className="mb-0 cursor-pointer">Were the children separated immediately?</Label>
+                    <Label htmlFor="sep" className="mb-0 cursor-pointer">{t("childrenSeparated")}</Label>
                     <input type="checkbox" id="sep" className="w-5 h-5 rounded" {...register("childrenSeparated")} />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="coord" className="mb-0 cursor-pointer">Has the Safeguarding Coordinator been notified?</Label>
+                    <Label htmlFor="coord" className="mb-0 cursor-pointer">{t("coordinatorNotified")}</Label>
                     <input type="checkbox" id="coord" className="w-5 h-5 rounded" {...register("coordinatorNotified")} />
                   </div>
                 </div>
@@ -1104,7 +1106,7 @@ export default function ReportIncident() {
 
             <div className="pt-4 flex justify-end">
               <Button type="submit" size="lg" isLoading={createMutation.isPending} className="w-full md:w-auto">
-                {isPupil ? "Submit Report securely" : "Log Incident securely"}
+                {isPupil ? t("submitReport") : t("logIncident")}
               </Button>
             </div>
           </form>
