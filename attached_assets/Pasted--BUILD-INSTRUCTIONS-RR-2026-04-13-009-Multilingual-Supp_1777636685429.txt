@@ -1,0 +1,365 @@
+# BUILD INSTRUCTIONS — RR-2026-04-13-009
+## Multilingual Support (English / Spanish / Dutch / French)
+Track: A | Safeskoolz Frontend
+
+---
+
+## Before you start
+
+Read these files before writing any code:
+- `artifacts/safeschool/package.json` — confirm i18next not already installed
+- `artifacts/safeschool/src/main.tsx` — confirm entry point before adding import
+- `artifacts/safeschool/src/pages/login.tsx` — confirm language picker placement
+
+State what you found before proceeding.
+
+---
+
+## Step 1 — Install packages
+
+```bash
+cd artifacts/safeschool && pnpm add i18next react-i18next
+```
+
+Confirm installation succeeds before continuing.
+
+---
+
+## Step 2 — Create i18n initialisation file
+
+Create `artifacts/safeschool/src/lib/i18n.ts`:
+
+```typescript
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+// English
+import enCommon from "../locales/en/common.json";
+import enNav from "../locales/en/nav.json";
+import enLogin from "../locales/en/login.json";
+import enDashboard from "../locales/en/dashboard.json";
+import enIncidents from "../locales/en/incidents.json";
+import enProtocols from "../locales/en/protocols.json";
+import enDiary from "../locales/en/diary.json";
+import enMessages from "../locales/en/messages.json";
+import enAlerts from "../locales/en/alerts.json";
+import enLearn from "../locales/en/learn.json";
+import enSettings from "../locales/en/settings.json";
+import enPta from "../locales/en/pta.json";
+import enBehaviour from "../locales/en/behaviour.json";
+import enCaseload from "../locales/en/caseload.json";
+import enDiagnostics from "../locales/en/diagnostics.json";
+import enTraining from "../locales/en/training.json";
+
+// Spanish
+import esCommon from "../locales/es/common.json";
+import esNav from "../locales/es/nav.json";
+import esLogin from "../locales/es/login.json";
+import esDashboard from "../locales/es/dashboard.json";
+import esIncidents from "../locales/es/incidents.json";
+import esProtocols from "../locales/es/protocols.json";
+import esDiary from "../locales/es/diary.json";
+import esMessages from "../locales/es/messages.json";
+import esAlerts from "../locales/es/alerts.json";
+import esLearn from "../locales/es/learn.json";
+import esSettings from "../locales/es/settings.json";
+import esPta from "../locales/es/pta.json";
+import esBehaviour from "../locales/es/behaviour.json";
+import esCaseload from "../locales/es/caseload.json";
+import esDiagnostics from "../locales/es/diagnostics.json";
+import esTraining from "../locales/es/training.json";
+
+// Dutch
+import nlCommon from "../locales/nl/common.json";
+import nlNav from "../locales/nl/nav.json";
+import nlLogin from "../locales/nl/login.json";
+import nlDashboard from "../locales/nl/dashboard.json";
+import nlIncidents from "../locales/nl/incidents.json";
+import nlProtocols from "../locales/nl/protocols.json";
+import nlDiary from "../locales/nl/diary.json";
+import nlMessages from "../locales/nl/messages.json";
+import nlAlerts from "../locales/nl/alerts.json";
+import nlLearn from "../locales/nl/learn.json";
+import nlSettings from "../locales/nl/settings.json";
+import nlPta from "../locales/nl/pta.json";
+import nlBehaviour from "../locales/nl/behaviour.json";
+import nlCaseload from "../locales/nl/caseload.json";
+import nlDiagnostics from "../locales/nl/diagnostics.json";
+import nlTraining from "../locales/nl/training.json";
+
+// French
+import frCommon from "../locales/fr/common.json";
+import frNav from "../locales/fr/nav.json";
+import frLogin from "../locales/fr/login.json";
+import frDashboard from "../locales/fr/dashboard.json";
+import frIncidents from "../locales/fr/incidents.json";
+import frProtocols from "../locales/fr/protocols.json";
+import frDiary from "../locales/fr/diary.json";
+import frMessages from "../locales/fr/messages.json";
+import frAlerts from "../locales/fr/alerts.json";
+import frLearn from "../locales/fr/learn.json";
+import frSettings from "../locales/fr/settings.json";
+import frPta from "../locales/fr/pta.json";
+import frBehaviour from "../locales/fr/behaviour.json";
+import frCaseload from "../locales/fr/caseload.json";
+import frDiagnostics from "../locales/fr/diagnostics.json";
+import frTraining from "../locales/fr/training.json";
+
+i18n.use(initReactI18next).init({
+  resources: {
+    en: {
+      common: enCommon, nav: enNav, login: enLogin, dashboard: enDashboard,
+      incidents: enIncidents, protocols: enProtocols, diary: enDiary,
+      messages: enMessages, alerts: enAlerts, learn: enLearn,
+      settings: enSettings, pta: enPta, behaviour: enBehaviour,
+      caseload: enCaseload, diagnostics: enDiagnostics, training: enTraining,
+    },
+    es: {
+      common: esCommon, nav: esNav, login: esLogin, dashboard: esDashboard,
+      incidents: esIncidents, protocols: esProtocols, diary: esDiary,
+      messages: esMessages, alerts: esAlerts, learn: esLearn,
+      settings: esSettings, pta: esPta, behaviour: esBehaviour,
+      caseload: esCaseload, diagnostics: esDiagnostics, training: esTraining,
+    },
+    nl: {
+      common: nlCommon, nav: nlNav, login: nlLogin, dashboard: nlDashboard,
+      incidents: nlIncidents, protocols: nlProtocols, diary: nlDiary,
+      messages: nlMessages, alerts: nlAlerts, learn: nlLearn,
+      settings: nlSettings, pta: nlPta, behaviour: nlBehaviour,
+      caseload: nlCaseload, diagnostics: nlDiagnostics, training: nlTraining,
+    },
+    fr: {
+      common: frCommon, nav: frNav, login: frLogin, dashboard: frDashboard,
+      incidents: frIncidents, protocols: frProtocols, diary: frDiary,
+      messages: frMessages, alerts: frAlerts, learn: frLearn,
+      settings: frSettings, pta: frPta, behaviour: frBehaviour,
+      caseload: frCaseload, diagnostics: frDiagnostics, training: frTraining,
+    },
+  },
+  lng: localStorage.getItem("safeskoolz_lang") ?? "en",
+  fallbackLng: "en",
+  interpolation: { escapeValue: false },
+  defaultNS: "common",
+});
+
+export default i18n;
+```
+
+Add to `artifacts/safeschool/src/main.tsx` (first line, before App render):
+```typescript
+import "./lib/i18n";
+```
+
+---
+
+## Step 3 — Create translation file structure
+
+Create these 64 JSON files (16 namespaces × 4 languages):
+
+```
+src/locales/en/common.json     src/locales/es/common.json
+src/locales/en/nav.json        src/locales/es/nav.json
+src/locales/en/login.json      src/locales/es/login.json
+src/locales/en/dashboard.json  src/locales/es/dashboard.json
+src/locales/en/incidents.json  src/locales/es/incidents.json
+src/locales/en/protocols.json  src/locales/es/protocols.json
+src/locales/en/diary.json      src/locales/es/diary.json
+src/locales/en/messages.json   src/locales/es/messages.json
+src/locales/en/alerts.json     src/locales/es/alerts.json
+src/locales/en/learn.json      src/locales/es/learn.json
+src/locales/en/settings.json   src/locales/es/settings.json
+src/locales/en/pta.json        src/locales/es/pta.json
+src/locales/en/behaviour.json  src/locales/es/behaviour.json
+src/locales/en/caseload.json   src/locales/es/caseload.json
+src/locales/en/diagnostics.json src/locales/es/diagnostics.json
+src/locales/en/training.json   src/locales/es/training.json
+
+(same set for nl/ and fr/)
+```
+
+### Translation file rules
+
+- Flat key structure only — no nested objects
+- Keys are camelCase descriptive names
+- `en/` values are the exact English strings from the source code
+- `es/`, `nl/`, `fr/` values are machine translations
+- Preserve `{{interpolation}}` placeholders exactly — do not translate
+  text inside `{{ }}`
+- Plural forms use i18next suffix convention:
+  `"key_one": "{{count}} item"`, `"key_other": "{{count}} items"`
+- Fallback: if a key is missing in es/nl/fr, English is shown automatically
+
+### Namespace guide
+
+| Namespace | Source files |
+|---|---|
+| common | Shared: Save, Cancel, Submit, Delete, Open, Closed, Pending, Loading... |
+| nav | All sidebar + bottom nav labels from AppLayout.tsx |
+| login | All strings in login.tsx |
+| dashboard | All 4 dashboard components |
+| incidents | report-incident.tsx, incidents/index.tsx, incidents/detail.tsx |
+| protocols | protocols/index.tsx, protocols/detail.tsx, protocols/new.tsx |
+| diary | diary.tsx |
+| messages | messages.tsx |
+| alerts | alerts.tsx |
+| learn | learn.tsx |
+| settings | settings.tsx |
+| pta | pta.tsx |
+| behaviour | behaviour.tsx |
+| caseload | caseload.tsx |
+| diagnostics | diagnostics.tsx |
+| training | training-status.tsx |
+
+### Navigation labels (nav.json)
+
+English keys to include in nav namespace:
+Dashboard, Report Incident, Log Incident, My Diary, Noticeboard,
+My Behaviour, Behaviour, Learn, Case Studies, Diagnostic, My Settings,
+Settings, Incidents, Messages, Alerts, Notifications, My Caseload,
+My Class, My Year Group, My Pupils, All Pupils, Protocols,
+PTA Dashboard, Sign Out
+
+---
+
+## Step 4 — Wrap strings in all 24 components
+
+For each component add at the top of the function body:
+```typescript
+const { t } = useTranslation("namespace");
+```
+
+Replace hardcoded strings:
+```typescript
+// Before
+<h1>Report an Incident</h1>
+
+// After
+<h1>{t("incidents:reportTitle")}</h1>
+```
+
+Dynamic strings use interpolation:
+```typescript
+// Before
+`Hi, ${user.firstName}!`
+
+// After
+t("dashboard:greeting", { name: user.firstName })
+
+// en/dashboard.json:
+{ "greeting": "Hi, {{name}}!" }
+```
+
+### Pluralisation — convert all 6 inline ternary patterns
+
+| Before | After |
+|---|---|
+| `` `${data.total} incident${data.total !== 1 ? "s" : ""}` `` | `t("incidents:incidentCount", { count: data.total })` |
+| `` `${data.total} report${...}` `` | `t("incidents:reportCount", { count: data.total })` |
+| `` `${lockedPupils.length} pupil${...}` `` | `t("dashboard:lockedPupilCount", { count: lockedPupils.length })` |
+| `` `${ptaContacts.length} PTA ${...}` `` | `t("dashboard:ptaMemberCount", { count: ptaContacts.length })` |
+| Behaviour report count | `t("behaviour:reportCount", { count: N })` |
+| `` `${pupil.failedLoginAttempts} failed attempt${...}` `` | `t("dashboard:failedAttemptCount", { count: pupil.failedLoginAttempts })` |
+
+Plural JSON entries:
+```json
+{
+  "incidentCount_one": "{{count}} incident",
+  "incidentCount_other": "{{count}} incidents"
+}
+```
+
+### DO NOT wrap in t() — leave as raw strings
+
+- `"LOPIVI"`, `"Convivèxit"`, `"Machista Violence"`
+- `"SENCO"`, `"GBV"`, `"PTA"`, `"safeskoolz"`
+- Reference number format strings (`SS-YYYY-NNNN`, `PROT-YYYY-NNN`)
+- Role values used in conditionals (`"coordinator"`, `"pupil"`, etc.)
+- API error messages (`data.error`, `data.message` from fetch responses)
+- User-authored content (`inc.description`, `msg.body`, `post.body`)
+- Date values from API
+
+### Role-dependent strings
+
+Convert role-based ternaries to separate keys:
+```typescript
+// Before
+isPupil ? "Are they a boy or a girl?" : "Gender"
+
+// After
+isPupil ? t("incidents:genderLabelPupil") : t("incidents:genderLabelStaff")
+
+// en/incidents.json:
+{
+  "genderLabelPupil": "Are they a boy or a girl?",
+  "genderLabelStaff": "Gender"
+}
+```
+
+---
+
+## Step 5 — Language picker on login screen
+
+Add to `login.tsx` above the tab strip:
+
+```typescript
+import { useTranslation } from "react-i18next";
+import i18n from "../lib/i18n";
+
+// Inside component:
+const handleLanguageChange = (code: string) => {
+  i18n.changeLanguage(code);
+  localStorage.setItem("safeskoolz_lang", code);
+};
+
+const currentLang = i18n.language;
+
+// JSX:
+<div className="flex gap-2 justify-center mb-4">
+  {[
+    { code: "en", label: "English" },
+    { code: "es", label: "Español" },
+    { code: "nl", label: "Nederlands" },
+    { code: "fr", label: "Français" },
+  ].map(({ code, label }) => (
+    <button
+      key={code}
+      onClick={() => handleLanguageChange(code)}
+      className={`text-sm px-3 py-1 rounded-full border transition-colors ${
+        currentLang === code
+          ? "bg-teal-600 text-white border-teal-600"
+          : "text-gray-500 border-gray-300 hover:border-teal-400"
+      }`}
+    >
+      {label}
+    </button>
+  ))}
+</div>
+```
+
+The picker must be visible before authentication (it is on the login
+screen, outside the auth context).
+
+---
+
+## Step 6 — Verify
+
+1. Run: `pnpm test` — all 38 tests must still pass
+2. Confirm frontend compiles without TypeScript errors
+3. Confirm both servers start cleanly
+
+---
+
+## Build report
+
+When complete, write a TXT file named `RR-2026-04-13-009_build_report.txt`
+containing:
+
+- Confirmation of package installation
+- Total count of `t()` calls added across all files
+- List of any translation terms you were uncertain about (note the
+  English term and the translation choice made)
+- Confirmation that DO NOT TRANSLATE strings are left unwrapped
+- Any namespace assignment decisions that were non-obvious
+- `pnpm test` result (pass count)
+- Server startup confirmation
+- Any strings skipped or deferred and why
