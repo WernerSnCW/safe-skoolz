@@ -42,13 +42,11 @@ async function startup() {
     console.error("[db] Failed to apply audit log trigger:", err);
   });
 
-  if (process.env.DEMO_MODE === "true") {
-    await seedDemoData().catch((err) => {
-      console.error("[seed] Failed to seed demo data:", err);
-    });
-  } else {
-    console.log("[seed] Demo seeding skipped (DEMO_MODE is not enabled)");
-  }
+  // Always attempt to seed — seedDemoData() is idempotent and skips when the
+  // database already has data, so it's safe to run on every startup.
+  await seedDemoData().catch((err) => {
+    console.error("[seed] Failed to seed demo data:", err);
+  });
 }
 
 startup();
