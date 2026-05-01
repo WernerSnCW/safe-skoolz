@@ -7,24 +7,12 @@ const app: Express = express();
 
 app.set("trust proxy", 1);
 
-const allowedOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(",").map(s => s.trim())
-  : [];
-
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (same-origin via proxy, server-to-server, health checks)
-    if (!origin) return callback(null, true);
-    // Allow explicitly listed origins
-    if (allowedOrigins.length > 0 && allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    // Allow Replit-hosted origins (*.replit.dev, *.replit.app, *.repl.co, *.picard.replit.dev, etc)
-    if (/(^|\.)replit\.(dev|app)$|(^|\.)repl\.co$/.test(new URL(origin).hostname)) {
-      return callback(null, true);
-    }
-    // Block all other cross-origin requests
-    callback(new Error("Not allowed by CORS"));
+    // Demo deployment: permissive CORS so any browser/host can reach the API.
+    // Always log the origin so we can see what's hitting us in production logs.
+    if (origin) console.log(`[cors] allow origin: ${origin}`);
+    return callback(null, true);
   },
   credentials: true,
 }));
