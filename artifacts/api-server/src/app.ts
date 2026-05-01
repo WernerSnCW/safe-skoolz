@@ -19,8 +19,8 @@ app.use(cors({
     if (allowedOrigins.length > 0 && allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    // Allow Replit origins in development (*.replit.dev, *.replit.app, *.repl.co)
-    if (process.env.REPL_ID && /\.replit\.(dev|app)|\.repl\.co$/.test(origin)) {
+    // Allow Replit-hosted origins (*.replit.dev, *.replit.app, *.repl.co, *.picard.replit.dev, etc)
+    if (/(^|\.)replit\.(dev|app)$|(^|\.)repl\.co$/.test(new URL(origin).hostname)) {
       return callback(null, true);
     }
     // Block all other cross-origin requests
