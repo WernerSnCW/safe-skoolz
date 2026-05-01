@@ -319,65 +319,50 @@ function PupilSearchPicker({
         )}
       </AnimatePresence>
 
-      {isPupil ? (
-        <div className="mt-1">
-          <select
-            value=""
-            onChange={(e) => {
-              const picked = allPupils.find(p => p.id === e.target.value);
-              if (picked) { onSelect(picked); }
-            }}
-            className="w-full h-10 rounded-xl border border-input bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer appearance-auto"
-          >
-            <option value="" disabled>
-              {!allLoaded ? "Loading names..." : availableForSelect.length === 0 ? "No one left to pick" : "Pick a name..."}
-            </option>
-            {availableForSelect.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.firstName} {p.lastName}{p.className ? ` (${p.className})` : ""}
-              </option>
-            ))}
-          </select>
-        </div>
-      ) : (
-        <div className="relative mt-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setShowResults(true); }}
-            onFocus={() => { setShowResults(true); if (results.length === 0 && !isSearching) fetchPupils(query); }}
-            placeholder="Search by name or use group buttons above..."
-            className="w-full h-10 rounded-xl border border-input bg-background pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-          <AnimatePresence>
-            {showResults && (
-              <motion.div
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                className="absolute z-20 top-full mt-1 left-0 right-0 bg-white dark:bg-zinc-900 border border-border rounded-xl shadow-lg max-h-56 overflow-y-auto"
-              >
-                {isSearching && <p className="p-3 text-sm text-muted-foreground">Searching...</p>}
-                {!isSearching && results.length === 0 && (
-                  <p className="p-3 text-sm text-muted-foreground">No pupils found</p>
-                )}
-                {results.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => { onSelect(p); setQuery(""); setShowResults(false); }}
-                    className="w-full text-left px-4 py-2.5 hover:bg-muted/50 transition-colors text-sm flex items-center justify-between"
-                  >
-                    <span className="font-medium">{p.firstName} {p.lastName}</span>
-                    <span className="text-xs text-muted-foreground">{p.className || p.yearGroup || ""}</span>
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
+      <div className="relative mt-1">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setShowResults(true); }}
+          onFocus={() => { setShowResults(true); if (results.length === 0 && !isSearching) fetchPupils(query); }}
+          placeholder={isPupil ? "Type a name or tap to choose…" : "Search by name or use group buttons above..."}
+          className={`w-full rounded-xl border border-input bg-background pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 ${isPupil ? "h-12" : "h-10"}`}
+          aria-label={isPupil ? childFriendlyLabel : label}
+          autoComplete="off"
+        />
+        <AnimatePresence>
+          {showResults && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className={`absolute z-20 top-full mt-1 left-0 right-0 bg-white dark:bg-zinc-900 border border-border rounded-xl shadow-lg overflow-y-auto ${isPupil ? "max-h-72" : "max-h-56"}`}
+            >
+              {isSearching && <p className="p-3 text-sm text-muted-foreground">Searching...</p>}
+              {!isSearching && !allLoaded && results.length === 0 && (
+                <p className="p-3 text-sm text-muted-foreground">Loading names…</p>
+              )}
+              {!isSearching && allLoaded && results.length === 0 && (
+                <p className="p-3 text-sm text-muted-foreground">
+                  {query.trim() ? "No pupils found" : "No one left to pick"}
+                </p>
+              )}
+              {results.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => { onSelect(p); setQuery(""); setShowResults(false); }}
+                  className={`w-full text-left px-4 hover:bg-muted/50 transition-colors text-sm flex items-center justify-between ${isPupil ? "py-3" : "py-2.5"}`}
+                >
+                  <span className="font-medium">{p.firstName} {p.lastName}</span>
+                  <span className="text-xs text-muted-foreground">{p.className || p.yearGroup || ""}</span>
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
