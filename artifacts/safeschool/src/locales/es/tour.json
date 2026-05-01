@@ -1,0 +1,343 @@
+{
+  "buttons": {
+    "next": "Siguiente",
+    "done": "Hecho",
+    "previousAria": "Paso anterior",
+    "nextAria": "Paso siguiente",
+    "finishAria": "Finalizar visita guiada",
+    "closeAria": "Cerrar visita guiada"
+  },
+  "startLabels": {
+    "pupil": "Hazme una visita guiada",
+    "parent": "Iniciar la demostración",
+    "teacher": "Iniciar demostración para personal",
+    "head_of_year": "Iniciar demostración para personal",
+    "coordinator": "Iniciar demostración del coordinador",
+    "head_teacher": "Iniciar demostración del director",
+    "senco": "Iniciar demostración SENCO",
+    "support_staff": "Iniciar demostración para personal",
+    "pta": "Iniciar demostración del PTA",
+    "default": "Iniciar demostración"
+  },
+  "steps": {
+    "pupil": [
+      {
+        "title": "Tu panel",
+        "description": "Aquí aparecen tus contactos seguros: son las personas adultas a las que puedes escribir. Los tres botones rápidos te permiten: reportar un incidente, enviar una alerta de ayuda urgente (le llega a tu tutor y al coordinador de protección), o pedir un chat privado con un adulto de confianza. Tus notificaciones recientes aparecen abajo.",
+        "benefit": "Acceso con un solo toque para reportar, pedir ayuda urgente o hablar con alguien de confianza."
+      },
+      {
+        "title": "Reportar algo que ha pasado",
+        "description": "Paso 1: Elige qué ha pasado entre 8 categorías: físico, verbal, juegos mentales, mi cuerpo mis reglas, dejar fuera, presión/control, propiedad u online. Paso 2: Indica dónde ocurrió (patio, bosque, aula, pasillos, baños, online y más). Paso 3: Di quién estaba implicado, o marca «Reportar de forma anónima» para que nadie sepa que fuiste tú. Paso 4: Elige cómo te sientes con caras de emoji (asustado, triste, enfadado, preocupado, confundido o bien). Paso 5: Cuenta lo que pasó con tus propias palabras. Tu reporte llega al equipo de protección.",
+        "benefit": "Tú decides qué compartir. El reporte anónimo te permite hablar de forma segura."
+      },
+      {
+        "title": "Tu diario privado",
+        "description": "Toca la portada del diario para empezar a escribir. Puedes elegir un emoji de estado de ánimo (triste, preocupado, regular, feliz, genial) o ponerte a escribir directamente: el estado de ánimo es opcional. Tus entradas son completamente privadas: solo tú puedes verlas. Nadie más, ni tus padres ni tus profesores, puede leer tu diario. Toca el icono de paleta arriba para cambiar entre 6 estilos: Clásico, Océano, Rosa, Bosque, Medianoche y Atardecer. Cada entrada muestra la fecha y la hora. Puedes borrar entradas antiguas si quieres.",
+        "benefit": "Un espacio realmente privado para tus pensamientos. Si el sistema detecta preocupaciones graves, envía un aviso de «por favor revisa cómo estoy» a un adulto de confianza, pero nunca verá tu diario."
+      },
+      {
+        "title": "Tu historial de comportamiento",
+        "description": "El indicador de color de arriba muestra tu nivel actual: verde (Buena conducta, 0-3 pts), amarillo (Aviso, 4-6 pts), naranja (Aviso formal, 7-9 pts) o rojo (niveles superiores). Debajo puedes ver cada punto de comportamiento que has recibido: la categoría (interrupción, falta de respeto, acoso, físico, verbal, propiedad, desafío, seguridad, online), cuándo ocurrió y qué profesor lo puso. La escala de escalado muestra los 7 niveles, desde Buena conducta hasta Expulsión total.",
+        "benefit": "Sin sorpresas: siempre puedes ver exactamente en qué nivel estás y qué significa cada uno."
+      },
+      {
+        "title": "Novedades del cole",
+        "description": "Tus profesores publican aquí novedades: noticias del cole, recordatorios de protección, anuncios de eventos y avisos importantes. Las publicaciones nuevas aparecen arriba. Puedes leer todo lo que tu cole ha compartido.",
+        "benefit": "Mantente al día con lo que pasa en el cole."
+      },
+      {
+        "title": "Encuesta de protección y resultados",
+        "description": "Cuando hay una encuesta activa, responderás preguntas sobre lo seguro que te sientes en el cole usando caras de emoji, de triste a feliz. Las preguntas cubren: si hay acoso, si sabes cómo reportarlo, si te sientes seguro y si la gente se trata con amabilidad. Para preguntas sobre cosas malas (como «¿hay acoso?»), la cara feliz significa «nada en absoluto», ¡porque que no haya acoso es algo bueno! Cuando se cierre la encuesta, puedes volver aquí para ver los resultados: cómo ha puntuado todo el cole en seguridad, confianza y bienestar, y cómo lo ven los alumnos, el personal y los padres.",
+        "benefit": "Tu voz importa. También puedes ver los resultados: datos reales sobre lo seguro que se siente tu cole."
+      },
+      {
+        "title": "Cómo usar safeskoolz",
+        "description": "Las guías paso a paso explican cada función: cómo reportar un incidente, cómo usar tu diario, cómo funcionan los mensajes, cómo enviar una alerta de ayuda urgente y cómo funciona el sistema de comportamiento. Cada guía tiene pasos numerados que puedes seguir.",
+        "benefit": "Si alguna vez no sabes cómo funciona algo, aquí está la respuesta."
+      },
+      {
+        "title": "Aprende a estar seguro",
+        "description": "Las secciones cubren: ¿Qué es el acoso? (físico, verbal, online, exclusión), Qué hacer si te están acosando, Cómo ayudar a un amigo al que están acosando, Tus derechos en el cole, Entender tus emociones y Seguridad online. Cada tema usa lenguaje sencillo y ejemplos reales.",
+        "benefit": "Entender lo que pasa es el primer paso para sentirse seguro."
+      },
+      {
+        "title": "Tus notificaciones",
+        "description": "Aquí aparece cada actualización importante: cuando un profesor responde a tu reporte, cuando recibes un mensaje, cuando cambia tu historial de comportamiento o cuando hay algo nuevo que leer. Las notificaciones sin leer muestran un punto rojo en el icono de campana en la barra lateral. Toca cualquier notificación para ir directamente a la página relacionada.",
+        "benefit": "No te pierdas ninguna actualización importante. Todo está en un solo sitio."
+      },
+      {
+        "title": "Tu avatar y ajustes",
+        "description": "Elige tu avatar de animal en la cuadrícula: perro, gato, conejo, oso, zorro, búho, pingüino, león, panda, unicornio y más. Tu animal aparecerá junto a tu nombre en todo safeskoolz. Puedes cambiarlo cuando quieras.",
+        "benefit": "Tu avatar es tu identidad en safeskoolz: elige el que sientas como tuyo."
+      }
+    ],
+    "parent": [
+      {
+        "title": "Panel de familias",
+        "description": "Las tarjetas superiores muestran el nivel de comportamiento actual de tu hijo/a (Buena conducta, Aviso, Aviso formal, etc.), el total de incidentes este trimestre y cualquier notificación sin leer. Debajo, el gráfico de tendencia mensual representa los incidentes a lo largo del tiempo para que veas si las cosas mejoran o empeoran. Las notificaciones recientes listan cada actualización: nuevos incidentes, puntos de comportamiento, mensajes del personal y cambios de estado en casos abiertos. También puedes contactar directamente con tus representantes del PTA desde aquí.",
+        "benefit": "De un vistazo: ¿está mi hijo/a seguro/a y van mejor o peor las cosas?"
+      },
+      {
+        "title": "Presenta tu propia preocupación",
+        "description": "Puedes reportar una preocupación tú mismo: elige entre las mismas 8 categorías (físico, verbal, psicológico, sexual, relacional, coercitivo, propiedad, online), describe lo ocurrido, indica quién estuvo implicado y selecciona el lugar. Tu reporte llega al equipo de protección del centro y se trata con la misma prioridad que cualquier incidente reportado por personal.",
+        "benefit": "Tus preocupaciones quedan formalmente registradas, con seguimiento y respuesta, no perdidas en un correo."
+      },
+      {
+        "title": "Reportes de incidentes de tu hijo/a",
+        "description": "Cada incidente que afecta a tu hijo/a aparece con: fecha y hora, categoría (físico, verbal, psicológico, sexual, relacional, coercitivo, propiedad, online), lugar, estado actual (abierto, en revisión, en investigación, resuelto, cerrado) y el papel de tu hijo/a. Toca cualquier incidente para ver el reporte completo: qué pasó, quién estuvo implicado, el estado emocional de tu hijo/a en ese momento, las notas de evaluación del personal y las acciones tomadas. Solo ves los incidentes marcados como visibles para familias: los reportes falsos o no verificados los filtra el personal.",
+        "benefit": "Transparencia total: ves exactamente qué pasó, cómo se sintió tu hijo/a y qué está haciendo el centro."
+      },
+      {
+        "title": "Puntos de comportamiento y escalado",
+        "description": "Consulta el nivel de comportamiento actual de tu hijo/a en el indicador de color. Debajo se listan todos los puntos: fecha, categoría (interrupción, falta de respeto, acoso, agresión física, abuso verbal, daños a propiedad, desafío, poner en peligro la seguridad, mala conducta online), el profesor que lo puso y las notas. Los 7 niveles de escalado: Buena conducta (0-3 pts), Aviso (4-6), Aviso formal (7-9), Riesgo de suspensión (10-14), Suspendido (15-19), Expulsión por trimestre (20-24), Expulsión total (25+).",
+        "benefit": "Entiende exactamente en qué punto está tu hijo/a y qué significa cada nivel antes de que escale."
+      },
+      {
+        "title": "Novedades del cole",
+        "description": "Los profesores publican aquí novedades: noticias del cole, recordatorios de protección, anuncios de eventos y avisos importantes. También encontrarás boletines, actualizaciones de políticas e información sobre próximos eventos. Las publicaciones nuevas aparecen arriba.",
+        "benefit": "Mantente informado/a sobre lo que pasa en el cole de tu hijo/a."
+      },
+      {
+        "title": "Mensajes y alertas de emergencia",
+        "description": "Envía mensajes directamente al tutor de aula de tu hijo/a, al jefe de etapa, al SENCO o al coordinador de protección. Cada conversación es un hilo: puedes ver todo el historial. Si tu hijo/a ha pulsado el botón «Ayuda urgente», verás su alerta de emergencia: la marca de tiempo, el mensaje que envió y quién lo recibió (su tutor y el coordinador).",
+        "benefit": "Comunicación directa y privada con el personal, además de visibilidad cuando tu hijo/a pide ayuda urgente."
+      },
+      {
+        "title": "Encuesta de protección y análisis",
+        "description": "Cuando hay una encuesta activa, responderás preguntas sobre tu percepción de la cultura de protección del centro: cuánto problema crees que es el acoso, si crees que tu hijo/a se siente seguro/a, qué confianza tienes en el sistema de reporte y cómo de bien se comunica el centro. Tus respuestas son anónimas. Cuando se cierra la encuesta, puedes ver los resultados aquí: puntuaciones globales de protección, cómo puntuaron alumnos, personal y familias cada área, y dónde existen brechas de percepción entre los grupos. Los planes de acción muestran qué se compromete a mejorar el centro.",
+        "benefit": "Tu voz impulsa mejoras reales. Ves las puntuaciones, las brechas y los planes de acción que se ponen en marcha."
+      },
+      {
+        "title": "Cómo usar safeskoolz",
+        "description": "Guías paso a paso para cada función: ver incidentes, consultar puntos y niveles de comportamiento, escribir al personal y reportar preocupaciones. Cada guía tiene pasos numerados que puedes seguir.",
+        "benefit": "Nunca te sentirás perdido/a: todo está explicado aquí."
+      },
+      {
+        "title": "Recursos de protección para familias",
+        "description": "Las guías cubren: cómo hablar con tu hijo/a sobre el acoso, señales de que podría estar siendo acosado/a, qué cubre la política de protección del centro, cómo te protege LOPIVI a tu hijo/a, seguridad online en casa y cómo funciona el protocolo antibullying Convivèxit. Cada guía está escrita en lenguaje sencillo con pasos prácticos.",
+        "benefit": "Conocimiento práctico para apoyar a tu hijo/a y entender cómo funciona el sistema de protección del centro."
+      },
+      {
+        "title": "Tus notificaciones",
+        "description": "Aquí aparece cada actualización importante: nuevos incidentes que afectan a tu hijo/a, cambios en puntos de comportamiento, mensajes del personal e invitaciones a encuestas. Las notificaciones sin leer muestran un punto rojo en el icono de campana. Toca cualquier notificación para ir directamente a la página relacionada.",
+        "benefit": "No te pierdas ninguna actualización importante sobre tu hijo/a."
+      },
+      {
+        "title": "Tu perfil y ajustes",
+        "description": "Actualiza la información de tu perfil y tus preferencias. Gestiona tus ajustes de notificación y los datos de tu cuenta.",
+        "benefit": "Mantén tu perfil al día para que el personal pueda contactarte cuando importe."
+      }
+    ],
+    "teacher": [
+      {
+        "title": "Panel y analítica",
+        "description": "Fila superior: tarjetas KPI con el total de incidentes este trimestre, casos abiertos que requieren acción y alertas de patrón activas. Debajo: un mapa de calor por ubicación que muestra dónde ocurren más incidentes (patio, pasillos, baños), un desglose por categoría (físico, verbal, psicológico, sexual, relacional, coercitivo, propiedad, online) y un gráfico de líneas de tendencia mensual. El feed «Incidentes recientes» lista los últimos reportes con etiquetas de estado.",
+        "benefit": "Detecta dónde ocurren los problemas, qué tipos son más comunes y si las cosas mejoran."
+      },
+      {
+        "title": "Registrar un incidente paso a paso",
+        "description": "Paso 1: Selecciona categorías (físico, verbal, psicológico, sexual, relacional, coercitivo, propiedad, online; selecciona todas las que apliquen). Paso 2: Añade víctimas y agresores desde la lista de alumnos; se permiten varios. También puedes describir personas desconocidas. Paso 3: Elige el lugar entre los espacios específicos del centro (patio, bosque, escenario, aula, pasillos, etc.) y la fecha/hora. Paso 4: Escribe tu descripción profesional de lo ocurrido. Paso 5: Envía. El sistema asigna automáticamente un nivel de escalado según la categoría y notifica al coordinador en incidentes graves.",
+        "benefit": "Registro coherente y conforme a normativa. El escalado automático evita que nada se pase por alto."
+      },
+      {
+        "title": "Sistema de puntos de comportamiento",
+        "description": "Pon puntos a cualquier alumno: selecciona al alumno, elige una categoría (interrupción, falta de respeto, acoso, agresión física, abuso verbal, daños a propiedad, desafío, poner en peligro la seguridad, mala conducta online u otra) y añade el motivo y notas. Cada categoría tiene un valor por defecto (1-3 pts). El sistema lleva el total acumulado y mueve a los alumnos por la escala de 7 niveles: Buena conducta (0-3 pts), Aviso (4-6), Aviso formal (7-9), Riesgo de suspensión (10-14), Suspendido (15-19), Expulsión por trimestre (20-24), Expulsión total (25+). Las familias ven el nivel de su hijo/a automáticamente.",
+        "benefit": "Escalado justo y transparente. Los puntos se acumulan, los niveles cambian solos y las familias lo ven en tiempo real."
+      },
+      {
+        "title": "Gestión de alumnos y PINs",
+        "description": "El listado de tu clase muestra cada alumno con su avatar, nombre, curso y nivel de comportamiento actual. Gestión de PINs: cada alumno tiene un PIN único de 4 dígitos para iniciar sesión. Puedes: «Reiniciar todos los PINs» para generar nuevos PINs en lote para toda la clase, reiniciar el PIN individual de un alumno si lo olvida, desbloquear una cuenta bloqueada (se bloquea tras 3 intentos erróneos), mostrar/ocultar PINs en pantalla e «Imprimir tarjetas de PIN» para generar tarjetas recortables con el nombre y el nuevo PIN de cada alumno. Las cuentas bloqueadas muestran un candado rojo.",
+        "benefit": "Control total del acceso de los alumnos. Reinicio en lote al inicio de trimestre, impresión de tarjetas para repartir, desbloqueo en segundos."
+      },
+      {
+        "title": "Mensajes, ayuda urgente y solicitudes de chat",
+        "description": "Aquí llegan tres tipos de mensajes: 1) Mensajes normales de alumnos y familias: responde en conversaciones con hilos. 2) Alertas de Ayuda urgente: un alumno ha pulsado el botón de emergencia; verás su nombre, marca de tiempo y mensaje. Se envían al tutor del alumno y al coordinador. 3) Solicitudes de chat: un alumno quiere una conversación privada. Los no leídos aparecen como insignias.",
+        "benefit": "Las alertas urgentes saltan al instante. Las solicitudes de chat permiten que los niños pidan ayuda sin tener que escribirlo todo."
+      },
+      {
+        "title": "Gestión y evaluación de incidentes",
+        "description": "Consulta todos los incidentes que afectan a tus alumnos. Cada uno muestra categoría, fecha, estado (abierto, en revisión, en investigación, resuelto, cerrado) y alumnos implicados. Abre cualquier incidente para: cambiar su estado, redactar una evaluación profesional, añadir declaraciones de testigos, escribir un resumen para las familias y activar/desactivar la visibilidad para familias para ocultar reportes sensibles o no verificados.",
+        "benefit": "Gestión completa del caso. Evalúa, documenta y controla exactamente qué ven las familias."
+      },
+      {
+        "title": "Alertas automáticas de patrones",
+        "description": "El sistema escanea todos los incidentes y genera alertas ante patrones preocupantes: agresores reincidentes, patrones con varias víctimas, frecuencia en aumento y preocupaciones de bienestar. Cada alerta muestra los incidentes que la activaron y los alumnos implicados para que veas el cuadro completo y actúes.",
+        "benefit": "El sistema conecta puntos entre cientos de datos que ningún profesor podría seguir manualmente."
+      },
+      {
+        "title": "Novedades y publicaciones del cole",
+        "description": "Publica novedades para alumnos y familias: noticias del cole, recordatorios de protección, anuncios de eventos y avisos importantes. Crea nuevas publicaciones con título y contenido. Tus publicaciones son visibles para todos los alumnos y familias del centro. Puedes borrar tus propias publicaciones si hace falta.",
+        "benefit": "Mantén informada a toda la comunidad escolar. Una publicación llega a cada alumno y familia."
+      },
+      {
+        "title": "Encuesta de clima de protección y análisis",
+        "description": "Completa encuestas de protección sobre concienciación, confianza, reporte y bienestar. Cuando se cierra la encuesta, puedes ver los resultados: puntuaciones globales del clima de protección, cómo puntuaron alumnos, personal y familias cada categoría, análisis de brechas de percepción (donde los grupos ven las cosas distinto) y qué se compromete a mejorar el centro. Los coordinadores pueden lanzar encuestas y generar planes de acción con IA, con KPIs y objetivos.",
+        "benefit": "Datos reales sobre lo seguro que se siente el cole, y qué se está haciendo con las brechas."
+      },
+      {
+        "title": "Formación y guías de ayuda",
+        "description": "Guías paso a paso para cada función: registrar incidentes, evaluar reportes, gestionar PINs y cuentas bloqueadas, poner puntos de comportamiento, entender la escala de 7 niveles, responder a alertas de ayuda urgente y leer alertas de patrón. Cada guía tiene pasos numerados que puedes seguir.",
+        "benefit": "El personal nuevo puede autoformarse. El personal con experiencia puede consultar cualquier función poco usada."
+      },
+      {
+        "title": "Centro de educación en protección",
+        "description": "Recursos educativos sobre protección, antibullying, protección infantil y seguridad online. Materiales adaptados a la edad que puedes usar en clase o recomendar a alumnos y familias.",
+        "benefit": "Contenido educativo listo para apoyar la protección en todo el currículo."
+      },
+      {
+        "title": "Tus notificaciones",
+        "description": "Cada actualización importante: nuevos incidentes, alertas de comportamiento, mensajes, actualizaciones de protocolo y solicitudes de ayuda urgente. Las notificaciones sin leer muestran un punto rojo en el icono de campana. Toca cualquier notificación para ir directamente a la acción necesaria.",
+        "benefit": "No te pierdas ninguna acción de protección. Las alertas críticas saltan a primer plano."
+      }
+    ],
+    "senco": [
+      {
+        "title": "Panel SENCO",
+        "description": "KPIs del centro: total de incidentes, casos abiertos, alertas activas, estado de protocolos y tamaño de cartera de casos. El gráfico de tendencia muestra el volumen mensual de incidentes en todo el centro. El desglose por categoría revela los tipos de incidente más comunes. El panel de alertas destaca las alertas de patrón sin atender que requieren tu atención.",
+        "benefit": "Salud de protección de todo el centro de un vistazo: ve qué necesita atención ahora mismo."
+      },
+      {
+        "title": "Gestión de cartera de casos",
+        "description": "Añade alumnos vulnerables a tu cartera con un nivel de prioridad (alta, media, baja) y un motivo (NEE, comportamiento, protección, bienestar, etc.). Para cada alumno, registra observaciones de progreso: puntúa sus emociones (1-5), sus actitudes (1-5) y el progreso global (1-5), más notas en texto libre. Consulta la línea de tiempo de seguimiento para ver cómo cambian las puntuaciones a lo largo de semanas y meses. Filtra por prioridad para centrarte primero en los alumnos de alto riesgo. Retira alumnos de la cartera cuando ya no necesiten seguimiento.",
+        "benefit": "Seguimiento estructurado y basado en evidencia. Las puntuaciones de progreso a lo largo del tiempo muestran si las intervenciones funcionan."
+      },
+      {
+        "title": "Análisis de comportamiento de todo el centro",
+        "description": "Consulta el nivel de comportamiento de cada alumno en todas las clases. Pon puntos en cualquier categoría (interrupción, falta de respeto, acoso, agresión física, abuso verbal, daños a propiedad, desafío, poner en peligro la seguridad, mala conducta online u otra). La escala de 7 niveles: Buena conducta (0-3 pts), Aviso (4-6), Aviso formal (7-9), Riesgo de suspensión (10-14), Suspendido (15-19), Expulsión por trimestre (20-24), Expulsión total (25+). Identifica a los alumnos que se acercan a los umbrales antes de cruzarlos. Las familias ven el nivel de su hijo/a automáticamente.",
+        "benefit": "Interviene antes de la expulsión. Detecta alumnos en riesgo en todo el centro."
+      },
+      {
+        "title": "Supervisión total de incidentes",
+        "description": "Acceso a cada incidente de todo el centro. Cada uno muestra categoría, fecha, estado (abierto, en revisión, en investigación, resuelto, cerrado) y alumnos implicados. Abre cualquier incidente para: leer el reporte original, ver evaluaciones del personal, añadir tus propias notas SENCO, leer declaraciones de testigos, redactar un resumen para familias, activar/desactivar visibilidad para familias y cambiar el estado.",
+        "benefit": "Supervisión completa de protección. Cada incidente de todas las clases en un solo sitio."
+      },
+      {
+        "title": "Flujos de protocolo formal",
+        "description": "Tres tipos de protocolo: 1) Convivèxit (antibullying): fases de detección, investigación, mediación, resolución y seguimiento. 2) LOPIVI (protección infantil): fases de preocupación inicial, evaluación, derivación, intervención y revisión. 3) Violencia Machista (basada en el género): fases especializadas para casos de violencia de género. Para cada protocolo: asigna alumnos, registra entrevistas con marca de tiempo, completa evaluaciones de riesgo (puntuación probabilidad × impacto), crea y asigna tareas con plazos, registra derivaciones externas (servicios sociales, policía, sanidad) y sigue la progresión por fases con una línea de tiempo visual.",
+        "benefit": "Cumplimiento total de la normativa de las Islas Baleares. Cada paso documentado para inspecciones y auditorías."
+      },
+      {
+        "title": "Detección de patrones y respuesta",
+        "description": "Alertas generadas por el sistema ante patrones preocupantes: agresores reincidentes, victimización múltiple, frecuencia en aumento y señales de bienestar. Cada alerta enlaza con los incidentes que la activaron y los alumnos implicados para que veas el cuadro completo y decidas la intervención adecuada.",
+        "benefit": "Sistema de aviso temprano automatizado. Patrones que a las personas les llevaría semanas detectar se marcan al instante."
+      },
+      {
+        "title": "Guía de formación SENCO",
+        "description": "Cubre todas las funciones estándar más los flujos específicos del SENCO: añadir alumnos a la cartera, registrar observaciones de progreso, interpretar líneas de tiempo de seguimiento, gestionar protocolos por cada fase, realizar y registrar entrevistas, completar evaluaciones de riesgo y crear tareas de caso. Cada guía tiene pasos numerados con contexto sobre por qué importa cada acción.",
+        "benefit": "Recurso de formación completo. Los nuevos SENCO pueden estar operativos en una sola sesión."
+      }
+    ],
+    "coordinator": [
+      {
+        "title": "Panel de protección",
+        "description": "KPIs de alto nivel: total de incidentes este trimestre, casos abiertos que requieren acción, alertas de patrón activas y estado de protocolos. El gráfico de tendencia representa el volumen de incidentes a lo largo del tiempo. El desglose por categoría muestra la distribución entre los 8 tipos (físico, verbal, psicológico, sexual, relacional, coercitivo, propiedad, online). El mapa de calor por ubicación destaca dónde se concentran los incidentes. El feed de incidentes recientes muestra los últimos reportes que necesitan revisión.",
+        "benefit": "Visión estratégica para el liderazgo de protección. Identifica tendencias, puntos calientes y necesidades de recursos."
+      },
+      {
+        "title": "Registro de incidentes y autoescalado",
+        "description": "Registra incidentes con: selección de categoría (8 tipos: físico, verbal, psicológico, sexual, relacional, coercitivo, propiedad, online; selecciona todas las que apliquen), asignación de víctimas/agresores (varios alumnos permitidos, más descripciones de personas desconocidas), lugar entre los espacios específicos del centro (patio, bosque, escenario, aula, pasillos, etc.), fecha/hora y tu descripción profesional. Al enviar, el sistema asigna automáticamente un nivel de escalado según la categoría y notifica al personal pertinente.",
+        "benefit": "Sin escalado manual. El sistema asegura que los incidentes graves lleguen a las personas adecuadas de inmediato."
+      },
+      {
+        "title": "Gestión del ciclo de vida del incidente",
+        "description": "Control total de cada incidente del centro. Flujo de estados: Abierto → En revisión → En investigación → Resuelto → Cerrado. Para cada incidente: lee el reporte original y cualquier evaluación del personal, añade tus propias notas de coordinación, revisa declaraciones de testigos, redacta el resumen para familias y activa/desactiva la visibilidad para familias para ocultar reportes sensibles o no verificados.",
+        "benefit": "Tú gestionas el ciclo completo. Cada caso queda bien gestionado, documentado y auditable."
+      },
+      {
+        "title": "Gestión de protocolos: Convivèxit, LOPIVI y Machista",
+        "description": "Crea y gestiona los protocolos formales que exige la normativa de las Islas Baleares. Convivèxit (antibullying): detección → investigación → mediación → resolución → seguimiento. LOPIVI (protección infantil): preocupación inicial → evaluación → derivación → intervención → revisión. Violencia Machista (basada en el género): vía especializada. Para cada protocolo: asigna alumnos y personal, registra entrevistas formales (con marca de tiempo, firmadas), completa evaluaciones de riesgo con matriz probabilidad × impacto, crea y asigna tareas de caso con plazos y responsables, registra derivaciones externas a servicios sociales/policía/sanidad y sigue la progresión por fases en una línea de tiempo visual.",
+        "benefit": "Cumplimiento listo para inspección. Cada paso requerido documentado con marcas de tiempo y rastros de auditoría."
+      },
+      {
+        "title": "Directorio de alumnos del centro",
+        "description": "Cada alumno de todas las clases y cursos. Para cada alumno: ve su historial de incidentes, nivel de comportamiento actual, clase y curso, y estado de inicio de sesión. Gestión de PINs: genera PINs únicos de 4 dígitos, reinicia clases enteras en lote, imprime tarjetas de PIN para repartir, reinicia PINs individuales y desbloquea cuentas bloqueadas tras 3 intentos fallidos. Busca y filtra por curso, clase o nombre.",
+        "benefit": "Visión completa del alumnado. Gestiona el acceso de todo el centro desde un solo sitio."
+      },
+      {
+        "title": "Alertas de patrones y aviso temprano",
+        "description": "El sistema analiza continuamente todos los incidentes y marca patrones preocupantes: agresores reincidentes, patrones con varias víctimas, frecuencia en aumento e indicadores de bienestar. Cada alerta lista los incidentes que la activaron junto con los alumnos implicados para que revises el cuadro completo y decidas la intervención.",
+        "benefit": "Vigilancia automatizada en miles de datos. Patrones que emergen a lo largo de semanas se detectan pronto."
+      },
+      {
+        "title": "Centro de comunicación",
+        "description": "Todos los hilos de mensajes de familias y alumnos. Tres tipos: mensajes normales (responde en hilo), alertas de ayuda urgente (un alumno ha pulsado el botón de emergencia; se envía a su tutor y al coordinador) y solicitudes de chat (un alumno quiere conversación privada). Los no leídos aparecen como insignias.",
+        "benefit": "Centro de comunicación unificado. Las situaciones urgentes saltan a primer plano; nada queda enterrado."
+      },
+      {
+        "title": "Sistema de comportamiento y escala de escalado",
+        "description": "Vista del centro del nivel de comportamiento de cada alumno. El sistema de 7 niveles: Nivel 1 — Buena conducta (0-3 pts): sin incidencias. Nivel 2 — Aviso (4-6): algunas incidencias. Nivel 3 — Aviso formal (7-9): se requiere reunión con la familia. Nivel 4 — Riesgo de suspensión (10-14): acción urgente. Nivel 5 — Suspendido (15-19): suspendido del centro. Nivel 6 — Expulsión por trimestre (20-24): expulsado durante el trimestre. Nivel 7 — Expulsión total (25+): expulsado de forma permanente. Pon puntos en categorías: interrupción, falta de respeto, acoso, agresión física, abuso verbal, daños a propiedad, desafío, poner en peligro la seguridad, mala conducta online, otra. Las familias ven el nivel de su hijo/a automáticamente.",
+        "benefit": "Disciplina transparente y coherente. Cada nivel tiene umbrales, acciones y visibilidad para las familias claros."
+      },
+      {
+        "title": "Novedades y publicaciones del cole",
+        "description": "Publica novedades para la comunidad escolar: noticias, recordatorios de protección, cambios de política y avisos importantes. Crea nuevas publicaciones visibles para todos los alumnos, familias y personal.",
+        "benefit": "Una publicación llega a toda la comunidad escolar. Mantén a todos informados."
+      },
+      {
+        "title": "Encuesta de clima de protección y análisis",
+        "description": "Crea y lanza encuestas diagnósticas para medir cómo perciben alumnos, personal y familias la cultura de protección del centro. Cada rol recibe preguntas adaptadas. Consulta los resultados con gráficos de radar y barras: puntuaciones globales, desgloses por grupo y análisis de brechas de percepción que destacan dónde alumnos, personal y familias ven las cosas distinto. Genera planes de acción con IA con KPIs, líneas base, objetivos y plazos alineados a los requisitos de LOPIVI y Convivèxit. Todos los participantes pueden ver un resumen de los resultados cuando se cierra la encuesta.",
+        "benefit": "Todo el mundo ve los datos. Mejora basada en evidencia con transparencia total en toda la comunidad escolar."
+      },
+      {
+        "title": "Recurso de formación para personal",
+        "description": "Guías de formación completas para todas las funciones: registro de incidentes, gestión de estados, gestión de protocolos, gestión e impresión de PINs, sistema de puntos de comportamiento y escala de 7 niveles, alertas de patrón y analítica del panel. Cada guía tiene pasos numerados que puedes seguir.",
+        "benefit": "Incorpora al personal nuevo rápidamente. Cada procedimiento documentado paso a paso."
+      },
+      {
+        "title": "Centro de educación en protección",
+        "description": "Recursos educativos para personal, alumnos y familias. Materiales sobre antibullying, protección infantil, seguridad online y orientación LOPIVI/Convivèxit.",
+        "benefit": "Contenido educativo listo para apoyar la protección en todo el centro."
+      },
+      {
+        "title": "Tus notificaciones",
+        "description": "Cada actualización importante: nuevos incidentes, actualizaciones de protocolo, alertas de ayuda urgente, escalados de comportamiento y mensajes del personal. Las notificaciones críticas saltan a primer plano. Toca cualquier notificación para ir directamente a la acción necesaria.",
+        "benefit": "No te pierdas ninguna acción de protección. Todo lo que requiere tu atención en un solo sitio."
+      }
+    ],
+    "pta": [
+      {
+        "title": "Portal del PTA",
+        "description": "Tu inicio del PTA: las tarjetas KPI muestran el clima de protección: recuentos de incidentes anonimizados, protocolos activos, tasas de participación en encuestas y tendencias de bienestar. Usa las pestañas para acceder a: Canal del Coordinador (mensajería directa con el DSL), Revisión de Política (reconocer o marcar secciones), Memoria Anual y Codiseño (aprobar memorias y votar mejoras) y Biblioteca de Recursos (guías de LOPIVI, Convivèxit y recursos para familias). Todos los datos de alumnos están anonimizados: nunca verás nombres individuales.",
+        "benefit": "Supervisión total del PTA en un solo sitio: panel, mensajería, política, memoria y recursos."
+      },
+      {
+        "title": "Novedades del cole",
+        "description": "Novedades del centro publicadas por profesorado y coordinadores: noticias, recordatorios de protección, anuncios de eventos y cambios de política. Mantente informado sobre lo que pasa en toda la comunidad escolar.",
+        "benefit": "Mantente conectado con la actividad diaria de protección del centro."
+      },
+      {
+        "title": "Encuesta de protección y análisis del centro",
+        "description": "Cuando hay una encuesta activa, responderás preguntas sobre la cultura de protección del centro desde la perspectiva del PTA: eficacia de la política, calidad de la comunicación, confianza en los sistemas de reporte y preparación global de protección. Cuando se cierra la encuesta, puedes ver los resultados completos: puntuaciones globales en cinco categorías, cómo puntuaron alumnos, personal y familias cada área y dónde están las mayores brechas de percepción. Los planes de acción con objetivos medibles muestran cómo está respondiendo la dirección.",
+        "benefit": "Datos anonimizados para llevar a las reuniones de patronato. Ve las puntuaciones, las brechas y lo que se está haciendo."
+      },
+      {
+        "title": "Cómo usar safeskoolz",
+        "description": "Guías paso a paso para cada función del PTA: navegar por el panel, escribir al coordinador, revisar la política, acceder a la memoria anual, usar el espacio de codiseño y entender la biblioteca de recursos.",
+        "benefit": "Ponte al día rápidamente. Cada función del PTA explicada paso a paso."
+      },
+      {
+        "title": "Educación en protección",
+        "description": "Guías sobre protección, antibullying, ley de protección infantil y seguridad online, escritas para familias y miembros del PTA en lenguaje sencillo y con pasos prácticos.",
+        "benefit": "Profundiza tu comprensión de la protección para ser un representante del PTA más eficaz."
+      },
+      {
+        "title": "Tus notificaciones",
+        "description": "Actualizaciones sobre nuevas invitaciones a encuestas, respuestas del coordinador a tus preocupaciones, cambios de política, disponibilidad de la memoria anual y propuestas de codiseño. Toca cualquier notificación para ir directamente a la acción.",
+        "benefit": "No te pierdas ninguna actualización importante del PTA."
+      }
+    ],
+    "default": [
+      {
+        "title": "Tu panel",
+        "description": "Tu página de inicio con la información relevante y acciones rápidas.",
+        "benefit": "Todo lo que necesitas en un solo sitio."
+      },
+      {
+        "title": "Guía de formación",
+        "description": "Guías paso a paso para cada función.",
+        "benefit": "Aprende a tu propio ritmo."
+      }
+    ]
+  }
+}

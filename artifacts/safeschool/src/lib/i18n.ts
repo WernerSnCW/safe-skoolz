@@ -17,6 +17,7 @@ import enBehaviour from "@/locales/en/behaviour.json";
 import enCaseload from "@/locales/en/caseload.json";
 import enDiagnostics from "@/locales/en/diagnostics.json";
 import enTraining from "@/locales/en/training.json";
+import enTour from "@/locales/en/tour.json";
 
 import esCommon from "@/locales/es/common.json";
 import esNav from "@/locales/es/nav.json";
@@ -34,6 +35,7 @@ import esBehaviour from "@/locales/es/behaviour.json";
 import esCaseload from "@/locales/es/caseload.json";
 import esDiagnostics from "@/locales/es/diagnostics.json";
 import esTraining from "@/locales/es/training.json";
+import esTour from "@/locales/es/tour.json";
 
 import nlCommon from "@/locales/nl/common.json";
 import nlNav from "@/locales/nl/nav.json";
@@ -92,6 +94,7 @@ i18n.use(initReactI18next).init({
       caseload: enCaseload,
       diagnostics: enDiagnostics,
       training: enTraining,
+      tour: enTour,
     },
     es: {
       common: esCommon,
@@ -110,6 +113,7 @@ i18n.use(initReactI18next).init({
       caseload: esCaseload,
       diagnostics: esDiagnostics,
       training: esTraining,
+      tour: esTour,
     },
     nl: {
       common: nlCommon,
