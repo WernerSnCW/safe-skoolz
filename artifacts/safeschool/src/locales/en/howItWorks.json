@@ -1,0 +1,642 @@
+{
+  "backToLogin": "Back to login",
+  "pageTitle": "How safeskoolz works",
+  "pageSubtitle": "Follow Sofia's story through the actual platform — see every screen, every alert, every action that protects a child.",
+  "clickTimelineHint": "Click the timeline below to explore each week",
+  "stagesProgress": "{{current}} of {{total}} stages",
+  "viewpointsLabel": "{{count}} viewpoints — click to switch",
+  "previous": "Previous",
+  "seeNext": "See what happens next",
+  "storyComplete": "Story complete",
+  "ctaTitle": "Every school has stories like Sofia's.",
+  "ctaSubtitle": "The difference is whether anyone connects the dots in time. safeskoolz makes the invisible visible.",
+  "tryDemo": "Try the demo",
+  "footerDisclaimer": "All names are fictional. Scenarios are based on real patterns seen in schools across Europe.",
+  "poweredBy": "Powered by",
+  "interactiveDemoTag": "INTERACTIVE DEMO",
+  "rolesTitle": "What each role can do",
+  "rolesSubtitle": "Sofia's story shows pattern detection. But safeskoolz is used every day by pupils, parents, teachers, and coordinators for much more.",
+  "chooseRoleHint": "Choose a role, then explore their features",
+  "featuresClickHint": "{{count}} features — click to explore",
+  "featuresCount": "{{count}} features",
+  "reportingTag": "REPORTING & ANALYTICS",
+  "reportingTitle": "Where does the data go?",
+  "reportingSubtitle": "Every incident, mood entry, and behaviour point feeds into reports tailored to each audience. PTA governors see anonymised trends. Staff see operational data. Parents see what matters to their child.",
+  "chooseAudienceHint": "Choose an audience to see their reports",
+  "pipeline": {
+    "incidents": "Incidents",
+    "patterns": "Patterns",
+    "analytics": "Analytics",
+    "reports": "Reports"
+  },
+  "reportsClickHint": "{{count}} reports — click to preview",
+  "steps": {
+    "firstSigns": {
+      "week": "Week 1",
+      "title": "Something small happens",
+      "subtitle": "A single comment at lunch. Nobody thinks much of it.",
+      "narrative": "Marcus calls Sofia stupid at lunch. A lunchtime supervisor sees it and logs it as a verbal incident. On its own, it looks minor. Sofia goes home and writes in her diary.",
+      "screens": [
+        {
+          "role": "Lunchtime supervisor",
+          "page": "Report Incident",
+          "title": "A single verbal incident is logged",
+          "description": "The supervisor logs what she saw. It takes 60 seconds. At this stage, it looks like a one-off comment between children.",
+          "mockup": [
+            "Category: Verbal",
+            "Who was involved: Marcus → Sofia",
+            "\"Called her stupid at the lunch table. Sofia looked upset but carried on eating.\"",
+            "Incident CS1-001 logged. Tier 1 — no escalation required."
+          ]
+        },
+        {
+          "role": "Sofia (pupil)",
+          "page": "Feelings Diary",
+          "title": "Sofia writes in her private diary",
+          "description": "Nobody else can see her diary. No teacher, parent, or coordinator has access. But the system quietly tracks her mood over time.",
+          "mockup": [
+            "😐 Okay — 3/5",
+            "\"Marcus said something mean at lunch. I didn't like it but it's probably nothing.\"",
+            "Entry saved. This is private — only you can see it."
+          ]
+        },
+        {
+          "role": "System",
+          "page": "Pattern Engine",
+          "title": "The system records — but doesn't alert",
+          "description": "One incident, one diary entry. No pattern yet. The data is stored and waiting.",
+          "mockup": [
+            "Sofia: 1 incident as victim • Marcus: 1 incident as instigator",
+            "No alerts triggered. Monitoring."
+          ]
+        }
+      ]
+    },
+    "escalates": {
+      "week": "Weeks 2–3",
+      "title": "It happens again. And again.",
+      "subtitle": "Three more incidents from two different teachers. Marcus is recruiting.",
+      "narrative": "Week 2: Ms Rivera sees Marcus push Sofia in the corridor. She logs it. Week 3: Mr Davies sees Tyler exclude Sofia from group work — and notices Marcus watching from across the room. A different pupil anonymously reports that Jayden filmed Sofia being tripped.",
+      "screens": [
+        {
+          "role": "Ms Rivera (teacher)",
+          "page": "Report Incident",
+          "title": "Second incident — different teacher, physical this time",
+          "description": "Ms Rivera logs a physical incident. She doesn't know about the verbal incident from Week 1 — a different staff member logged that one.",
+          "mockup": [
+            "Category: Physical",
+            "Who was involved: Marcus pushed Sofia in the corridor",
+            "Victim emotional state: Upset, crying",
+            "Incident CS1-002 logged. Tier 2 — coordinator auto-notified.",
+            "Protocol guidance shown: \"This is a Tier 2 physical incident. Follow the Convivèxit process. Check for injuries. Separate the children.\""
+          ]
+        },
+        {
+          "role": "Mr Davies (teacher)",
+          "page": "Report Incident",
+          "title": "Third incident — a third teacher sees exclusion",
+          "description": "Mr Davies sees Tyler excluding Sofia from group work, with Marcus watching approvingly. He doesn't know Marcus pushed her last week. He logs it as relational.",
+          "mockup": [
+            "Category: Relational",
+            "Who was involved: Tyler excluded Sofia from group work. Marcus was observing.",
+            "Incident CS1-003 logged."
+          ]
+        },
+        {
+          "role": "Anonymous pupil",
+          "page": "Report a Concern",
+          "title": "Fourth report — anonymous, from a pupil",
+          "description": "A classmate reports anonymously that Jayden has been filming Sofia being bullied and sharing it in a group chat.",
+          "mockup": [
+            "\"Jayden filmed Sofia getting tripped and put it in the group chat. Everyone saw it.\"",
+            "Anonymous report received. Category: Online. Tier 2."
+          ]
+        },
+        {
+          "role": "Sofia's mum (parent)",
+          "page": "At home",
+          "title": "At home, something is clearly wrong",
+          "description": "Sofia doesn't want to go to school. She mentions Marcus but says \"it's nothing\". Her mum is worried but has no evidence.",
+          "mockup": [
+            "Week 2: \"I don't want to go tomorrow\" — but won't say why",
+            "Week 3: Stopped talking about school completely",
+            "Week 3: Found Sofia crying in her room after checking her phone"
+          ]
+        }
+      ]
+    },
+    "pattern": {
+      "week": "Week 3",
+      "title": "safeskoolz connects the dots",
+      "subtitle": "No single teacher saw the full picture. The system did.",
+      "narrative": "Four incidents logged by three different staff members and one anonymous pupil. No individual saw more than one event. But safeskoolz links them all: same victim, escalating severity, group forming around a ringleader, and a mood that's falling off a cliff.",
+      "screens": [
+        {
+          "role": "System",
+          "page": "Pattern Alerts",
+          "title": "Three pattern alerts fire simultaneously",
+          "description": "The pattern detection engine links incidents across different reporters. No human could have connected these — they were logged by different staff on different days.",
+          "mockup": [
+            "🚨 RED: Same victim in 4 incidents — Sofia has been targeted in 4 separate incidents over 3 weeks, logged by 3 different staff",
+            "🚨 RED: Group targeting detected — Marcus (ringleader), Tyler (recruited Week 3), Jayden (recruited Week 3) acting together",
+            "🚨 AMBER: Escalating severity — Pattern has escalated from verbal (Week 1) → physical (Week 2) → relational + online (Week 3)"
+          ]
+        },
+        {
+          "role": "System",
+          "page": "Mood Analysis",
+          "title": "Diary mood decline detected",
+          "description": "Nobody has read Sofia's diary. But the system tracks the trend. Her mood has dropped from 3 to 1 in two weeks — a sustained decline that triggers a welfare flag.",
+          "mockup": [
+            "Week 1: 😐 3/5 • Week 2: 😟 2/5 • Week 3: 😢 1/5",
+            "🚨 AMBER: Sustained mood decline — average mood ≤2 over 5+ entries. SENCO + coordinator alerted."
+          ]
+        }
+      ]
+    },
+    "coordinator": {
+      "week": "Week 4",
+      "title": "Mrs Chen sees the full picture",
+      "subtitle": "Four incidents. Three reporters. One clear pattern. One screen.",
+      "narrative": "Mrs Chen opens her coordinator dashboard. She doesn't see four unrelated incidents. She sees a ringleader who recruited two others, an escalating pattern from words to physical to online, and a child whose mood is collapsing. She initiates the Convivèxit protocol.",
+      "screens": [
+        {
+          "role": "Mrs Chen (coordinator)",
+          "page": "Coordinator Dashboard",
+          "title": "Everything connected on one screen",
+          "description": "Incidents, pattern alerts, diary mood trends, and behaviour points — linked together. Mrs Chen can see the full timeline of how Marcus recruited Tyler and Jayden.",
+          "mockup": [
+            "4 active alerts • 4 linked incidents • 1 mood decline flag • 1 anonymous report",
+            "Sofia: 4 incidents (verbal → physical → relational → online) • Severity: escalating",
+            "Week 1: Marcus alone → Week 2: Marcus alone (physical) → Week 3: Marcus + Tyler + Jayden (group)"
+          ]
+        },
+        {
+          "role": "Mrs Chen (coordinator)",
+          "page": "Behaviour Tracker",
+          "title": "Behaviour points tell the story",
+          "description": "Marcus has accumulated the most points as the instigator across all four incidents. Tyler and Jayden have fewer — they were recruited, not ringleaders. This distinction matters for the intervention.",
+          "mockup": [
+            "Marcus: 14 pts — Level 4 (Formal Warning + parent meeting)",
+            "Tyler: 5 pts — Level 2 (Verbal Warning)",
+            "Jayden: 4 pts — Level 2 (Verbal Warning)",
+            "Convivèxit protocol initiated — interviews scheduled"
+          ]
+        }
+      ]
+    },
+    "intervene": {
+      "week": "Weeks 4–5",
+      "title": "The school intervenes — differently for each child",
+      "subtitle": "Sofia gets a safe adult. Marcus's parents are called in. Tyler and Jayden get support.",
+      "narrative": "The Convivèxit protocol drives different actions for each child. Sofia gets a named safe adult. Marcus's parents are called for a formal meeting. Tyler and Jayden receive restorative conversations — the data shows they were coerced, not leading. Sofia's mum receives a private notification that the school has acted.",
+      "screens": [
+        {
+          "role": "Sofia (pupil)",
+          "page": "Messages",
+          "title": "Sofia gets a named safe adult",
+          "description": "Ms Rivera is assigned as Sofia's safe adult. Sofia can message her privately through the platform, any time she needs to talk.",
+          "mockup": [
+            "You have a new safe contact: Ms Rivera. You can message her any time.",
+            "Message: \"Hi Ms Rivera, can I talk to you at break?\"",
+            "Message delivered securely"
+          ]
+        },
+        {
+          "role": "Sofia's mum (parent)",
+          "page": "Notifications",
+          "title": "Sofia's mum is notified privately",
+          "description": "This is a targeted notification to Sofia's parents only — not a broadcast to all 47 families. It confirms the school has identified the problem and is acting.",
+          "mockup": [
+            "We are writing to let you know that a pattern of targeted behaviour towards Sofia has been identified and addressed. A Convivèxit protocol has been initiated. Sofia has been assigned a named safe adult (Ms Rivera). We would welcome the opportunity to discuss this with you.",
+            "Acknowledge · Request meeting"
+          ]
+        },
+        {
+          "role": "Mrs Chen (coordinator)",
+          "page": "Protocol Tracker",
+          "title": "Each child gets a proportionate response",
+          "description": "The Convivèxit protocol requires different actions for ringleaders vs recruited participants. safeskoolz tracks each task and deadline.",
+          "mockup": [
+            "Marcus: Formal parent meeting • Behaviour contract • Daily check-in with Head of Year",
+            "Tyler: Restorative conversation with Sofia (with consent) • Mentoring sessions",
+            "Jayden: Restorative conversation • Online safety session • Phone use reviewed",
+            "Sofia: Safe adult assigned • Daily wellbeing check-in • Break/lunch buddy system"
+          ]
+        }
+      ]
+    },
+    "diagnostics": {
+      "week": "Week 6",
+      "title": "The school checks the bigger picture",
+      "subtitle": "Was Sofia's case isolated? Or is there a wider culture problem?",
+      "narrative": "Sofia's case raised a question: do children in this school actually trust the reporting system? Mrs Chen launches an anonymous diagnostic survey across all pupils, staff, and parents to find out.",
+      "screens": [
+        {
+          "role": "All users",
+          "page": "Diagnostic Survey",
+          "title": "Anonymous climate survey",
+          "description": "20 role-adaptive questions across 5 categories. Pupils, staff, and parents each get questions written for them.",
+          "mockup": [
+            "\"If I report something, adults will take it seriously\" — Strongly Disagree • Disagree • Neutral • Agree • Strongly Agree",
+            "\"I know who to talk to if I see something wrong\" — Strongly Disagree • ... • Strongly Agree",
+            "142 responses: 88 pupils • 32 staff • 22 parents"
+          ]
+        },
+        {
+          "role": "Mrs Chen (coordinator)",
+          "page": "Diagnostic Results",
+          "title": "Perception gaps revealed",
+          "description": "The data shows that staff and parents think reporting works well. But pupils don't agree. The gap is 1.8 points — children don't trust the system the way adults assume they do.",
+          "mockup": [
+            "Trust & Reporting: Pupils 2.1 • Parents 3.9 • Staff 4.2",
+            "1.8pt perception gap: Pupils scored 'reporting makes things better' at 2.1. Staff scored 4.2. Children don't believe reporting helps.",
+            "This explains why Sofia didn't tell anyone for a week — and why the anonymous pupil report was the breakthrough."
+          ]
+        }
+      ]
+    },
+    "recovery": {
+      "week": "Week 10",
+      "title": "The data shows it worked",
+      "subtitle": "Sofia's mood recovers. Incidents stop. The school has evidence.",
+      "narrative": "Six weeks after intervention. Sofia's diary mood is back to 4. Marcus has had no new incidents since the parent meeting. Tyler and Jayden completed restorative sessions. The PTA sees anonymised evidence that the safeguarding system is working.",
+      "screens": [
+        {
+          "role": "Sofia (pupil)",
+          "page": "Feelings Diary",
+          "title": "Mood recovery visible over time",
+          "description": "Sofia's diary tells the story nobody else can see: from fine, to declining, to rock bottom, to gradual recovery after intervention.",
+          "mockup": [
+            "Wk 1: 😐 3 → Wk 2: 😟 2 → Wk 3: 😢 1 → Wk 5: 😐 3 → Wk 8: 🙂 4 → Wk 10: 😄 5",
+            "Mood trend: sustained recovery over 6 weeks"
+          ]
+        },
+        {
+          "role": "Mrs Chen (coordinator)",
+          "page": "Incident Timeline",
+          "title": "Incidents have stopped",
+          "description": "No new incidents involving Marcus, Tyler, Jayden, or Sofia since Week 5. The Convivèxit protocol is marked as resolved.",
+          "mockup": [
+            "Marcus: 0 incidents since Week 4 • Behaviour points declining • 14 → 8",
+            "Convivèxit protocol: RESOLVED — all actions completed",
+            "Sofia: mood recovered • safe adult check-ins continuing • no new incidents"
+          ]
+        },
+        {
+          "role": "PTA Chair",
+          "page": "PTA Portal",
+          "title": "PTA sees anonymised evidence",
+          "description": "PTA members see aggregated, anonymised data. No names. Just evidence that the school identified a pattern, intervened proportionately, and achieved recovery.",
+          "mockup": [
+            "This term: 1 group bullying pattern identified • Resolved within 5 weeks of detection",
+            "School-wide mood trend: 3.2 → 3.8 (improving since diagnostic actions)",
+            "Annual safeguarding summary: \"Pattern of escalating group behaviour identified through linked incident reports. Convivèxit protocol initiated. Victim assigned safe adult. All parties received proportionate intervention. Full recovery evidenced through mood data and zero re-offending.\""
+          ]
+        }
+      ]
+    }
+  },
+  "roles": {
+    "pupil": {
+      "role": "Pupils",
+      "tagline": "A safe, private space to speak up — even anonymously",
+      "features": [
+        {
+          "page": "Report a Concern",
+          "title": "Tell someone what happened",
+          "description": "Report anything that feels wrong — bullying, something scary, or something happening to a friend. You can stay anonymous if you want.",
+          "mockup": [
+            "What happened? — Physical · Verbal · Mind games · My body, my rules · Leaving out · Online",
+            "Is this happening to you, or someone else?",
+            "How are you feeling? — 😨 Scared · 😢 Sad · 😠 Angry · 😟 Worried",
+            "You can keep this anonymous. Adults will keep you safe."
+          ]
+        },
+        {
+          "page": "Feelings Diary",
+          "title": "A private diary that only you can see",
+          "description": "Record how you feel each day with a mood score and optional notes. Nobody at school can read it — but if the system detects you're struggling, it quietly alerts a trusted adult.",
+          "mockup": [
+            "😄 Great · 🙂 Good · 😐 Okay · 😟 Not great · 😢 Really bad",
+            "Write about your day (optional)...",
+            "Nobody can read your diary. It belongs to you."
+          ]
+        },
+        {
+          "page": "Safe Messaging",
+          "title": "Message your safe adult",
+          "description": "If you've been assigned a safe adult, you can message them directly through safeskoolz. Private, secure, available any time.",
+          "mockup": [
+            "Your safe adult is: Ms Rivera. You can message her any time.",
+            "\"Can I talk to you at break? Something happened again.\""
+          ]
+        },
+        {
+          "page": "School Updates",
+          "title": "See what the school is doing",
+          "description": "Read school updates about safeguarding, wellbeing events, and things the school wants you to know.",
+          "mockup": [
+            "Anti-Bullying Week: workshops in assembly this week. Remember — telling someone is brave, not weak."
+          ]
+        }
+      ]
+    },
+    "parent": {
+      "role": "Parents",
+      "tagline": "Know what the school is doing — and raise concerns yourself",
+      "features": [
+        {
+          "page": "Report a Concern",
+          "title": "Report what your child is telling you",
+          "description": "If your child comes home upset, you can log a concern directly. It goes to the safeguarding team. You don't need to wait for a parents' evening.",
+          "mockup": [
+            "What are you concerned about? — Bullying · Online safety · Behaviour change · Something my child told me",
+            "\"My daughter has been coming home in tears. She says a group of boys are targeting her at lunch.\"",
+            "Concern logged. The safeguarding coordinator has been notified."
+          ]
+        },
+        {
+          "page": "Notifications",
+          "title": "Get notified when the school acts",
+          "description": "When the school identifies something involving your child, you receive a private notification. Not a generic newsletter — a specific alert with what's been done.",
+          "mockup": [
+            "A pattern of targeted behaviour towards your child has been identified. A Convivèxit protocol has been initiated. Your child has been assigned a named safe adult.",
+            "Acknowledge · Request meeting"
+          ]
+        },
+        {
+          "page": "Diagnostic Results",
+          "title": "See how safe children feel at school",
+          "description": "When the school runs a safeguarding diagnostic, parents see the aggregated results — how pupils, staff, and parents scored across trust, awareness, and culture.",
+          "mockup": [
+            "Trust & Reporting: Pupils 2.1 • Parents 3.9 • Staff 4.2",
+            "Perception gap: Children don't trust the reporting system as much as parents think they do."
+          ]
+        },
+        {
+          "page": "Contact PTA",
+          "title": "Message your PTA representative",
+          "description": "Raise a concern directly with a PTA member. They see anonymised safeguarding data and can advocate for change at governor level.",
+          "mockup": [
+            "\"I'm worried about the lunchtime supervision. My child says there's nowhere to go if they feel unsafe.\"",
+            "Message sent to PTA Chair (Sarah T.)"
+          ]
+        },
+        {
+          "page": "Case Studies",
+          "title": "Understand real patterns",
+          "description": "Read anonymised case studies showing how bullying patterns develop and what the school does about them. See what parents typically receive at each stage.",
+          "mockup": [
+            "Case Study 1: Ringleader plus recruited bullies — how group dynamics work",
+            "Case Study 5: Slow emotional collapse — when a child withdraws gradually",
+            "\"What parents receive\" section shows example alerts, reports, and diagnostic data"
+          ]
+        }
+      ]
+    },
+    "teacher": {
+      "role": "Teachers & Staff",
+      "tagline": "Log incidents in 60 seconds. Get guided through the right process.",
+      "features": [
+        {
+          "page": "Log Incident",
+          "title": "Report an incident with guided categories",
+          "description": "Select what happened, who was involved, and the child's emotional state. The form adapts to the category — physical, verbal, online, sexual, coercive. Takes under a minute.",
+          "mockup": [
+            "Category: Physical · Verbal · Psychological · Sexual · Relational · Coercive · Property · Online",
+            "Victims · Perpetrators · Witnesses — search by name or describe unknown persons",
+            "Staff checks: Were children separated? Coordinator notified? Told by child?"
+          ]
+        },
+        {
+          "page": "Protocol Guidance",
+          "title": "Serious incidents show you what to do next",
+          "description": "When you log a Tier 2 or Tier 3 incident, the confirmation screen shows step-by-step protocol guidance: what to do, what NOT to do, who to notify, legal basis, and timeframes.",
+          "mockup": [
+            "Tier 3 — CRITICAL · LOPIVI Protocol",
+            "Step 1: Secure the child in a safe space with a trusted adult",
+            "Step 2: Do not investigate. Your role is to report, not question.",
+            "Do NOT promise the child you will keep it secret",
+            "Coordinator must be informed within 15 minutes. External referral within 24 hours."
+          ]
+        },
+        {
+          "page": "Behaviour Tracker",
+          "title": "Track behaviour points across your class",
+          "description": "See which children are accumulating behaviour points, what level they're at, and how trends are changing. Filter by your class or year group.",
+          "mockup": [
+            "Marcus: 14 pts — Level 4 (Formal Warning)",
+            "Tyler: 5 pts — Level 2 (Verbal Warning)",
+            "Class 6A: 12 incidents this term • 3 amber alerts • 1 red alert"
+          ]
+        },
+        {
+          "page": "School Updates",
+          "title": "Post updates and 'Heads Up' alerts to staff",
+          "description": "Share observations, flag concerns to colleagues, or post safeguarding updates. 'Heads Up' posts are staff-only and show a prominent observation guidance banner.",
+          "mockup": [
+            "Category: Heads Up • Audience: Staff only",
+            "\"Keep an eye on Year 5 at lunch — there's been tension between two groups this week.\"",
+            "Heads Up: This is an observation for staff awareness. If you see anything, log it."
+          ]
+        },
+        {
+          "page": "Notifications",
+          "title": "Get alerted when patterns involve your pupils",
+          "description": "When pattern alerts fire for children in your class, you receive a notification. When protocols are opened, you're told what tasks you've been assigned.",
+          "mockup": [
+            "Pattern Alert: A pupil in your class (6A) has been involved in 3 incidents this week as a victim.",
+            "Task assigned: Daily wellbeing check-in with Sofia for the next 2 weeks."
+          ]
+        }
+      ]
+    },
+    "coordinator": {
+      "role": "Coordinators & Head Teachers",
+      "tagline": "See everything. Respond proportionately. Evidence every decision.",
+      "features": [
+        {
+          "page": "Dashboard",
+          "title": "Full safeguarding picture in one place",
+          "description": "Open incidents, active alerts (red/amber), mood trends, behaviour escalations, active protocols, and overdue tasks. Everything you need to make decisions.",
+          "mockup": [
+            "4 active alerts • 12 open incidents • 2 mood decline flags • 1 overdue task",
+            "This week: 3 new incidents • 2 resolved • 1 protocol opened",
+            "🚨 RED: Group targeting detected — 3 perpetrators acting together against 1 victim over 3 weeks"
+          ]
+        },
+        {
+          "page": "Pattern Alerts",
+          "title": "Automatic pattern detection across the school",
+          "description": "The system links incidents across different reporters, days, and categories. It spots repeat victims, repeat perpetrators, group dynamics, location hotspots, and escalating severity.",
+          "mockup": [
+            "🚨 RED: Same victim in 4+ incidents from 3 different reporters",
+            "🚨 AMBER: Location hotspot — 4 incidents in the same corridor this term",
+            "🚨 AMBER: Sustained mood decline for 2 pupils over 14 days"
+          ]
+        },
+        {
+          "page": "Broadcast Alerts",
+          "title": "Notify parents, staff, or the whole school",
+          "description": "Send targeted or school-wide alerts. Choose your audience: all parents, all staff, parents and staff, or everyone. Every send is audit-logged.",
+          "mockup": [
+            "Audience: All Staff • Category: Safeguarding Update",
+            "Subject: \"Increased supervision at lunch — active Convivèxit protocol\"",
+            "Sent to 32 staff members. Audit logged."
+          ]
+        },
+        {
+          "page": "Diagnostics",
+          "title": "Run school climate surveys",
+          "description": "Launch anonymous diagnostics for pupils, staff, and parents. See aggregated results, perception gaps, auto-ranked priorities, and recommended KPIs.",
+          "mockup": [
+            "Trust & Reporting: Pupils 2.1 • Staff 4.2 — 1.8pt gap",
+            "Priority 1 (Critical): Pupil trust in reporting — KPI: raise from 2.1 to 3.0 by end of term",
+            "Agreed Actions published to parents and staff"
+          ]
+        },
+        {
+          "page": "Incident Management",
+          "title": "Review, assess, and escalate incidents",
+          "description": "See every incident logged by any staff member or pupil. Filter by status, category, tier, or child. Add assessments, update status, mark for external referral.",
+          "mockup": [
+            "SS-2026-0012 • Sexual • Tier 3 • Status: Under review",
+            "Mandatory external referral: Fiscalía de Menores",
+            "Assessment: \"Referral sent to external services. Protective measures in place. Next review: 48 hours.\""
+          ]
+        },
+        {
+          "page": "Audit Log",
+          "title": "Every action is recorded",
+          "description": "Every incident, notification, protocol action, login, and data access is audit-logged with timestamps. Immutable. Designed for inspections and legal compliance.",
+          "mockup": [
+            "14:32 — teacher@school.dev logged Incident CS1-004 (Online, Tier 2)",
+            "14:33 — SYSTEM auto-notified coordinator of Tier 2 incident",
+            "14:35 — coordinator@school.dev opened Convivèxit protocol #CVX-003",
+            "14:40 — SYSTEM sent notification to parent of victim"
+          ]
+        }
+      ]
+    }
+  },
+  "audiences": {
+    "pta": {
+      "role": "PTA & Governors",
+      "description": "Anonymised data that shows whether the school is getting safer. No child names, no incident details — just trends, patterns, and outcomes.",
+      "reports": [
+        {
+          "title": "Termly Safeguarding Summary",
+          "frequency": "Every term",
+          "mockup": [
+            "Total incidents: 47 • Resolved: 44 • Active protocols: 2 • Avg resolution: 8 days",
+            "Verbal: 22 • Physical: 9 • Online: 8 • Relational: 5 • Other: 3",
+            "Incidents down 18% from last term. Zero Tier 3 incidents.",
+            "Location hotspot: 6 incidents near the sports hall at lunch. Recommend increased supervision."
+          ]
+        },
+        {
+          "title": "Diagnostic Climate Report",
+          "frequency": "Twice yearly",
+          "mockup": [
+            "Pupil trust in reporting: 2.1/5 • Staff confidence: 4.2/5 • Parent awareness: 3.9/5",
+            "Critical gap: Pupils score reporting trust 2.1 points lower than staff think. Children don't believe adults will act.",
+            "Agreed action: Relaunch pupil reporting with assembly + safe adult ambassadors. KPI target: 3.0 by July.",
+            "Response rate: Pupils 89% • Staff 95% • Parents 62%"
+          ]
+        },
+        {
+          "title": "Year-End Outcome Report",
+          "frequency": "Annual",
+          "mockup": [
+            "3 Convivèxit protocols opened this year. All 3 resolved with zero re-offending.",
+            "Victim recovery rate: 100% • Avg weeks to resolution: 5.2 • Parental satisfaction: 4.6/5",
+            "Case summary: \"Group targeting pattern identified through linked incident reports. Intervention included safe adults, restorative conversations, and parent meetings. Full recovery evidenced.\"",
+            "Suitable for Ofsted/inspection evidence. PDF export available."
+          ]
+        }
+      ]
+    },
+    "staff": {
+      "role": "Staff & Coordinators",
+      "description": "Operational reporting that helps staff see what's working and where to focus. Live data, not end-of-term surprises.",
+      "reports": [
+        {
+          "title": "Weekly Dashboard",
+          "frequency": "Real-time",
+          "mockup": [
+            "This week: 5 new incidents • 3 resolved • 2 under review • 1 pattern alert",
+            "Monday: 2 incidents • Tuesday: 1 • Wednesday: 0 • Thursday: 2 • Friday: 0",
+            "Mood decline: 2 pupils in Year 6 showing sustained low mood (below 2.0 for 7+ days)",
+            "Overdue tasks: 0. All protocol deadlines met."
+          ]
+        },
+        {
+          "title": "Behaviour Escalation Report",
+          "frequency": "Fortnightly",
+          "mockup": [
+            "5 pupils at Level 3+ (formal warning threshold)",
+            "Marcus (Yr 6): 14 pts — Level 4 • Tyler (Yr 6): 5 pts — Level 2 • Jayden (Yr 6): 4 pts — Level 2",
+            "Trend: 3 of these 5 pupils are connected through linked incidents. Possible group dynamic.",
+            "Recommended: Review behaviour points for Yr 6 cohort. Linked incidents suggest coordinated targeting."
+          ]
+        },
+        {
+          "title": "Protocol Compliance Tracker",
+          "frequency": "Ongoing",
+          "mockup": [
+            "Active protocols: Convivèxit #CVX-003 (Week 4 of 6)",
+            "Safe adult check-in: Complete (5 of 5 this week)",
+            "Restorative conversation #2 (Tyler): Scheduled for Thursday",
+            "Parent follow-up (Marcus's parents): Meeting confirmed Friday 2pm",
+            "All LOPIVI deadlines met. No overdue external referrals."
+          ]
+        }
+      ]
+    },
+    "parents": {
+      "role": "Parents & Families",
+      "description": "Parents see what matters to their child and their school — not a data dump, but clear answers to \"is my child safe?\" and \"what is the school doing?\"",
+      "reports": [
+        {
+          "title": "My Child's Wellbeing Summary",
+          "frequency": "On request",
+          "mockup": [
+            "Your child has no active safeguarding concerns.",
+            "Behaviour points: 0 • Incidents involving your child: 0 this term",
+            "Your child's wellbeing score is healthy. No mood flags detected."
+          ]
+        },
+        {
+          "title": "Incident Notification",
+          "frequency": "When relevant",
+          "mockup": [
+            "We are writing to let you know that a pattern of targeted behaviour towards your child has been identified and addressed.",
+            "A Convivèxit protocol has been initiated. Your child has been assigned a safe adult (Ms Rivera). We would welcome the opportunity to discuss this with you.",
+            "Acknowledge · Request meeting · Ask a question"
+          ]
+        },
+        {
+          "title": "School Safeguarding Report",
+          "frequency": "Termly",
+          "mockup": [
+            "Morna International College — Term 2 Safeguarding Update",
+            "Incidents this term: 47 (down 18%) • Resolved: 94% • Avg resolution: 8 days",
+            "Climate survey: 89% of pupils completed. Key finding: reporting trust needs improvement.",
+            "Action taken: New safe adult ambassador programme launched. Lunchtime supervision increased."
+          ]
+        },
+        {
+          "title": "Diagnostic Survey Invitation",
+          "frequency": "Twice yearly",
+          "mockup": [
+            "You are invited to complete a 5-minute safeguarding climate survey. Your answers are anonymous.",
+            "\"I trust the school to keep my child safe\" — Strongly agree · Agree · Neutral · Disagree · Strongly disagree",
+            "\"I know how to report a concern about my child\" — Strongly agree · Agree · Neutral · Disagree",
+            "Results are shared with PTA and published to all parents."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -42,7 +42,7 @@ const STEPS: StoryStep[] = [
     bgColor: "bg-teal-50 dark:bg-teal-950/20",
     borderColor: "border-teal-200 dark:border-teal-800",
     icon: BookHeart,
-    narrative: "Marcus calls Sofia stupid at lunch. A lunchtime supervisor sees it and logs it as a verbal incident. On its own, it looks minor. Sofia goes home and writes in her diary.",
+    narrative: "Marcus calls Sofia stupid at lunch. A lunchtime supervisor walks over, asks Marcus to apologise, checks Sofia is okay and reminds the table about kind words \u2014 then logs it as a verbal incident. On its own, it looks minor. Sofia goes home and writes in her diary.",
     screens: [
       {
         role: "Lunchtime supervisor",
@@ -51,11 +51,12 @@ const STEPS: StoryStep[] = [
         page: "Report Incident",
         pageIcon: FileText,
         title: "A single verbal incident is logged",
-        description: "The supervisor logs what she saw. It takes 60 seconds. At this stage, it looks like a one-off comment between children.",
+        description: "The supervisor steps in at the table, asks Marcus to apologise, checks on Sofia and reminds the group about kind words. Then she logs what happened on her phone. It takes 60 seconds. At this stage, it looks like a one-off comment between children.",
         mockupElements: [
           { type: "form", content: "Category: Verbal" },
           { type: "form", content: "Who was involved: Marcus \u2192 Sofia" },
           { type: "form", content: "\"Called her stupid at the lunch table. Sofia looked upset but carried on eating.\"" },
+          { type: "form", content: "Immediate action taken: Asked Marcus to apologise (he did, quietly), sat with Sofia for a few minutes, reminded the whole table about kind words." },
           { type: "badge", content: "Incident CS1-001 logged. Tier 1 \u2014 no escalation required.", color: "teal" },
         ],
       },
@@ -97,7 +98,7 @@ const STEPS: StoryStep[] = [
     bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
     borderColor: "border-indigo-200 dark:border-indigo-800",
     icon: FileText,
-    narrative: "Week 2: Ms Rivera sees Marcus push Sofia in the corridor. She logs it. Week 3: Mr Davies sees Tyler exclude Sofia from group work \u2014 and notices Marcus watching from across the room. A different pupil anonymously reports that Jayden filmed Sofia being tripped.",
+    narrative: "Week 2: Ms Rivera sees Marcus push Sofia in the corridor. She steps in immediately, separates them, checks Sofia is okay, and sends Marcus to wait outside her classroom before logging it. Week 3: Mr Davies sees Tyler exclude Sofia from group work \u2014 and notices Marcus watching from across the room. He reorganises the groups, sits with Sofia for the rest of the lesson, then logs it. A different pupil also reports anonymously that Jayden filmed Sofia being tripped.",
     screens: [
       {
         role: "Ms Rivera (teacher)",
@@ -106,13 +107,14 @@ const STEPS: StoryStep[] = [
         page: "Report Incident",
         pageIcon: FileText,
         title: "Second incident \u2014 different teacher, physical this time",
-        description: "Ms Rivera logs a physical incident. She doesn't know about the verbal incident from Week 1 \u2014 a different staff member logged that one.",
+        description: "Ms Rivera steps in straight away, separates Marcus and Sofia, checks Sofia for injuries and walks her to the medical room. She holds Marcus back at break to speak to him, then logs the incident with everything she did. She doesn't know about the verbal incident from Week 1 \u2014 a different staff member logged that one.",
         mockupElements: [
           { type: "form", content: "Category: Physical" },
           { type: "form", content: "Who was involved: Marcus pushed Sofia in the corridor" },
           { type: "form", content: "Victim emotional state: Upset, crying" },
+          { type: "form", content: "Immediate action taken: Separated the children, walked Sofia to the medical room (no injuries found), held Marcus back at break and reminded him of expectations, called Sofia's mum to let her know." },
           { type: "badge", content: "Incident CS1-002 logged. Tier 2 \u2014 coordinator auto-notified.", color: "indigo" },
-          { type: "alert", content: "Protocol guidance shown: \"This is a Tier 2 physical incident. Follow the Convivèxit process. Check for injuries. Separate the children.\"", color: "amber" },
+          { type: "alert", content: "Protocol guidance shown: \"This is a Tier 2 physical incident. Follow the Convivèxit process. Check for injuries. Separate the children. Notify parents within 24 hours.\"", color: "amber" },
         ],
       },
       {
@@ -122,10 +124,11 @@ const STEPS: StoryStep[] = [
         page: "Report Incident",
         pageIcon: FileText,
         title: "Third incident \u2014 a third teacher sees exclusion",
-        description: "Mr Davies sees Tyler excluding Sofia from group work, with Marcus watching approvingly. He doesn't know Marcus pushed her last week. He logs it as relational.",
+        description: "Mr Davies sees Tyler excluding Sofia from group work, with Marcus watching approvingly. He reshuffles the groups so Sofia is working with friends, sits next to her for the rest of the lesson, and has a quiet word with Tyler at the end. He doesn't know Marcus pushed her last week. He logs it as relational.",
         mockupElements: [
           { type: "form", content: "Category: Relational" },
           { type: "form", content: "Who was involved: Tyler excluded Sofia from group work. Marcus was observing." },
+          { type: "form", content: "Immediate action taken: Reshuffled groups, sat with Sofia for the remainder of the lesson, spoke to Tyler privately at the end of class about including everyone." },
           { type: "badge", content: "Incident CS1-003 logged.", color: "indigo" },
         ],
       },

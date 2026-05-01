@@ -1,0 +1,642 @@
+{
+  "backToLogin": "Volver al inicio de sesión",
+  "pageTitle": "Cómo funciona safeskoolz",
+  "pageSubtitle": "Sigue la historia de Sofia a través de la plataforma real: ve cada pantalla, cada alerta y cada acción que protege a una niña.",
+  "clickTimelineHint": "Haz clic en la línea de tiempo para explorar cada semana",
+  "stagesProgress": "{{current}} de {{total}} etapas",
+  "viewpointsLabel": "{{count}} puntos de vista — haz clic para cambiar",
+  "previous": "Anterior",
+  "seeNext": "Ver qué pasa después",
+  "storyComplete": "Historia completa",
+  "ctaTitle": "Cada colegio tiene historias como la de Sofia.",
+  "ctaSubtitle": "La diferencia está en si alguien conecta los puntos a tiempo. safeskoolz hace visible lo invisible.",
+  "tryDemo": "Probar la demo",
+  "footerDisclaimer": "Todos los nombres son ficticios. Los escenarios se basan en patrones reales observados en colegios de toda Europa.",
+  "poweredBy": "Powered by",
+  "interactiveDemoTag": "DEMO INTERACTIVA",
+  "rolesTitle": "Qué puede hacer cada rol",
+  "rolesSubtitle": "La historia de Sofia muestra la detección de patrones. Pero safeskoolz se usa cada día por alumnos, familias, profesores y coordinadores para mucho más.",
+  "chooseRoleHint": "Elige un rol y explora sus funciones",
+  "featuresClickHint": "{{count}} funciones — haz clic para explorar",
+  "featuresCount": "{{count}} funciones",
+  "reportingTag": "INFORMES Y ANALÍTICA",
+  "reportingTitle": "¿A dónde van los datos?",
+  "reportingSubtitle": "Cada incidente, registro de estado de ánimo y punto de conducta alimenta informes adaptados a cada audiencia. Las AMPA y patronato ven tendencias anonimizadas. El personal ve datos operativos. Las familias ven lo que importa para su hijo o hija.",
+  "chooseAudienceHint": "Elige una audiencia para ver sus informes",
+  "pipeline": {
+    "incidents": "Incidentes",
+    "patterns": "Patrones",
+    "analytics": "Analítica",
+    "reports": "Informes"
+  },
+  "reportsClickHint": "{{count}} informes — haz clic para previsualizar",
+  "steps": {
+    "firstSigns": {
+      "week": "Semana 1",
+      "title": "Sucede algo pequeño",
+      "subtitle": "Un solo comentario en el comedor. Nadie le da importancia.",
+      "narrative": "Marcus llama estúpida a Sofia en el comedor. Una monitora del comedor lo ve y lo registra como un incidente verbal. Por sí solo parece menor. Sofia llega a casa y escribe en su diario.",
+      "screens": [
+        {
+          "role": "Monitora de comedor",
+          "page": "Reportar incidente",
+          "title": "Se registra un único incidente verbal",
+          "description": "La monitora registra lo que ha visto. Tarda 60 segundos. En este momento parece un comentario aislado entre niños.",
+          "mockup": [
+            "Categoría: Verbal",
+            "Personas implicadas: Marcus → Sofia",
+            "\"La llamó estúpida en la mesa del comedor. Sofia se quedó disgustada pero siguió comiendo.\"",
+            "Incidente CS1-001 registrado. Nivel 1 — sin escalado necesario."
+          ]
+        },
+        {
+          "role": "Sofia (alumna)",
+          "page": "Diario emocional",
+          "title": "Sofia escribe en su diario privado",
+          "description": "Nadie más puede ver su diario. Ni profesores, ni familia, ni coordinador. Pero el sistema sigue discretamente la evolución de su estado de ánimo.",
+          "mockup": [
+            "😐 Regular — 3/5",
+            "\"Marcus me dijo algo feo en el comedor. No me gustó pero seguro que no es nada.\"",
+            "Entrada guardada. Esto es privado — solo tú puedes verlo."
+          ]
+        },
+        {
+          "role": "Sistema",
+          "page": "Motor de patrones",
+          "title": "El sistema registra — pero no alerta",
+          "description": "Un incidente, una entrada de diario. Aún no hay patrón. Los datos se almacenan y esperan.",
+          "mockup": [
+            "Sofia: 1 incidente como víctima • Marcus: 1 incidente como instigador",
+            "Sin alertas. Monitorizando."
+          ]
+        }
+      ]
+    },
+    "escalates": {
+      "week": "Semanas 2–3",
+      "title": "Vuelve a pasar. Y otra vez.",
+      "subtitle": "Tres incidentes más, dos profesores distintos. Marcus está reclutando.",
+      "narrative": "Semana 2: la profesora Rivera ve a Marcus empujar a Sofia en el pasillo. Lo registra. Semana 3: el profesor Davies ve a Tyler dejar a Sofia fuera del trabajo en grupo — y nota que Marcus mira desde el otro lado del aula. Otro alumno informa anónimamente de que Jayden grabó cómo le ponían la zancadilla a Sofia.",
+      "screens": [
+        {
+          "role": "Profesora Rivera",
+          "page": "Reportar incidente",
+          "title": "Segundo incidente — otra profesora, esta vez físico",
+          "description": "La profesora Rivera registra un incidente físico. No sabe nada del incidente verbal de la Semana 1 — lo registró otra persona del personal.",
+          "mockup": [
+            "Categoría: Físico",
+            "Personas implicadas: Marcus empujó a Sofia en el pasillo",
+            "Estado emocional de la víctima: Disgustada, llorando",
+            "Incidente CS1-002 registrado. Nivel 2 — coordinador notificado automáticamente.",
+            "Guía de protocolo mostrada: \"Esto es un incidente físico de Nivel 2. Sigue el proceso Convivèxit. Comprueba si hay heridas. Separa a los niños.\""
+          ]
+        },
+        {
+          "role": "Profesor Davies",
+          "page": "Reportar incidente",
+          "title": "Tercer incidente — un tercer profesor ve la exclusión",
+          "description": "El profesor Davies ve a Tyler excluir a Sofia del trabajo en grupo, con Marcus mirando con aprobación. No sabe que Marcus la empujó la semana pasada. Lo registra como relacional.",
+          "mockup": [
+            "Categoría: Relacional",
+            "Personas implicadas: Tyler excluyó a Sofia del trabajo en grupo. Marcus observaba.",
+            "Incidente CS1-003 registrado."
+          ]
+        },
+        {
+          "role": "Alumno anónimo",
+          "page": "Comunicar una preocupación",
+          "title": "Cuarto reporte — anónimo, de un alumno",
+          "description": "Un compañero informa anónimamente de que Jayden ha estado grabando a Sofia siendo acosada y compartiendo los vídeos en un grupo de chat.",
+          "mockup": [
+            "\"Jayden grabó cómo le ponían la zancadilla a Sofia y lo subió al grupo. Lo vio todo el mundo.\"",
+            "Reporte anónimo recibido. Categoría: Online. Nivel 2."
+          ]
+        },
+        {
+          "role": "Madre de Sofia",
+          "page": "En casa",
+          "title": "En casa, algo claramente va mal",
+          "description": "Sofia no quiere ir al colegio. Menciona a Marcus pero dice \"no es nada\". Su madre está preocupada pero no tiene pruebas.",
+          "mockup": [
+            "Semana 2: \"No quiero ir mañana\" — pero no quiere decir por qué",
+            "Semana 3: Dejó de hablar del colegio por completo",
+            "Semana 3: Encontré a Sofia llorando en su cuarto después de mirar el móvil"
+          ]
+        }
+      ]
+    },
+    "pattern": {
+      "week": "Semana 3",
+      "title": "safeskoolz une los puntos",
+      "subtitle": "Ningún profesor solo vio el cuadro completo. El sistema sí.",
+      "narrative": "Cuatro incidentes registrados por tres miembros distintos del personal y un alumno anónimo. Ninguna persona vio más de un evento. Pero safeskoolz los conecta todos: misma víctima, gravedad creciente, grupo formándose en torno a un cabecilla y un estado de ánimo que cae en picado.",
+      "screens": [
+        {
+          "role": "Sistema",
+          "page": "Alertas de patrón",
+          "title": "Tres alertas de patrón se activan a la vez",
+          "description": "El motor de detección de patrones conecta incidentes de diferentes informantes. Ninguna persona habría podido relacionarlos — los registraron distintos miembros del personal en días diferentes.",
+          "mockup": [
+            "🚨 ROJO: Misma víctima en 4 incidentes — Sofia ha sido objetivo en 4 incidentes en 3 semanas, registrados por 3 personas diferentes",
+            "🚨 ROJO: Acoso grupal detectado — Marcus (cabecilla), Tyler (reclutado en Semana 3), Jayden (reclutado en Semana 3) actuando juntos",
+            "🚨 ÁMBAR: Gravedad creciente — El patrón ha escalado de verbal (Semana 1) → físico (Semana 2) → relacional + online (Semana 3)"
+          ]
+        },
+        {
+          "role": "Sistema",
+          "page": "Análisis de estado de ánimo",
+          "title": "Detectado descenso de ánimo en el diario",
+          "description": "Nadie ha leído el diario de Sofia. Pero el sistema sigue la tendencia. Su ánimo ha bajado de 3 a 1 en dos semanas — un descenso sostenido que activa una alerta de bienestar.",
+          "mockup": [
+            "Semana 1: 😐 3/5 • Semana 2: 😟 2/5 • Semana 3: 😢 1/5",
+            "🚨 ÁMBAR: Descenso de ánimo sostenido — media ≤2 en 5+ entradas. SENCO + coordinador alertados."
+          ]
+        }
+      ]
+    },
+    "coordinator": {
+      "week": "Semana 4",
+      "title": "La señora Chen ve el cuadro completo",
+      "subtitle": "Cuatro incidentes. Tres informantes. Un patrón claro. Una sola pantalla.",
+      "narrative": "La señora Chen abre su panel de coordinación. No ve cuatro incidentes inconexos. Ve un cabecilla que ha reclutado a otros dos, un patrón creciente de palabras a físico y a online, y una niña cuyo ánimo se desploma. Inicia el protocolo Convivèxit.",
+      "screens": [
+        {
+          "role": "Sra. Chen (coordinadora)",
+          "page": "Panel de coordinación",
+          "title": "Todo conectado en una sola pantalla",
+          "description": "Incidentes, alertas de patrón, tendencias del diario y puntos de conducta — todo enlazado. La señora Chen puede ver la línea de tiempo completa de cómo Marcus reclutó a Tyler y a Jayden.",
+          "mockup": [
+            "4 alertas activas • 4 incidentes vinculados • 1 marca de descenso de ánimo • 1 reporte anónimo",
+            "Sofia: 4 incidentes (verbal → físico → relacional → online) • Gravedad: en aumento",
+            "Semana 1: Marcus solo → Semana 2: Marcus solo (físico) → Semana 3: Marcus + Tyler + Jayden (grupo)"
+          ]
+        },
+        {
+          "role": "Sra. Chen (coordinadora)",
+          "page": "Seguimiento de conducta",
+          "title": "Los puntos de conducta cuentan la historia",
+          "description": "Marcus ha acumulado más puntos como instigador en los cuatro incidentes. Tyler y Jayden tienen menos — fueron reclutados, no son cabecillas. Esta distinción importa para la intervención.",
+          "mockup": [
+            "Marcus: 14 pts — Nivel 4 (Apercibimiento formal + reunión con familia)",
+            "Tyler: 5 pts — Nivel 2 (Apercibimiento verbal)",
+            "Jayden: 4 pts — Nivel 2 (Apercibimiento verbal)",
+            "Protocolo Convivèxit iniciado — entrevistas programadas"
+          ]
+        }
+      ]
+    },
+    "intervene": {
+      "week": "Semanas 4–5",
+      "title": "El colegio interviene — de forma diferente para cada niño",
+      "subtitle": "Sofia recibe un adulto seguro. Llaman a los padres de Marcus. Tyler y Jayden reciben apoyo.",
+      "narrative": "El protocolo Convivèxit conduce a acciones distintas para cada niño. Sofia recibe un adulto seguro asignado. Llaman a los padres de Marcus a una reunión formal. Tyler y Jayden reciben conversaciones restaurativas — los datos muestran que fueron coaccionados, no líderes. La madre de Sofia recibe una notificación privada de que el colegio ha actuado.",
+      "screens": [
+        {
+          "role": "Sofia (alumna)",
+          "page": "Mensajes",
+          "title": "Sofia recibe un adulto seguro asignado",
+          "description": "Se asigna a la profesora Rivera como adulta segura de Sofia. Sofia puede escribirle de forma privada por la plataforma siempre que necesite hablar.",
+          "mockup": [
+            "Tienes un nuevo contacto seguro: la profesora Rivera. Puedes escribirle cuando quieras.",
+            "Mensaje: \"Hola profesora Rivera, ¿podemos hablar en el recreo?\"",
+            "Mensaje entregado de forma segura"
+          ]
+        },
+        {
+          "role": "Madre de Sofia",
+          "page": "Notificaciones",
+          "title": "La madre de Sofia recibe una notificación privada",
+          "description": "Es una notificación dirigida solo a la familia de Sofia — no un envío masivo a las 47 familias. Confirma que el colegio ha identificado el problema y está actuando.",
+          "mockup": [
+            "Le escribimos para informarle de que se ha identificado y abordado un patrón de conducta dirigida hacia Sofia. Se ha iniciado un protocolo Convivèxit. A Sofia se le ha asignado una adulta segura (la profesora Rivera). Estaríamos encantados de poder hablarlo con usted.",
+            "Confirmar · Solicitar reunión"
+          ]
+        },
+        {
+          "role": "Sra. Chen (coordinadora)",
+          "page": "Seguimiento del protocolo",
+          "title": "Cada niño recibe una respuesta proporcional",
+          "description": "El protocolo Convivèxit exige acciones distintas para cabecillas frente a participantes reclutados. safeskoolz hace seguimiento de cada tarea y plazo.",
+          "mockup": [
+            "Marcus: Reunión formal con familia • Contrato de conducta • Check-in diario con jefatura de etapa",
+            "Tyler: Conversación restaurativa con Sofia (con consentimiento) • Sesiones de mentoría",
+            "Jayden: Conversación restaurativa • Sesión de seguridad online • Revisión del uso del móvil",
+            "Sofia: Adulta segura asignada • Check-in diario de bienestar • Sistema de compañera en recreos y comedor"
+          ]
+        }
+      ]
+    },
+    "diagnostics": {
+      "week": "Semana 6",
+      "title": "El colegio mira el panorama mayor",
+      "subtitle": "¿Era el caso de Sofia algo aislado? ¿O hay un problema de cultura más amplio?",
+      "narrative": "El caso de Sofia planteó una pregunta: ¿confían realmente los niños de este colegio en el sistema de denuncia? La señora Chen lanza una encuesta diagnóstica anónima a todo el alumnado, personal y familias para averiguarlo.",
+      "screens": [
+        {
+          "role": "Todos los usuarios",
+          "page": "Encuesta diagnóstica",
+          "title": "Encuesta de clima anónima",
+          "description": "20 preguntas adaptadas al rol en 5 categorías. Alumnos, personal y familias reciben preguntas pensadas para ellos.",
+          "mockup": [
+            "\"Si denuncio algo, los adultos lo tomarán en serio\" — Muy en desacuerdo • En desacuerdo • Neutral • De acuerdo • Muy de acuerdo",
+            "\"Sé con quién hablar si veo algo que está mal\" — Muy en desacuerdo • ... • Muy de acuerdo",
+            "142 respuestas: 88 alumnos • 32 personal • 22 familias"
+          ]
+        },
+        {
+          "role": "Sra. Chen (coordinadora)",
+          "page": "Resultados del diagnóstico",
+          "title": "Brechas de percepción reveladas",
+          "description": "Los datos muestran que el personal y las familias creen que el sistema de denuncia funciona bien. Pero los alumnos no están de acuerdo. La brecha es de 1,8 puntos — los niños no confían en el sistema como los adultos suponen.",
+          "mockup": [
+            "Confianza y denuncia: Alumnos 2,1 • Familias 3,9 • Personal 4,2",
+            "Brecha de percepción de 1,8 pts: Los alumnos puntúan \"denunciar mejora las cosas\" con 2,1. El personal con 4,2. Los niños no creen que denunciar ayude.",
+            "Esto explica por qué Sofia no se lo contó a nadie en una semana — y por qué el reporte anónimo de un alumno fue clave."
+          ]
+        }
+      ]
+    },
+    "recovery": {
+      "week": "Semana 10",
+      "title": "Los datos muestran que funcionó",
+      "subtitle": "El ánimo de Sofia se recupera. Los incidentes cesan. El colegio tiene pruebas.",
+      "narrative": "Seis semanas después de la intervención. El ánimo en el diario de Sofia ha vuelto a 4. Marcus no ha tenido nuevos incidentes desde la reunión con la familia. Tyler y Jayden completaron las sesiones restaurativas. La AMPA ve evidencia anonimizada de que el sistema de protección está funcionando.",
+      "screens": [
+        {
+          "role": "Sofia (alumna)",
+          "page": "Diario emocional",
+          "title": "Recuperación del ánimo visible en el tiempo",
+          "description": "El diario de Sofia cuenta la historia que nadie más puede ver: de bien, a en declive, a tocar fondo, a recuperación gradual tras la intervención.",
+          "mockup": [
+            "Sem 1: 😐 3 → Sem 2: 😟 2 → Sem 3: 😢 1 → Sem 5: 😐 3 → Sem 8: 🙂 4 → Sem 10: 😄 5",
+            "Tendencia de ánimo: recuperación sostenida en 6 semanas"
+          ]
+        },
+        {
+          "role": "Sra. Chen (coordinadora)",
+          "page": "Línea de tiempo de incidentes",
+          "title": "Los incidentes han cesado",
+          "description": "Sin nuevos incidentes que impliquen a Marcus, Tyler, Jayden o Sofia desde la Semana 5. El protocolo Convivèxit se marca como resuelto.",
+          "mockup": [
+            "Marcus: 0 incidentes desde la Semana 4 • Puntos de conducta bajando • 14 → 8",
+            "Protocolo Convivèxit: RESUELTO — todas las acciones completadas",
+            "Sofia: ánimo recuperado • check-ins con adulta segura siguen • sin nuevos incidentes"
+          ]
+        },
+        {
+          "role": "Presidente de la AMPA",
+          "page": "Portal AMPA",
+          "title": "La AMPA ve evidencia anonimizada",
+          "description": "Los miembros de la AMPA ven datos agregados y anonimizados. Sin nombres. Solo evidencia de que el colegio identificó un patrón, intervino de forma proporcional y logró la recuperación.",
+          "mockup": [
+            "Este trimestre: 1 patrón de acoso grupal identificado • Resuelto en 5 semanas desde su detección",
+            "Tendencia de ánimo del centro: 3,2 → 3,8 (mejorando desde las acciones diagnósticas)",
+            "Resumen anual de protección: \"Patrón de conducta grupal creciente identificado a través de reportes vinculados. Protocolo Convivèxit iniciado. Víctima con adulta segura asignada. Todas las partes recibieron intervención proporcional. Recuperación completa evidenciada con datos de ánimo y sin reincidencia.\""
+          ]
+        }
+      ]
+    }
+  },
+  "roles": {
+    "pupil": {
+      "role": "Alumnos",
+      "tagline": "Un espacio seguro y privado para hablar — incluso de forma anónima",
+      "features": [
+        {
+          "page": "Comunicar una preocupación",
+          "title": "Cuenta lo que ha pasado",
+          "description": "Reporta cualquier cosa que sientas que está mal — acoso, algo que da miedo o algo que le pasa a un amigo. Puedes hacerlo de forma anónima si quieres.",
+          "mockup": [
+            "¿Qué ha pasado? — Físico · Verbal · Manipulación · Mi cuerpo, mis normas · Dejar fuera · Online",
+            "¿Te está pasando a ti o a otra persona?",
+            "¿Cómo te sientes? — 😨 Con miedo · 😢 Triste · 😠 Enfadado · 😟 Preocupado",
+            "Puedes mantenerlo anónimo. Los adultos te van a proteger."
+          ]
+        },
+        {
+          "page": "Diario emocional",
+          "title": "Un diario privado que solo tú puedes ver",
+          "description": "Apunta cómo te sientes cada día con una nota de ánimo y comentarios opcionales. Nadie del colegio puede leerlo — pero si el sistema detecta que lo estás pasando mal, avisa discretamente a un adulto de confianza.",
+          "mockup": [
+            "😄 Genial · 🙂 Bien · 😐 Regular · 😟 No muy bien · 😢 Muy mal",
+            "Escribe sobre tu día (opcional)...",
+            "Nadie puede leer tu diario. Es tuyo."
+          ]
+        },
+        {
+          "page": "Mensajería segura",
+          "title": "Escribe a tu adulto seguro",
+          "description": "Si te han asignado un adulto seguro, puedes escribirle directamente desde safeskoolz. Privado, seguro y disponible siempre.",
+          "mockup": [
+            "Tu adulta segura es: la profesora Rivera. Puedes escribirle cuando quieras.",
+            "\"¿Podemos hablar en el recreo? Ha pasado algo otra vez.\""
+          ]
+        },
+        {
+          "page": "Avisos del colegio",
+          "title": "Mira lo que está haciendo el colegio",
+          "description": "Lee los avisos del colegio sobre protección, eventos de bienestar y cosas que el colegio quiere que sepas.",
+          "mockup": [
+            "Semana contra el acoso: talleres en asamblea esta semana. Recuerda — contar lo que pasa es valiente, no es cobarde."
+          ]
+        }
+      ]
+    },
+    "parent": {
+      "role": "Familias",
+      "tagline": "Conoce lo que hace el colegio — y plantea tus preocupaciones",
+      "features": [
+        {
+          "page": "Comunicar una preocupación",
+          "title": "Reporta lo que tu hijo te está contando",
+          "description": "Si tu hijo o hija llega a casa disgustado, puedes registrar una preocupación directamente. Llega al equipo de protección. No tienes que esperar a una reunión de padres.",
+          "mockup": [
+            "¿Qué te preocupa? — Acoso · Seguridad online · Cambio de conducta · Algo que me ha contado mi hijo",
+            "\"Mi hija lleva días llegando a casa llorando. Dice que un grupo de chicos la tiene en el punto de mira en el comedor.\"",
+            "Preocupación registrada. La coordinadora de protección ha sido notificada."
+          ]
+        },
+        {
+          "page": "Notificaciones",
+          "title": "Recibe avisos cuando el colegio actúa",
+          "description": "Cuando el colegio identifica algo relacionado con tu hijo, recibes una notificación privada. No un boletín genérico — una alerta concreta con lo que se ha hecho.",
+          "mockup": [
+            "Se ha identificado un patrón de conducta dirigida hacia su hijo/a. Se ha iniciado un protocolo Convivèxit. Se ha asignado a su hijo/a un adulto seguro.",
+            "Confirmar · Solicitar reunión"
+          ]
+        },
+        {
+          "page": "Resultados de diagnóstico",
+          "title": "Mira lo seguros que se sienten los niños en el colegio",
+          "description": "Cuando el colegio realiza un diagnóstico de protección, las familias ven los resultados agregados — cómo puntuaron alumnos, personal y familias en confianza, conocimiento y cultura.",
+          "mockup": [
+            "Confianza y denuncia: Alumnos 2,1 • Familias 3,9 • Personal 4,2",
+            "Brecha de percepción: Los niños no confían en el sistema de denuncia tanto como creen las familias."
+          ]
+        },
+        {
+          "page": "Contactar con la AMPA",
+          "title": "Escribe a tu representante de la AMPA",
+          "description": "Plantea una preocupación directamente a un miembro de la AMPA. Acceden a datos anonimizados de protección y pueden defender cambios a nivel de patronato.",
+          "mockup": [
+            "\"Estoy preocupada por la supervisión en el comedor. Mi hija dice que no hay donde ir si no se siente segura.\"",
+            "Mensaje enviado a la presidenta de la AMPA (Sarah T.)"
+          ]
+        },
+        {
+          "page": "Casos prácticos",
+          "title": "Entiende los patrones reales",
+          "description": "Lee casos prácticos anonimizados que muestran cómo se desarrollan los patrones de acoso y qué hace el colegio al respecto. Ve qué reciben las familias en cada fase.",
+          "mockup": [
+            "Caso 1: Cabecilla y acosadores reclutados — cómo funcionan las dinámicas de grupo",
+            "Caso 5: Hundimiento emocional lento — cuando un niño se aísla poco a poco",
+            "La sección \"Lo que reciben las familias\" muestra ejemplos de alertas, informes y datos diagnósticos"
+          ]
+        }
+      ]
+    },
+    "teacher": {
+      "role": "Profesorado y personal",
+      "tagline": "Registra incidentes en 60 segundos. Te guiamos por el proceso correcto.",
+      "features": [
+        {
+          "page": "Registrar incidente",
+          "title": "Reporta un incidente con categorías guiadas",
+          "description": "Selecciona qué pasó, quién participó y el estado emocional del niño. El formulario se adapta a la categoría — físico, verbal, online, sexual, coactivo. Menos de un minuto.",
+          "mockup": [
+            "Categoría: Físico · Verbal · Psicológico · Sexual · Relacional · Coactivo · Daño material · Online",
+            "Víctimas · Agresores · Testigos — busca por nombre o describe a personas no identificadas",
+            "Comprobaciones del personal: ¿Se separó a los niños? ¿Coordinador notificado? ¿Lo contó el niño?"
+          ]
+        },
+        {
+          "page": "Guía de protocolo",
+          "title": "Los incidentes graves te muestran qué hacer a continuación",
+          "description": "Cuando registras un incidente de Nivel 2 o Nivel 3, la pantalla de confirmación muestra una guía de protocolo paso a paso: qué hacer, qué NO hacer, a quién avisar, base legal y plazos.",
+          "mockup": [
+            "Nivel 3 — CRÍTICO · Protocolo LOPIVI",
+            "Paso 1: Llevar al niño a un espacio seguro con un adulto de confianza",
+            "Paso 2: No investigues. Tu papel es informar, no preguntar.",
+            "NO le prometas al niño que mantendrás el secreto",
+            "El coordinador debe ser informado en 15 minutos. Derivación externa en 24 horas."
+          ]
+        },
+        {
+          "page": "Seguimiento de conducta",
+          "title": "Sigue los puntos de conducta de tu clase",
+          "description": "Ve qué niños están acumulando puntos de conducta, en qué nivel están y cómo cambian las tendencias. Filtra por tu clase o curso.",
+          "mockup": [
+            "Marcus: 14 pts — Nivel 4 (Apercibimiento formal)",
+            "Tyler: 5 pts — Nivel 2 (Apercibimiento verbal)",
+            "Clase 6A: 12 incidentes este trimestre • 3 alertas ámbar • 1 alerta roja"
+          ]
+        },
+        {
+          "page": "Avisos del colegio",
+          "title": "Publica avisos y alertas \"Heads Up\" para el personal",
+          "description": "Comparte observaciones, marca preocupaciones a colegas o publica avisos de protección. Los avisos \"Heads Up\" son solo para el personal y muestran un banner destacado de orientación.",
+          "mockup": [
+            "Categoría: Heads Up • Audiencia: Solo personal",
+            "\"Vigilad a 5º en el comedor — esta semana ha habido tensión entre dos grupos.\"",
+            "Heads Up: Esto es una observación para conocimiento del personal. Si veis algo, registradlo."
+          ]
+        },
+        {
+          "page": "Notificaciones",
+          "title": "Recibe alertas cuando los patrones implican a tus alumnos",
+          "description": "Cuando se activan alertas de patrón en niños de tu clase, recibes una notificación. Cuando se abren protocolos, se te informa de las tareas que tienes asignadas.",
+          "mockup": [
+            "Alerta de patrón: Una alumna de tu clase (6A) ha estado implicada en 3 incidentes esta semana como víctima.",
+            "Tarea asignada: Check-in diario de bienestar con Sofia durante las próximas 2 semanas."
+          ]
+        }
+      ]
+    },
+    "coordinator": {
+      "role": "Coordinadores y dirección",
+      "tagline": "Verlo todo. Responder de forma proporcional. Evidenciar cada decisión.",
+      "features": [
+        {
+          "page": "Panel de control",
+          "title": "Cuadro completo de protección en un solo sitio",
+          "description": "Incidentes abiertos, alertas activas (rojas/ámbar), tendencias de ánimo, escaladas de conducta, protocolos activos y tareas atrasadas. Todo lo que necesitas para decidir.",
+          "mockup": [
+            "4 alertas activas • 12 incidentes abiertos • 2 marcas de descenso de ánimo • 1 tarea atrasada",
+            "Esta semana: 3 nuevos incidentes • 2 resueltos • 1 protocolo abierto",
+            "🚨 ROJO: Acoso grupal detectado — 3 agresores actuando juntos contra 1 víctima en 3 semanas"
+          ]
+        },
+        {
+          "page": "Alertas de patrón",
+          "title": "Detección automática de patrones en todo el colegio",
+          "description": "El sistema vincula incidentes de distintos informantes, días y categorías. Detecta víctimas repetidas, agresores repetidos, dinámicas de grupo, lugares conflictivos y gravedad creciente.",
+          "mockup": [
+            "🚨 ROJO: Misma víctima en 4+ incidentes de 3 informantes distintos",
+            "🚨 ÁMBAR: Lugar conflictivo — 4 incidentes en el mismo pasillo este trimestre",
+            "🚨 ÁMBAR: Descenso de ánimo sostenido en 2 alumnos durante 14 días"
+          ]
+        },
+        {
+          "page": "Avisos masivos",
+          "title": "Notifica a familias, personal o a todo el colegio",
+          "description": "Envía alertas dirigidas o a todo el centro. Elige tu audiencia: todas las familias, todo el personal, familias y personal o todo el mundo. Cada envío queda registrado en auditoría.",
+          "mockup": [
+            "Audiencia: Todo el personal • Categoría: Aviso de protección",
+            "Asunto: \"Mayor supervisión en el comedor — protocolo Convivèxit activo\"",
+            "Enviado a 32 miembros del personal. Auditoría registrada."
+          ]
+        },
+        {
+          "page": "Diagnósticos",
+          "title": "Realiza encuestas de clima del colegio",
+          "description": "Lanza diagnósticos anónimos para alumnos, personal y familias. Ve resultados agregados, brechas de percepción, prioridades autoclasificadas y KPIs recomendados.",
+          "mockup": [
+            "Confianza y denuncia: Alumnos 2,1 • Personal 4,2 — brecha de 1,8 pts",
+            "Prioridad 1 (Crítica): Confianza del alumnado en denunciar — KPI: subir de 2,1 a 3,0 antes de fin de trimestre",
+            "Acciones acordadas publicadas a familias y personal"
+          ]
+        },
+        {
+          "page": "Gestión de incidentes",
+          "title": "Revisa, evalúa y escala incidentes",
+          "description": "Ve todos los incidentes registrados por personal o alumnos. Filtra por estado, categoría, nivel o niño. Añade evaluaciones, actualiza estado, marca para derivación externa.",
+          "mockup": [
+            "SS-2026-0012 • Sexual • Nivel 3 • Estado: En revisión",
+            "Derivación externa obligatoria: Fiscalía de Menores",
+            "Evaluación: \"Derivación enviada a servicios externos. Medidas de protección activas. Próxima revisión: 48 horas.\""
+          ]
+        },
+        {
+          "page": "Registro de auditoría",
+          "title": "Cada acción queda registrada",
+          "description": "Cada incidente, notificación, acción de protocolo, inicio de sesión y acceso a datos queda registrado con marcas de tiempo. Inmutable. Pensado para inspecciones y cumplimiento legal.",
+          "mockup": [
+            "14:32 — teacher@school.dev registró el incidente CS1-004 (Online, Nivel 2)",
+            "14:33 — SISTEMA notificó automáticamente al coordinador del incidente de Nivel 2",
+            "14:35 — coordinator@school.dev abrió el protocolo Convivèxit #CVX-003",
+            "14:40 — SISTEMA envió notificación a la familia de la víctima"
+          ]
+        }
+      ]
+    }
+  },
+  "audiences": {
+    "pta": {
+      "role": "AMPA y patronato",
+      "description": "Datos anonimizados que muestran si el colegio se está volviendo más seguro. Sin nombres de niños, sin detalles de incidentes — solo tendencias, patrones y resultados.",
+      "reports": [
+        {
+          "title": "Resumen trimestral de protección",
+          "frequency": "Cada trimestre",
+          "mockup": [
+            "Total de incidentes: 47 • Resueltos: 44 • Protocolos activos: 2 • Resolución media: 8 días",
+            "Verbal: 22 • Físico: 9 • Online: 8 • Relacional: 5 • Otros: 3",
+            "Incidentes 18% por debajo del trimestre anterior. Cero incidentes de Nivel 3.",
+            "Lugar conflictivo: 6 incidentes cerca del polideportivo en el comedor. Recomendamos aumentar la supervisión."
+          ]
+        },
+        {
+          "title": "Informe de clima diagnóstico",
+          "frequency": "Dos veces al año",
+          "mockup": [
+            "Confianza del alumnado en denunciar: 2,1/5 • Confianza del personal: 4,2/5 • Conocimiento de las familias: 3,9/5",
+            "Brecha crítica: Los alumnos puntúan la confianza en denunciar 2,1 pts por debajo de lo que cree el personal. Los niños no creen que los adultos vayan a actuar.",
+            "Acción acordada: Relanzar la denuncia de alumnos con asamblea + embajadores adulto seguro. KPI objetivo: 3,0 en julio.",
+            "Tasa de respuesta: Alumnos 89% • Personal 95% • Familias 62%"
+          ]
+        },
+        {
+          "title": "Informe de resultados de fin de curso",
+          "frequency": "Anual",
+          "mockup": [
+            "3 protocolos Convivèxit abiertos este curso. Los 3 resueltos sin reincidencia.",
+            "Tasa de recuperación de víctimas: 100% • Semanas medias hasta resolución: 5,2 • Satisfacción de familias: 4,6/5",
+            "Resumen del caso: \"Patrón de acoso grupal identificado a través de reportes vinculados. La intervención incluyó adultos seguros, conversaciones restaurativas y reuniones con familias. Recuperación completa evidenciada.\"",
+            "Apto como evidencia para inspección. Exportación PDF disponible."
+          ]
+        }
+      ]
+    },
+    "staff": {
+      "role": "Personal y coordinadores",
+      "description": "Informes operativos que ayudan al personal a ver qué funciona y dónde centrarse. Datos en directo, no sorpresas a final de trimestre.",
+      "reports": [
+        {
+          "title": "Panel semanal",
+          "frequency": "Tiempo real",
+          "mockup": [
+            "Esta semana: 5 incidentes nuevos • 3 resueltos • 2 en revisión • 1 alerta de patrón",
+            "Lunes: 2 incidentes • Martes: 1 • Miércoles: 0 • Jueves: 2 • Viernes: 0",
+            "Descenso de ánimo: 2 alumnos de 6º muestran ánimo bajo sostenido (por debajo de 2,0 más de 7 días)",
+            "Tareas atrasadas: 0. Todos los plazos del protocolo cumplidos."
+          ]
+        },
+        {
+          "title": "Informe de escalado de conducta",
+          "frequency": "Quincenal",
+          "mockup": [
+            "5 alumnos en Nivel 3+ (umbral de apercibimiento formal)",
+            "Marcus (6º): 14 pts — Nivel 4 • Tyler (6º): 5 pts — Nivel 2 • Jayden (6º): 4 pts — Nivel 2",
+            "Tendencia: 3 de estos 5 alumnos están conectados por incidentes vinculados. Posible dinámica de grupo.",
+            "Recomendación: Revisar puntos de conducta de la cohorte de 6º. Los incidentes vinculados sugieren una conducta coordinada."
+          ]
+        },
+        {
+          "title": "Seguimiento de cumplimiento de protocolo",
+          "frequency": "Continuo",
+          "mockup": [
+            "Protocolos activos: Convivèxit #CVX-003 (Semana 4 de 6)",
+            "Check-in con adulto seguro: Completado (5 de 5 esta semana)",
+            "Conversación restaurativa #2 (Tyler): Programada para el jueves",
+            "Seguimiento con familia (familia de Marcus): Reunión confirmada el viernes a las 14h",
+            "Todos los plazos LOPIVI cumplidos. Sin derivaciones externas atrasadas."
+          ]
+        }
+      ]
+    },
+    "parents": {
+      "role": "Familias",
+      "description": "Las familias ven lo que importa para su hijo y para su colegio — no un volcado de datos, sino respuestas claras a \"¿está mi hijo seguro?\" y \"¿qué está haciendo el colegio?\".",
+      "reports": [
+        {
+          "title": "Resumen de bienestar de mi hijo",
+          "frequency": "A petición",
+          "mockup": [
+            "Su hijo/a no tiene preocupaciones de protección activas.",
+            "Puntos de conducta: 0 • Incidentes que afectan a su hijo/a: 0 este trimestre",
+            "La puntuación de bienestar de su hijo/a es saludable. No se han detectado avisos de ánimo."
+          ]
+        },
+        {
+          "title": "Notificación de incidente",
+          "frequency": "Cuando proceda",
+          "mockup": [
+            "Le escribimos para informarle de que se ha identificado y abordado un patrón de conducta dirigida hacia su hijo/a.",
+            "Se ha iniciado un protocolo Convivèxit. A su hijo/a se le ha asignado una adulta segura (la profesora Rivera). Estaríamos encantados de poder hablarlo con usted.",
+            "Confirmar · Solicitar reunión · Hacer una pregunta"
+          ]
+        },
+        {
+          "title": "Informe de protección del colegio",
+          "frequency": "Trimestral",
+          "mockup": [
+            "Morna International College — Informe de protección del trimestre 2",
+            "Incidentes este trimestre: 47 (18% menos) • Resueltos: 94% • Resolución media: 8 días",
+            "Encuesta de clima: 89% del alumnado completada. Hallazgo clave: la confianza en la denuncia debe mejorar.",
+            "Acción tomada: Lanzado nuevo programa de embajadores adulto seguro. Mayor supervisión en el comedor."
+          ]
+        },
+        {
+          "title": "Invitación a encuesta diagnóstica",
+          "frequency": "Dos veces al año",
+          "mockup": [
+            "Le invitamos a completar una encuesta de clima de protección de 5 minutos. Sus respuestas son anónimas.",
+            "\"Confío en que el colegio mantenga seguro a mi hijo/a\" — Muy de acuerdo · De acuerdo · Neutral · En desacuerdo · Muy en desacuerdo",
+            "\"Sé cómo comunicar una preocupación sobre mi hijo/a\" — Muy de acuerdo · De acuerdo · Neutral · En desacuerdo",
+            "Los resultados se comparten con la AMPA y se publican a todas las familias."
+          ]
+        }
+      ]
+    }
+  }
+}
