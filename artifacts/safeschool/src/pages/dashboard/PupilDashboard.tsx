@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import {
   AlertTriangle, HeartHandshake, ArrowRight, Users,
-  MessageCircle, Send, Zap, X, CheckCircle2
+  MessageCircle, Send, Zap, X, ChevronDown, ChevronUp, CheckCircle2
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
 
 function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () => void; user: any }) {
@@ -15,9 +15,11 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
   const [body, setBody] = useState("");
   const [priority, setPriority] = useState("normal");
   const [location, setLocation] = useState("");
-  const [type, setType] = useState<"message" | "chat_request">("message");
-  const [sent, setSent] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const queryClient = useQueryClient();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const markedRef = useRef(new Set<string>());
 
   const QUICK_PHRASES = [
     t("someoneUnkind"),
@@ -48,151 +50,223 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
     { id: "urgent", label: t("needHelpNow"), color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400", icon: Zap },
   ];
 
+  const { data: messages } = useQuery<any[]>({
+    queryKey: ["/api/messages", contact.id],
+    queryFn: async () => {
+      const token = localStorage.getItem("safeschool_token");
+      const res = await fetch(`/api/messages?contactId=${contact.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    refetchInterval: 8000,
+  });
+
+  useEffect(() => {
+    if (!messages) return;
+    const unread = messages.filter((m: any) => !m.readAt && !m.isFromMe && !markedRef.current.has(m.id));
+    if (unread.length === 0) return;
+    const token = localStorage.getItem("safeschool_token");
+    for (const m of unread) {
+      markedRef.current.add(m.id);
+      fetch(`/api/messages/${m.id}/read`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } })
+        .then((res) => {
+          if (!res.ok) {
+            markedRef.current.delete(m.id);
+            return;
+          }
+          queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+        })
+        .catch(() => { markedRef.current.delete(m.id); });
+    }
+  }, [messages, queryClient]);
+
+  const sortedMessages = [...(messages || [])].reverse();
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [sortedMessages.length]);
+
   const sendMutation = useMutation({
     mutationFn: async () => {
       const token = localStorage.getItem("safeschool_token");
       const res = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ recipientId: contact.id, body, priority, type, location: location || null }),
+        body: JSON.stringify({ recipientId: contact.id, body: body.trim(), priority, type: "message", location: location || null }),
       });
       if (!res.ok) throw new Error("Failed to send");
       return res.json();
     },
     onSuccess: () => {
-      setSent(true);
+      setBody("");
+      setPriority("normal");
+      setLocation("");
+      setShowOptions(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/messages", contact.id] });
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+      inputRef.current?.focus();
     },
   });
 
-  if (sent) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-background rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-950/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 size={32} className="text-green-600" />
-          </div>
-          <h3 className="text-xl font-bold mb-2">{t("messageSentSuccess")}</h3>
-          <p className="text-muted-foreground mb-6">
-            {t("didRightThing", { name: `${contact.firstName} ${contact.lastName}` })}
-          </p>
-          <Button onClick={onClose} className="w-full">{t("common:done")}</Button>
-        </motion.div>
-      </div>
-    );
-  }
+  const priorityIcon = priority === "urgent" ? <Zap size={16} /> : priority === "important" ? <AlertTriangle size={16} /> : <MessageCircle size={16} />;
+  const optionsActive = showOptions || priority !== "normal";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 p-0 md:p-4">
       <motion.div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="bg-background rounded-t-2xl md:rounded-2xl p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="bg-background rounded-t-2xl md:rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] md:max-h-[85vh]"
       >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+        <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold shrink-0">
               {contact.firstName?.charAt(0)}
             </div>
-            <div>
-              <p className="font-bold">{contact.firstName} {contact.lastName}</p>
-              <p className="text-xs text-muted-foreground">{contact.displayRole}{contact.isFormTutor ? ` (${t("yourTutor")})` : ""}</p>
+            <div className="min-w-0">
+              <p className="font-bold truncate">{contact.firstName} {contact.lastName}</p>
+              <p className="text-xs text-muted-foreground truncate">{contact.displayRole}{contact.isFormTutor ? ` (${t("yourTutor")})` : ""}</p>
             </div>
           </div>
-          <button onClick={onClose} aria-label="Close message dialog" className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
+          <button onClick={onClose} aria-label="Close chat" className="text-muted-foreground hover:text-foreground shrink-0 ml-2"><X size={20} /></button>
         </div>
 
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => setType("message")}
-            className={`flex-1 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${type === "message" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
-          >
-            <Send size={14} className="inline mr-1.5" aria-hidden="true" /> {t("sendAMessage")}
-          </button>
-          <button
-            onClick={() => setType("chat_request")}
-            className={`flex-1 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${type === "chat_request" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
-          >
-            <MessageCircle size={14} className="inline mr-1.5" aria-hidden="true" /> {t("requestAChat")}
-          </button>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[180px]">
+          {sortedMessages.length === 0 ? (
+            <div className="text-center text-sm text-muted-foreground py-10 px-4">
+              {t("noMessagesYetWithContact", { name: contact.firstName })}
+            </div>
+          ) : (
+            sortedMessages.map((m: any) => (
+              <div key={m.id} className={`flex ${m.isFromMe ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
+                  m.isFromMe
+                    ? "bg-primary text-primary-foreground rounded-br-md"
+                    : m.priority === "urgent" || m.type === "urgent_help"
+                      ? "bg-red-100 text-red-800 dark:bg-red-950/30 dark:text-red-200 rounded-bl-md border border-red-200 dark:border-red-800"
+                      : m.priority === "important"
+                        ? "bg-amber-50 text-foreground dark:bg-amber-950/20 rounded-bl-md border border-amber-200 dark:border-amber-800"
+                        : "bg-muted text-foreground rounded-bl-md"
+                }`}>
+                  {!m.isFromMe && (m.priority === "urgent" || m.type === "urgent_help") && (
+                    <div className="flex items-center gap-1.5 mb-1 opacity-80">
+                      <Zap size={12} />
+                      <span className="text-[10px] font-bold uppercase">{t("needHelpNow")}</span>
+                    </div>
+                  )}
+                  <p className="text-sm whitespace-pre-wrap break-words">{m.body}</p>
+                  <p className="text-[10px] opacity-60 mt-1">{formatDate(m.createdAt)}</p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
-        <div className="mb-4">
-          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">{t("quickPhrases")}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {QUICK_PHRASES.map(phrase => (
-              <button
-                key={phrase}
-                type="button"
-                onClick={() => setBody(phrase)}
-                className={`px-3 py-1.5 rounded-lg text-xs transition-all border ${body === phrase ? "bg-primary/10 border-primary text-primary font-bold" : "bg-muted/50 border-border text-muted-foreground hover:border-primary/30"}`}
-              >
-                {phrase}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">
-            {type === "chat_request" ? t("whyWouldYouLikeToTalk") : t("yourMessageLabel")}
-          </p>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            rows={3}
-            className="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all resize-none"
-            placeholder={type === "chat_request" ? t("tellThemWhyTalk") : t("typeMessageHere")}
-          />
-        </div>
-
-        <div className="mb-4">
-          <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">{t("howImportantIsThis")}</p>
-          <div className="space-y-2">
-            {PRIORITY_OPTIONS.map(opt => (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => setPriority(opt.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all border ${
-                  priority === opt.id ? `${opt.color} border-current` : "bg-muted/30 border-border text-muted-foreground"
-                }`}
-              >
-                <opt.icon size={16} aria-hidden="true" />
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {priority === "urgent" && (
-          <div className="mb-4">
-            <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">{t("whereAreYou")}</p>
-            <div className="grid grid-cols-3 gap-1.5">
-              {SCHOOL_LOCATIONS_MSG.map(loc => (
+        {sortedMessages.length === 0 && (
+          <div className="px-4 pb-2 shrink-0">
+            <p className="text-[11px] font-bold text-muted-foreground mb-1.5 uppercase tracking-wider">{t("quickPhrases")}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {QUICK_PHRASES.map(phrase => (
                 <button
-                  key={loc.id}
+                  key={phrase}
                   type="button"
-                  onClick={() => setLocation(loc.id)}
-                  className={`px-2 py-2 rounded-lg text-xs font-bold transition-all border ${
-                    location === loc.id ? "bg-red-100 border-red-300 text-red-700 dark:bg-red-950/30 dark:text-red-400" : "bg-muted/30 border-border text-muted-foreground"
-                  }`}
+                  onClick={() => { setBody(phrase); inputRef.current?.focus(); }}
+                  className="px-2.5 py-1 rounded-lg text-xs bg-muted/60 hover:bg-primary/10 text-muted-foreground hover:text-primary border border-border transition-all"
                 >
-                  {loc.label}
+                  {phrase}
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        <Button
-          onClick={() => sendMutation.mutate()}
-          disabled={!body.trim() || sendMutation.isPending}
-          className="w-full"
-          size="lg"
+        <AnimatePresence>
+          {showOptions && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="overflow-hidden border-t border-border bg-muted/20 shrink-0"
+            >
+              <div className="p-3">
+                <p className="text-[11px] font-bold text-muted-foreground mb-1.5 uppercase tracking-wider">{t("howImportantIsThis")}</p>
+                <div className="flex gap-1.5 mb-2">
+                  {PRIORITY_OPTIONS.map(opt => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setPriority(opt.id)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-bold transition-all border ${
+                        priority === opt.id ? `${opt.color} border-current` : "bg-background border-border text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <opt.icon size={12} aria-hidden="true" />
+                      <span className="truncate">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+                {priority === "urgent" && (
+                  <div>
+                    <p className="text-[11px] font-bold text-muted-foreground mb-1.5 mt-2 uppercase tracking-wider">{t("whereAreYou")}</p>
+                    <div className="grid grid-cols-3 gap-1">
+                      {SCHOOL_LOCATIONS_MSG.map(loc => (
+                        <button
+                          key={loc.id}
+                          type="button"
+                          onClick={() => setLocation(loc.id)}
+                          className={`px-1.5 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${
+                            location === loc.id ? "bg-red-100 border-red-300 text-red-700 dark:bg-red-950/30 dark:text-red-400" : "bg-background border-border text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {loc.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <form
+          onSubmit={(e) => { e.preventDefault(); if (body.trim() && !sendMutation.isPending) sendMutation.mutate(); }}
+          className="p-3 border-t border-border bg-background shrink-0 flex items-end gap-2"
         >
-          {sendMutation.isPending ? t("sendingMessage") : type === "chat_request" ? t("requestChat") : t("sendMessage")}
-        </Button>
+          <button
+            type="button"
+            onClick={() => setShowOptions(s => !s)}
+            aria-label={t("addPriorityOrLocation")}
+            aria-expanded={showOptions}
+            className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+              optionsActive ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground hover:bg-muted/70"
+            }`}
+          >
+            {priorityIcon}
+            {showOptions ? <ChevronDown size={10} className="ml-0.5" /> : <ChevronUp size={10} className="ml-0.5" />}
+          </button>
+          <textarea
+            ref={inputRef}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (body.trim() && !sendMutation.isPending) sendMutation.mutate();
+              }
+            }}
+            rows={1}
+            placeholder={t("typeMessageHere")}
+            className="flex-1 rounded-xl border-2 border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all resize-none max-h-32"
+            autoFocus
+          />
+          <Button type="submit" disabled={!body.trim() || sendMutation.isPending} size="default" className="shrink-0 h-10 w-10 p-0" aria-label={t("sendMessage")}>
+            <Send size={16} />
+          </Button>
+        </form>
       </motion.div>
     </div>
   );
