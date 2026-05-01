@@ -184,7 +184,7 @@ router.get("/pupils/search", authMiddleware, requireRole(...ALL_STAFF_ROLES, "pu
     );
   }
 
-  const pupils = await db
+  const baseQuery = db
     .select({
       id: usersTable.id,
       firstName: usersTable.firstName,
@@ -194,8 +194,9 @@ router.get("/pupils/search", authMiddleware, requireRole(...ALL_STAFF_ROLES, "pu
     })
     .from(usersTable)
     .where(and(...conditions))
-    .orderBy(usersTable.firstName)
-    .limit(15);
+    .orderBy(usersTable.firstName);
+
+  const pupils = q.length >= 1 ? await baseQuery.limit(50) : await baseQuery;
 
   res.json(pupils);
 });
