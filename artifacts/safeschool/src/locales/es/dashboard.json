@@ -65,6 +65,8 @@
   "stayWhereYouAre": "Quédate donde estás — alguien vendrá lo antes posible.",
   "mySafeContacts": "Mis contactos seguros",
   "tapToSendMessage": "Toca un nombre para abrir una conversación.",
+  "newMessageFrom": "Nuevo mensaje de {{name}}",
+  "urgentMessageFrom": "Mensaje urgente de {{name}}",
   "noMessagesYetWithContact": "Aún no hay mensajes. Saluda a {{name}} para empezar la conversación.",
   "addPriorityOrLocation": "Marcar como urgente o indicar dónde estás",
   "typeMessageHere": "Escribe tu mensaje aquí...",

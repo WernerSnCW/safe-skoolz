@@ -273,7 +273,7 @@ router.patch("/messages/:id/read", authMiddleware, async (req, res): Promise<voi
   res.json({ success: true });
 });
 
-router.get("/messages/conversations", authMiddleware, requireRole(...ALL_STAFF_ROLES, "parent"), async (req, res): Promise<void> => {
+router.get("/messages/conversations", authMiddleware, requireRole(...ALL_STAFF_ROLES, "parent", "pupil"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
 
   const allMessages = await db.select().from(messagesTable)

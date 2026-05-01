@@ -8,6 +8,7 @@ import {
   Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, ClipboardCheck, BookHeart, Megaphone, BookMarked
 } from "lucide-react";
 import { useListNotifications } from "@workspace/api-client-react";
+import { useMessageNotifications, useMessageNotificationEngine } from "@/hooks/useMessageNotifications";
 import { motion, AnimatePresence } from "framer-motion";
 
 const MOBILE_PRIORITY_HREFS: Record<string, string[]> = {
@@ -53,11 +54,15 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { data: notificationsData } = useListNotifications();
   const unreadCount = notificationsData?.data.filter(n => !n.acknowledgedAt).length || 0;
 
+  // Live message notifications (toasts + sound + browser notification)
+  const { totalUnread: messageUnread } = useMessageNotifications();
+  useMessageNotificationEngine();
+
   if (!user) return <>{children}</>;
 
   const role = user.role;
 
-  const getNavItems = () => {
+  const getNavItems = (): Array<{ name: string; href: string; icon: any; badge?: number }> => {
     const base = [{ name: t("dashboard"), href: "/", icon: Home }];
     
     if (user.role === "pupil") {
@@ -81,7 +86,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: t("incidents"), href: "/incidents", icon: FileText },
         { name: t("behaviour"), href: "/behaviour", icon: Gauge },
         { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
-        { name: t("messages"), href: "/messages", icon: MessageCircle },
+        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
         { name: t("learn"), href: "/learn", icon: BookOpen },
         { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
         { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
@@ -97,7 +102,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
         { name: t("behaviour"), href: "/behaviour", icon: Gauge },
         { name: user.role === "head_of_year" ? t("myYearGroup") : t("myClass"), href: "/class", icon: Users },
-        { name: t("messages"), href: "/messages", icon: MessageCircle },
+        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
         { name: t("incidents"), href: "/incidents", icon: FileText },
         { name: t("alerts"), href: "/alerts", icon: Activity },
         { name: t("learn"), href: "/learn", icon: BookOpen },
@@ -115,7 +120,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
         { name: t("behaviour"), href: "/behaviour", icon: Gauge },
         { name: t("myPupils"), href: "/class", icon: Users },
-        { name: t("messages"), href: "/messages", icon: MessageCircle },
+        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
         { name: t("learn"), href: "/learn", icon: BookOpen },
         { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
         { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
@@ -133,7 +138,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: t("logIncident"), href: "/report", icon: AlertTriangle },
         { name: t("incidents"), href: "/incidents", icon: FileText },
         { name: t("allPupils"), href: "/class", icon: Users },
-        { name: t("messages"), href: "/messages", icon: MessageCircle },
+        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
         { name: t("protocols"), href: "/protocols", icon: Shield },
         { name: t("alerts"), href: "/alerts", icon: Activity },
         { name: t("learn"), href: "/learn", icon: BookOpen },
@@ -164,7 +169,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       { name: t("logIncident"), href: "/report", icon: AlertTriangle },
       { name: t("incidents"), href: "/incidents", icon: FileText },
       { name: t("allPupils"), href: "/class", icon: Users },
-      { name: t("messages"), href: "/messages", icon: MessageCircle },
+      { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
       { name: t("protocols"), href: "/protocols", icon: Shield },
       { name: t("alerts"), href: "/alerts", icon: Activity },
       { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },

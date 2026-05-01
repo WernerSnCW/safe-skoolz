@@ -140,6 +140,8 @@
   "sendUrgentAlertToTeachers": "Send an urgent alert to your teachers with your location",
   "mySafeContacts": "My Safe Contacts",
   "tapToSendMessage": "Tap a name to open a chat.",
+  "newMessageFrom": "New message from {{name}}",
+  "urgentMessageFrom": "Urgent message from {{name}}",
   "yourTutor": "Your tutor",
   "myMessages": "My Messages",
   "sendAMessage": "Send a message",

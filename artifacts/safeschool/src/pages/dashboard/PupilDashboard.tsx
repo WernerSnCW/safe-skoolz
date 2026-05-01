@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
+import { useMessageNotifications, suppressNotificationsFor } from "@/hooks/useMessageNotifications";
 
 function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () => void; user: any }) {
   const { t } = useTranslation("dashboard");
@@ -87,6 +88,12 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [sortedMessages.length]);
+
+  // Suppress in-app message toasts for this contact while their chat is open
+  useEffect(() => {
+    const release = suppressNotificationsFor(contact.id);
+    return release;
+  }, [contact.id]);
 
   const sendMutation = useMutation({
     mutationFn: async () => {
@@ -424,7 +431,7 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
   );
 }
 
-function PupilMyMessages({ user }: { user: any }) {
+function PupilMyMessages({ user, totalUnread }: { user: any; totalUnread: number }) {
   const { t } = useTranslation("dashboard");
   const { data: messages, isLoading } = useQuery({
     queryKey: ["/api/messages"],
@@ -442,7 +449,14 @@ function PupilMyMessages({ user }: { user: any }) {
   return (
     <Card>
       <CardHeader className="border-b border-border/50 bg-muted/10 pb-3">
-        <CardTitle className="text-lg flex items-center gap-2"><MessageCircle size={18} aria-hidden="true" /> {t("myMessages")}</CardTitle>
+        <CardTitle className="text-lg flex items-center gap-2">
+          <MessageCircle size={18} aria-hidden="true" /> {t("myMessages")}
+          {totalUnread > 0 && (
+            <span className="ml-auto inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold">
+              {totalUnread > 99 ? "99+" : totalUnread}
+            </span>
+          )}
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="divide-y divide-border">
@@ -475,6 +489,7 @@ export default function PupilDashboard({ user }: { user: any }) {
   const { t } = useTranslation("dashboard");
   const [messageContact, setMessageContact] = useState<any>(null);
   const [showUrgentHelp, setShowUrgentHelp] = useState(false);
+  const { unreadByContact, totalUnread } = useMessageNotifications();
 
   const { data: contacts } = useQuery({
     queryKey: ["/api/safe-contacts"],
@@ -524,23 +539,37 @@ export default function PupilDashboard({ user }: { user: any }) {
               <p className="text-sm text-muted-foreground">{t("tapToSendMessage")}</p>
             </div>
             <div className="space-y-2 flex-1">
-              {safeContacts.slice(0, 4).map((c: any) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setMessageContact(c)}
-                  className="w-full flex items-center gap-3 bg-background p-3 rounded-xl border border-border/50 hover:border-primary/40 hover:bg-primary/5 transition-all text-left group"
-                >
-                  <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold shrink-0">
-                    {c.firstName?.charAt(0)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{c.firstName} {c.lastName}</p>
-                    <p className="text-xs text-muted-foreground">{c.displayRole}{c.isFormTutor ? ` \u00b7 ${t("yourTutor")}` : ""}</p>
-                  </div>
-                  <MessageCircle size={16} className="text-muted-foreground group-hover:text-primary transition-colors shrink-0" aria-hidden="true" />
-                </button>
-              ))}
+              {safeContacts.slice(0, 4).map((c: any) => {
+                const unread = unreadByContact[c.id] || 0;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setMessageContact(c)}
+                    className={`w-full flex items-center gap-3 bg-background p-3 rounded-xl border transition-all text-left group ${
+                      unread > 0
+                        ? "border-primary/60 bg-primary/5 hover:border-primary"
+                        : "border-border/50 hover:border-primary/40 hover:bg-primary/5"
+                    }`}
+                  >
+                    <div className="relative shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold">
+                        {c.firstName?.charAt(0)}
+                      </div>
+                      {unread > 0 && (
+                        <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold ring-2 ring-background">
+                          {unread > 9 ? "9+" : unread}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm truncate ${unread > 0 ? "font-bold" : "font-semibold"}`}>{c.firstName} {c.lastName}</p>
+                      <p className="text-xs text-muted-foreground">{c.displayRole}{c.isFormTutor ? ` \u00b7 ${t("yourTutor")}` : ""}</p>
+                    </div>
+                    <MessageCircle size={16} className={`shrink-0 transition-colors ${unread > 0 ? "text-primary" : "text-muted-foreground group-hover:text-primary"}`} aria-hidden="true" />
+                  </button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -560,7 +589,7 @@ export default function PupilDashboard({ user }: { user: any }) {
         </div>
       </button>
 
-      <PupilMyMessages user={user} />
+      <PupilMyMessages user={user} totalUnread={totalUnread} />
 
       {messageContact && (
         <MessageDialog contact={messageContact} onClose={() => setMessageContact(null)} user={user} />
