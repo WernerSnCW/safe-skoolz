@@ -15,6 +15,14 @@ const EMOTIONS = [
   { id: "sad", emoji: "😢", label: "Sad" },
   { id: "angry", emoji: "😠", label: "Angry" },
   { id: "worried", emoji: "😟", label: "Worried" },
+  { id: "anxious", emoji: "😰", label: "Anxious" },
+  { id: "embarrassed", emoji: "😳", label: "Embarrassed" },
+  { id: "ashamed", emoji: "😔", label: "Ashamed" },
+  { id: "lonely", emoji: "🥺", label: "Lonely" },
+  { id: "frustrated", emoji: "😤", label: "Frustrated" },
+  { id: "hurt", emoji: "💔", label: "Hurt" },
+  { id: "unsafe", emoji: "😱", label: "Unsafe" },
+  { id: "numb", emoji: "😶", label: "Numb" },
   { id: "confused", emoji: "😕", label: "Confused" },
   { id: "okay", emoji: "😐", label: "Okay" }
 ];
@@ -875,7 +883,7 @@ export default function ReportIncident() {
                         }`}
                       >
                         <span className="text-3xl mb-1">{emo.emoji}</span>
-                        <span className="text-xs font-bold text-foreground">{emo.label}</span>
+                        <span className="text-xs font-bold text-foreground">{t(emo.id, emo.label)}</span>
                       </button>
                     );
                   })}
