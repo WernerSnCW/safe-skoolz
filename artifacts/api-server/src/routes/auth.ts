@@ -1,11 +1,38 @@
 import { Router, type IRouter } from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { eq, and, isNull, gt, inArray } from "drizzle-orm";
 import { db, usersTable, schoolLoginCodesTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
+
+const JWT_SECRET = process.env.JWT_SECRET!;
+const PUPIL_LOGIN_SESSION_TTL_SECONDS = 10 * 60;
+
+interface PupilLoginSessionPayload {
+  kind: "pupil_login_session";
+  schoolId: string;
+  profiles: { loginKey: string; pupilId: string }[];
+}
+
+function signPupilLoginSession(schoolId: string, profiles: { loginKey: string; pupilId: string }[]): string {
+  const payload: PupilLoginSessionPayload = { kind: "pupil_login_session", schoolId, profiles };
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: PUPIL_LOGIN_SESSION_TTL_SECONDS });
+}
+
+function verifyPupilLoginSession(token: string): PupilLoginSessionPayload | null {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as PupilLoginSessionPayload;
+    if (decoded.kind !== "pupil_login_session" || !decoded.schoolId || !Array.isArray(decoded.profiles)) {
+      return null;
+    }
+    return decoded;
+  } catch {
+    return null;
+  }
+}
 
 const router: IRouter = Router();
 
@@ -88,15 +115,6 @@ export function computeLockoutAction(failedAttempts: number): { action: "none" |
   return { action: "none", lockedUntil: null, attemptsRemaining: PUPIL_LOCK_THRESHOLD - newAttempts };
 }
 
-const loginSessions = new Map<string, { schoolId: string; profiles: { loginKey: string; pupilId: string }[]; expiresAt: number }>();
-
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, session] of loginSessions) {
-    if (session.expiresAt < now) loginSessions.delete(key);
-  }
-}, 60_000);
-
 router.get("/auth/locked-pupils", authMiddleware, requireRole("coordinator", "head_teacher"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
 
@@ -172,7 +190,6 @@ router.post("/auth/pupil/start", async (req, res): Promise<void> => {
     .from(usersTable)
     .where(and(...pupilFilters));
 
-  const loginSessionToken = crypto.randomBytes(32).toString("hex");
   const profileEntries: { loginKey: string; pupilId: string }[] = [];
 
   const profiles = pupils.map((p) => {
@@ -188,11 +205,7 @@ router.post("/auth/pupil/start", async (req, res): Promise<void> => {
     };
   });
 
-  loginSessions.set(loginSessionToken, {
-    schoolId,
-    profiles: profileEntries,
-    expiresAt: Date.now() + 10 * 60 * 1000,
-  });
+  const loginSessionToken = signPupilLoginSession(schoolId, profileEntries);
 
   res.json({ loginSessionToken, profiles });
 });
@@ -205,9 +218,8 @@ router.post("/auth/pupil/login", async (req, res): Promise<void> => {
     return;
   }
 
-  const session = loginSessions.get(loginSessionToken);
-  if (!session || session.expiresAt < Date.now()) {
-    loginSessions.delete(loginSessionToken);
+  const session = verifyPupilLoginSession(loginSessionToken);
+  if (!session) {
     res.status(401).json({ error: "Login session expired. Please start again." });
     return;
   }
@@ -297,8 +309,6 @@ router.post("/auth/pupil/login", async (req, res): Promise<void> => {
     .update(usersTable)
     .set({ lastLogin: new Date(), failedLoginAttempts: 0, lockedUntil: null })
     .where(eq(usersTable.id, user.id));
-
-  loginSessions.delete(loginSessionToken);
 
   const firstLogin = !user.lastLogin;
   const token = signToken({ userId: user.id, schoolId: user.schoolId, role: user.role });
