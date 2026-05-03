@@ -484,8 +484,46 @@ From RR-2026-04-12-007 (require RESEND_API_KEY):
 
 ---
 
+## Audit Log Viewer (RR-2026-05-03-010)
+
+Route file: artifacts/api-server/src/routes/audit.ts
+Mounted in routes/index.ts (after training).
+
+Endpoints (both: requireRole("coordinator", "head_teacher")):
+- GET /api/audit/event-types — static, returns 45 known event types
+- GET /api/audit — paginated, filterable, keyset cursor on
+  (createdAt DESC, id DESC)
+
+Always scoped to user.schoolId — never accepts schoolId from query.
+Limit: default 50, integer-truncated and clamped to [1, 200].
+Malformed cursor (bad base64, invalid JSON, non-UUID id) silently
+falls back to the first page (no 500). Audit log table is APPEND-ONLY
+— do not add mutation endpoints to this router.
+
+Frontend page: artifacts/safeschool/src/pages/audit.tsx
+Route: /audit — ProtectedRoute, allowedRoles=["coordinator","head_teacher"].
+Features: event-type filter dropdown, paginated table, "Load more".
+Columns: Date/Time, Event, Actor, Target, IP Address.
+
+Navigation: ScrollText icon imported in AppLayout.tsx. Nav item
+"Audit Log" added to coordinator + head_teacher nav array
+(after alerts, before diagnostic). Translation keys in EN/ES/FR/NL.
+
+Dashboard: Audit Log card on CoordinatorDashboard Overview tab
+(after Staff Training card), gated by canManageReports.
+
+Defence in depth: three independent access controls —
+ProtectedRoute (frontend route), requireRole (API), and
+nav-branch role check (sidebar visibility).
+
+ProtectedRoute extension: gained an optional allowedRoles?: string[]
+prop. When set, an authenticated user whose role is not in the list
+sees an in-layout "Access denied" panel.
+
+---
+
 ## Out of date?
 
 If a spec describes something that contradicts this file, flag it in Step 4.
 Do not silently apply the older constraint.
-Last reviewed against codebase: 2026-04-13 (updated after RR-2026-04-12-008)
+Last reviewed against codebase: 2026-05-03 (updated after RR-2026-05-03-010)
