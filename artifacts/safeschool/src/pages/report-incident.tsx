@@ -832,7 +832,7 @@ export default function ReportIncident() {
                             initial={{ opacity: 0, y: -4 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -4 }}
-                            className="absolute z-10 top-full mt-2 left-0 right-0 p-3 rounded-xl bg-white border border-border shadow-lg text-xs text-foreground leading-relaxed"
+                            className="absolute z-10 top-full mt-2 left-0 right-0 p-3 rounded-xl bg-popover border border-border shadow-lg text-xs text-popover-foreground leading-relaxed"
                           >
                             {isPupil ? cat.hint : cat.staffHint}
                           </motion.div>
