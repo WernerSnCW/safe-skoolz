@@ -83,31 +83,32 @@ router.get("/behaviour/pupil/:pupilId", authMiddleware, async (req, res): Promis
 router.get("/behaviour/summary", authMiddleware, requireRole(...STAFF_ROLES), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
 
-  const rows = await db.select({
+  const allPupils = await db.select({
+    id: usersTable.id, firstName: usersTable.firstName, lastName: usersTable.lastName,
+    yearGroup: usersTable.yearGroup, className: usersTable.className,
+  }).from(usersTable).where(and(eq(usersTable.schoolId, user.schoolId), eq(usersTable.role, "pupil")));
+
+  const totalsRows = await db.select({
     pupilId: behaviourPointsTable.pupilId,
     total: sql<number>`cast(sum(${behaviourPointsTable.points}) as int)`,
   }).from(behaviourPointsTable)
     .where(eq(behaviourPointsTable.schoolId, user.schoolId))
     .groupBy(behaviourPointsTable.pupilId);
 
-  const pupilIds = rows.map(r => r.pupilId);
-  let pupils: Record<string, any> = {};
-  if (pupilIds.length > 0) {
-    const pupilRows = await db.select({
-      id: usersTable.id, firstName: usersTable.firstName, lastName: usersTable.lastName,
-      yearGroup: usersTable.yearGroup, className: usersTable.className,
-    }).from(usersTable).where(inArray(usersTable.id, pupilIds));
-    for (const p of pupilRows) pupils[p.id] = p;
-  }
+  const totals: Record<string, number> = {};
+  for (const r of totalsRows) totals[r.pupilId] = r.total ?? 0;
 
-  const summary = rows
-    .map(r => ({
-      pupilId: r.pupilId,
-      pupil: pupils[r.pupilId] || null,
-      totalPoints: r.total,
-      level: getLevelForPoints(r.total),
-    }))
-    .sort((a, b) => b.totalPoints - a.totalPoints);
+  const summary = allPupils
+    .map(p => {
+      const totalPoints = totals[p.id] ?? 0;
+      return {
+        pupilId: p.id,
+        pupil: p,
+        totalPoints,
+        level: getLevelForPoints(totalPoints),
+      };
+    })
+    .sort((a, b) => b.totalPoints - a.totalPoints || a.pupil.lastName.localeCompare(b.pupil.lastName));
 
   res.json(summary);
 });
