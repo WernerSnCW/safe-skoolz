@@ -72,3 +72,9 @@ id = "TJ4ydqAz2DGhEJ9Kd_hEt"
 uri = "file://100_scan_phase5_safeskoolz.txt"
 type = "text"
 title = "Phase 5 Pre-Scan — safeskoolz"
+
+[[outputs]]
+id = "EbzDZzqn8NGrK4T3rKZwV"
+uri = "file://RR-2026-05-03-010_build_report.txt"
+type = "text"
+title = "Build Report — Audit Log Viewer (RR-2026-05-03-010)"

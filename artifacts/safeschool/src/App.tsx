@@ -33,13 +33,20 @@ import LearningsPage from "@/pages/learnings";
 import CaseStudiesPage from "@/pages/case-studies";
 import HowItWorksPage from "@/pages/how-it-works";
 import TrainingStatusPage from "@/pages/training-status";
+import AuditPage from "@/pages/audit";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
 
 // A simple wrapper to redirect unauthenticated users
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const { isAuthenticated, isLoading } = useAuth();
+function ProtectedRoute({
+  component: Component,
+  allowedRoles,
+}: {
+  component: React.ComponentType;
+  allowedRoles?: string[];
+}) {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -54,6 +61,17 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
     // or return a redirect component. Wouter's useLocation is fine.
     window.location.href = "/login";
     return null;
+  }
+
+  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    return (
+      <AppLayout>
+        <div className="p-12 text-center">
+          <h1 className="text-2xl font-bold mb-2">Access denied</h1>
+          <p className="text-muted-foreground">You don't have permission to view this page.</p>
+        </div>
+      </AppLayout>
+    );
   }
 
   return (
@@ -136,6 +154,9 @@ function Router() {
       </Route>
       <Route path="/training-status">
         {() => <ProtectedRoute component={TrainingStatusPage} />}
+      </Route>
+      <Route path="/audit">
+        {() => <ProtectedRoute component={AuditPage} allowedRoles={["coordinator", "head_teacher"]} />}
       </Route>
       <Route path="/settings">
         {() => <ProtectedRoute component={Settings} />}

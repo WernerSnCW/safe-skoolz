@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { 
   ShieldCheck, Home, AlertTriangle, FileText, Shield,
-  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, ClipboardCheck, BookHeart, Megaphone, BookMarked
+  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText
 } from "lucide-react";
 import { useListNotifications } from "@workspace/api-client-react";
 import { useMessageNotifications, useMessageNotificationEngine } from "@/hooks/useMessageNotifications";
@@ -162,6 +162,9 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
 
     // Coordinator, Head Teacher
+    if (user.role !== "coordinator" && user.role !== "head_teacher") {
+      return base;
+    }
     return [
       ...base,
       { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
@@ -172,6 +175,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
       { name: t("protocols"), href: "/protocols", icon: Shield },
       { name: t("alerts"), href: "/alerts", icon: Activity },
+      { name: t("auditLog"), href: "/audit", icon: ScrollText },
       { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
       { name: t("learn"), href: "/learn", icon: BookOpen },
       { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },

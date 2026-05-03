@@ -1,0 +1,277 @@
+================================================================
+BUILD REPORT — RR-2026-05-03-010
+Audit Log Viewer (Coordinator + Head Teacher only)
+Track B: new route file + new frontend page, no schema changes
+Generated: 2026-05-03
+================================================================
+
+----------------------------------------------------------------
+1. PRE-READ FINDINGS
+----------------------------------------------------------------
+artifacts/api-server/src/routes/index.ts
+  - 24 routers currently mounted, in this order:
+    health, config, newsletter, auth, schools, export,
+    incidents, protocols, alerts, notifications, dashboard,
+    delegatedRoles, annexTemplates, referralBodies, caseTasks,
+    messages, senco, behaviour, pta, dataRetention, diagnostics,
+    diary, teacherPosts, training.
+  - No auditRouter import existed.
+  - Decision: append `auditRouter` AFTER `trainingRouter` to keep
+    the existing logical grouping (admin/read-only routes at the
+    end). No mount-order conflicts (audit endpoints live under
+    /audit, no overlap with other routers).
+
+artifacts/safeschool/src/components/layout/AppLayout.tsx
+  - Coordinator + Head Teacher branch is the final return in
+    `getNavItems()` (lines 167–~185). Currently 14 entries; the
+    sidebar container (`flex-1 overflow-y-auto`) handles overflow
+    — there is room for the new entry.
+  - lucide-react import block sits at lines 9–12. `ScrollText` was
+    NOT yet imported; added it to that block.
+  - Insertion point chosen: AFTER `alerts`, BEFORE `diagnostic` —
+    keeps operational tools grouped and slots the audit/admin
+    item just before the meta section.
+
+artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx
+  - Overview tab is gated at line 209: `{activeTab === "overview" && (`.
+  - Internal layout, top → bottom:
+      a) 3-up Quick Actions grid (incidents/protocols/report).
+      b) Locked-pupil alert card (conditional).
+      c) Staff Training Completion link card (full-width row).
+  - `canManageReports` boolean already computed at line 26:
+      ["coordinator","head_teacher"].includes(user?.role)
+  - Insertion point chosen: directly AFTER the Staff Training
+    card, gated by `canManageReports`, mirroring the existing
+    Link → Card → CardContent → icon-tile + title + ChevronRight
+    pattern.
+  - lucide-react import at lines 12–16 did NOT include
+    `ScrollText`; added it.
+
+----------------------------------------------------------------
+2. FILES CREATED / CHANGED
+----------------------------------------------------------------
+Created
+  artifacts/api-server/src/routes/audit.ts                 (NEW)
+  artifacts/safeschool/src/pages/audit.tsx                 (NEW)
+  RR-2026-05-03-010_build_report.txt                       (this file)
+
+Modified
+  artifacts/api-server/src/routes/index.ts
+    - import auditRouter
+    - router.use(auditRouter) at end of mount list
+
+  artifacts/safeschool/src/App.tsx
+    - import AuditPage
+    - ProtectedRoute extended with optional `allowedRoles?: string[]`
+      prop (renders an in-layout "Access denied" panel when the
+      authenticated user's role is not in the list).
+    - new <Route path="/audit"> protected with
+      allowedRoles={["coordinator", "head_teacher"]}
+
+  artifacts/safeschool/src/components/layout/AppLayout.tsx
+    - imported `ScrollText` from lucide-react
+    - added { name: t("auditLog"), href: "/audit", icon: ScrollText }
+      to the coordinator/head_teacher nav array, after `alerts`
+
+  artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx
+    - imported `ScrollText` from lucide-react
+    - added Audit Log link card after the Staff Training card,
+      gated by `canManageReports`
+
+  artifacts/safeschool/src/locales/en/nav.json   "auditLog": "Audit Log"
+  artifacts/safeschool/src/locales/es/nav.json   "auditLog": "Registro de Auditoría"
+  artifacts/safeschool/src/locales/fr/nav.json   "auditLog": "Journal d'Audit"
+  artifacts/safeschool/src/locales/nl/nav.json   "auditLog": "Auditlogboek"
+
+----------------------------------------------------------------
+3. ENDPOINT REGISTRATION + AUTH VERIFICATION
+----------------------------------------------------------------
+After API server restart:
+
+  Without auth token:
+    GET /api/audit               → 401  ✅ (route registered)
+    GET /api/audit/event-types   → 401  ✅ (route registered)
+
+  With coordinator token (coordinator@safeschool.dev):
+    GET /api/audit/event-types   → 200, returns 45 event types  ✅
+    GET /api/audit?limit=5       → 200, 5 rows, hasMore=true,
+                                   nextCursor present              ✅
+    GET /api/audit?limit=5&cursor=…  → 200, 5 fresh rows,
+                                   ZERO overlap with page 1        ✅
+    GET /api/audit?eventType=staff_login&limit=3  → 200, 3 rows,
+                                   ALL match staff_login           ✅
+
+  With teacher token (Emma Davies, head_of_year):
+    GET /api/audit               → 403  ✅ (role guard works)
+
+  Postgres append-only trigger remains in place — no mutation
+  endpoints were added (read-only handlers only).
+
+----------------------------------------------------------------
+4. FRONTEND COMPILE
+----------------------------------------------------------------
+- Vite dev server (artifacts/safeschool: web) is running cleanly,
+  no new errors in the workflow logs after edits.
+- `tsc --noEmit` reports the SAME pre-existing errors that were
+  present before this build (in protocols/detail.tsx,
+  protocols/new.tsx, pta.tsx, report-incident.tsx, settings.tsx).
+  None of the new or modified files in this build contribute any
+  TypeScript errors:
+    - artifacts/safeschool/src/pages/audit.tsx                 (clean)
+    - artifacts/safeschool/src/App.tsx                         (clean)
+    - artifacts/safeschool/src/components/layout/AppLayout.tsx (clean)
+    - artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx (clean)
+
+----------------------------------------------------------------
+5. TEST RESULT
+----------------------------------------------------------------
+Command: `pnpm --filter @workspace/api-server test`
+Output:
+  Test Files  5 passed (5)
+       Tests  38 passed (38)
+    Duration  4.37s
+
+  → 38/38 ✅  (matches the expected baseline)
+
+----------------------------------------------------------------
+6. SERVER STARTUP
+----------------------------------------------------------------
+All three workflows running cleanly after the build:
+  - artifacts/api-server: API Server         ✅ running, new logs
+  - artifacts/mockup-sandbox: Component Preview Server ✅ running
+  - artifacts/safeschool: web                ✅ running, new logs
+
+----------------------------------------------------------------
+7. IMPLEMENTATION DECISIONS & DEVIATIONS
+----------------------------------------------------------------
+a) Route ordering inside audit.ts
+   Declared `GET /audit/event-types` BEFORE `GET /audit` as
+   instructed. (Express would actually distinguish them on its
+   own here since both are exact paths with no params, but the
+   order specified by the brief was kept verbatim for clarity.)
+
+b) `requireRole` import
+   Imported `authMiddleware`, `requireRole`, AND `JwtPayload`
+   from `../lib/auth` in a single import (the existing convention
+   in the codebase — e.g. behaviour.ts line 4). The brief showed
+   them on two import lines; consolidated into one for consistency
+   with neighbouring route files.
+
+c) Cursor parsing hardening
+   Added defensive `try/catch` and date/id validation around the
+   base64 cursor parse so a malformed cursor returns an unfiltered
+   first page instead of throwing a 500. Limit is also clamped
+   between 1 and 200 (brief said cap at 200; added a lower bound
+   of 1 so `limit=0` or `limit=-5` cannot return zero rows
+   misleadingly).
+
+d) Event types list
+   Brief listed 42 event types. The actual codebase contains 45
+   (`pta_policy_flagged`, `pta_codesign_response`, and
+   `parent_pta_message_sent` were missing from the brief's list).
+   Added all three so the dropdown matches what is actually being
+   written. This is a non-breaking superset.
+
+e) ProtectedRoute extension
+   The brief used the syntax
+     <ProtectedRoute path="/audit" component={AuditPage}
+       allowedRoles={["coordinator","head_teacher"]} />
+   The existing project uses Wouter <Route path>{() => <ProtectedRoute …/>}</Route>
+   pattern (no `path` prop on ProtectedRoute itself). I extended
+   ProtectedRoute with an optional `allowedRoles?: string[]` prop
+   and registered the route in the project's existing pattern:
+     <Route path="/audit">
+       {() => <ProtectedRoute component={AuditPage}
+              allowedRoles={["coordinator","head_teacher"]} />}
+     </Route>
+   The role guard renders an in-layout "Access denied" panel for
+   any non-allowed authenticated user. The API also enforces the
+   guard server-side (verified above), so this is defence in depth.
+
+f) Coordinator dashboard card
+   The brief asked for the card "AFTER the Staff Training card and
+   BEFORE the closing </div>". Placed exactly there, additionally
+   gated by `canManageReports` (consistent with how other
+   coordinator-only widgets — e.g. the locked pupils card and the
+   training-status query — are gated). On the coordinator and
+   head_teacher dashboards this evaluates to true; on any other
+   role that ever lands on this view it would be hidden, matching
+   the role policy.
+
+g) Frontend page UX
+   The page renders Date/Time, Event (humanised), Actor (role +
+   first 8 chars of UUID, or "System" if actorId is null), Target
+   (type + first 8 chars of UUID, or "—"), and IP Address as
+   specified. Empty-state copy matches the brief verbatim.
+   Added a small "X entries loaded" counter in the filter bar
+   for usability (no functional impact). The page also includes
+   `data-testid` attributes on the filter, clear-filters button,
+   load-more button, and each row, to support future Playwright
+   testing without scope creep here.
+
+h) No schema changes, no new npm packages
+   Confirmed. `lib/db/src/schema/auditLog.ts` is untouched; no
+   `package.json` files were modified.
+
+----------------------------------------------------------------
+8. CONSTRAINTS — VERIFIED
+----------------------------------------------------------------
+[✓] Audit log remains APPEND-ONLY — only read endpoints added.
+[✓] All queries scoped to `user.schoolId` (no schoolId from query).
+[✓] limit capped at 200 server-side (and floored at 1).
+[✓] No schema changes.
+[✓] No new npm packages.
+[✓] `pnpm test` passes (38/38).
+[✓] Only coordinator + head_teacher can access /audit (verified
+    with both an allowed coordinator token → 200, and a
+    head_of_year teacher token → 403).
+[✓] No audit access exposed to SENCO, teacher, parent, pupil,
+    or PTA roles (no nav entry, no API access).
+
+----------------------------------------------------------------
+9. POST-REVIEW HARDENING (architect feedback applied)
+----------------------------------------------------------------
+After the initial build, the architect code review flagged three
+non-critical robustness items. All three were fixed and verified:
+
+a) Cursor: validate `decoded.id` as a UUID before using it in the
+   `lt(auditLogTable.id, decoded.id)` predicate. A bad-UUID
+   cursor now silently falls back to the first page instead of
+   risking a Postgres UUID cast error.
+   Verified: cursor with id="not-a-uuid" → 200 with rows.
+   Verified: cursor="garbage"            → 200 (try/catch swallows).
+
+b) Limit: integer-normalize via `Math.trunc()` BEFORE clamping to
+   [1, 200], so non-integer input cannot reach the SQL layer.
+   Verified: limit=1.7    → 200, returns 1 row.
+   Verified: limit=0      → 200, returns 1 row (floored).
+   Verified: limit=9999   → 200, returns exactly 200 rows.
+
+c) AppLayout nav: the coordinator/head_teacher branch is no
+   longer the implicit default. It now early-returns `base` for
+   any role that is not exactly "coordinator" or "head_teacher",
+   so an unknown future role can never see the Audit Log nav
+   item. (API role guard already enforced this independently;
+   this is defence in depth.)
+
+Re-ran `pnpm --filter @workspace/api-server test` after the
+hardening: 38/38 still pass.
+
+----------------------------------------------------------------
+10. END-TO-END TEST RESULT
+----------------------------------------------------------------
+Ran a Playwright e2e test plan covering:
+  - Coordinator login → Overview tab shows Audit Log card
+  - Sidebar shows Audit Log nav item
+  - /audit page renders heading, filter, and table with rows
+  - Filter to "Staff Login" narrows results correctly
+  - Clear filters restores full result set
+  - "Load more" appends additional rows (counter increases)
+  - Logged in as Emma Davies (head_of_year) → no nav item
+  - Direct navigation to /audit → "Access denied" panel
+
+Result: SUCCESS — all steps passed.
+
+================================================================
+END OF BUILD REPORT
+================================================================

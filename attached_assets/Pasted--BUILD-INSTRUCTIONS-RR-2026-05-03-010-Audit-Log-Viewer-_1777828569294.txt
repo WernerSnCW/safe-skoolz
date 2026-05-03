@@ -1,0 +1,348 @@
+# BUILD INSTRUCTIONS — RR-2026-05-03-010
+## Audit Log Viewer
+Track: B — new route file, new frontend page, no schema changes
+Safeskoolz | Coordinator + Head Teacher only
+
+---
+
+## Before you start
+
+Read these files before writing any code:
+- `artifacts/api-server/src/routes/index.ts` — confirm mount order
+  before adding audit router
+- `artifacts/safeschool/src/components/layout/AppLayout.tsx` —
+  confirm coordinator nav array and icon imports
+- `artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx` —
+  confirm Overview tab structure before adding audit card
+
+State what you found before proceeding.
+
+---
+
+## Step 1 — Backend: new audit route file
+
+Create `artifacts/api-server/src/routes/audit.ts`
+
+### GET /audit
+
+```typescript
+router.get(
+  "/audit",
+  authMiddleware,
+  requireRole("coordinator", "head_teacher"),
+  async (req, res) => {
+    const user = (req as any).user as JwtPayload;
+
+    // Parse query params
+    const eventType = req.query.eventType as string | undefined;
+    const actorRole = req.query.actorRole as string | undefined;
+    const from     = req.query.from as string | undefined;
+    const to       = req.query.to   as string | undefined;
+    const cursor   = req.query.cursor as string | undefined;
+    const limit    = Math.min(Number(req.query.limit ?? 50), 200);
+
+    // Build WHERE conditions — always scope to schoolId
+    const conditions = [eq(auditLogTable.schoolId, user.schoolId)];
+    if (eventType) conditions.push(eq(auditLogTable.eventType, eventType));
+    if (actorRole) conditions.push(eq(auditLogTable.actorRole, actorRole));
+    if (from) conditions.push(gte(auditLogTable.createdAt, new Date(from)));
+    if (to)   conditions.push(lte(auditLogTable.createdAt, new Date(to)));
+
+    // Keyset cursor: base64-encoded JSON { createdAt, id }
+    if (cursor) {
+      const { createdAt, id } = JSON.parse(
+        Buffer.from(cursor, "base64").toString()
+      );
+      conditions.push(
+        or(
+          lt(auditLogTable.createdAt, new Date(createdAt)),
+          and(
+            eq(auditLogTable.createdAt, new Date(createdAt)),
+            lt(auditLogTable.id, id)
+          )
+        )
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(auditLogTable)
+      .where(and(...conditions))
+      .orderBy(desc(auditLogTable.createdAt), desc(auditLogTable.id))
+      .limit(limit + 1); // fetch one extra to detect next page
+
+    const hasMore = rows.length > limit;
+    const data = hasMore ? rows.slice(0, limit) : rows;
+
+    const nextCursor = hasMore
+      ? Buffer.from(
+          JSON.stringify({
+            createdAt: data[data.length - 1].createdAt,
+            id: data[data.length - 1].id,
+          })
+        ).toString("base64")
+      : null;
+
+    res.json({ data, nextCursor, hasMore });
+  }
+);
+```
+
+### GET /audit/event-types
+
+Static route — declare BEFORE the parameterised route above.
+
+```typescript
+router.get(
+  "/audit/event-types",
+  authMiddleware,
+  requireRole("coordinator", "head_teacher"),
+  async (_req, res) => {
+    // Return the known list — no DB query needed
+    res.json({
+      eventTypes: [
+        "pupil_login", "staff_login", "parent_login", "profile_updated",
+        "demo_login", "incident_created", "incident_status_updated",
+        "incident_assessed", "disclosure_requested", "disclosure_responded",
+        "disclosure_acknowledged", "protocol_created", "protocol_updated",
+        "alert_reviewed", "behaviour_points_issued", "message_sent",
+        "notification_acknowledged", "notification_broadcast",
+        "pin_reset", "bulk_pin_reset", "senco_caseload_added",
+        "senco_caseload_removed", "senco_tracking_recorded",
+        "case_task_created", "case_task_updated",
+        "delegated_role_created", "delegated_role_revoked",
+        "referral_body_created", "referral_body_updated",
+        "annex_template_created", "diary_scan_skipped",
+        "diary_entry_created", "diary_entry_deleted",
+        "training_module_completed", "incident_exported",
+        "protocol_exported", "pta_message_sent", "pta_concern_submitted",
+        "pta_policy_acknowledged", "pta_report_generated",
+        "pta_report_approved", "email_send_failed",
+      ],
+    });
+  }
+);
+```
+
+### Route ordering inside audit.ts
+
+Declare in this order:
+1. `GET /audit/event-types` (static)
+2. `GET /audit` (with query params — no path params so ordering fine)
+
+### Required imports for audit.ts
+
+```typescript
+import { Router } from "express";
+import { db, auditLogTable } from "@workspace/db";
+import {
+  eq, and, or, lt, lte, gte, desc
+} from "drizzle-orm";
+import { authMiddleware, requireRole } from "../lib/auth";
+import type { JwtPayload } from "../lib/auth";
+```
+
+### Mount in routes/index.ts
+
+```typescript
+import auditRouter from "./audit";
+// Add near dataRetention/diagnostics (end of the list):
+router.use(auditRouter);
+```
+
+---
+
+## Step 2 — Frontend: audit log page
+
+Create `artifacts/safeschool/src/pages/audit.tsx`
+
+### Data fetching
+
+```typescript
+const [eventTypeFilter, setEventTypeFilter] = useState("");
+const [cursor, setCursor] = useState<string | null>(null);
+const [allRows, setAllRows] = useState<AuditRow[]>([]);
+
+// Fetch current page
+const { data, isLoading } = useQuery({
+  queryKey: ["/api/audit", eventTypeFilter, cursor],
+  queryFn: async () => {
+    const params = new URLSearchParams({ limit: "50" });
+    if (eventTypeFilter) params.set("eventType", eventTypeFilter);
+    if (cursor) params.set("cursor", cursor);
+    const token = localStorage.getItem("safeschool_token");
+    const res = await fetch(`${apiBase}/api/audit?${params}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.json();
+  },
+});
+
+// Accumulate rows for infinite scroll / load more
+useEffect(() => {
+  if (data?.data) {
+    if (!cursor) {
+      setAllRows(data.data); // fresh filter — reset list
+    } else {
+      setAllRows((prev) => [...prev, ...data.data]);
+    }
+  }
+}, [data]);
+```
+
+### Page structure
+
+```
+Page heading: "Audit Log"
+Subheading: "Complete record of all actions in this school"
+
+[Filter bar]
+  Event type dropdown: "All events" + each of the 41 event types
+  (fetch from GET /audit/event-types on mount)
+  Clear filters button (when filter active)
+
+[Audit table]
+  Columns: Date/Time | Event | Actor | Target | IP Address
+  Rows: one per audit log entry
+  Date/Time: formatted "DD MMM YYYY HH:mm"
+  Event: eventType displayed as readable label
+    (e.g. "incident_created" → "Incident created")
+    Use a simple replace: eventType.replace(/_/g, " ")
+  Actor: actorRole + actorId (show first 8 chars of UUID, or "System"
+    if actorId is null)
+  Target: targetType + targetId (first 8 chars, or "—" if null)
+  IP Address: ipAddress or "—"
+
+[Load more button]
+  Visible when hasMore === true
+  On click: setCursor(data.nextCursor)
+  Label: "Load more"
+  Shows spinner while loading
+
+[Empty state]
+  When no rows: "No audit log entries found."
+  When filter active and no rows: "No entries match this filter."
+```
+
+### Event type label helper
+
+```typescript
+const formatEventType = (et: string) =>
+  et.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+// "incident_created" → "Incident Created"
+```
+
+### Add route to App.tsx
+
+```typescript
+import AuditPage from "./pages/audit";
+// Inside routes:
+<ProtectedRoute path="/audit" component={AuditPage}
+  allowedRoles={["coordinator", "head_teacher"]} />
+```
+
+---
+
+## Step 3 — Navigation
+
+### AppLayout.tsx — coordinator + head_teacher nav array
+
+Add `ScrollText` to lucide-react imports at top of file:
+```typescript
+import { ..., ScrollText } from "lucide-react";
+```
+
+Add nav item AFTER `alerts` and BEFORE `learn`:
+```typescript
+{ name: t("nav:auditLog"), href: "/audit", icon: ScrollText },
+```
+
+### Translation keys
+
+Add to `src/locales/en/nav.json`:
+```json
+"auditLog": "Audit Log"
+```
+
+Add translated equivalents to `es/nav.json`, `nl/nav.json`,
+`fr/nav.json`:
+```json
+// es
+"auditLog": "Registro de Auditoría"
+// nl
+"auditLog": "Auditlogboek"
+// fr
+"auditLog": "Journal d'Audit"
+```
+
+---
+
+## Step 4 — Coordinator dashboard card
+
+In `CoordinatorDashboard.tsx` Overview tab, AFTER the Staff Training
+card and BEFORE the closing `</div>`, add:
+
+```tsx
+<Link href="/audit">
+  <Card className="group cursor-pointer hover:shadow-md transition-all
+    duration-200 border-slate-200 hover:border-slate-400">
+    <CardContent className="p-6">
+      <div className="flex items-center gap-4">
+        <div className="p-3 rounded-2xl bg-slate-100 text-slate-500
+          group-hover:bg-slate-600 group-hover:text-white transition-colors">
+          <ScrollText className="h-6 w-6" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-slate-900">Audit Log</p>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Complete record of all actions
+          </p>
+        </div>
+        <ChevronRight className="h-5 w-5 text-slate-400
+          group-hover:text-slate-600 transition-colors flex-shrink-0" />
+      </div>
+    </CardContent>
+  </Card>
+</Link>
+```
+
+Add `ScrollText` to the lucide-react import in CoordinatorDashboard.tsx.
+
+---
+
+## Step 5 — Verify
+
+1. Run: `pnpm test` — all 38 tests must still pass
+2. Confirm frontend compiles without TypeScript errors
+3. Confirm both servers start cleanly
+4. Verify: `GET /api/audit` returns 401 without auth token (route registered)
+5. Verify: `GET /api/audit/event-types` returns 401 without auth token
+
+---
+
+## Constraints
+
+- Audit log is APPEND-ONLY — do not add any mutation endpoints
+- Always scope queries to `user.schoolId` — never accept schoolId
+  from query string
+- Limit capped at 200 server-side
+- No schema changes
+- No new npm packages
+- `pnpm test` must pass after this build
+- Only coordinator and head_teacher roles can access /audit
+- Do not add audit log access to SENCO, teacher, or any other role
+
+---
+
+## Build report
+
+When complete, write a TXT file named:
+`RR-2026-05-03-010_build_report.txt`
+
+The report must include:
+- Pre-read findings (mount order, nav array, dashboard layout)
+- Confirmation of endpoint registration and 401 verification
+- Frontend compile confirmation
+- pnpm test result (38/38 expected)
+- Server startup confirmation
+- Any implementation decisions or deviations from these instructions

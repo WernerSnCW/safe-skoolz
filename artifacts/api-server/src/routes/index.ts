@@ -23,6 +23,7 @@ import diaryRouter from "./diary";
 import teacherPostsRouter from "./teacherPosts";
 import exportRouter from "./export";
 import trainingRouter from "./training";
+import auditRouter from "./audit";
 
 const router: IRouter = Router();
 
@@ -50,5 +51,6 @@ router.use(diagnosticsRouter);
 router.use(diaryRouter);
 router.use(teacherPostsRouter);
 router.use(trainingRouter);
+router.use(auditRouter);
 
 export default router;
