@@ -65,19 +65,27 @@ router.get(
     }
 
     if (cursor) {
+      let decoded: { createdAt?: unknown; id?: unknown };
       try {
-        const decoded = JSON.parse(Buffer.from(cursor, "base64").toString());
-        const cursorDate = new Date(decoded.createdAt);
-        if (!isNaN(cursorDate.getTime()) && typeof decoded.id === "string" && UUID_RE.test(decoded.id)) {
-          const cond = or(
-            lt(auditLogTable.createdAt, cursorDate),
-            and(eq(auditLogTable.createdAt, cursorDate), lt(auditLogTable.id, decoded.id))
-          );
-          if (cond) conditions.push(cond);
-        }
+        decoded = JSON.parse(Buffer.from(cursor, "base64").toString());
       } catch {
-        // Invalid cursor — ignore and start from the top
+        res.status(400).json({ error: "Invalid cursor" });
+        return;
       }
+      const cursorDate = new Date(decoded.createdAt as string);
+      if (
+        isNaN(cursorDate.getTime()) ||
+        typeof decoded.id !== "string" ||
+        !UUID_RE.test(decoded.id)
+      ) {
+        res.status(400).json({ error: "Invalid cursor" });
+        return;
+      }
+      const cond = or(
+        lt(auditLogTable.createdAt, cursorDate),
+        and(eq(auditLogTable.createdAt, cursorDate), lt(auditLogTable.id, decoded.id))
+      );
+      if (cond) conditions.push(cond);
     }
 
     const rows = await db

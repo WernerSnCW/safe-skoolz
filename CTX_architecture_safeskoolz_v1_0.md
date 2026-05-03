@@ -496,9 +496,10 @@ Endpoints (both: requireRole("coordinator", "head_teacher")):
 
 Always scoped to user.schoolId — never accepts schoolId from query.
 Limit: default 50, integer-truncated and clamped to [1, 200].
-Malformed cursor (bad base64, invalid JSON, non-UUID id) silently
-falls back to the first page (no 500). Audit log table is APPEND-ONLY
-— do not add mutation endpoints to this router.
+Malformed cursor (bad base64, invalid JSON, missing/invalid date,
+non-UUID id) returns 400 with { error: "Invalid cursor" }.
+Audit log table is APPEND-ONLY — do not add mutation endpoints to
+this router.
 
 Frontend page: artifacts/safeschool/src/pages/audit.tsx
 Route: /audit — ProtectedRoute, allowedRoles=["coordinator","head_teacher"].
