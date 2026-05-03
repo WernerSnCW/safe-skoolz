@@ -309,18 +309,15 @@ Do not call these from production route handlers.
 ## Audit Log Viewer (RR-2026-05-03-010)
 
 Route file: artifacts/api-server/src/routes/audit.ts
-Mounted in routes/index.ts after training (last in the list).
+Mounted in routes/index.ts near dataRetention/diagnostics.
 
 Endpoints:
-- GET /api/audit/event-types — static, returns 45 known event types
-- GET /api/audit — paginated, filterable, keyset cursor on
-  (createdAt DESC, id DESC)
+- GET /api/audit/event-types — static, returns 41 known event types
+- GET /api/audit — paginated, filterable, keyset cursor on (createdAt, id)
 
-Both: requireRole("coordinator", "head_teacher"). Scoped to user.schoolId
-(never accepts schoolId from query). Limit: default 50, integer-truncated
-and clamped to [1, 200]. Malformed cursors (bad base64, invalid JSON,
-missing/invalid date, non-UUID id) return 400 with
-{ error: "Invalid cursor" }.
+Both: requireRole("coordinator", "head_teacher"). Scoped to user.schoolId.
+Limit: default 50, max 200. Malformed cursors fall back silently to
+first page (200) — do not change to 400 without a phase doc.
 Audit log is APPEND-ONLY — do not add mutation endpoints ever.
 
 Frontend: artifacts/safeschool/src/pages/audit.tsx
