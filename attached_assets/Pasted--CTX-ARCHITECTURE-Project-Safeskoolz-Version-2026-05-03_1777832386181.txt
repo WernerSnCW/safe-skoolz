@@ -1,0 +1,394 @@
+# CTX_ARCHITECTURE
+Project: Safeskoolz
+Version: 2026-05-03 — updated through RR-2026-05-03-010
+
+---
+
+## Stack
+
+- Frontend: React 19, Wouter routing, TanStack React Query, Radix UI
+  primitives (components/ui/), safeskoolz overrides (ui-polished.tsx),
+  Tailwind CSS v4, Lucide icons
+- i18n: i18next + react-i18next. 4 languages: en, es, nl, fr.
+  16 namespaces. Translation files at src/locales/{lang}/{namespace}.json.
+  Language stored in localStorage key "safeskoolz_lang". Fallback: "en".
+  Initialised in src/lib/i18n.ts, imported as side-effect in main.tsx.
+- Backend: Express 5, TypeScript, Node.js
+- Database: PostgreSQL (Replit-managed), Drizzle ORM (schema-first,
+  drizzle-kit push — no raw SQL migrations)
+- API contract: OpenAPI 3.1.0 (lib/api-spec/openapi.yaml) + Orval codegen
+- Codegen output: React Query hooks → lib/api-client-react/src/generated/;
+  Zod schemas → lib/api-zod/src/generated/
+- Monorepo: pnpm workspaces — lib/*, artifacts/*, scripts/*.
+  Cross-package refs use @workspace/ prefix
+- LLM: OpenAI gpt-5-nano via AI_INTEGRATIONS_OPENAI_API_KEY env var.
+  Used in: routes/diary.ts (safeguarding scan), routes/diagnostics.ts
+  (survey analysis). Access via getOpenAI() helper — never instantiate
+  client directly
+- PDF generation: pdfkit (installed in artifacts/api-server package).
+  Server-side, Buffer-based. Do not use stream piping — return Buffer
+  and send via res.send()
+- Email: Resend (resend package, installed in artifacts/api-server).
+  Helper: src/lib/emailHelper.ts. Never throws. Audits failures.
+  Requires RESEND_API_KEY + EMAIL_FROM_ADDRESS env vars.
+- Test runner: vitest + @vitest/coverage-v8 (devDependencies in
+  artifacts/api-server). Run: pnpm test. 38 tests, all passing.
+- Deployment: Replit autoscale
+
+---
+
+## Protected files
+
+Files that must not be modified without explicit spec approval:
+
+- `lib/api-spec/openapi.yaml`: API contract source of truth. Orval codegen
+  runs from this. Do not edit without also running codegen:
+  `pnpm --filter @workspace/api-spec run g`
+- `lib/db/src/schema/index.ts`: barrel export — add new schema files here,
+  do not remove existing exports
+- `artifacts/api-server/src/lib/auditHelper.ts`: writeAudit() is the sole
+  authorised way to write audit log entries. Do not insert directly into
+  audit_log table. Do not modify writeAudit() signature without a phase
+  doc naming this file explicitly
+- `artifacts/api-server/src/lib/seed.ts`: seedDemoData() is idempotent and
+  runs at server start when DEMO_MODE=true. Seed changes can corrupt demo
+  data if not carefully gated. Follow insert-if-not-exists pattern
+- `artifacts/api-server/src/lib/escalation.ts`: determineEscalationTier()
+  and buildProtocolGuidance() implement LOPIVI/Convivèxit/Machista Violence
+  compliance logic. Do not modify without a compliance phase doc
+
+---
+
+## Canonical values and env vars
+
+- DEMO_MODE: controls demo quick-login and seed data. Set in
+  [userenv.development] only — absent in production. Check via
+  process.env.DEMO_MODE === "true"
+- AI_INTEGRATIONS_OPENAI_API_KEY: OpenAI key for diary scan and
+  diagnostics AI analysis. May be absent — always check getOpenAI()
+  return value before use
+- JWT_SECRET: shared env var (available in all environments)
+- DATABASE_URL: Replit-managed PostgreSQL connection string
+- RESEND_API_KEY: Resend email provider key. If absent, all email sends
+  skip silently (console warning only). Must be set before go-live.
+- EMAIL_FROM_ADDRESS: sender address for emails. Defaults to
+  "noreply@safeskoolz.com". Domain must be verified in Resend account.
+- API prefix: all routes mounted at /api in
+  artifacts/api-server/src/app.ts
+- Demo access code: MORNA2025 (school: Morna International College,
+  schoolId: 0a6a9fba-5ecb-474f-8544-a7f2caafd924)
+- Demo staff password: password123
+- Demo parent password: parent123
+- Demo PTA password: pta123
+- Reference number formats: incidents: SS-YYYY-NNNN,
+  protocols: PROT-YYYY-NNN
+
+---
+
+## Roles
+
+Nine roles in the system. All role strings are lowercase:
+coordinator, head_teacher, teacher, head_of_year, senco, parent, pupil,
+pta, admin
+
+Role access levels (general guidance — always check existing route RBAC
+before adding new endpoints):
+- coordinator: full access to all safeguarding data
+- head_teacher: similar to coordinator for most views
+- teacher / head_of_year: scoped to their class/year group pupils
+- senco: caseload management + incident visibility
+- parent: own children's data only, PII-limited
+- pupil: own data only, child-safe UI
+- pta: anonymised aggregate data only, all responses pass through
+  ptaPiiMiddleware
+- admin: system administration
+
+---
+
+## Patterns that must be followed
+
+**Express route structure:**
+Each domain gets its own Router() file in
+artifacts/api-server/src/routes/<domain>.ts (or <domain>/index.ts).
+All routers mounted in routes/index.ts.
+CRITICAL: static routes must be declared before parameterised :id routes
+within the same router. Example: GET /incidents/my-disclosures must appear
+before GET /incidents/:id. Violation causes Express to match static paths
+as :id values.
+
+**Drizzle schema:**
+Tables defined in lib/db/src/schema/*.ts, exported via barrel index.ts.
+Schema changes pushed via drizzle-kit push. No raw SQL migrations ever.
+New nullable columns on existing tables require no data migration —
+existing rows get null automatically.
+
+**Audit log:**
+Every mutation and every sensitive read (e.g. PDF export) must call
+writeAudit() from lib/auditHelper.ts. Audit log is append-only (Postgres
+trigger prevents UPDATE/DELETE). Write audit AFTER successful operation,
+not before — do not log actions that have not yet completed.
+
+**Notification creation:**
+Insert directly into notificationsTable via db. Look up recipient by
+role + schoolId (e.g. coordinator for diary scan alerts). Match the
+pattern in existing routes — do not create a notification service layer.
+
+**AI scan failure handling (diary.ts):**
+When getOpenAI() returns null or the OpenAI call throws: the operation
+(diary entry creation) must still succeed. Create a coordinator
+notification with trigger "diary_scan_skipped" and write an audit log
+entry. Never fail the primary operation because AI is unavailable.
+
+**PDF generation (pdfkit):**
+Use pdfExport.ts helper functions. Always return a Buffer — do not pipe
+the PDFDocument stream directly to the Express response. Pattern:
+  const doc = new PDFDocument()
+  const chunks: Buffer[] = []
+  doc.on("data", chunk => chunks.push(chunk))
+  doc.on("end", () => resolve(Buffer.concat(chunks)))
+  // ... build PDF ...
+  doc.end()
+Set headers before sending:
+  res.setHeader("Content-Type", "application/pdf")
+  res.setHeader("Content-Disposition", `attachment; filename="..."`)
+  res.send(buffer)
+
+**Email (emailHelper.ts):**
+Use sendEmail() from src/lib/emailHelper.ts. Never throws — all errors
+caught internally. Audits failures with eventType "email_send_failed".
+All email sends must be non-blocking — fire after res.json() via
+(async () => { ... })() IIFE pattern. Do not await email sends in
+request handlers. Do not add new email triggers without a phase doc.
+Do not introduce HTML email templates without speccing the template
+system first.
+
+**Frontend data access:**
+Pages may use either generated React Query hooks (from
+lib/api-client-react/) or raw fetch() calls. Both patterns coexist —
+do not mix them within a single data-fetch concern on the same page.
+Do not run or modify Orval codegen as part of a UI build.
+
+**i18n:**
+All user-facing strings in frontend components must use the t() hook
+from react-i18next. Use useTranslation("namespace") at top of each
+component. Language stored in localStorage key "safeskoolz_lang".
+Do NOT translate: LOPIVI, Convivèxit, Machista Violence, SENCO, GBV,
+PTA, safeskoolz, role API values, reference number formats, API error
+messages, user-authored content.
+Plural forms use i18next count syntax:
+  t("key", { count: N }) with _one / _other suffixes in JSON files.
+
+**Shadcn UI + Lucide:**
+All new UI components must use Radix-based Shadcn UI primitives from
+components/ui/ and Lucide icons. Do not introduce new UI libraries.
+
+**Demo config endpoint:**
+GET /api/config returns { demoEnabled: boolean } — public, no auth.
+Use this in any frontend component that needs to conditionally show
+demo-only UI. Do not hardcode IS_DEMO or check env vars in frontend code.
+
+**Testing:**
+Run pnpm test after every build that touches lib/ or routes/ files.
+All 38 tests must pass before marking build complete. Test files live
+in artifacts/api-server/src/__tests__/.
+@internal exported functions (computeLockoutAction, createAlert) —
+do not call from production code, only from tests.
+
+---
+
+## Routing — frontend (Wouter)
+
+Key routes as of 2026-05-03:
+- /login — public
+- /how-it-works — public
+- /case-studies — public
+- / — dashboard (role-adaptive)
+- /report — report incident
+- /incidents — incident list
+- /incidents/:id — incident detail
+- /protocols — protocol list
+- /protocols/:id — protocol detail
+- /protocols/new — new protocol
+- /diary — pupil mood diary
+- /messages — messaging
+- /alerts — pattern alerts
+- /behaviour — behaviour points
+- /learn — merged Education + Training (sub-tabs: "About Safeguarding",
+  "Using safeskoolz"). /education and /training kept as aliases.
+- /learnings — noticeboard (uses /api/teacher-posts backend).
+  Nav label: "Noticeboard". Page heading: "Noticeboard".
+- /diagnostics — wellbeing surveys
+- /diagnostics/:id/results — survey results
+- /pta — PTA portal (5 tabs)
+- /caseload — SENCO caseload
+- /training — alias (content in /learn)
+- /education — alias (content in /learn)
+- /my-class — teacher class management
+- /settings — profile editor
+- /delegated-roles — role appointments
+- /annex-templates — document templates
+- /training-status — staff training completion matrix
+  (coordinator + head_teacher only)
+- /audit — audit log viewer (coordinator + head_teacher only)
+
+Removed routes (RR-2026-04-10-001):
+- /newsletter — removed from frontend. Backend endpoint and
+  newsletter_subscribers table retained.
+
+---
+
+## Schema additions (post-initial build)
+
+### disclosure_permissions table (RR-2026-04-10-003)
+Added two nullable columns:
+- acknowledgedAt: timestamp with timezone, nullable
+- parentResponse: text, nullable
+
+Acknowledgement flow:
+- PATCH /api/incidents/:incidentId/disclosure/:disclosureId/acknowledge
+- Parent role only. Atomic WHERE clause. Idempotent.
+- Audit log: eventType "disclosure_acknowledged"
+- parentResponse: null for empty/whitespace-only strings
+
+New endpoint (static — must stay before GET /incidents/:id):
+- GET /api/incidents/my-disclosures — parent role only
+
+### training_completions table (RR-2026-04-10-005)
+Schema file: lib/db/src/schema/training_completions.ts
+Fields: id, schoolId, userId, moduleId (varchar 100), completedAt
+Unique constraint: (userId, moduleId)
+
+Module IDs (canonical — do not change without a phase doc):
+  loggingIncident, assessingIncident, managingPupilPins,
+  behaviourPoints, respondingToMessages, understandingAlerts,
+  managingProtocols, sencoCaseload, dashboardOverview
+
+---
+
+## Route files (complete list)
+
+All mounted in artifacts/api-server/src/routes/index.ts:
+health, config, newsletter, auth, schools, export, incidents,
+protocols, alerts, notifications, dashboard, delegatedRoles,
+annexTemplates, referralBodies, caseTasks, messages, senco,
+behaviour, pta, dataRetention, diagnostics, diary, teacherPosts,
+training, audit
+
+---
+
+## Email notifications (RR-2026-04-12-007)
+
+Provider: Resend. Helper: src/lib/emailHelper.ts.
+Three active triggers:
+1. Disclosure approved → parent email (incidents.ts)
+2. Tier 2/3 incident created → coordinator + head_teacher email
+   (incidents.ts) — fires at escalationTier >= 2
+3. Amber/Red pattern alert created → coordinator + head_teacher email
+   (patternDetection.ts)
+
+In-app coordinator notification fires at escalationTier >= 2 (fixed
+in RR-2026-04-12-008 — was incorrectly >= 3).
+
+---
+
+## Test infrastructure (RR-2026-04-12-008)
+
+Test runner: vitest + @vitest/coverage-v8 (devDependencies, api-server)
+Config: artifacts/api-server/vitest.config.ts
+Test directory: artifacts/api-server/src/__tests__/
+Scripts: pnpm test, pnpm test:coverage
+38 tests across 5 files — all passing.
+
+@internal functions exported for testing only:
+- computeLockoutAction(failedAttempts) in auth.ts
+- createAlert(data) in patternDetection.ts
+Do not call these from production route handlers.
+
+---
+
+## Audit Log Viewer (RR-2026-05-03-010)
+
+Route file: artifacts/api-server/src/routes/audit.ts
+Mounted in routes/index.ts near dataRetention/diagnostics.
+
+Endpoints:
+- GET /api/audit/event-types — static, returns 41 known event types
+- GET /api/audit — paginated, filterable, keyset cursor on (createdAt, id)
+
+Both: requireRole("coordinator", "head_teacher"). Scoped to user.schoolId.
+Limit: default 50, max 200. Malformed cursors fall back silently to
+first page (200) — do not change to 400 without a phase doc.
+Audit log is APPEND-ONLY — do not add mutation endpoints ever.
+
+Frontend: artifacts/safeschool/src/pages/audit.tsx
+Route: /audit — coordinator + head_teacher only.
+Nav: "Audit Log" item in coordinator+head_teacher sidebar (ScrollText icon).
+Dashboard: Audit Log card in CoordinatorDashboard Overview tab.
+Translations in all 4 locale files (nav namespace, key "auditLog").
+
+Defence in depth: ProtectedRoute (frontend) + requireRole (API) +
+nav-branch conditional (AppLayout).
+
+---
+
+## Safety fixes (RR-2026-04-10-006)
+
+- UrgentHelpDialog type field: corrected "message" → "urgent_help".
+  GET /messages/child-alerts now correctly receives urgent help messages.
+- Audit log corrections: diary_entry_created, diary_entry_deleted,
+  notification_acknowledged now audited. notification_broadcast actor
+  field corrected (was string, now JwtPayload).
+- GET /api/auth/locked-pupils: coordinator + head_teacher, returns locked
+  pupils scoped by schoolId. Declared before parameterised routes.
+- Unlock: uses POST /api/schools/pupils/reset-pin/:pupilId (clears
+  lockedUntil + failedLoginAttempts, generates new PIN).
+  Audit event: "pin_reset" (confirmed in schools.ts line 240).
+
+---
+
+## Known architectural weaknesses (do not resolve without a dedicated phase)
+
+1. **In-memory loginSessions Map (auth.ts):** Pupil login sessions stored
+   in-process. Not shared across autoscale instances. Requires PostgreSQL-
+   backed session store. Build ID: FIX-04 (not yet built).
+   DO NOT go live with real schools until this is resolved.
+
+2. **setInterval pattern detection (index.ts):** Runs in every instance
+   in autoscale — creates duplicate alerts. Requires DB-backed lock or
+   leader election. Build ID: FIX-04 (not yet built).
+
+3. **express-rate-limit in-memory (app.ts):** Rate limit counters not
+   shared across instances. Requires pg-backed store. Build ID: FIX-04.
+
+4. **Mixed API call patterns:** Some pages use generated React Query hooks,
+   others use raw fetch(). Both acceptable but inconsistency increases
+   maintenance burden. Build ID: FIX-05 (not yet built).
+
+5. **Pre-existing TypeScript errors:** Unresolved in protocols.tsx,
+   pta.tsx, report-incident.tsx, settings.tsx. Not introduced by recent
+   builds. Should be addressed before production deployment.
+
+---
+
+## Deferred acceptance criteria (carry forward)
+
+Require DEMO_MODE=true or live authenticated session to verify:
+
+- Demo login button renders and functions when DEMO_MODE=true (RR-001)
+- PTA login end-to-end (RR-002)
+- Parent disclosure acknowledgement card end-to-end (RR-003)
+- Incident PDF download end-to-end (RR-004)
+- Protocol PDF download end-to-end (RR-004)
+- Parent/PTA role returns 403 on export endpoint (RR-004)
+- Training completion UI and CSV (RR-005)
+- Locked pupils card end-to-end (RR-006)
+- Email delivery — all 3 triggers (RR-007, requires RESEND_API_KEY)
+- Audit log filter and load-more end-to-end (RR-010)
+
+---
+
+## Out of date?
+
+If a spec describes something that contradicts this file, flag it in
+Step 4. Do not silently apply the older constraint.
+Last reviewed against codebase: 2026-05-03 (updated after RR-2026-05-03-010)
