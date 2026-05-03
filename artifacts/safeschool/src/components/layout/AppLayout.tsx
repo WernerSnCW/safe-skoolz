@@ -197,7 +197,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
         <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
           {navItems.map((item) => {
-            const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
+            const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href + "/"));
             return (
               <Link key={item.name} href={item.href} className="block">
                 <div className={cn(
@@ -312,7 +312,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <nav className="md:hidden fixed bottom-0 inset-x-0 glass-panel border-t border-border/50 pb-safe z-30">
         <div className="flex justify-around items-center h-16 px-2">
           {getMobileNavItems(navItems, role).map((item) => {
-            const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
+            const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href + "/"));
             return (
               <Link key={item.name} href={item.href} className="flex-1 h-full flex flex-col items-center justify-center relative">
                 <div className={cn(
