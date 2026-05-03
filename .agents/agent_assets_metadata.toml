@@ -66,3 +66,9 @@ id = "9gcy-EZx-6penlRZGkLhw"
 uri = "file://RR-2026-04-12-008_build_report.txt"
 type = "text"
 title = "Build Report — RR-2026-04-12-008 (Test Infrastructure + Tier 2 Fix)"
+
+[[outputs]]
+id = "TJ4ydqAz2DGhEJ9Kd_hEt"
+uri = "file://100_scan_phase5_safeskoolz.txt"
+type = "text"
+title = "Phase 5 Pre-Scan — safeskoolz"

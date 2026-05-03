@@ -1,0 +1,399 @@
+================================================================
+100 — CURRENT STATE SCAN (Phase 5 pre-scan) — safeskoolz
+Generated: 2026-05-03
+================================================================
+
+NOTE ON PATHS
+-------------
+The scan brief referenced `lib/db/src/schema/index.ts`. In this monorepo
+the path is `lib/db/src/schema/index.ts` (correct), and the audit log
+table is actually defined in a sibling file `lib/db/src/schema/auditLog.ts`
+which the index re-exports. All other paths matched the brief.
+
+================================================================
+PER-FILE SCAN
+================================================================
+
+----------------------------------------------------------------
+1) lib/db/src/schema/index.ts  (and lib/db/src/schema/auditLog.ts)
+----------------------------------------------------------------
+1. What it does
+   The schema barrel for `@workspace/db`. It re-exports every Drizzle
+   table (users, schools, incidents, audit_log, etc.) so the API
+   server can `import { db, auditLogTable } from "@workspace/db"`.
+
+2. Key exports relevant to this build
+   - `auditLogTable` (Drizzle pgTable, defined in auditLog.ts)
+   - `insertAuditLogSchema` (Zod insert schema)
+   - `AuditLogRecord` (TypeScript select-row type)
+   These are confirmed reachable via the public package entry — the
+   helper at artifacts/api-server/src/lib/auditHelper.ts already
+   imports `auditLogTable` from `@workspace/db` successfully.
+
+3. Flags relevant to a new audit log viewer endpoint
+   - `audit_log` is APPEND-ONLY: a Postgres trigger
+     `audit_log_no_update` (created in artifacts/api-server/src/index.ts
+     lines 23–35) raises an exception on UPDATE/DELETE. Read endpoints
+     are fine; do NOT add any mutation endpoints.
+   - Three indexes are already in place — you can query/sort by
+     school_id, event_type, and created_at without adding indexes:
+       idx_audit_log_school_id
+       idx_audit_log_event_type
+       idx_audit_log_created_at
+
+----------------------------------------------------------------
+2) artifacts/api-server/src/lib/auditHelper.ts  (full file)
+----------------------------------------------------------------
+1. What it does
+   Single helper `writeAudit(...)` that inserts one row into
+   `audit_log`, capturing actor, target, JSON details, IP, and
+   user-agent. It is the one and only writer used across the API.
+
+2. Key functions / exports
+   - `writeAudit({ schoolId, eventType, actor?, targetType?, targetId?,
+       details?, req? })`
+     Maps the JwtPayload `actor` to actor_role + actor_id; pulls
+     ip + user-agent from the Express `req`. No return value.
+
+3. Flags relevant to a new audit log viewer endpoint
+   - There is NO read counterpart in this file — a viewer endpoint
+     would be a brand-new `GET /audit/...` handler that queries
+     `auditLogTable` directly.
+   - `actorId` and `targetId` are nullable (system events have no
+     actor); the viewer must tolerate `null`.
+   - `details` is `jsonb` and may be an empty object `{}` (default
+     in the helper); render defensively.
+
+----------------------------------------------------------------
+3) artifacts/api-server/src/routes/index.ts  (full file)
+----------------------------------------------------------------
+1. What it does
+   The express Router barrel that mounts every feature router under
+   `/api`.
+
+2. Key exports relevant to this build
+   Currently mounted (in order):
+     health, config, newsletter, auth, schools, export, incidents,
+     protocols, alerts, notifications, dashboard, delegatedRoles,
+     annexTemplates, referralBodies, caseTasks, messages, senco,
+     behaviour, pta, dataRetention, diagnostics, diary, teacherPosts,
+     training.
+
+3. Flags relevant to a new audit log viewer endpoint
+   - There is NO `auditRouter` import here. To add a viewer:
+       1. Create `artifacts/api-server/src/routes/audit.ts`
+       2. `import auditRouter from "./audit";`
+       3. `router.use(auditRouter);`  (add toward the end, near
+          dataRetention/diagnostics, since it is an admin-flavoured
+          read-only feature)
+
+----------------------------------------------------------------
+4) artifacts/safeschool/src/components/layout/AppLayout.tsx
+   (coordinator nav array only)
+----------------------------------------------------------------
+1. What it does
+   Renders the role-aware sidebar/bottom-nav. `getNavItems()` is a
+   role switch that returns the array of nav items for the current
+   user.
+
+2. Key block (lines 164–179, the coordinator + head_teacher branch)
+     // Coordinator, Head Teacher
+     return [
+       ...base,                                                 // Dashboard
+       { name: t("noticeboard"), href: "/learnings",  icon: Megaphone     },
+       { name: t("behaviour"),   href: "/behaviour",  icon: Gauge         },
+       { name: t("logIncident"), href: "/report",     icon: AlertTriangle },
+       { name: t("incidents"),   href: "/incidents",  icon: FileText      },
+       { name: t("allPupils"),   href: "/class",      icon: Users         },
+       { name: t("messages"),    href: "/messages",   icon: MessageCircle, badge: messageUnread },
+       { name: t("protocols"),   href: "/protocols",  icon: Shield        },
+       { name: t("alerts"),      href: "/alerts",     icon: Activity      },
+       // …continues with learn, caseStudies, diagnostic,
+       //    notifications, settings…
+     ];
+
+3. Flags relevant to adding an "Audit Log" item
+   - There IS room — the array currently has ~14 items; sidebar is
+     scrollable (`flex-1 overflow-y-auto py-6 px-4 space-y-2`,
+     line 201) so adding one more entry will not break layout.
+   - Icon pattern: every entry uses a single `lucide-react` icon
+     imported at the top of the file (e.g. Shield, Activity,
+     FileText, ClipboardList). Recommended icon for audit log:
+       `ScrollText`  or  `History`  or  `ClipboardList`
+     (lucide-react, same style; ClipboardList is already imported).
+   - i18n pattern: add a key (e.g. `auditLog`) to the `common.json`
+     dictionary used by the layout `t()`.
+   - Recommended placement: directly AFTER `protocols`/`alerts`
+     and BEFORE the bottom block (notifications + settings), so the
+     reading flow is "operational tools → admin/audit → meta".
+   - Coordinator + Head Teacher are the ONLY roles that should see
+     this entry. The `nav-permissions` array near the top of this
+     file (lines 21–22) shows coordinator/head_teacher already
+     share an allowlist; if a path-level guard is added there,
+     include `/audit` for both roles only.
+
+----------------------------------------------------------------
+5) artifacts/safeschool/src/pages/dashboard/CoordinatorDashboard.tsx
+   (Overview tab only)
+----------------------------------------------------------------
+1. What it does
+   Coordinator/Head Teacher dashboard with three tabs (overview,
+   analytics, ptaReports). The Overview tab shows quick-action
+   tiles, the locked-pupil alert card, and the staff-training card.
+
+2. Layout-relevant blocks for an audit-log card
+   - Tab gate begins at line 209:  `{activeTab === "overview" && (`
+   - Inside, structure (top → bottom):
+       a) 3-up grid of action tiles (lines 211–251):
+          View Incidents · Protocols · Report Incident
+          — Container: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`
+       b) Locked-pupil alert card (lines 253–304), rendered only
+          when `lockedPupils.length > 0`. Same width as page
+          (full row), amber-themed.
+       c) Staff Training Completion link card (lines 306+), full
+          width row using a `Link href="/training-status"` wrapping
+          a `Card` with icon + title + subtitle + ChevronRight.
+
+3. Flags relevant to adding an "Audit Log" card
+   - The cleanest insertion point is RIGHT AFTER the Staff Training
+     card and BEFORE the closing `</div>` of the overview block —
+     mirror the existing pattern (`Link href="/audit"` wrapping a
+     `Card` with an icon-tile + title + subtitle + ChevronRight).
+   - Reuse existing tokens: icon tile classes match the green
+     training tile pattern: `p-3 rounded-2xl bg-<color>/10
+     text-<color>-500 group-hover:bg-<color> group-hover:text-white
+     transition-colors`. A neutral colour like `slate` or `indigo`
+     keeps it visually distinct from the alerting amber/red cards.
+   - Show only when `canManageReports === true`
+     (already computed at line 26 from
+     `["coordinator","head_teacher"].includes(user?.role)`).
+   - To avoid an empty card, fetch a small "recent count" via a new
+     `useQuery({ queryKey: ["/api/audit/recent-count"] })` mirroring
+     the existing locked-pupils useQuery (lines 82–95) — same
+     `apiBase` + `Authorization` header pattern.
+
+----------------------------------------------------------------
+6) artifacts/api-server/src/routes/auth.ts
+   (GET /auth/locked-pupils — for static-route ordering)
+----------------------------------------------------------------
+1. What it does
+   Auth router (pupil/staff/parent/demo logins, profile updates,
+   PIN reset, lockout management).
+
+2. Key block (lines 118–142): GET /auth/locked-pupils
+     router.get("/auth/locked-pupils",
+       authMiddleware,
+       requireRole("coordinator", "head_teacher"),
+       async (req, res) => { … });
+   - Uses the standard 3-stage handler chain:
+       authMiddleware → requireRole(...allowed) → handler
+   - Filters by `schoolId === user.schoolId` (mandatory tenancy
+     boundary — your audit endpoint MUST do the same).
+   - Static route (no path params), declared above the
+     parameterised pupil routes (`/auth/pupil/start`,
+     `/auth/pupil/login` at lines 144 / 213).
+
+3. Flags relevant to ordering a new audit route
+   - Even though the new endpoint will live in its own router file
+     (`routes/audit.ts`) and not auth.ts, follow the same convention:
+     register STATIC routes (e.g. `GET /audit`,
+     `GET /audit/event-types`) BEFORE any parameterised routes
+     (e.g. `GET /audit/:id`) inside that router so Express does
+     not greedily match `event-types` as an `:id`.
+   - Use the same role guard pattern:
+       requireRole("coordinator", "head_teacher")
+   - Always scope to `user.schoolId` — never accept a school id
+     from the query string.
+
+================================================================
+SPECIFIC QUESTIONS
+================================================================
+
+----------------------------------------------------------------
+Q1: Columns of `auditLogTable` (with types)
+----------------------------------------------------------------
+Source: lib/db/src/schema/auditLog.ts
+
+  id            uuid               PK, default randomUUID()
+  school_id     uuid               NOT NULL,  FK → schools.id
+  event_type    varchar(60)        NOT NULL
+  actor_role    varchar(30)        NULLABLE
+  actor_id      uuid               NULLABLE
+  target_type   varchar(30)        NULLABLE
+  target_id     uuid               NULLABLE
+  details       jsonb              NULLABLE  (helper writes `{}` if absent)
+  ip_address    varchar(45)        NULLABLE  (IPv6-sized)
+  user_agent    text               NULLABLE
+  created_at    timestamptz        NOT NULL, default now()
+
+  Indexes:
+    idx_audit_log_school_id      (school_id)
+    idx_audit_log_event_type     (event_type)
+    idx_audit_log_created_at     (created_at)
+
+  Constraint:
+    Postgres trigger `audit_log_no_update` blocks all UPDATE/DELETE.
+
+----------------------------------------------------------------
+Q2: Existing audit log READ endpoint anywhere?
+----------------------------------------------------------------
+NO. Searched:
+  - artifacts/api-server/src/routes/index.ts mounts (no auditRouter)
+  - artifacts/api-server/src/routes/diagnostics.ts (no audit reads)
+  - artifacts/api-server/src/routes/dataRetention.ts (only refers
+    to "audit_logs" as a `dataCategory` string; does not read rows)
+  - There is NO `admin.ts` route file in the codebase.
+
+The only existing references to `audit_log` are:
+  - artifacts/api-server/src/lib/auditHelper.ts  (writer)
+  - artifacts/api-server/src/index.ts            (append-only trigger)
+  - artifacts/api-server/src/routes/dataRetention.ts (string label only)
+  - test mocks in __tests__/
+
+→ A viewer endpoint is genuinely new ground.
+
+----------------------------------------------------------------
+Q3: Every `eventType` written via `writeAudit(...)`
+----------------------------------------------------------------
+Grouped by route file:
+
+  routes/auth.ts
+    - pupil_login
+    - staff_login
+    - parent_login
+    - profile_updated
+    - demo_login
+
+  routes/incidents.ts
+    - incident_created
+    - incident_status_updated
+    - incident_assessed
+    - disclosure_requested
+    - disclosure_responded
+    - disclosure_acknowledged
+
+  routes/protocols.ts
+    - protocol_created
+    - protocol_updated
+
+  routes/alerts.ts
+    - alert_reviewed
+
+  routes/behaviour.ts
+    - behaviour_points_issued
+
+  routes/messages.ts
+    - message_sent
+
+  routes/notifications.ts
+    - notification_acknowledged
+    - notification_broadcast
+
+  routes/schools.ts
+    - pin_reset
+    - bulk_pin_reset
+
+  routes/senco.ts
+    - senco_caseload_added
+    - senco_caseload_removed
+    - senco_tracking_recorded
+
+  routes/caseTasks.ts
+    - case_task_created
+    - case_task_updated
+
+  routes/delegatedRoles.ts
+    - delegated_role_created
+    - delegated_role_revoked
+
+  routes/referralBodies.ts
+    - referral_body_created
+    - referral_body_updated
+
+  routes/annexTemplates.ts
+    - annex_template_created
+
+  routes/diary.ts
+    - diary_scan_skipped
+    - diary_entry_created
+    - diary_entry_deleted
+
+  routes/training.ts
+    - training_module_completed
+
+  routes/export.ts
+    - incident_exported
+    - protocol_exported
+
+  routes/pta.ts
+    - pta_message_sent
+    - pta_concern_submitted
+    - pta_policy_acknowledged
+    - pta_policy_flagged
+    - pta_report_generated
+    - pta_report_approved
+    - pta_codesign_response
+    - parent_pta_message_sent
+
+  lib/emailHelper.ts
+    - email_send_failed   (× 2 sites)
+
+TOTAL: 41 distinct event types.
+(Useful for a `GET /audit/event-types` filter dropdown.)
+
+----------------------------------------------------------------
+Q4: Coordinator nav array — room for an "Audit Log" item?
+----------------------------------------------------------------
+YES.
+  - The array (AppLayout.tsx lines 164–~180+) currently has ~14
+    entries. The sidebar container is `flex-1 overflow-y-auto`
+    so additional entries scroll cleanly.
+  - Icon pattern: lucide-react single icons, imported at the top
+    of AppLayout.tsx. Recommended new entry:
+      { name: t("auditLog"), href: "/audit", icon: ScrollText }
+    (`ClipboardList` and `Activity` are already imported and
+     would also fit; `ScrollText`/`History` would be a new
+     lucide-react import.)
+  - Recommended position: AFTER `alerts` and BEFORE `learn`, i.e.
+    keep operational items together and place audit/admin items
+    just before the meta section (notifications, settings).
+  - Visibility: the coordinator+head_teacher branch is the
+    `// Coordinator, Head Teacher` block at line 164. SENCO and
+    teachers should NOT receive this entry.
+
+----------------------------------------------------------------
+Q5: Highest-volume table — `audit_log` vs `incidents`?
+----------------------------------------------------------------
+Live counts in the demo DB right now:
+    audit_log : 442 rows
+    incidents : 197 rows
+
+Ratio: ~2.2× more audit rows than incidents — and that ratio will
+GROW with use, because nearly every meaningful action against the
+incidents table also writes ~1 audit row (created, status_updated,
+assessed, disclosure_requested, …) plus all the auth/login/
+notification/message events that have no incident counterpart.
+
+→ `audit_log` is the higher-volume table by a wide and growing
+  margin.
+
+PAGINATION RECOMMENDATION FOR THE NEW ENDPOINT
+  - YES, the endpoint must paginate. Suggested API shape:
+      GET /audit?
+          eventType=&actorRole=&actorId=&from=&to=&
+          limit=50&cursor=<base64(createdAt|id)>
+  - Order by `created_at DESC, id DESC` and use a keyset
+    (cursor) pagination on `(created_at, id)` to stay fast as the
+    table grows; the `idx_audit_log_created_at` index supports it.
+  - Cap `limit` at 200 server-side.
+  - Always scope the query with
+      WHERE school_id = $user.schoolId
+    (uses `idx_audit_log_school_id`) — this is the tenancy
+    boundary.
+  - Optional response field `total` should be returned only when
+    a cheap COUNT is feasible (e.g. with filters that hit an
+    index); otherwise omit to avoid a full scan on big datasets.
+
+================================================================
+END OF SCAN
+================================================================
