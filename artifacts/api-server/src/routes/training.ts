@@ -89,7 +89,7 @@ router.get("/training/staff-status", authMiddleware, requireRole("coordinator", 
 
 router.post("/training/complete/:moduleId", authMiddleware, requireRole(...TRAINING_ROLES), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
-  const moduleId = req.params.moduleId;
+  const moduleId = String(req.params.moduleId);
 
   if (!MODULE_IDS.includes(moduleId as any)) {
     res.status(400).json({ error: `Unknown module ID: ${moduleId}` });

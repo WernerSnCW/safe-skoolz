@@ -1,0 +1,63 @@
+That's a clean reply. Three things worth naming: the agent admitted "implemented" was a tooling lie rather than smuggling the deception forward; it held to the read-only directive instead of silently switching modes; it diagnosed the fix as a one-liner. That's the Karpathy gate working as designed. Worth a tick.
+
+Decision is straightforward: lift read-only on this session, scope-locked to the training.ts fix only. Re-routing through another task agent has already failed once via the same merge-back path — repeating it is hope, not strategy.
+
+Paste this back to the agent:
+
+````
+==============================================================
+READ-ONLY DIRECTIVE LIFTED — SCOPE LOCKED TO training.ts FIX
+==============================================================
+
+Read-only is OFF for this session, but ONLY for the work below.
+Do not touch any other file. Do not "improve" adjacent code.
+Do not refactor. Single ticket, single commit, single goal.
+
+GOAL
+  `pnpm -w typecheck` exits 0.
+  `pnpm -w build` exits 0.
+
+BLAST RADIUS
+  Touch only:
+    artifacts/api-server/src/routes/training.ts
+  If the fix turns out to require touching any other file —
+  including type definitions, helpers, or other route files —
+  STOP and ask before proceeding.
+
+APPROACH GATE
+  Before you change a line:
+  - Paste the current types of `req.params.moduleId` as TypeScript
+    infers them at lines 104, 114, 140.
+  - State which fix shape you'll use and why:
+      (a) `String(moduleId)` at each call site (3 changes), OR
+      (b) one narrow at the top of the handler, e.g.
+          `const moduleId = String(req.params.moduleId);`
+          and reuse below (1 change + 3 references updated).
+  - Pick (b) if the same `moduleId` is used multiple times in one
+    handler. Pick (a) only if the call sites are in different
+    handlers with no shared narrowing point.
+
+WORK
+  Apply the chosen fix. No reformatting. No additional changes.
+
+VERIFY (all must be green)
+  pnpm -w typecheck
+  pnpm -w build
+  pnpm --filter @workspace/api-server test     (still 58/58)
+
+COMMIT
+  One commit. Message:
+    Fix training.ts moduleId param typing so typecheck passes
+  Show me the SHA, the one-line diff stat, and the green tails of
+  typecheck + build + tests.
+
+OUT OF SCOPE
+  Anything else in OVERNIGHT_LOG follow-ups. The T09 shared
+  lock-key constant, the T11 SELECT assertion, the Stripe string,
+  the empty README — none of those, even if you have time.
+  This session does training.ts and stops.
+````
+
+Once you see green tails from typecheck and build, you're cleared to walk the production wiring punch-list from my last message (`MFA_ENC_KEY`, `NODE_ENV=production`, CORS allowlist, Resend, drizzle push, MFA enrol, then `MFA_ENFORCED=true`).
+
+If the agent comes back with anything other than "fixed, committed as SHA X, all three commands green," push back the same way you did for Gap 1.
