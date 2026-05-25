@@ -1,0 +1,64 @@
+The verification report is real work, not theatre. Read carefully it tells you a mostly-good story with three specific gaps you need to close before deploy.
+
+## Verdict
+
+**Real:** 58/58 tests pass. All 13 ticket acceptance tests exist as files. Spot-checks confirm T08/T09/T11 use real implementations, not mocks. No skipped tests, no `@ts-ignore`, no escape-hatch `any` in production code. Stripe string left alone as instructed. Generated dirs untouched. Live smoke confirms healthz/CORS/audit/pupil-incident end to end. The agent flagged its own test weaknesses honestly (T09 weak coupling, T11 doesn't assert row mutation) instead of papering over them.
+
+**Not real enough:** Three things to fix.
+
+## Gap 1 — `pnpm typecheck` and `pnpm build` are still RED
+
+The report says training.ts is pre-existing and "follow-up task #2 (implemented)." But the verification's own typecheck run shows the 3 errors are still there. Either the fix isn't committed, the fix doesn't work, or "implemented" was future tense. Push this back to the agent verbatim:
+
+```
+You said follow-up task #2 (fix training.ts so the project builds
+cleanly) is "implemented". The verification re-ran `pnpm -w typecheck`
+and the same 3 errors are still present:
+  src/routes/training.ts(104,7) TS2769
+  src/routes/training.ts(114,6) TS2769
+  src/routes/training.ts(140,9) TS2769
+
+Show me: (a) the diff for the fix, (b) the commit SHA it's in, (c) a
+fresh `pnpm -w typecheck` and `pnpm build` run with green tail. If the
+fix is staged but uncommitted, commit it now. If "implemented" meant
+"planned", say so and I'll decide whether it ships tonight.
+```
+
+Until typecheck and build go green, CI is red on push, which makes the whole T01 work cosmetic.
+
+## Gap 2 — Single squash commit
+
+`git log` shows two commits: `a0dfd78` (CI setup) and `0889cdc` (everything else, 32 files). Per-ticket SHAs in OVERNIGHT_LOG are all "pending-auto-checkpoint" → all resolve to `0889cdc`. You cannot bisect, cannot revert a single ticket, cannot review T11 (MFA) independently of T05 (password reset). The agent blames Replit's sandbox. That may be true, but it means you accept the overnight as a single take-it-or-leave-it patch.
+
+Practical impact for tonight: low. You verified the whole patch works. Practical impact for the next overnight run: high. For future runs, change the brief to require commits at a Replit checkpoint boundary per ticket, or run the work in your own environment where the agent has direct git access.
+
+## Gap 3 — Two test weaknesses the agent flagged itself
+
+These are not blockers but should be one-shot fixed before MFA_ENFORCED goes true in production:
+
+- **T09**: the test reproduces the lock pattern with `pg_try_advisory_xact_lock` but doesn't import `runScheduledPatternScan` or share the lock-key constant with the job. Mitigation: one PR that extracts the key into a shared `const PATTERN_SCAN_LOCK_KEY` exported from `jobs/patternScan.ts`, imported by both the job and the test.
+- **T11**: the test proves the HTTP endpoint rejects a replayed backup code but doesn't `SELECT user_mfa_secrets.backup_codes WHERE user_id=…` to confirm the consumed code is actually removed from the array. Two extra lines in the test. Do this before flipping `MFA_ENFORCED=true`, because the failure mode it would catch (silent N-uses across DB restarts) is exactly the kind of bug you don't want in production MFA.
+
+Add both to your follow-ups list. Neither blocks tonight, but T11's gap should close before any coordinator depends on backup codes for real.
+
+## Production wiring punch-list
+
+Order matters. Do them in this sequence:
+
+1. **Get typecheck/build green.** (Gap 1.) No deploy until this is fixed.
+2. **Generate `MFA_ENC_KEY`** locally: `openssl rand -base64 32`. Store it in Replit Secrets AND write it down somewhere durable (password manager, sealed envelope). Losing this key invalidates every enrolled TOTP secret forever.
+3. **Set `NODE_ENV=production`** in the production deployment. This is the single most dangerous misconfiguration per the agent's table — without it, CORS reflects any origin and demo-login stays enabled. Verify after deploy by curling with `Origin: https://evil.example` and confirming no `Access-Control-Allow-Origin` header.
+4. **Set `CORS_ALLOWED_ORIGINS`** to your production domain (comma-separated if multiple).
+5. **Confirm `DEMO_LOGIN_ENABLED` is unset or false** in production secrets.
+6. **Wire Resend**: set `RESEND_API_KEY`, `EMAIL_FROM_ADDRESS`, configure DKIM/SPF/DMARC for the sending domain. Then test password reset end to end against a real inbox.
+7. **Set `APP_URL`** to the production URL (so reset emails link correctly).
+8. **`pnpm --filter @workspace/db push`** against production DB to create `user_mfa_secrets`, `rate_limit_buckets`, `pupil_login_sessions`, `password_reset_tokens`. The agent didn't say which of these are new vs pre-existing in prod, so confirm by listing them in prod first.
+9. **Enrol coordinator + head_teacher in MFA** via the new settings page, save their backup codes somewhere durable.
+10. **Only then flip `MFA_ENFORCED=true`.** Flipping before step 9 locks those users out.
+11. **Leave `JOBS_ENABLED` unset/true on exactly one production instance.** Advisory lock from T09 will catch a misconfiguration but don't rely on it.
+
+## One more thing worth flagging
+
+The dev server was running stale pre-overnight code until the verification run restarted it. If anyone on your team is testing locally tonight without restarting their workflow, they're testing the old behaviour and will report ghost bugs. Tell them once.
+
+Net call: this overnight was a real, mostly-clean run. Close Gap 1, accept Gaps 2 and 3, walk the punch-list. Don't deploy until step 1 of the punch-list is green.
