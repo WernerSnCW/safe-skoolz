@@ -220,7 +220,7 @@ router.delete(
   requireRole("pupil"),
   async (req: Request, res: Response): Promise<void> => {
     const user = (req as any).user as JwtPayload;
-    const { id } = req.params;
+    const id = String(req.params.id);
 
     const [entry] = await db
       .select()

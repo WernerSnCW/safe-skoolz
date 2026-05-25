@@ -711,8 +711,8 @@ router.patch("/incidents/:id/disclosure-respond", authMiddleware, requireRole("p
 
 router.patch("/incidents/:incidentId/disclosure/:disclosureId/acknowledge", authMiddleware, requireRole("parent"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
-  const incidentId = req.params.incidentId;
-  const disclosureId = req.params.disclosureId;
+  const incidentId = String(req.params.incidentId);
+  const disclosureId = String(req.params.disclosureId);
 
   const [disclosure] = await db
     .select()

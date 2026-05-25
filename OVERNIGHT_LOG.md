@@ -622,3 +622,291 @@ Option (a). Specifically:
 
 If option (a) is accepted, that path probably gets `pnpm -w typecheck` from 63 errors to ~17 errors (A: 3, E: 1, F: 10, H: 3) in one disciplined session. Not green, but a meaningful dent with zero risk of breaking working code.
 
+
+### S1 — Shape D sweep (approach gate per file)
+
+**incidents.ts** — handler 712-788 (`PATCH /incidents/:incidentId/disclosure/:disclosureId/acknowledge`). Two params, both used in `eq()` at 722/723/762/763 and `targetId` at 782. Narrow at declaration:
+```ts
+// 714-715 before:
+const incidentId = req.params.incidentId;
+const disclosureId = req.params.disclosureId;
+// after:
+const incidentId = String(req.params.incidentId);
+const disclosureId = String(req.params.disclosureId);
+```
+
+**behaviour.ts** — handler starting around line 19 destructures at line 21. `pupilId` flows into `eq()` at 30, 44, 49.
+```ts
+// 21 before: const { pupilId } = req.params;
+// after:     const pupilId = String(req.params.pupilId);
+```
+
+**diary.ts** — DELETE handler 217-250 destructures at line 223. `id` flows into `eq()` at 228, 237 and `targetId` at 244.
+```ts
+// 223 before: const { id } = req.params;
+// after:      const id = String(req.params.id);
+```
+
+**diagnostics.ts** — 11 handlers, same shape. Narrow each handler's `req.params.X` read at the top:
+- 309 (POST `/:id/respond`): `const surveyId = String(req.params.id);` — covers 314, 327, 361
+- 373 (GET `/:id/results`): same form — covers 378, 393, 626
+- 645 (GET `/:id/summary`): same form — covers 650, 670, 729, 735
+- 751 (PATCH `/:id`): insert `const id = String(req.params.id);` at handler top, replace inline at 770
+- 790 (POST `/:id/actions`): same form as 309 — covers 801, 811
+- 822 (PATCH `/:id/actions/:actionId`): insert `const id = String(req.params.id); const actionId = String(req.params.actionId);` at top, replace inlines at 839/840
+- 853 (DELETE `/:id/actions/:actionId`): same as 822 — covers 862/863
+- 883 (POST `/:id/actions/publish`): same form — covers 889
+- 910 (POST `/:id/seed-demo`): same form — covers 914, 973, 984
+- 999 (GET `/:id/actions`): same form — covers 1004, 1015
+
+### S2 — trivial cleanups (bundled with S1 commit)
+
+**auth.ts:251** (Shape I) — `(p) => p.loginKey === loginKey` lacks type annotation. Surgical fix: `(p: typeof session.profiles[number]) => p.loginKey === loginKey`. Uses existing inferred type, no new imports.
+
+**pupil-login.test.ts:89** (Shape J) — `@ts-expect-error` directive is unused because vitest now exposes `vi` properly. Delete the comment line.
+
+### Follow-up note (NOT acting tonight)
+
+Express middleware or zod-validated route params (e.g. `zod-express-middleware`) would eliminate Shape D at the framework level. Across the api-server route layer there are ~22 affected handlers tonight, plus historically 4 more fixed in session 1 (training/teacherPosts/senco/messages) — 26 total. That's high enough to justify a framework-level fix in a future session.
+
+### S4 — Shape C investigation (incidents.updatedAt)
+
+**Drizzle schema for `incidents`** (`lib/db/src/schema/incidents.ts`): has `assessedAt`, `createdAt`. Does NOT have `updatedAt`.
+
+**git log for the schema file (last 5):** No commit mentions removing `updatedAt`. The column was apparently never added — recent commits add witness-statement support, teacher-consent, PIN handling, etc. (none touched timestamps).
+
+**Cascade check:** `rg -n 'inc(idents.*)?\.updatedAt'` across `artifacts/api-server/src/` and `lib/` returns exactly two hits — the two call sites in scope (`incidents.ts:892`, `dashboard.ts:402`). No other readers, no writers.
+
+**Handler intent:**
+- `incidents.ts:892` — `base.updatedAt = inc.updatedAt ? inc.updatedAt.toISOString() : null;` — sets a field on the parent-disclosure response payload. Null-tolerant ternary.
+- `dashboard.ts:402` — `updatedAt: inc.updatedAt ? inc.updatedAt.toISOString() : null,` — same shape, parent dashboard payload. Null-tolerant.
+
+Both call sites are response shaping; neither sorts, filters, or aggregates by it. Frontend clearly expects the field to exist (else why expose it), and a real `updatedAt` is the correct value for an audit-conscious table.
+
+**Decision: DECISION-1** — add `updatedAt timestamptz NOT NULL DEFAULT now()` with Drizzle `.$onUpdate(() => new Date())`. Backfill safe because the DEFAULT covers all 198 existing rows at push time. Going forward, every update bumps the column. Additive only.
+
+**Diff to `lib/db/src/schema/incidents.ts`:**
+```diff
+   assessedAt: timestamp("assessed_at", { withTimezone: true }),
+   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
++  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+```
+
+No handler changes needed — once the schema gains the column, both reads typecheck and behave correctly at runtime.
+
+---
+
+## Deferred shapes — pre-investigation for Tom
+
+The following four shapes were **out of scope** for Session 2 (per the re-approved brief). They are documented here with full context — error lines, source excerpts, and the cause as discovered during this session — so Tom can decide direction without re-doing the spadework. **No fix is proposed; no code is changed.**
+
+### Shape A — `protocols.ts` (3 errors, lines 88/90/91): Zod request body missing fields that the Drizzle table has
+
+**Errors:**
+```
+src/routes/protocols.ts(88,27): error TS2339: Property 'riskLevel' does not exist on type CreateProtocolBody.
+src/routes/protocols.ts(90,29): error TS2339: Property 'riskFactors' does not exist on type CreateProtocolBody.
+src/routes/protocols.ts(91,35): error TS2339: Property 'protectiveFactors' does not exist on type CreateProtocolBody.
+```
+
+**Source — `artifacts/api-server/src/routes/protocols.ts:81-92`:**
+```ts
+.values({
+  // ...
+  protocolType: data.protocolType,
+  protocolSource: data.protocolSource || null,
+  genderBasedViolence: data.genderBasedViolence ?? false,
+  context: data.context || null,
+  linkedIncidentIds: data.linkedIncidentIds || [],
+  victimId: data.victimId,
+  allegedPerpetratorIds: data.allegedPerpetratorIds || [],
+  riskLevel: data.riskLevel || null,             // <-- TS2339
+  riskAssessment: data.riskAssessment || null,
+  riskFactors: data.riskFactors || [],           // <-- TS2339
+  protectiveFactors: data.protectiveFactors || [], // <-- TS2339
+```
+
+**Drizzle table — `lib/db/src/schema/protocols.ts`:** columns `riskLevel` (varchar 20, nullable), `riskFactors` (text[]), `protectiveFactors` (text[]) **all present**.
+
+**Generated zod type — `lib/api-zod/src/generated/types/createProtocolBody.ts`:** interface omits all three. Note this file is auto-generated by orval from `lib/api-spec/openapi.yaml`:
+```ts
+export interface CreateProtocolBody {
+  protocolType: string;
+  protocolSource?: string | null;
+  genderBasedViolence?: boolean;
+  context?: string | null;
+  linkedIncidentIds?: string[];
+  victimId: string;
+  allegedPerpetratorIds?: string[];
+  riskAssessment?: string | null;     // <-- present
+  protectiveMeasures?: string[];      // <-- present
+  externalReferralRequired?: boolean;
+  externalReferralBody?: string | null;
+}
+```
+
+**Cause:** The OpenAPI spec drifted from the DB schema and from what the route actually writes. `riskAssessment` (free text) is in the spec but `riskLevel` (enum), `riskFactors` (array), `protectiveFactors` (array) are not. Listing endpoint at line 347–350 *reads* the same columns back, so frontend already depends on them.
+
+**Why deferred:** Touches the public API contract (`lib/api-spec/openapi.yaml`), requires running orval codegen, and the right field shapes (enum values for `riskLevel`, item type for arrays) are a product decision. Additive-only fix in spirit, but the cascade goes through a generated package and the public contract.
+
+---
+
+### Shape E — `incidents.ts:174` (1 error): same drift, single field
+
+**Error:**
+```
+src/routes/incidents.ts(174,39): error TS2339: Property 'unknownPersonDescriptions' does not exist on type CreateIncidentBody.
+```
+
+**Source — `artifacts/api-server/src/routes/incidents.ts:173-175`:**
+```ts
+personInvolvedText: data.personInvolvedText || null,
+unknownPersonDescriptions: data.unknownPersonDescriptions || null,  // <-- TS2339
+witnessIds: data.witnessIds || [],
+```
+
+**Drizzle table — `lib/db/src/schema/incidents.ts:25`:** `unknownPersonDescriptions: jsonb("unknown_person_descriptions")` **present**.
+
+**Generated zod type — `lib/api-zod/src/generated/types/createIncidentBody.ts`:** `personInvolvedText` and `witnessText` are present (lines 22, 25); `unknownPersonDescriptions` is missing.
+
+**Reader exists too** at `incidents.ts:961` — it currently uses `(inc.unknownPersonDescriptions as any[] || [])`, so the column round-trips at runtime but the request shape is mistyped.
+
+**Cause:** Same drift as Shape A — the OpenAPI spec lags the DB schema for one jsonb field. The right item shape for the array (a description object? plain strings?) is a product decision.
+
+**Why deferred:** Same as Shape A — spec/codegen cascade, and the jsonb item shape needs Tom's call.
+
+---
+
+### Shape F — `behaviour.ts` lines 77/184 (10 errors): tuple-index narrowing on `BEHAVIOUR_LEVELS`
+
+**Errors (representative, 5 per line, 2 lines):**
+```
+src/routes/behaviour.ts(77,78):  TS2493 Tuple type ... of length '7' has no element at index '7'.
+src/routes/behaviour.ts(77,103): TS2532 Object is possibly 'undefined'.
+src/routes/behaviour.ts(77,120): TS2493 ... index '7'.
+src/routes/behaviour.ts(77,165): TS2532 Object is possibly 'undefined'.
+src/routes/behaviour.ts(77,182): TS2493 ... index '7'.
+src/routes/behaviour.ts(184,...) × 5: same five errors at the second call site.
+```
+
+**Source — `artifacts/api-server/src/routes/behaviour.ts:77`** (line 184 is the same expression in a different handler):
+```ts
+nextLevel: level.level < BEHAVIOUR_LEVELS.length
+  ? { ...BEHAVIOUR_LEVELS[level.level], maxPoints: BEHAVIOUR_LEVELS[level.level].maxPoints === Infinity ? null : BEHAVIOUR_LEVELS[level.level].maxPoints }
+  : null,
+```
+
+**Tuple — `lib/db/src/schema/behaviourPoints.ts:22`** — `BEHAVIOUR_LEVELS` is a `readonly` tuple of length 7 (levels 1–7). `level.level` comes from `getLevelForPoints(totalPoints)` which returns one of those 7 elements; `level.level` is therefore 1..7 at runtime. The expression `BEHAVIOUR_LEVELS[level.level]` is the *next* level (0-indexed = `level.level`), guarded at runtime by `level.level < BEHAVIOUR_LEVELS.length`. TS cannot narrow a tuple index from a `<` comparison on a `number`, so it treats all three indexed accesses on the line as out-of-bounds and the `.maxPoints` accesses as possibly-undefined.
+
+**Cause:** Runtime is correct (the guard makes it safe). The errors are purely a TS-narrowing limitation on tuple types under `noUncheckedIndexedAccess`/strict mode interaction.
+
+**Why deferred:** The right fix is a small refactor — extract `const nextIdx = level.level; const next = BEHAVIOUR_LEVELS[nextIdx]; if (!next) return null;` and reuse `next` — but it changes the expression structure in two places. Trivial-looking, but the brief explicitly listed Shape F as DEFER, and behaviour.ts is on the demo-critical surface (per follow-up #2).
+
+---
+
+### Shape H — `lib/auth.ts` lines 18/22 (3 errors): jsonwebtoken overload + cast
+
+**Errors:**
+```
+src/lib/auth.ts(18,28): error TS2769: No overload matches this call.
+src/lib/auth.ts(22,10): error TS2352: Conversion of type 'Jwt & JwtPayload & void' to type 'JwtPayload' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/lib/auth.ts(22,28): error TS2769: No overload matches this call.
+```
+
+**Source — `artifacts/api-server/src/lib/auth.ts:1-23`:**
+```ts
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) { throw new Error("..."); }
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "8h";
+
+export interface JwtPayload {
+  userId: string; schoolId: string; role: string; email?: string;
+}
+
+export function signToken(payload: JwtPayload): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });  // <-- TS2769 (line 18)
+}
+
+export function verifyToken(token: string): JwtPayload {
+  return jwt.verify(token, JWT_SECRET) as JwtPayload;  // <-- TS2352 + TS2769 (line 22)
+}
+```
+
+**Cause:**
+- **Line 18 (TS2769):** `@types/jsonwebtoken` now types `expiresIn` as `number | StringValue` (a branded template-literal type from `ms`), not `string`. `JWT_EXPIRES_IN` is widened to `string`, so the overload doesn't match.
+- **Line 22 (TS2769):** Same overload issue — `jwt.verify` has overloads keyed on the callback argument shape; without a callback, the inferred return type is the union `Jwt | JwtPayload | string | void`, and TS narrows differently than older versions did.
+- **Line 22 (TS2352):** Casting that union directly to `JwtPayload` (our local interface, **not** the `JwtPayload` from jsonwebtoken) trips the "neither type sufficiently overlaps" guard.
+
+**Local interface vs library type collision:** Our `JwtPayload` shadows the jsonwebtoken one. The cast is `as JwtPayload` resolving to *ours*, but the verify return is the *library's*. The shadowing is the root annoyance.
+
+**Why deferred (explicit in brief):** Auth is on the critical security path. The brief says: **"Shape H — NEVER improvise."** Any change here needs Tom's eyes on the exact cast/branding strategy (rename the local interface? use `jwt.SignOptions` literally? add `as unknown as JwtPayload`?) and on whether the `as any` already in `authMiddleware` for `(payload as any).kind === "mfa-challenge"` needs the same treatment.
+
+---
+
+## Session 2 completion report
+
+**Brief:** Option (a) with mods — Shape D sweep (all occurrences, cap lifted), Shape I+J trivials, add `@types/pdfkit`, Shape C decision. Defer A/E/F/H. Approach gate per file, additive only, no schema drops/renames, no `drizzle push --force`.
+
+**Done (all four steps landed and verified):**
+| Step | Shape | Result |
+|---|---|---|
+| S1 | D — `string \| string[]` query narrowing (all occurrences, cap lifted) | 7 files, ~16 narrowings, **0 occurrences left** |
+| S2 | I + J — unused `@ts-expect-error` + one trivially-typed callback | 2 trivials cleared |
+| S3 | `@types/pdfkit` devDep | pdfExport.ts goes from 6 errors to 0; **no hidden bugs surfaced** |
+| S4 | C — DECISION-1, add `incidents.updatedAt` to Drizzle schema + push | Both readers (incidents.ts:892, dashboard.ts:402) typecheck clean; 198 rows backfilled by `defaultNow()`; drizzle push reported "Changes applied" with no destructive warnings |
+
+**Numbers:**
+- Errors: **63 → 17** (-46, -73%)
+- Files with errors: **9 → 4** (`lib/auth.ts`, `behaviour.ts`, `incidents.ts`, `protocols.ts`)
+- Shapes eliminated: **D, G, I, J, plus C** (5 of 11)
+- Shapes deferred (staged above for Tom): **A, E, F, H** (4 of 11)
+- Tests: **58/58 passing** (15 files, 16.6s)
+- Build: still red, **only** due to the 17 deferred-shape errors
+
+**Final residue (17 errors, by shape):**
+- A — `protocols.ts` 88, 90, 91 (3) — spec/codegen drift
+- E — `incidents.ts` 174 (1) — spec/codegen drift
+- F — `behaviour.ts` 77, 184 (10) — tuple-index narrowing
+- H — `lib/auth.ts` 18, 22 (3) — jsonwebtoken types
+
+**Schema change (Drizzle):**
+- `lib/db/src/schema/incidents.ts:55` — added `updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date())`. Pushed live (`pnpm --filter @workspace/db run push` → "Changes applied"). 198 existing rows now have `updated_at = now()` at push time; every subsequent update will bump it.
+
+**Packages added:**
+- `@types/pdfkit` as devDep of `@workspace/api-server`.
+
+**Things left untouched per brief:**
+- No `drizzle push --force` used; no destructive warnings encountered.
+- No schema drops, no renames.
+- No changes to `lib/auth.ts` (Shape H "NEVER improvise").
+- No changes to `lib/api-spec/openapi.yaml` or regen of `@workspace/api-zod` (Shapes A and E).
+- No changes to `behaviour.ts` math (Shape F).
+
+**Recommended next session (Tom's call):**
+1. Shape H first (auth, highest-risk surface, smallest LOC).
+2. Shape F (refactor `BEHAVIOUR_LEVELS[level.level]` indexing into a guarded `const next = ...`).
+3. Shapes A + E together (one openapi.yaml edit, one `pnpm --filter @workspace/api-zod run codegen`, one round of type adjustments).
+
+
+---
+
+## Post-completion code review (architect)
+
+**Verdict: PASS.** Architect confirms (1) S4 schema change is operationally safe and additive, with the two existing readers now consistently non-null; (2) S1 query narrowings are complete with no slip-through in the edited handlers (residual 17 errors are exactly Shapes A/E/F/H — none Shape D); (3) deferred shapes correctly staged without improvisation; (4) no security or destructive-migration concerns.
+
+**Caveats flagged (not blockers, inherent to DECISION-1):**
+- Historical 198 rows now show migration-time `updated_at` (2026-05-25 21:01:05 UTC) rather than true historical edit times. Analytically misleading if future reports treat `updated_at` as business-truth for legacy rows.
+- `.$onUpdate(() => new Date())` is ORM-mediated — raw SQL updates outside Drizzle won't auto-bump `updated_at`.
+
+**Smoke check (architect-recommended):**
+```
+SELECT COUNT(*) AS total, COUNT(updated_at) AS with_ts, COUNT(*) - COUNT(updated_at) AS null_count FROM incidents;
+ total | with_ts | null_count
+-------+---------+------------
+   198 |     198 |          0
+```
+All 198 rows non-null. Sample rows confirm `updated_at` is uniformly the push timestamp (2026-05-25 21:01:05.513945+00) while `created_at` preserves original values — exactly the expected backfill behaviour.
+
+**Architect's recommended next-session order matches Session 2's analysis:** Shape H first (smallest LOC, highest-risk surface), then F (pure refactor), then A+E together (one openapi.yaml + codegen pass).

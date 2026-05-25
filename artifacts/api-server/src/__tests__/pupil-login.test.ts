@@ -86,7 +86,6 @@ describe("T08 — pupil login sessions survive process restart", () => {
     // 2. Simulate process restart: close server A, re-import app module, listen anew.
     await new Promise<void>((r) => serverA.close(() => r()));
     const appModulePath = "../app";
-    // @ts-expect-error vitest exposes resetModules at runtime via globalThis.vi
     const vi = (await import("vitest")).vi;
     vi.resetModules();
     const { default: appB } = await import(appModulePath);

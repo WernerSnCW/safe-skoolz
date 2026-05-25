@@ -306,7 +306,7 @@ router.get("/diagnostics", authMiddleware, async (req: Request, res: Response) =
 
 router.post("/diagnostics/:id/respond", authMiddleware, async (req: Request, res: Response) => {
   const user = (req as any).user;
-  const surveyId = req.params.id;
+  const surveyId = String(req.params.id);
 
   const [survey] = await db.select()
     .from(diagnosticSurveysTable)
@@ -370,7 +370,7 @@ router.get("/diagnostics/:id/results", authMiddleware, async (req: Request, res:
     return;
   }
 
-  const surveyId = req.params.id;
+  const surveyId = String(req.params.id);
 
   const [survey] = await db.select()
     .from(diagnosticSurveysTable)
@@ -642,7 +642,7 @@ router.get("/diagnostics/:id/results", authMiddleware, async (req: Request, res:
 
 router.get("/diagnostics/:id/summary", authMiddleware, async (req: Request, res: Response) => {
   const user = (req as any).user;
-  const surveyId = req.params.id;
+  const surveyId = String(req.params.id);
 
   const [survey] = await db.select()
     .from(diagnosticSurveysTable)
@@ -755,6 +755,7 @@ router.patch("/diagnostics/:id", authMiddleware, async (req: Request, res: Respo
     return;
   }
 
+  const id = String(req.params.id);
   const { status } = req.body;
   if (!["active", "closed"].includes(status)) {
     res.status(400).json({ error: "Invalid status" });
@@ -767,7 +768,7 @@ router.patch("/diagnostics/:id", authMiddleware, async (req: Request, res: Respo
       ...(status === "closed" ? { closedAt: new Date() } : {}),
     })
     .where(and(
-      eq(diagnosticSurveysTable.id, req.params.id),
+      eq(diagnosticSurveysTable.id, id),
       eq(diagnosticSurveysTable.schoolId, user.schoolId),
     ))
     .returning();
@@ -787,7 +788,7 @@ router.post("/diagnostics/:id/actions", authMiddleware, async (req: Request, res
     return;
   }
 
-  const surveyId = req.params.id;
+  const surveyId = String(req.params.id);
   const { action, category, owner } = req.body;
 
   if (!action || typeof action !== "string" || action.trim().length === 0) {
@@ -826,6 +827,8 @@ router.patch("/diagnostics/:id/actions/:actionId", authMiddleware, async (req: R
     return;
   }
 
+  const id = String(req.params.id);
+  const actionId = String(req.params.actionId);
   const { action, category, owner, status } = req.body;
   const updates: any = {};
   if (action !== undefined) updates.action = action;
@@ -836,8 +839,8 @@ router.patch("/diagnostics/:id/actions/:actionId", authMiddleware, async (req: R
   const [updated] = await db.update(diagnosticActionsTable)
     .set(updates)
     .where(and(
-      eq(diagnosticActionsTable.id, req.params.actionId),
-      eq(diagnosticActionsTable.surveyId, req.params.id),
+      eq(diagnosticActionsTable.id, actionId),
+      eq(diagnosticActionsTable.surveyId, id),
       eq(diagnosticActionsTable.schoolId, user.schoolId),
     ))
     .returning();
@@ -857,10 +860,12 @@ router.delete("/diagnostics/:id/actions/:actionId", authMiddleware, async (req: 
     return;
   }
 
+  const id = String(req.params.id);
+  const actionId = String(req.params.actionId);
   const deleted = await db.delete(diagnosticActionsTable)
     .where(and(
-      eq(diagnosticActionsTable.id, req.params.actionId),
-      eq(diagnosticActionsTable.surveyId, req.params.id),
+      eq(diagnosticActionsTable.id, actionId),
+      eq(diagnosticActionsTable.surveyId, id),
       eq(diagnosticActionsTable.schoolId, user.schoolId),
     ))
     .returning();
@@ -880,7 +885,7 @@ router.post("/diagnostics/:id/actions/publish", authMiddleware, async (req: Requ
     return;
   }
 
-  const surveyId = req.params.id;
+  const surveyId = String(req.params.id);
   const now = new Date();
 
   const updated = await db.update(diagnosticActionsTable)
@@ -907,7 +912,7 @@ router.post("/diagnostics/:id/seed-demo", authMiddleware, async (req: Request, r
     return;
   }
 
-  const surveyId = req.params.id;
+  const surveyId = String(req.params.id);
   const [survey] = await db.select()
     .from(diagnosticSurveysTable)
     .where(and(
@@ -996,7 +1001,7 @@ router.post("/diagnostics/:id/seed-demo", authMiddleware, async (req: Request, r
 
 router.get("/diagnostics/:id/actions", authMiddleware, async (req: Request, res: Response) => {
   const user = (req as any).user;
-  const surveyId = req.params.id;
+  const surveyId = String(req.params.id);
 
   const [survey] = await db.select()
     .from(diagnosticSurveysTable)

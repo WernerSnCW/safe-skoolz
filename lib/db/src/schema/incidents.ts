@@ -49,6 +49,7 @@ export const incidentsTable = pgTable("incidents", {
   assessedBy: uuid("assessed_by").references(() => usersTable.id),
   assessedAt: timestamp("assessed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 }, (table) => [
   index("idx_incidents_school_id").on(table.schoolId),
   index("idx_incidents_status").on(table.status),

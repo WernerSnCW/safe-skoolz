@@ -248,7 +248,7 @@ router.post("/auth/pupil/login", async (req, res): Promise<void> => {
   }
   const session = { schoolId: claim.schoolId, profiles: claim.profiles };
 
-  const profileEntry = session.profiles.find((p) => p.loginKey === loginKey);
+  const profileEntry = session.profiles.find((p: typeof session.profiles[number]) => p.loginKey === loginKey);
   if (!profileEntry) {
     res.status(401).json({ error: "Invalid profile selection" });
     return;

@@ -18,7 +18,7 @@ router.get("/behaviour/levels", (_req, res): void => {
 
 router.get("/behaviour/pupil/:pupilId", authMiddleware, async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
-  const { pupilId } = req.params;
+  const pupilId = String(req.params.pupilId);
 
   if (user.role === "pupil" && user.userId !== pupilId) {
     res.status(403).json({ error: "You can only view your own behaviour record" });

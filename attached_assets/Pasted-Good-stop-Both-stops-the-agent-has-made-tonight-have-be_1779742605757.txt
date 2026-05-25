@@ -1,0 +1,175 @@
+Good stop. Both stops the agent has made tonight have been correct calls. The codebase has accumulated more typecheck debt than the dump or last night's tail revealed; tonight cannot reach green CI, and pretending otherwise would force the agent into improvising on schema and auth decisions you should make awake.
+
+Take option (a) with one rule modification.
+
+The original M02 cap ("11+ matches → STOP without fixing") was about prevalence-as-smell — at the time we didn't know if Shape D was an isolated bug or endemic. We now know it's endemic. The fix shape is proven safe (5 files clean last night, no test regressions). Refusing to fix it now just leaves CI red for no benefit. Lift the cap on Shape D specifically.
+
+Paste this back:
+
+````
+==============================================================
+DECISION — OPTION (A) APPROVED WITH MODIFICATIONS
+==============================================================
+
+You stopped correctly. The morning brief was sized off stale data.
+Re-scope as below. Operating principles unchanged: approach gate
+per ticket, additive only, surgical, OVERNIGHT_LOG.md appended.
+
+==============================================================
+SCOPE FOR THIS SESSION (in order)
+==============================================================
+
+S1 — Shape D, ALL occurrences
+  The M02 cap was about prevalence-as-smell. Smell now confirmed,
+  fix shape proven safe. Authorise full sweep.
+
+  WORK
+    Apply `String(req.params.X)` narrow at the top of each
+    affected handler. Same one-liner as last night. Cover:
+      incidents.ts (5 lines, 1 handler — narrow once)
+      behaviour.ts (3)
+      diary.ts (3)
+      diagnostics.ts (all Shape-D rows of its 23 errors)
+      auth.ts (1)
+
+  APPROACH GATE — PER FILE
+    Before editing each file, paste into the log:
+      (a) the 2-3 line excerpt for each affected handler
+      (b) the chosen narrow point (top-of-handler local)
+      (c) the diff
+    Then apply. Move on.
+
+  BUNDLE
+    One commit for all Shape D fixes. Message:
+      Apply String(req.params.X) narrow across remaining routes
+
+  HARD CAP
+    If the typecheck count for Shape D after this commit is not
+    zero (i.e. you missed instances or new ones surface), STOP
+    and surface. Do not chase.
+
+  FOLLOW-UP NOTE (record in log, don't act on)
+    Document for future design discussion: an Express middleware
+    that coerces all req.params values to string, OR migration
+    to zod-validated route params via something like
+    zod-express-middleware. Not for tonight.
+
+S2 — Shape I + Shape J (trivial cleanups)
+  Bundle with S1's commit OR a small follow-up commit. Your
+  call as long as the message describes both. Approach gate
+  paste-the-diff before applying.
+
+S3 — Shape G (missing @types/pdfkit)
+  WORK: `pnpm --filter @workspace/api-server add -D @types/pdfkit`
+  
+  HARD STOP
+    If installing the types surfaces new errors in
+    lib/pdfExport.ts (because the real types reveal type bugs
+    that `any` was hiding), STOP. Log every new error verbatim.
+    Do not improvise fixes. Pdf code is generation logic — wrong
+    fix breaks PDF output silently.
+
+  Commit: separate. Message:
+    Add @types/pdfkit so pdfExport typechecks against real types
+
+S4 — Shape C (incidents:892 + dashboard:402, ONE decision)
+  Both files read `updatedAt` from `incidents` rows. Same column,
+  same table, ONE decision applied to two call sites.
+
+  APPROACH GATE — MANDATORY PRE-INVESTIGATION
+    Before touching code, paste into the log:
+      (a) the full Drizzle schema for `incidents` table
+      (b) `git log -p lib/db/src/schema/incidents.ts` last 5
+      (c) handler code at incidents.ts:880-905
+      (d) handler code at dashboard.ts:395-410
+      (e) what each handler does with the value (display, sort,
+          return, audit)
+
+    Then DECIDE:
+      DECISION-1: schema lacks updatedAt, handlers genuinely
+                  need it. FIX: add `updatedAt timestamptz NOT
+                  NULL DEFAULT now()` with Drizzle's
+                  `.$onUpdate(() => new Date())`. Run
+                  `pnpm --filter @workspace/db run push`.
+                  ADDITIVE.
+      DECISION-2: handlers don't actually need it (e.g. unused
+                  in response). FIX: remove the reads from both
+                  files.
+      DECISION-3: a different timestamp column exists and the
+                  handlers should read it instead (createdAt,
+                  assessedAt, statusUpdatedAt, etc). FIX:
+                  change the reads to the correct column name.
+
+    State which decision applies and why. Apply to BOTH files.
+
+  HARD STOP
+    If `pnpm --filter @workspace/db run push` warns about a
+    destructive change OR if applying the chosen decision
+    cascades into other route files reading the same column,
+    STOP and surface.
+
+  Commit: separate from S1/S2/S3. Message reflects which
+  decision was chosen.
+
+==============================================================
+EXPLICITLY DEFERRED (do NOT touch tonight)
+==============================================================
+
+  Shape A — protocols.ts Zod schema gap (riskLevel/riskFactors/
+            protectiveFactors). Tom decides DECISION-1/2/3 in
+            the morning. Surface with full pre-investigation
+            paste in the log so the decision is ready for him.
+  Shape E — incidents.ts:174 unknownPersonDescriptions Zod gap.
+            Same family as Shape A; same morning treatment.
+            Pre-investigation paste in the log.
+  Shape F — behaviour.ts standing-level tuple math (10 errors).
+            Intent question. Pre-investigation paste in the log
+            with the relevant constants/types.
+  Shape H — lib/auth.ts JWT verify overload + cast. Never
+            improvise on auth code. Pre-investigation paste in
+            the log with the relevant types.
+
+For each deferred shape, the log entry must include:
+  - Every error line with file:line
+  - The relevant code excerpt (10-15 lines surrounding)
+  - The relevant schema / type definition
+  - 2-3 sentence framing: what would need to be decided to fix
+  - DO NOT propose a fix. Just stage the decision for Tom.
+
+==============================================================
+VERIFICATION
+==============================================================
+
+After S1-S4 (or whichever subset landed cleanly):
+  pnpm -w typecheck       paste full tail. Expected: remaining
+                          errors confined to Shape A, E, F, H.
+                          Specifically zero Shape D errors.
+  pnpm -w build           same expectation.
+  pnpm --filter @workspace/api-server test    must stay 58/58.
+
+==============================================================
+SUCCESS LOOKS LIKE
+==============================================================
+
+Morning state Tom expects:
+  - typecheck error count dropped from 63 to ~15-20 (the
+    A/E/F/H residue).
+  - Working code untouched (tests still 58/58).
+  - Each deferred shape staged with full pre-investigation
+    paste so Tom can read once and decide quickly.
+  - Clean commits, one per scope item (S1, S2, S3, S4).
+
+Failure looks like:
+  - Improvising on a deferred shape because "it looked easy".
+  - Trying to drop the typecheck count to zero by guessing.
+  - Touching auth code without me in the loop.
+  - Test count below 58.
+
+Begin with S1. Approach gate first.
+````
+
+Morning expectation: typecheck still red but only on real decisions (A, E, F, H), not on mechanical bugs. Each deferred shape staged with full investigation paste so you can read four short blocks and make four decisions over coffee. That's a productive morning, not a fishing trip.
+
+If the agent reports anything other than the expected shape — particularly if S3 surfaces hidden pdfExport bugs or S4's pre-investigation reveals the column was deliberately removed — it should stop and you handle it in the morning. Don't deploy regardless.
+
+Sleep.
