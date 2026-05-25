@@ -1,0 +1,107 @@
+That's a clean stop. The Karpathy framework worked end-to-end tonight: approach gate, blast-radius cap, stop-and-ask when Shape D surfaced, honest reporting on the auto-checkpoint pre-empting the commit message. The work landed, the boundaries held, the follow-ups are documented. Not many agents finish a night this honestly.
+
+State of play, for your morning:
+
+**What shipped tonight:** 13 tickets + 5 type-error fixes (training, teacherPosts, senco, messages, rateLimitStore). 58/58 tests green. 3 commits (c1b39a1, 9b3b195, plus the pending auto-checkpoint that should pick up rateLimitStore.ts + the OVERNIGHT_LOG.md follow-ups).
+
+**What didn't:** Green typecheck. Green build. Production wiring punch-list step 1.
+
+**What's left to unblock deploy:** Shape A (protocols Zod schema), Shape C (incidents updatedAt), Shape D (incidents req.params), and the grep audit. Probably 30-90 minutes of focused work depending on whether Shape A and Shape C are one-liners or schema-drift.
+
+**Auto-checkpoint observation worth carrying forward:** Replit's auto-checkpoint pre-empted your scripted commit message on 9b3b195. For the next session, build the brief to expect this: name the commit content first, accept that the message may be auto-generated, and use OVERNIGHT_LOG.md as the canonical narrative rather than commit messages.
+
+Morning prompt to paste when you start the next session:
+
+````
+==============================================================
+MORNING SESSION — UNBLOCK DEPLOY
+==============================================================
+
+Continuing from last night's overnight run. Read these files
+first, before anything else:
+  OVERNIGHT_LOG.md  (especially "Follow-ups for next session")
+  artifacts/api-server/src/routes/protocols.ts (lines 88-91)
+  artifacts/api-server/src/routes/incidents.ts (lines 782, 892)
+
+Read-only is OFF for this session. Scope below.
+
+GOAL
+  `pnpm -w typecheck` exits 0.
+  `pnpm -w build` exits 0.
+  Tests stay 58/58 green.
+
+PRE-WORK
+  1. Confirm the pending auto-checkpoint from last night landed.
+     Expected: a commit after 9b3b195 touching rateLimitStore.ts
+     + OVERNIGHT_LOG.md. If absent, stage and commit it as your
+     first action.
+  2. Run `pnpm -w typecheck` and paste the full tail so we know
+     the starting state. Confirm only Shape A + Shape C + Shape D
+     remain (no further surprises).
+
+TICKETS — DO IN ORDER, APPROACH GATE PER FILE
+
+T-MORN-1: Shape D (cheap — same pattern as last night)
+  artifacts/api-server/src/routes/incidents.ts line 782.
+  Same `req.params.X: string | string[]` narrow. One-line fix.
+  Apply, re-run typecheck.
+
+T-MORN-2: Shape C (size first, then decide)
+  artifacts/api-server/src/routes/incidents.ts line 892 reads
+  `updatedAt` from a row whose Drizzle-inferred type doesn't
+  have that column.
+  
+  Approach gate: BEFORE touching code, paste:
+    (a) the inferred row type at line 892
+    (b) the schema for the `incidents` table (relevant columns)
+    (c) git log for the schema file — has updatedAt been removed
+        recently?
+    (d) the handler intent — does it actually need updatedAt, or
+        is the read dead?
+  Then choose: add the column to the schema, drop the read, or
+  rename to whatever column actually exists. State why.
+
+T-MORN-3: Shape A (size first, then decide)
+  artifacts/api-server/src/routes/protocols.ts lines 88, 90, 91
+  read riskLevel/riskFactors/protectiveFactors from a Zod-inferred
+  body that doesn't include them.
+  
+  Approach gate: BEFORE touching code, paste:
+    (a) the Zod schema currently typing this request body
+    (b) the Drizzle schema for the `protocols` table — do these
+        columns exist?
+    (c) git log for both schemas
+  Then choose: extend the Zod schema, drop the handler reads, or
+  rename. State why.
+
+T-MORN-4: Audit pass
+  Run `rg -n 'req\.params\.' artifacts/api-server/src/routes/`
+  and inspect every match. For each match, confirm whether
+  String() coercion is needed (any flow into `eq()`, `insert
+  ().values({...})`, template-string-into-SQL, or assignment to
+  a string-typed field). If you find one, STOP and report before
+  fixing — depending on count, this could be a separate session.
+
+HARD CAPS
+  - If T-MORN-2 or T-MORN-3 turns out to require schema changes
+    that touch Drizzle migrations or generated code, STOP and
+    surface to Tom. Those are decisions, not implementation.
+  - If T-MORN-4 finds more than 3 additional matches, STOP and
+    surface — that's a repo-wide cleanup task, not a morning fix.
+
+VERIFY (final state, all must be green)
+  pnpm -w typecheck
+  pnpm -w build
+  pnpm --filter @workspace/api-server test     58/58 minimum
+
+REPORT
+  Final commit SHA(s), git show --stat per commit, all three
+  green tails.
+
+OUT OF SCOPE
+  T09 shared lock-key constant, T11 SELECT assertion, Stripe
+  string, README, MFA enrolment, production wiring. Today is
+  green-CI day only.
+````
+
+Once that comes back green, you're cleared for the production wiring punch-list. Don't try to do both in one session. Sleep first.
