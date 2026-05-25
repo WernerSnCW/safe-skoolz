@@ -1,0 +1,101 @@
+You are auditing this Replit project for a senior engineer who has never seen it. Produce a single, copy-pasteable Markdown report titled "CURRENT STATE OF THE APP". Do not summarise — be specific, name files, paste short code excerpts where helpful, and mark anything you're unsure of as "UNKNOWN" rather than guessing.
+
+Cover EVERY section below. If a section doesn't apply, write "N/A — why".
+
+## 1. ONE-LINER
+- What does this app do, in one sentence?
+- Who is the intended user?
+- What problem does it solve?
+- Current stage (prototype / MVP / live with users / paying customers)?
+
+## 2. STACK & RUNTIME
+- Language(s) and versions (check package.json / requirements.txt / pyproject.toml / go.mod / etc.)
+- Framework(s) (Next.js, Express, FastAPI, Flask, Django, Vite, etc.) and versions
+- Frontend: framework, styling system, component library, state management
+- Backend: server framework, ORM, background jobs / queues
+- Database(s) and where they're hosted (Replit DB, Postgres, SQLite, Supabase, Neon, etc.)
+- Other services (auth provider, file storage, email, payments, analytics, LLM APIs)
+- Replit config: `.replit`, `replit.nix`, run command, ports exposed, deployment type (Autoscale / Reserved VM / Static)
+
+## 3. FILE & FOLDER STRUCTURE
+- Output the top 3 levels of the directory tree (skip node_modules, .git, dist, build, .next, venv).
+- For each top-level folder, one line on what it contains.
+- Flag any folders that look dead, duplicated, or experimental.
+
+## 4. ENTRY POINTS & ROUTING
+- Server entry file(s) and what they boot.
+- All HTTP routes / API endpoints: method, path, handler file, one-line purpose. Table format.
+- Frontend routes / pages and what each renders.
+- Any websocket, cron, or background workers.
+
+## 5. DATA MODEL
+- List every table / collection / model with its fields and types.
+- Relationships between them.
+- Migrations system in use (or "none — schema is ad hoc").
+- Where seed data or fixtures live.
+
+## 6. AUTH & ACCESS CONTROL
+- How users sign in (provider, flow).
+- Session / token mechanism.
+- Roles, permissions, or tenancy.
+- Any admin surface.
+
+## 7. EXTERNAL INTEGRATIONS & SECRETS
+- Every third-party API the code calls (LLMs, payments, email, storage, analytics, scrapers, etc.).
+- For each: which file calls it, what it's used for.
+- List every env var / Replit Secret referenced in code. Do NOT print values — names only. Flag any that are referenced but not set.
+
+## 8. KEY USER FLOWS
+- Walk through the 2–4 most important user journeys end-to-end, naming the files and functions hit at each step.
+- For each flow: where it starts, what data it touches, what it returns/renders.
+
+## 9. CODE QUALITY SIGNALS
+- Approximate line count by language.
+- Linter / formatter config present? (eslint, prettier, ruff, black, mypy, tsconfig strict mode)
+- Test framework, test count, coverage if known.
+- TypeScript strictness or Python type hint coverage.
+- Top 10 longest files (path + line count).
+- Any obvious code smells you noticed (duplicated logic, god files, mixed concerns, dead code, commented-out blocks).
+
+## 10. SECURITY & SAFETY POSTURE
+- Input validation approach.
+- SQL/NoSQL injection risk surface.
+- XSS / CSRF protections.
+- Secrets in code (grep for hardcoded keys, tokens, passwords).
+- CORS config.
+- Rate limiting.
+- Anything exposed publicly that shouldn't be.
+
+## 11. PERFORMANCE & SCALABILITY
+- Obvious N+1 queries, missing indexes, sync-in-async, blocking IO on the request path.
+- Caching layers (or absence).
+- Bundle size signals on the frontend.
+- Any load testing evidence.
+
+## 12. OBSERVABILITY
+- Logging library and what's being logged.
+- Error tracking (Sentry, etc.).
+- Analytics (PostHog, GA, Plausible, custom).
+- Health check endpoints.
+
+## 13. BUILD, DEPLOY, CI
+- Build command, dev command, start command.
+- How it's deployed today (Replit Deployments tier, custom domain, anything else).
+- CI present (.github/workflows, etc.).
+- Any deploy hooks or post-deploy steps.
+
+## 14. KNOWN ISSUES & TODOS
+- Every `TODO`, `FIXME`, `HACK`, `XXX` in the codebase. Path + line + comment.
+- Any failing tests, console errors, or broken routes you can see without running.
+
+## 15. WHAT'S MISSING
+List things you'd expect a production app of this type to have that this project does NOT have. Be specific.
+
+## 16. OPEN QUESTIONS
+List 5–10 questions a reviewer would need answered to make sensible enhancement decisions (business model, scale targets, target users, monetisation, etc.).
+
+## 17. RAW METADATA
+- Output the full contents of: package.json (or equivalent), .replit, replit.nix, README.md, any other root-level config file.
+- Output the last 20 git log entries if a git history exists, else state "no git history".
+
+Do not include marketing language, do not editorialise quality, do not propose fixes. This is a state dump, not a review. End with: "END OF STATE DUMP".
