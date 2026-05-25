@@ -535,3 +535,12 @@ These were all out of blast radius for every ticket; flagging for follow-up.
 ### Deferred recovery items
 - MFA admin-reset endpoint for users who lose both their device AND all backup codes. Currently requires manual `DELETE FROM user_mfa_secrets WHERE user_id = …`. Marked OUT OF SCOPE in T11 brief; flagging as the most likely operational pain point post-launch.
 
+## Follow-ups for next session
+
+Surfaced by the post-verification typecheck-greening pass (commits `c1b39a1`, `9b3b195`, plus the pending `rateLimitStore.ts` fix). The `req.params.X: string | string[]` narrow has been applied to `training.ts`, `teacherPosts.ts`, `senco.ts`, `messages.ts`. The T07 `PgRateLimitStore.prefix` visibility regression has been changed from `private` to `public`. Remaining typecheck blockers, all pre-existing and held tonight per scope rules:
+
+- **Shape A — `artifacts/api-server/src/routes/protocols.ts` lines 88, 90, 91.** Handler reads `riskLevel`, `riskFactors`, `protectiveFactors` from a Zod-inferred body that doesn't include them. Decide whether the Zod schema is missing fields or the handler is reading the wrong object. Pre-existing.
+- **Shape C — `artifacts/api-server/src/routes/incidents.ts` line 892.** Handler reads `updatedAt` from a row whose Drizzle type has no such column. Probably a schema rename or stale read. Pre-existing.
+- **Shape D (newly surfaced after Shape B fix) — `artifacts/api-server/src/routes/incidents.ts` line 782.** Same `req.params.X: string | string[]` pattern as training/teacherPosts/senco/messages, hidden behind the earlier failures. Apply the same `const x = String(req.params.x)` narrow once Shape C is being touched.
+- **Audit pass:** `rg -n 'req\.params\.' artifacts/api-server/src/routes/` and confirm no further shadowed `string | string[]` bugs. Four files have already been caught; the cascade behind `incidents.ts` suggests there may be more.
+

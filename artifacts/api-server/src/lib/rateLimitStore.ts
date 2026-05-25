@@ -11,7 +11,7 @@ export class PgRateLimitStore implements Store {
   private windowMs = 60_000;
   // Prefix isolates buckets between limiter instances (otherwise auth + newsletter
   // limiters with the same IP would share a counter).
-  constructor(private prefix: string) {}
+  constructor(public prefix: string) {}
 
   init(options: Options): void {
     this.windowMs = options.windowMs;

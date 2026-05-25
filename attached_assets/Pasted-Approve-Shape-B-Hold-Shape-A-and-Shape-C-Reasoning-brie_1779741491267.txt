@@ -1,0 +1,76 @@
+Approve Shape B. Hold Shape A and Shape C.
+
+Reasoning, briefly: Shape B is a regression introduced by the overnight T07 work. Karpathy principle 3 says "clean up only your own mess" — this is the agent's mess. The fix is one line, well-sized, lands at exactly the 5-file cap. Shape A and Shape C are pre-existing of genuinely unknown depth; the agent has been honest that it can't size them. Improvising fixes on unknown-depth bugs at 2am is exactly what the stop-and-ask rule is designed to prevent.
+
+Reality check before you paste: typecheck stays red tonight even after Shape B lands. Step 1 of the production wiring punch-list is not green tonight. Deployment is tomorrow. The upside: tomorrow's session is now cleanly scoped to "audit all `req.params.X` callers, size Shape A, size Shape C, fix what's sizable, surface what's not." That's a discrete piece of work, not a fishing trip.
+
+Paste this back:
+
+````
+==============================================================
+APPROVE SHAPE B ONLY — FINAL EXPANSION
+==============================================================
+
+Shape B is approved because it's a regression from T07 (the
+PgRateLimitStore work) shipped earlier this session. Fixing your
+own regression is surgical cleanup, not scope creep.
+
+Shape A (protocols.ts) and Shape C (incidents.ts) are NOT
+approved tonight. They are pre-existing of unknown depth.
+
+WORK
+  - In artifacts/api-server/src/lib/rateLimitStore.ts: change
+    `private prefix` to whatever express-rate-limit's Store
+    interface requires (likely remove the modifier so it defaults
+    to public, or change to `public`). One line.
+  - Re-run typecheck. If a NEW shape surfaces (sixth file, or any
+    error not already named Shape A or Shape C), STOP. Five files
+    is the cap and we are at it.
+
+COMMIT STRATEGY
+  Stack a SECOND commit on top of c1b39a1. Do not squash —
+  c1b39a1 is already well-named for training.ts. Second commit
+  covers: teacherPosts.ts + senco.ts + messages.ts +
+  rateLimitStore.ts. Message:
+    Fix req.params.X typing in 3 route files + T07 store visibility
+
+VERIFY
+  pnpm -w typecheck       expected RED, ONLY Shape A + Shape C
+                          remaining. Paste tail. Confirm no other
+                          errors surfaced.
+  pnpm -w build           expected RED, same reason.
+  pnpm --filter @workspace/api-server test       MUST stay 58/58.
+
+DOCUMENT
+  Append to OVERNIGHT_LOG.md a "Follow-ups for next session"
+  section:
+
+  ## Follow-ups for next session
+  - Shape A — artifacts/api-server/src/routes/protocols.ts lines
+    88, 90, 91. Handler reads riskLevel/riskFactors/protective-
+    Factors from a Zod-inferred body that doesn't include them.
+    Decide whether the Zod schema is missing fields or the
+    handler is reading the wrong object. Pre-existing.
+  - Shape C — artifacts/api-server/src/routes/incidents.ts line
+    892. Handler reads `updatedAt` from a row whose Drizzle type
+    has no such column. Probably a schema rename or stale read.
+    Pre-existing.
+  - Audit pass: grep `req.params\.` across artifacts/api-server/
+    src/routes/*.ts and confirm no further shadowed
+    `string|string[]` bugs. This is the root cause of training,
+    teacherPosts, senco, messages — there may be more hidden
+    behind incidents.ts.
+
+OUT OF SCOPE TONIGHT
+  Shape A. Shape C. The grep audit. Stripe string. README.
+  Anything else.
+
+REPORT
+  - SHA of the second commit.
+  - `git show --stat <sha>` output.
+  - typecheck tail showing only Shape A and Shape C remain.
+  - build tail.
+  - test count (must be 58/58).
+````
+
+After that lands cleanly, you're done for the night. Don't deploy. Tomorrow morning, open a fresh session with one task: "fix Shape A and Shape C, then run a `grep -rn 'req.params\.' artifacts/api-server/src/routes/` audit and apply the same narrow fix to any other matches." That session should get you to green typecheck and the deploy punch-list.
