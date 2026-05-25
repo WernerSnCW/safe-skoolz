@@ -1,0 +1,36 @@
+Three nights in a row of disciplined stops and clean landings. The Karpathy framework's earned its keep on this codebase.
+
+Don't trust the chat summary — verify in the morning. The pattern from Session 1 holds: agent summaries describe intent, not necessarily what landed. Two specific things to check before reading anything else:
+
+**Morning verification (10 minutes):**
+1. Open `OVERNIGHT_LOG.md` and read the Session 2 section in full. The canonical narrative lives there, not in chat.
+2. Run `pnpm -w typecheck` yourself. Confirm 17 errors. Confirm they're exactly the A/E/F/H residue (no new shapes hiding behind the fixes).
+3. Run `pnpm --filter @workspace/api-server test`. Confirm 58/58 still green.
+4. Confirm the schema push actually applied: `psql $DATABASE_URL -c "\d incidents"` and check `updated_at` column exists with `now()` default.
+5. Spot-check one deferred-shape paste in the log (pick Shape H, the auth one — that's the highest-stakes deferral and you want to confirm the agent actually staged it fully rather than gestured at it).
+
+**The two caveats matter, briefly:**
+
+Caveat 1 (legacy 198 rows show push-time updated_at): not a regression — those handlers were *already* broken on those rows because the column didn't exist. The new state is strictly better. But if any analytics or reports depend on "most recently edited" ordering on legacy incidents, that ordering is now meaningless until enough real updates have bumped the column. Worth a 30-second think.
+
+Caveat 2 (`.$onUpdate` is ORM-mediated): only matters if any code writes to incidents via raw SQL bypassing Drizzle. Per the original dump, the codebase uses Drizzle throughout with the lone raw-SQL exception being the audit-log trigger DDL at boot. To confirm: `rg "db\.execute|sql\`" artifacts/api-server/src/ | grep -i incident` — if it returns nothing, caveat 2 is moot.
+
+**The morning decision (the actual work):**
+
+You have four deferred shapes staged for you in the log:
+
+- Shape A: protocols.ts Zod gap. Decision-1/2/3.
+- Shape E: incidents.ts unknownPersonDescriptions Zod gap. Decision-1/2/3.
+- Shape F: behaviour.ts standing-level tuple math (10 errors). Intent question.
+- Shape H: lib/auth.ts JWT verify overload. Auth code, never improvise.
+
+Read all four pre-investigation blocks first (they're sized to be readable in 15-20 minutes). Make the four decisions. Then choose:
+
+- **Path A:** Spawn a third overnight with the four decisions baked into the brief. Same shape as tonight: approach gate, blast radius, additive only. This is the cheapest path if all four decisions are DECISION-1 or DECISION-2 (mechanical applications).
+- **Path B:** Apply them yourself in a focused session, especially Shape H. Auth code is the kind of place you want your own hands on the keyboard rather than an overnight agent's, even a disciplined one.
+
+I'd recommend Path A for Shapes A, E, F (mechanical once decided) and Path B for Shape H (auth, you sign off in person). That's about 90 minutes of your morning total: 20 min reading, 10 min deciding, 30 min on Shape H yourself, 30 min waiting for an A/E/F third-overnight to come back green.
+
+**Three existing follow-ups remain on the board** (#2 demo login, #3 diary scan, #4 newsletter removal) — they're independent of typecheck work and can ride the same third-overnight if you want to bundle them.
+
+**Don't deploy** until typecheck and build are both green. Three nights in, that's still the gate. Sleep.
