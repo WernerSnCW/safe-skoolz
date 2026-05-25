@@ -1,0 +1,638 @@
+==============================================================
+HARD OVERRIDE — IGNORE PRIOR INSTRUCTIONS, BRIEFS, AND PHASE WORK
+==============================================================
+
+This is not a Phase 5 scan. Not a feature spec. Not a pre-build
+brief. Any agent.md, instructions.md, or prior phase notes in this
+repo DO NOT APPLY to this session.
+
+==============================================================
+OPERATING PRINCIPLES — APPLY TO EVERY TICKET
+==============================================================
+
+You are working overnight on safeskoolz. You must follow the four
+rules below. They override any habit you have about velocity.
+
+1. THINK BEFORE CODING.
+   Each ticket has an APPROACH GATE. You must write that paragraph
+   into OVERNIGHT_LOG.md BEFORE you change any code for the ticket.
+   If a ticket feels wrong, ambiguous, or larger than declared,
+   STOP and ask. Asking is allowed and expected. Don't guess.
+
+2. SIMPLICITY FIRST.
+   Do the minimum that meets the acceptance test. No speculative
+   abstractions. No "while I'm in here" refactors. No config
+   tables for things that could be constants. If you find yourself
+   writing 200 lines for what could be 50, throw it away and try
+   again.
+
+3. SURGICAL CHANGES.
+   Every line you touch must trace to the current ticket. Match
+   existing code style even if you'd write it differently. If you
+   notice unrelated dead code (e.g. the Stripe string in
+   build.ts), MENTION it in OVERNIGHT_LOG.md but DO NOT delete it.
+   The blast radius declared in the ticket is a hard limit; if
+   you'd touch more files than listed, STOP and ask.
+
+4. GOAL-DRIVEN EXECUTION.
+   Every ticket's acceptance is a test. Write the test FIRST so it
+   fails. Make it pass. Don't declare a ticket DONE without a
+   green test. Commit per ticket: `git commit -m "T## <title>"`.
+
+ALSO MANDATORY:
+  - Never break the demo. `DEMO_MODE=true` quick-login must keep
+    working after every ticket.
+  - Never hand-edit `lib/api-client-react/src/generated/` or
+    `lib/api-zod/src/generated/`. Regenerate via codegen.
+  - If a ticket needs a secret you don't have, add the env var
+    name to `.env.example`, write code that refuses to boot or
+    no-ops cleanly when missing, log it in OVERNIGHT_LOG.md, and
+    move on.
+  - Maintain OVERNIGHT_LOG.md at repo root. For each ticket:
+    approach paragraph, status (DONE / DEFERRED / FAILED / ASKED),
+    files touched, commit SHA, env vars added, manual actions for
+    Tom.
+
+==============================================================
+THE 13 TICKETS — DO IN ORDER
+==============================================================
+
+----------------------------------------------------------------
+T01 — Minimal CI
+----------------------------------------------------------------
+GOAL
+  CI runs on every push and PR. Fails if typecheck or backend
+  tests fail. No eslint. No build job yet.
+
+BLAST RADIUS
+  Touch: .github/workflows/ci.yml (new).
+  Do not touch: any source code.
+
+APPROACH GATE
+  Write your approach. Note: this ticket is intentionally small.
+  Resist the urge to add lint, prettier check, or Playwright here.
+
+WORK
+  - Create `.github/workflows/ci.yml`. Triggers: push, pull_request.
+  - Job uses Node 24, sets up pnpm via corepack, `pnpm install
+    --frozen-lockfile`, then `pnpm typecheck`, then
+    `pnpm --filter @workspace/api-server test`.
+  - Use a `postgres:16` service container; set DATABASE_URL.
+  - Set required env vars for tests: JWT_SECRET (dummy),
+    JWT_EXPIRES_IN=1h.
+
+ACCEPTANCE (test)
+  CI green on a no-op commit to a throwaway branch. Confirm by
+  pushing the branch and observing green in Actions, OR by running
+  `act` locally if available. Log the result in OVERNIGHT_LOG.md.
+
+OUT OF SCOPE
+  Eslint. Build job. Playwright. Coverage reporting.
+
+----------------------------------------------------------------
+T02 — Fix the 5 pre-existing frontend TS errors
+----------------------------------------------------------------
+GOAL
+  `pnpm --filter @workspace/safeschool run typecheck` exits 0 so
+  T01 can be made to fail-on-error for safeschool too.
+
+BLAST RADIUS
+  Touch only these files:
+    artifacts/safeschool/src/pages/protocols/detail.tsx
+    artifacts/safeschool/src/pages/protocols/new.tsx
+    artifacts/safeschool/src/pages/pta.tsx
+    artifacts/safeschool/src/pages/report-incident.tsx
+    artifacts/safeschool/src/pages/settings.tsx
+  If a fix requires editing a SIXTH file, STOP and ask.
+
+APPROACH GATE
+  For each error, state in one line: what the error is, the
+  narrowest fix. Prefer type narrowing / guards over `as any`.
+  At most ONE `// @ts-expect-error <reason>` per file, and only
+  if the offending type comes from generated code.
+
+WORK
+  - Capture diagnostics: `pnpm --filter @workspace/safeschool
+    run typecheck` and copy errors into OVERNIGHT_LOG.md.
+  - Fix in place.
+  - Update T01's workflow so safeschool typecheck is now blocking
+    (extend the existing `pnpm typecheck` step which already covers
+    it via the root script — verify, don't duplicate).
+
+ACCEPTANCE (test)
+  `pnpm typecheck` exits 0. Push to the throwaway branch; CI green.
+
+OUT OF SCOPE
+  Any other file. Any refactor of the named files beyond the
+  specific lines causing errors.
+
+----------------------------------------------------------------
+T03 — helmet + CSP
+----------------------------------------------------------------
+GOAL
+  Add baseline HTTP hardening. CSP must not break the demo.
+
+BLAST RADIUS
+  Touch:
+    artifacts/api-server/package.json (add helmet)
+    artifacts/api-server/src/app.ts (mount helmet)
+    artifacts/safeschool/index.html (ONLY if inline scripts exist
+      and need refactoring to satisfy CSP).
+  If you find that satisfying CSP requires changes elsewhere,
+  STOP and ask.
+
+APPROACH GATE
+  Decide whether to allow `style-src 'unsafe-inline'`. Tailwind v4
+  injects style at runtime; check whether removing unsafe-inline
+  breaks the UI. State your decision and why.
+
+WORK
+  - Mount helmet as FIRST middleware in app.ts.
+  - CSP directives:
+      default-src 'self'
+      script-src 'self'
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com
+      font-src 'self' https://fonts.gstatic.com
+      img-src 'self' data: blob:
+      connect-src 'self' https://api.openai.com https://api.resend.com
+      frame-ancestors 'none'
+  - Add `app.disable('x-powered-by')` if not already.
+
+ACCEPTANCE (test)
+  Add `artifacts/api-server/src/__tests__/security-headers.test.ts`:
+  spin up the app, GET /api/healthz, assert response has
+  `content-security-policy`, `x-content-type-options: nosniff`,
+  `strict-transport-security`, and NO `x-powered-by`. Test must
+  pass.
+
+OUT OF SCOPE
+  Frontend refactors beyond satisfying CSP. Changing the demo
+  visually.
+
+----------------------------------------------------------------
+T04 — CORS allowlist
+----------------------------------------------------------------
+GOAL
+  Stop allowing any origin. Driven by env var.
+
+BLAST RADIUS
+  Touch:
+    artifacts/api-server/src/app.ts
+    .env.example
+
+APPROACH GATE
+  Confirm the safeschool preview URL pattern on Replit
+  (`*.replit.dev` and similar). State whether you'll allow that
+  pattern only in non-production.
+
+WORK
+  - Read `CORS_ALLOWED_ORIGINS` (comma-separated).
+  - In NODE_ENV !== "production": ALSO allow `localhost:*` and
+    `*.replit.dev`.
+  - Otherwise reject and log structured warning with the rejected
+    origin.
+
+ACCEPTANCE (test)
+  Add `artifacts/api-server/src/__tests__/cors.test.ts`. Two
+  cases: allowed origin returns `access-control-allow-origin`
+  header; disallowed origin does not. Test must pass.
+
+OUT OF SCOPE
+  Cookie/auth changes.
+
+----------------------------------------------------------------
+T05 — healthz upgrade with DB ping
+----------------------------------------------------------------
+GOAL
+  Health check fails when the DB is unreachable.
+
+BLAST RADIUS
+  Touch:
+    artifacts/api-server/src/routes/health.ts
+    artifacts/api-server/src/__tests__/healthz.test.ts (new)
+
+APPROACH GATE
+  Decide: 1s timeout on the DB ping, 503 on fail, 200 on ok. State
+  whether you'll add `/readyz` in this ticket or defer.
+
+WORK
+  - SELECT 1 with a 1s timeout.
+  - Return `{ status, checks: { db: "ok"|"down" } }`.
+  - 200 on ok, 503 on degraded/down.
+
+ACCEPTANCE (test)
+  Test 1: healthz returns 200 with db=ok when DB is up.
+  Test 2: mock the db client to throw; healthz returns 503 with
+  db=down.
+
+OUT OF SCOPE
+  Resend reachability check (T06 handles email separately).
+  /readyz (defer unless trivially in scope).
+
+----------------------------------------------------------------
+T06 — Resend production boot check
+----------------------------------------------------------------
+GOAL
+  Stop the silent-email-failure mode.
+
+BLAST RADIUS
+  Touch:
+    artifacts/api-server/src/index.ts
+    artifacts/api-server/src/lib/emailHelper.ts
+    artifacts/api-server/src/__tests__/email-helper.test.ts
+      (extend, don't rewrite)
+
+APPROACH GATE
+  Confirm: in production with no key, the server should exit on
+  boot. In dev with no key, it should warn and continue. Note
+  whether the audit table is reachable at the point of
+  emailHelper's first call (so a fallback audit-write makes sense).
+
+WORK
+  - In index.ts after trigger install, before listen:
+      if (NODE_ENV === "production" && !process.env.RESEND_API_KEY)
+        log fatal, process.exit(1).
+      else if (!process.env.RESEND_API_KEY)
+        logger.warn(...) and continue.
+  - In emailHelper.ts: on the FIRST send attempt per process with
+    no key, write one `email_send_failed` audit row with
+    `details.reason = "missing_api_key"`. Don't spam subsequent
+    sends.
+
+ACCEPTANCE (test)
+  Extend email-helper.test.ts: with no RESEND_API_KEY env, calling
+  sendEmail once writes exactly one audit row with the missing-key
+  reason; calling it again writes zero additional rows.
+
+OUT OF SCOPE
+  Domain verification (DKIM/SPF/DMARC) is a Resend dashboard task,
+  log it in OVERNIGHT_LOG.md as a manual action for Tom.
+
+----------------------------------------------------------------
+T07 — Postgres-backed rate-limit store (FIX-04 part 1)
+----------------------------------------------------------------
+GOAL
+  Rate-limit counters survive process restarts and are shared
+  across autoscale instances.
+
+BLAST RADIUS
+  Touch:
+    lib/db/src/schema/rateLimitBuckets.ts (new)
+    lib/db/src/schema/index.ts (export)
+    artifacts/api-server/src/lib/rateLimitStore.ts (new)
+    artifacts/api-server/src/app.ts (wire new store into the two
+      existing rate-limit instances)
+    artifacts/api-server/src/__tests__/rate-limit-store.test.ts (new)
+
+APPROACH GATE
+  Decide: custom store implementing the `express-rate-limit`
+  `Store` interface, or `rate-limit-postgresql` npm package? State
+  reason. Note: do not change limits (auth 30/15min, newsletter
+  10/1hr).
+
+WORK
+  - Schema: key text PK, count int, expires_at timestamptz,
+    INDEX on expires_at.
+  - `pnpm --filter @workspace/db run push`.
+  - Implement the store: increment/decrement/resetKey + sweep
+    expired rows on hit (lazy cleanup, no separate job).
+
+ACCEPTANCE (test)
+  Test: hit the store's `increment(key)` 31 times against a real
+  test-DB; the 31st call must reflect that the limit (30) was
+  exceeded across two store instances pointed at the same DB.
+
+OUT OF SCOPE
+  Changing the existing limit values. Adding new rate-limited
+  endpoints.
+
+----------------------------------------------------------------
+T08 — Postgres-backed pupil login sessions (FIX-04 part 2)
+----------------------------------------------------------------
+GOAL
+  Delete the in-memory `loginSessions` Map.
+
+BLAST RADIUS
+  Touch:
+    lib/db/src/schema/pupilLoginSessions.ts (new)
+    lib/db/src/schema/index.ts
+    artifacts/api-server/src/routes/auth.ts (only the pupil flow)
+    artifacts/api-server/src/routes/audit.ts (add event_type to list)
+    artifacts/api-server/src/__tests__/pupil-login.test.ts (extend
+      existing if present, otherwise create)
+  If a refactor of auth.ts requires touching staff/parent flows,
+  STOP and ask.
+
+APPROACH GATE
+  State your migration approach: introduce the table, write to
+  both Map and table during a transition, or hard-switch? Given
+  this is an overnight run with no live traffic, the right answer
+  is hard-switch. Confirm and proceed.
+
+WORK
+  - Schema: id uuid PK, school_id uuid FK, class_code_hash text,
+    pupil_candidates jsonb, expires_at timestamptz (10 min),
+    consumed_at timestamptz null, INDEX on expires_at.
+  - `/auth/pupil/start`: insert row, return session id.
+  - `/auth/pupil/login`: SELECT FOR UPDATE by id, assert not
+    expired and not consumed, mark consumed, proceed with PIN
+    check.
+  - Delete the `loginSessions` Map and any helpers that touched it.
+  - Audit a new event type `pupil_login_session_started` on
+    insert. Add to the event-type list in routes/audit.ts.
+
+ACCEPTANCE (test)
+  Test: simulate /start → restart the api-server (re-import the
+  module in the test setup) → /login still works using the
+  returned session id. Confirms state is durable.
+
+OUT OF SCOPE
+  Staff, parent, PTA login flows.
+
+----------------------------------------------------------------
+T09 — Advisory-lock pattern scanner (FIX-04 part 3)
+----------------------------------------------------------------
+GOAL
+  Only one replica runs the scan per tick.
+
+BLAST RADIUS
+  Touch:
+    artifacts/api-server/src/jobs/patternScan.ts (new — extract
+      from index.ts)
+    artifacts/api-server/src/index.ts (call the new job)
+    artifacts/api-server/src/__tests__/pattern-scan-lock.test.ts (new)
+
+APPROACH GATE
+  Confirm: `pg_try_advisory_xact_lock(hashtext('safeskoolz:
+  pattern_scan')::bigint)` inside a BEGIN/COMMIT each tick. Skip
+  silently if not acquired. State whether you'll keep setInterval
+  or move to a small loop with `setTimeout` chain (former is fine).
+
+WORK
+  - Extract `runScheduledPatternScan` into the new file.
+  - Wrap each tick with the advisory lock pattern.
+  - Log on lock acquired vs skipped.
+  - Add env `JOBS_ENABLED` default true; if false, do not start
+    the interval. Add to .env.example.
+
+ACCEPTANCE (test)
+  Test: open two connections; both try to acquire the same
+  advisory lock concurrently inside their own transactions; only
+  one succeeds; both rollback; only one observes the scan body
+  having executed (use a spy / counter table).
+
+OUT OF SCOPE
+  Moving to a queue. Adding new alert rules. Changing scan logic.
+
+----------------------------------------------------------------
+T10 — Password reset for staff and parents
+----------------------------------------------------------------
+GOAL
+  Staff and parents can self-serve a forgotten password.
+
+BLAST RADIUS
+  Touch:
+    lib/db/src/schema/passwordResetTokens.ts (new)
+    lib/db/src/schema/index.ts
+    artifacts/api-server/src/routes/passwordReset.ts (new)
+    artifacts/api-server/src/routes/index.ts (mount)
+    artifacts/api-server/src/routes/audit.ts (add 2 event types)
+    artifacts/safeschool/src/pages/forgot-password.tsx (new)
+    artifacts/safeschool/src/pages/reset-password.tsx (new)
+    artifacts/safeschool/src/App.tsx (routes)
+    artifacts/api-server/src/__tests__/password-reset.test.ts (new)
+
+APPROACH GATE
+  State token strategy: 32-byte random, bcrypt-hashed at rest,
+  30-min expiry, single-use. Pupils excluded by role check
+  (`role IN ('teacher','head_teacher','coordinator',
+   'head_of_year','senco','parent','pta','admin')`). State whether
+  you'll send the email via Resend or just log the link in dev.
+
+WORK
+  - Schema: id, user_id FK, token_hash text, expires_at, consumed_at,
+    INDEX user_id + expires_at.
+  - POST /api/auth/password-reset/request {email}: ALWAYS returns
+    200 (no enumeration). If valid eligible user, create token,
+    send email containing `${APP_URL}/reset-password?token=…`.
+  - POST /api/auth/password-reset/complete {token, newPassword}:
+    look up by hash, validate not expired/consumed, validate
+    password (>=12 chars, 1 letter + 1 digit), bcrypt + update
+    users.password_hash, mark consumed.
+  - Audit `password_reset_requested`, `password_reset_completed`.
+  - Frontend: two minimal pages, wire from staff and parent login
+    tabs.
+  - Add `APP_URL` to .env.example.
+
+ACCEPTANCE (test)
+  Three tests:
+    1. request with unknown email → 200, no token row.
+    2. request with valid staff email → 200, exactly one token
+       row created.
+    3. complete with valid token + valid password → users row
+       password_hash changes; token consumed_at set; second
+       attempt with same token → 400.
+
+OUT OF SCOPE
+  Pupil PIN reset (stays coordinator-mediated).
+
+----------------------------------------------------------------
+T11 — MFA (TOTP) for coordinator + head_teacher
+----------------------------------------------------------------
+GOAL
+  Coordinator and head_teacher can enrol TOTP and use it on login.
+  Enforcement is gated behind `MFA_ENFORCED=true` (default false).
+
+BLAST RADIUS
+  Touch:
+    lib/db/src/schema/userMfaSecrets.ts (new)
+    lib/db/src/schema/index.ts
+    artifacts/api-server/src/lib/mfaCrypto.ts (new — AES-256-GCM)
+    artifacts/api-server/src/routes/mfa.ts (new)
+    artifacts/api-server/src/routes/auth.ts (extend staff login
+      to return `requiresMfa` + mfaToken when enabled+enforced)
+    artifacts/api-server/src/routes/index.ts
+    artifacts/api-server/src/routes/audit.ts (add 5 event types)
+    artifacts/safeschool/src/pages/settings.tsx (MFA panel)
+    artifacts/safeschool/src/pages/login.tsx (challenge step)
+    artifacts/api-server/src/__tests__/mfa.test.ts (new)
+
+APPROACH GATE
+  This is the biggest ticket of the night. Estimate hours. If you
+  cannot fit it in 2 hours of work, STOP and ask — do not start
+  partial work. Note: backup codes are required, not optional.
+  State your encryption approach for the secret at rest.
+
+WORK
+  - Deps: otplib, qrcode.
+  - Schema: user_id PK FK users, secret_encrypted text, enabled
+    bool, backup_codes jsonb (array of bcrypt-hashed codes),
+    created_at.
+  - Endpoints:
+      POST /api/auth/mfa/setup        (auth required)
+        → generate secret, store encrypted, return otpauth URI
+          + base64 QR. enabled=false.
+      POST /api/auth/mfa/verify-setup {code}
+        → verify one TOTP, set enabled=true, generate 8 backup
+          codes, return them ONCE plaintext.
+      POST /api/auth/mfa/disable {code}
+        → verify, delete row.
+      POST /api/auth/mfa/challenge {mfaToken, code|backupCode}
+        → verify TOTP or consume one backup code, issue full JWT.
+  - Login update: if user is coordinator/head_teacher AND
+    MFA_ENFORCED AND has MFA enabled, login returns
+    `{ requiresMfa: true, mfaToken }` where mfaToken is a 5-min
+    JWT scoped `mfa-challenge`. Frontend prompts and calls
+    /challenge.
+  - Env: `MFA_ENC_KEY` (32-byte base64) and `MFA_ENFORCED` in
+    .env.example. If MFA_ENC_KEY missing, /setup returns 503 with
+    a clear error.
+  - Audit events: mfa_setup_started, mfa_enabled, mfa_disabled,
+    mfa_challenge_succeeded, mfa_challenge_failed.
+
+ACCEPTANCE (test)
+  Four tests:
+    1. setup + verify-setup with a correct TOTP enables and returns
+       8 codes.
+    2. login with MFA enabled + MFA_ENFORCED=true returns
+       requiresMfa+mfaToken; full /me requires the /challenge step.
+    3. challenge with a valid TOTP issues a full JWT.
+    4. challenge with a backup code succeeds ONCE; second use of
+       the same code fails.
+
+OUT OF SCOPE
+  Recovery flow for lost device + lost backup codes (deferred —
+  document in OVERNIGHT_LOG.md as a known gap).
+
+----------------------------------------------------------------
+T12 — DSAR endpoint
+----------------------------------------------------------------
+GOAL
+  Logged-in user can export every row referencing them as JSON.
+
+BLAST RADIUS
+  Touch:
+    artifacts/api-server/src/routes/me.ts (new or extend)
+    artifacts/api-server/src/routes/index.ts
+    artifacts/api-server/src/routes/audit.ts (add event_type)
+    artifacts/api-server/src/__tests__/dsar.test.ts (new)
+
+APPROACH GATE
+  Cost-control: state how you'll rate-limit this (use the T07
+  Postgres store, 3 per hour per userId). Confirm you'll exclude
+  password_hash and pin_hash from the user row.
+
+WORK
+  - GET /api/me/data-export (auth required).
+  - Query every table from the list in our state dump §16,
+    filtering by user reference (reporter, victim_ids,
+    perpetrator_ids, witness_ids, sender_id, recipient_id,
+    actor_id, target_id, pupil_id, user_id, assigned_to,
+    author_id — exact column per table).
+  - Return one JSON document: `{ schema_version: 1, generated_at,
+    user_id, sections: { users: [...], incidents: [...], ... } }`.
+  - Audit `data_export_requested` with `details.byte_size`.
+
+ACCEPTANCE (test)
+  Two tests:
+    1. Seed a user, insert one row in each of 5 representative
+       tables referencing them, hit endpoint, assert each section
+       contains the expected row.
+    2. Hit the endpoint 4 times in a row from one user; 4th call
+       returns 429.
+
+OUT OF SCOPE
+  PDF version of the export. Erasure (right-to-delete). Admin-side
+  DSAR-for-other-user flow.
+
+----------------------------------------------------------------
+T13 — Retention enforcement (constants, not config table)
+----------------------------------------------------------------
+GOAL
+  Old, expirable data actually gets deleted on a schedule.
+
+BLAST RADIUS
+  Touch:
+    artifacts/api-server/src/jobs/retentionSweep.ts (new)
+    artifacts/api-server/src/lib/retentionPolicies.ts (new — a
+      typed const map)
+    artifacts/api-server/src/index.ts (start the job)
+    artifacts/api-server/src/routes/audit.ts (add event_type)
+    artifacts/api-server/src/__tests__/retention-sweep.test.ts (new)
+
+APPROACH GATE
+  Per Karpathy simplicity: no `retention_policies` table. Just a
+  TypeScript constant:
+    export const RETENTION_DAYS = {
+      pupil_diary: 365,
+      messages: 730,
+      notifications: 90,
+    } as const;
+  audit_log is excluded (append-only trigger; deletion requires a
+  separate decision). State that you've reviewed this and agree.
+
+WORK
+  - Job runs every 24h, advisory-lock-gated (use the same pattern
+    as T09 with a different key, e.g. `hashtext(
+    'safeskoolz:retention_sweep')`).
+  - For each category in the constant, DELETE rows older than
+    retention_days; capture count.
+  - Audit one `retention_sweep_completed` row per run with
+    `details = { category, deleted_count, threshold_at }`.
+
+ACCEPTANCE (test)
+  Test: insert a pupil_diary row backdated 400 days; invoke the
+  sweep function once; row is deleted; one audit row was written
+  with deleted_count >= 1.
+
+OUT OF SCOPE
+  UI for changing retention values. Erasure flow. Audit log
+  retention (separate decision).
+
+==============================================================
+FINAL TICKET — Verification
+==============================================================
+
+After the last completed ticket, run in order:
+    pnpm typecheck                                  MUST pass
+    pnpm --filter @workspace/api-server test        MUST pass
+    pnpm build                                      MUST pass
+
+Smoke (manual, document in log):
+  - Boot api-server dev. curl /api/healthz → ok.
+  - curl /api/auth/demo-login (coordinator) → JWT.
+  - With that JWT, curl /api/audit?limit=5 → rows.
+  - curl with Origin: https://evil.example → no allow-origin header.
+
+Append the completion report to OVERNIGHT_LOG.md:
+  - Tickets DONE, DEFERRED, FAILED, ASKED (with reasons + commit
+    SHAs).
+  - New env vars Tom must set in production:
+      JWT_SECRET (already required, confirm set)
+      CORS_ALLOWED_ORIGINS
+      RESEND_API_KEY (and EMAIL_FROM_ADDRESS)
+      APP_URL
+      MFA_ENC_KEY (32-byte base64)
+      MFA_ENFORCED (set true once coordinator + head_teacher
+        have enrolled)
+  - Manual tasks Tom must do post-merge:
+      Resend domain DKIM/SPF/DMARC verification.
+      Generate MFA_ENC_KEY: `openssl rand -base64 32`.
+      Decide CORS allowlist for production domain.
+  - Anything you mentioned but did not delete (e.g. Stripe string
+    in build.ts, empty README.md, empty replit.nix).
+  - Test counts before vs after.
+
+==============================================================
+STOP CONDITIONS
+==============================================================
+
+You are done when EITHER:
+  (a) all 13 tickets are DONE / DEFERRED / ASKED with reasons, OR
+  (b) typecheck and tests pass and you've completed at least 9
+      tickets cleanly.
+
+Do NOT leave trunk broken. If your last ticket left it broken,
+revert that ticket's commits before stopping.
+
+Begin with T01. Write the approach paragraph FIRST. Then code.
