@@ -1,0 +1,262 @@
+==============================================================
+HARD OVERRIDE — CONTINUING FROM LAST OVERNIGHT
+==============================================================
+
+This is a second overnight on safeskoolz, following the run that
+ended at commit 878f5de. Read OVERNIGHT_LOG.md before anything
+else — especially the "Follow-ups for next session" section. The
+operating principles from last night still apply:
+
+1. THINK BEFORE CODING — approach gate per ticket, write it into
+   OVERNIGHT_LOG.md BEFORE you touch code. Stop and surface if a
+   ticket feels larger than declared.
+2. SIMPLICITY FIRST — additive fixes only. No refactors, no
+   "while I'm in here" cleanups.
+3. SURGICAL CHANGES — blast radius declared per ticket. Don't
+   touch anything else.
+4. GOAL-DRIVEN EXECUTION — acceptance is `pnpm -w typecheck` and
+   `pnpm -w build` going green. Tests stay 58/58 minimum.
+
+APPEND to OVERNIGHT_LOG.md — do not overwrite last night's work.
+Use a new top-level section: `## Overnight session 2 — <date>`.
+
+==============================================================
+GOAL
+==============================================================
+
+End the night with:
+  pnpm -w typecheck                            EXITS 0
+  pnpm -w build                                EXITS 0
+  pnpm --filter @workspace/api-server test     58/58 MINIMUM
+  Shape A, Shape C, Shape D, and the rg audit follow-ups marked
+    DONE in OVERNIGHT_LOG.md.
+
+If you cannot achieve all four, achieve as many as possible
+cleanly and surface the blocker for Tom in the morning.
+
+==============================================================
+PRE-WORK (M00)
+==============================================================
+
+- Confirm 878f5de is HEAD's most recent commit from last night.
+- Run `pnpm -w typecheck` and paste the FULL tail into the log.
+- Confirm the visible errors are exactly the documented Shape A
+  (protocols 88/90/91), Shape C (incidents 892), Shape D
+  (incidents 782) and NOTHING else. If new errors appear,
+  enumerate them in the log and stop for instructions.
+
+==============================================================
+M01 — Shape D (cheapest, do first)
+==============================================================
+
+artifacts/api-server/src/routes/incidents.ts line 782.
+
+BLAST RADIUS
+  incidents.ts only. If a fix to line 782 cascades to other
+  lines in the same file, narrow once at the top of the relevant
+  handler and reuse.
+
+APPROACH GATE
+  Paste the 3-line excerpt at lines 780-784. Confirm the narrow
+  point. Show the diff.
+
+WORK
+  Apply same `String(req.params.X)` narrow as last night.
+
+ACCEPTANCE
+  Line 782 error gone from typecheck. No new errors introduced.
+
+==============================================================
+M02 — req.params audit pass
+==============================================================
+
+GOAL: confirm no further shadowed `req.params.X: string|string[]`
+bugs anywhere in the routes layer.
+
+BLAST RADIUS
+  All files matched by:
+    rg -n 'req\.params\.' artifacts/api-server/src/routes/
+  Plus rg -n 'req\.params\.' artifacts/api-server/src/lib/ if
+  any matches surface there.
+
+APPROACH GATE
+  Run the rg command. Paste every match into the log. For EACH
+  match, classify in one line:
+    SAFE — already narrowed via String() / destructure pattern
+           that produces string, or used in a context that
+           accepts string|string[] (e.g. logging).
+    NEEDS-FIX — flows into eq(), insert().values({...}),
+                template-string-into-SQL, or any string-typed
+                field assignment.
+
+  Caps:
+    If NEEDS-FIX count is 0-5: fix all inline as part of this
+      ticket. Same one-line narrow. One commit covering all.
+    If NEEDS-FIX count is 6-10: fix all but STOP after the
+      commit and surface to Tom — that level of prevalence is
+      a smell.
+    If NEEDS-FIX count is 11+: STOP without fixing. Report.
+      This becomes a repo-wide refactor decision, not a fix.
+
+WORK
+  Apply the narrow at the top of each affected handler. Don't
+  touch surrounding code.
+
+ACCEPTANCE
+  `pnpm -w typecheck` shows zero remaining errors of the
+  req.params shape. M02 commit is single, focused.
+
+==============================================================
+M03 — Shape A (protocols Zod schema alignment)
+==============================================================
+
+artifacts/api-server/src/routes/protocols.ts lines 88, 90, 91
+read riskLevel / riskFactors / protectiveFactors from a body
+that the current Zod schema does not include.
+
+BLAST RADIUS
+  - the Zod schema currently typing the request body (find it;
+    likely in protocols.ts itself or in lib/api-spec)
+  - protocols.ts handler ONLY if the schema turns out to be
+    correct and the handler needs adjusting
+
+APPROACH GATE — MANDATORY PRE-INVESTIGATION
+  Before touching code, paste into the log:
+    (a) the Zod schema currently typing this request body
+        (the actual code, not a summary)
+    (b) the Drizzle schema for the `protocols` table — the
+        full column list
+    (c) `git log -p` for the Zod schema file, last 5 commits
+    (d) `git log -p` for the Drizzle schema file, last 5 commits
+
+  Then DECIDE which of these is true:
+    DECISION-1: Drizzle has riskLevel/riskFactors/protective-
+                Factors columns; Zod schema is missing them.
+                FIX: add the three fields to the Zod schema with
+                the right types (string for riskLevel,
+                string[] for the two array fields). ADDITIVE.
+    DECISION-2: Drizzle does NOT have these columns; handler is
+                reading data that was never persisted. FIX:
+                STOP, this is a real bug, surface to Tom.
+    DECISION-3: Columns exist but with different names. STOP,
+                rename is destructive, surface to Tom.
+
+  State which decision applies in the log. Then proceed only
+  if DECISION-1.
+
+WORK
+  If DECISION-1: extend the Zod schema additively.
+  If anything else: do not write code, surface.
+
+ACCEPTANCE
+  Lines 88/90/91 type errors gone. Schema and DB still aligned.
+  No existing field types changed.
+
+==============================================================
+M04 — Shape C (incidents updatedAt)
+==============================================================
+
+artifacts/api-server/src/routes/incidents.ts line 892 reads
+`updatedAt` from a row whose Drizzle-inferred type has no
+such column.
+
+BLAST RADIUS
+  - lib/db/src/schema/incidents.ts (if column needs adding)
+  - incidents.ts route handler (if read needs removing)
+  - migrations are PUSH-based (no SQL migration files), so if
+    a column is added, `pnpm --filter @workspace/db run push`
+    will apply it to dev DB.
+
+APPROACH GATE — MANDATORY PRE-INVESTIGATION
+  Before touching code, paste into the log:
+    (a) the Drizzle schema for `incidents` table — full
+        column list with timestamps section highlighted
+    (b) `git log -p lib/db/src/schema/incidents.ts` last 5
+        commits — was updatedAt ever there?
+    (c) the handler code at lines 880-905 — what's the read
+        used for? (display, sort, audit, return value?)
+
+  Then DECIDE:
+    DECISION-1: The handler genuinely needs updatedAt (e.g.
+                for the audit trail or response payload) and
+                the schema lacks it. FIX: add updatedAt
+                timestamptz column with default now() AND
+                Drizzle's `.$onUpdate(() => new Date())`.
+                Run `pnpm --filter @workspace/db run push`.
+                ADDITIVE.
+    DECISION-2: The read is stale/dead — handler doesn't
+                actually need it (e.g. it's logged but never
+                used downstream). FIX: remove the read.
+    DECISION-3: A different timestamp column exists and the
+                handler should read it instead (e.g.
+                assessedAt, statusUpdatedAt). FIX: change the
+                read to the correct column name.
+
+  State which decision applies in the log. State why.
+
+WORK
+  Apply the chosen fix.
+
+ACCEPTANCE
+  Line 892 errors gone. If DECISION-1 chosen: schema updated,
+  push succeeded, no test breakage.
+
+==============================================================
+M05 — Final verification + bonus
+==============================================================
+
+VERIFY (all must be green to declare success)
+  pnpm -w typecheck       MUST exit 0
+  pnpm -w build           MUST exit 0
+  pnpm --filter @workspace/api-server test     58/58 minimum
+  Live smoke (curl on the dev server):
+    GET /api/healthz returns 200 {status:"ok"}
+    POST /api/auth/demo-login (any allowed role) returns JWT
+    With that JWT, the canonical endpoint for the role
+    returns data (e.g. pupil → /api/incidents/my-disclosures,
+    parent → /api/dashboard/parent).
+
+BONUS — ONLY IF M00-M04 are all DONE and verification green
+  M06 (optional): T09 shared lock-key constant.
+    Extract LOCK_KEY into a named export from
+    src/jobs/patternScan.ts. Update the test in
+    pattern-scan-lock.test.ts to import the same constant.
+    One commit. No other changes.
+
+  M07 (optional): T11 SELECT assertion.
+    Extend the existing test in mfa.test.ts case 4 with a
+    SELECT against user_mfa_secrets.backup_codes confirming
+    the consumed code is removed from the stored array
+    after the successful first /challenge call. One commit.
+
+  If either bonus surfaces a real bug rather than just
+  hardening the test: STOP, surface, do not paper over.
+
+==============================================================
+HARD CAPS — APPLIES TO EVERY TICKET
+==============================================================
+
+- DO NOT drop, rename, or change the type of any existing
+  schema column or Zod field. Additive only.
+- DO NOT touch generated code under lib/api-client-react/
+  src/generated/ or lib/api-zod/src/generated/.
+- DO NOT touch the Stripe string in build.ts, the empty
+  README, the empty replit.nix, or the MODULE_IDS as any.
+- DO NOT run drizzle push-force. Only push. If push warns
+  about a destructive change, STOP and surface.
+- DO NOT walk the production wiring punch-list. Tom does
+  that himself after CI is green.
+
+==============================================================
+COMPLETION REPORT (append to OVERNIGHT_LOG.md)
+==============================================================
+
+End the night with a "## Session 2 completion report" block:
+  - Tickets DONE / DEFERRED / FAILED / SURFACED-TO-TOM
+  - Commit SHAs (or auto-checkpoint SHAs) per ticket
+  - Final typecheck + build + test tails
+  - For each schema/Zod decision made (M03, M04), the chosen
+    DECISION-N and the reasoning
+  - Any new follow-ups for the next session
+
+Begin with M00. Approach gate before every ticket.

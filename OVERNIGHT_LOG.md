@@ -544,3 +544,81 @@ Surfaced by the post-verification typecheck-greening pass (commits `c1b39a1`, `9
 - **Shape D (newly surfaced after Shape B fix) — `artifacts/api-server/src/routes/incidents.ts` line 782.** Same `req.params.X: string | string[]` pattern as training/teacherPosts/senco/messages, hidden behind the earlier failures. Apply the same `const x = String(req.params.x)` narrow once Shape C is being touched.
 - **Audit pass:** `rg -n 'req\.params\.' artifacts/api-server/src/routes/` and confirm no further shadowed `string | string[]` bugs. Four files have already been caught; the cascade behind `incidents.ts` suggests there may be more.
 
+## Overnight session 2 — 2026-05-25
+
+### M00 — pre-work findings: STOPPED, scope much larger than brief assumed
+
+HEAD is `3400c6b` (confirmed: last night's `878f5de` is its parent; everything from session 1 landed).
+
+Ran `pnpm -w typecheck` and captured the FULL output (not just the tail). Last night's reports only quoted the trailing ~12 lines of tsc output, which is why Shape A + C + D appeared to be the complete remaining set. The actual state is **63 errors across 9 files / 11 distinct shapes**.
+
+#### Error totals by file
+
+| File | Count |
+|---|---|
+| `src/routes/diagnostics.ts` | 23 |
+| `src/routes/behaviour.ts` | 13 |
+| `src/routes/incidents.ts` | 8 |
+| `src/lib/pdfExport.ts` | 6 |
+| `src/routes/protocols.ts` | 3 |
+| `src/routes/diary.ts` | 3 |
+| `src/lib/auth.ts` | 3 |
+| `src/routes/dashboard.ts` | 2 |
+| `src/__tests__/pupil-login.test.ts` | 1 |
+| `src/routes/auth.ts` | 1 |
+| **Total** | **63** |
+
+#### Error totals by TS code
+
+| Code | Count | Meaning |
+|---|---|---|
+| TS2769 | 32 | overload mismatch — most are `eq()`/`and()` with `string \| string[]` (req.params shape) |
+| TS2339 | 8 | missing property (Shape A protocols, Shape C incidents+dashboard `updatedAt`, incidents `unknownPersonDescriptions`) |
+| TS2493 | 6 | tuple index out of range (behaviour standing-level math) |
+| TS2503 | 5 | missing namespace `PDFKit` |
+| TS2532 | 4 | possibly undefined (behaviour standing-level math) |
+| TS2322 | 3 | `string \| string[]` → `string` assignment (req.params shape) |
+| TS7016 | 1 | missing types for `pdfkit` |
+| TS7006 | 1 | implicit any param |
+| TS2578 | 1 | unused `@ts-expect-error` directive |
+| TS2352 | 1 | JWT verify cast mismatch |
+| TS2345 | 1 | `string \| string[]` → `string` arg (req.params shape) |
+
+#### Distinct shapes (new vs. previously named)
+
+- **Shape D (named)** — `req.params.X: string \| string[]`. Now confirmed to be present in: `incidents.ts` (lines 722, 723, 762, 763, 782 — all the same handler 712-788, one narrow fixes all five), `behaviour.ts` (30, 44, 49), `diary.ts` (228, 237, 244), `diagnostics.ts` (multiple — needs handler-by-handler audit because diagnostics is 1000+ lines), `auth.ts` (251, possibly cascaded). This is **the M02 audit pass** the brief anticipated — it's larger than the 0-5 cap, sits in the 6-10 bracket on a handler-count basis, likely 11+ on a line-count basis.
+- **Shape A (named)** — `protocols.ts` 88/90/91. Unchanged.
+- **Shape C (named)** — `incidents.ts` 892 (`updatedAt`). Now also present in **`dashboard.ts` 402** (same column on what looks like the same row type). Same root cause; one fix likely covers both.
+- **Shape E (NEW)** — `incidents.ts` 174: `unknownPersonDescriptions` doesn't exist on Zod-inferred body. Same family as Shape A (Zod schema vs handler drift), different table.
+- **Shape F (NEW)** — `behaviour.ts` 77/184: standing-level tuple lookup. `STANDING_LEVELS[level - 1]` where `level - 1` can exceed the tuple bounds. 6× TS2493 + 4× TS2532 across two handlers. Different shape entirely — needs either a bounds check or `?? STANDING_LEVELS[0]` fallback. Pre-existing.
+- **Shape G (NEW)** — `lib/pdfExport.ts` 1/27/44/53/60/65: missing `@types/pdfkit`. 1× TS7016 + 5× TS2503. Pure dependency fix: `pnpm add -D -F @workspace/api-server @types/pdfkit`. Cheap, but it's a dependency change — adding a package is technically out of the "additive code only" surface.
+- **Shape H (NEW)** — `lib/auth.ts` 18/22: jwt.verify overload mismatch + `Jwt & JwtPayload & void` cast. This is the JWT signing/verifying code; touching it incorrectly breaks auth across the entire API. T07 territory or older. Unknown depth.
+- **Shape I (NEW)** — `routes/auth.ts` 251: `Parameter 'p' implicitly has an 'any' type`. One-line annotation. Cheap.
+- **Shape J (NEW)** — `__tests__/pupil-login.test.ts` 89: unused `@ts-expect-error`. Cheap.
+
+#### Decision
+
+Per M00: **"If new errors appear, enumerate them in the log and stop for instructions."**
+
+I'm at exactly that point. The brief assumed the remaining error set was Shape A + Shape C + Shape D-at-one-line. The reality is:
+
+- **Shape D alone exceeds the M02 audit cap.** The brief said 0-5 NEEDS-FIX inline, 6-10 surface, 11+ stop. Counting lines is 11+. Counting handlers is in the 6-10 bracket. Either way it's surfaced.
+- **Three brand-new shapes (E, F, H) are unknown depth.** Shape H in particular sits in `lib/auth.ts` — auth code I refuse to improvise on at 2am without explicit sizing.
+- **Shape G is a dependency add**, which is technically outside the "additive code only" rule the brief established.
+- The cheap stuff (G dep-add, I one-line, J directive removal, and the additive parts of A/C/D/E once decisions are made) could plausibly close most of the gap, but the call on what's in/out belongs to Tom.
+
+**No code touched this session.** HEAD remains `3400c6b`. Awaiting an updated brief that either:
+(a) re-scopes session 2 to a named subset (e.g. "do Shapes D+I+J+G this session, defer A/C/E/F/H to a third"), or
+(b) explicitly authorises the agent to size each shape one-by-one with approach gates and proceed with full additive licence, accepting that auth.ts and pdfExport.ts are not going to land tonight.
+
+### Recommendation
+
+Option (a). Specifically:
+1. **Shape D** — one consolidated commit, one narrow per affected handler. Cap lifted to "fix all 5 affected files" with a hard stop if a 6th surfaces. Estimated 30-45 min including verification.
+2. **Shape I + Shape J** — trivial, bundle with Shape D commit. 5 min.
+3. **Shape G** — `pnpm add -D @types/pdfkit` and re-typecheck. If clean, done. If new errors surface in pdfExport.ts because the types are stricter than the current usage, surface them. 10 min.
+4. **Shape C-extended** — Decide updatedAt approach (DECISION-1/2/3 from original brief) and apply to BOTH `incidents.ts:892` AND `dashboard.ts:402`. 20-30 min.
+5. **Defer to session 3**: Shape A, Shape E (Zod alignment — needs Tom on the data model), Shape F (behaviour tuple math — needs Tom on intent), Shape H (auth — never improvise).
+
+If option (a) is accepted, that path probably gets `pnpm -w typecheck` from 63 errors to ~17 errors (A: 3, E: 1, F: 10, H: 3) in one disciplined session. Not green, but a meaningful dent with zero risk of breaking working code.
+
