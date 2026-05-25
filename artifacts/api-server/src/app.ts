@@ -1,30 +1,79 @@
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import router from "./routes";
+import { PgRateLimitStore } from "./lib/rateLimitStore";
 
 const app: Express = express();
 
 app.set("trust proxy", 1);
+app.disable("x-powered-by");
+
+// Helmet MUST be the first middleware so security headers attach to every response.
+// CSP choice: keep `'unsafe-inline'` in style-src — Tailwind v4 injects runtime styles
+// and the demo UI breaks without it. script-src stays strict ('self'); no inline scripts
+// in safeschool/index.html today (verified before mount). Connect-src enumerates the
+// outbound APIs the server-side code talks to (OpenAI, Resend) plus self for XHR.
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: false,
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      connectSrc: ["'self'", "https://api.openai.com", "https://api.resend.com"],
+      frameAncestors: ["'none'"],
+    },
+  },
+}));
+
+// CORS allowlist driven by CORS_ALLOWED_ORIGINS (comma-separated). In non-production we
+// additionally permit localhost (any port) and `*.replit.dev` so the dev workflow and
+// Replit preview iframes work without configuring env vars per branch. Rejections are
+// logged as structured warnings so production misconfig surfaces in the log stream.
+function isOriginAllowed(origin: string): boolean {
+  const list = (process.env.CORS_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (list.includes(origin)) return true;
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const u = new URL(origin);
+      if (u.hostname === "localhost" || u.hostname === "127.0.0.1") return true;
+      if (u.hostname.endsWith(".replit.dev")) return true;
+    } catch {
+      // Malformed origin string — fall through to rejection.
+    }
+  }
+  return false;
+}
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Demo deployment: permissive CORS so any browser/host can reach the API.
-    // Always log the origin so we can see what's hitting us in production logs.
-    if (origin) console.log(`[cors] allow origin: ${origin}`);
-    return callback(null, true);
+    // No Origin header => same-origin or non-browser caller (curl, server-to-server). Allow.
+    if (!origin) return callback(null, true);
+    if (isOriginAllowed(origin)) return callback(null, true);
+    console.warn(JSON.stringify({ level: "warn", event: "cors_rejected", origin }));
+    return callback(null, false);
   },
   credentials: true,
 }));
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 
+// Limits unchanged (auth: 30 / 15min, newsletter: 10 / 1hr). Switched to a
+// Postgres-backed Store so counters survive restarts and are shared across replicas.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many login attempts. Please try again later." },
+  store: new PgRateLimitStore("auth"),
 });
 
 const newsletterLimiter = rateLimit({
@@ -33,6 +82,7 @@ const newsletterLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many requests. Please try again later." },
+  store: new PgRateLimitStore("newsletter"),
 });
 
 app.use("/api/auth/pupil/start", authLimiter);

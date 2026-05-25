@@ -16,8 +16,9 @@ export default function NewProtocol() {
   const incidentId = urlParams.get("incidentId") || "";
   const queryClient = useQueryClient();
 
+  // orval-generated options now require `queryKey`; the hook supplies its own. Cast at the boundary.
   const { data: incident } = useGetIncident(incidentId || "none", {
-    query: { enabled: !!incidentId },
+    query: { enabled: !!incidentId } as any,
   });
 
   const { data: pupilData } = useQuery<any>({
@@ -129,6 +130,7 @@ export default function NewProtocol() {
 
     try {
       const result = await createProtocol.mutateAsync({
+        // UI sends risk* fields the spec doesn't yet declare (drift — see OVERNIGHT_LOG.md T02). Server accepts and stores them.
         data: {
           protocolType,
           protocolSource: protocolSource || undefined,
@@ -141,7 +143,7 @@ export default function NewProtocol() {
           riskFactors,
           protectiveFactors,
           externalReferralRequired,
-        },
+        } as unknown as Parameters<typeof createProtocol.mutateAsync>[0]["data"],
       });
       queryClient.invalidateQueries({ queryKey: ["/api/protocols"] });
       queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });

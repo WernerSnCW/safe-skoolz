@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, Button, Input, Label } from "@/components/ui-polished";
-import { User, Save, CheckCircle2, Mail, BookOpen, GraduationCap, Moon, Sun, Monitor } from "lucide-react";
+import { User, Save, CheckCircle2, Mail, BookOpen, GraduationCap, Moon, Sun, Monitor, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
@@ -25,6 +25,7 @@ function useTheme() {
       mq.addEventListener("change", handler);
       return () => mq.removeEventListener("change", handler);
     }
+    return undefined;
   }, [pref]);
 
   const setPref = (p: ThemePref) => {
@@ -290,6 +291,148 @@ export default function Settings() {
           </div>
         </CardContent>
       </Card>
+
+      {(user.role === "coordinator" || user.role === "head_teacher") && <MfaPanel />}
     </div>
+  );
+}
+
+// T11: minimal MFA enrolment panel for coordinator + head_teacher. Shows the
+// QR/secret, accepts the verification code, and reveals backup codes once.
+function MfaPanel() {
+  const apiBase = (() => {
+    const b = import.meta.env.BASE_URL || "/";
+    return b.endsWith("/") ? b : b + "/";
+  })();
+  const token = localStorage.getItem("safeschool_token") || "";
+  const authHeaders = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+
+  const [qr, setQr] = useState<string | null>(null);
+  const [otpauth, setOtpauth] = useState<string | null>(null);
+  const [verifyCode, setVerifyCode] = useState("");
+  const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
+  const [disableCode, setDisableCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const startSetup = async () => {
+    setBusy(true);
+    setMsg("");
+    try {
+      const r = await fetch(`${apiBase}api/auth/mfa/setup`, { method: "POST", headers: authHeaders });
+      const data = await r.json();
+      if (!r.ok) {
+        setMsg(data?.error || "Setup failed.");
+        return;
+      }
+      setQr(data.qrDataUrl);
+      setOtpauth(data.otpauth);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const verifySetup = async () => {
+    setBusy(true);
+    setMsg("");
+    try {
+      const r = await fetch(`${apiBase}api/auth/mfa/verify-setup`, {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ code: verifyCode }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setMsg(data?.error || "Invalid code.");
+        return;
+      }
+      setBackupCodes(data.backupCodes);
+      setQr(null);
+      setOtpauth(null);
+      setVerifyCode("");
+      setMsg("MFA enabled. Save your backup codes — they will not be shown again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const disable = async () => {
+    setBusy(true);
+    setMsg("");
+    try {
+      const r = await fetch(`${apiBase}api/auth/mfa/disable`, {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ code: disableCode }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setMsg(data?.error || "Could not disable MFA.");
+        return;
+      }
+      setDisableCode("");
+      setBackupCodes(null);
+      setMsg("MFA disabled.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardContent className="p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Shield size={18} className="text-primary" />
+          <h2 className="text-lg font-bold">Two-factor authentication</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Use an authenticator app (Google Authenticator, Authy, 1Password, …) for an extra layer of security.
+        </p>
+
+        {!qr && !backupCodes && (
+          <div className="flex gap-2 flex-wrap">
+            <Button onClick={startSetup} disabled={busy}>Set up MFA</Button>
+            <div className="flex-1 min-w-[240px] flex gap-2 items-end">
+              <div className="flex-1">
+                <Label htmlFor="disableCode">Disable (enter current code)</Label>
+                <Input id="disableCode" value={disableCode} onChange={e => setDisableCode(e.target.value)} placeholder="123456" />
+              </div>
+              <Button variant="ghost" onClick={disable} disabled={busy || !disableCode}>Disable</Button>
+            </div>
+          </div>
+        )}
+
+        {qr && (
+          <div className="space-y-3">
+            <p className="text-sm">Scan this QR with your authenticator app, then enter the 6-digit code.</p>
+            <img src={qr} alt="MFA QR code" className="border rounded-lg w-48 h-48" />
+            {otpauth && (
+              <p className="text-xs break-all text-muted-foreground">
+                Or enter this URI manually: <code>{otpauth}</code>
+              </p>
+            )}
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <Label htmlFor="verifyCode">Verification code</Label>
+                <Input id="verifyCode" value={verifyCode} onChange={e => setVerifyCode(e.target.value)} placeholder="123456" />
+              </div>
+              <Button onClick={verifySetup} disabled={busy || verifyCode.length < 6}>Enable</Button>
+            </div>
+          </div>
+        )}
+
+        {backupCodes && (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold">Backup codes (save these now)</p>
+            <ul className="grid grid-cols-2 gap-1 font-mono text-sm">
+              {backupCodes.map(c => <li key={c} className="p-2 bg-muted rounded">{c}</li>)}
+            </ul>
+            <p className="text-xs text-muted-foreground">Each code works once. They will not be shown again.</p>
+          </div>
+        )}
+
+        {msg && <p className="text-sm">{msg}</p>}
+      </CardContent>
+    </Card>
   );
 }

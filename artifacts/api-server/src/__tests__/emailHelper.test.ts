@@ -16,7 +16,7 @@ describe("sendEmail", () => {
     vi.unstubAllEnvs();
   });
 
-  it("when RESEND_API_KEY is not set: resolves void, writeAudit not called", async () => {
+  it("when RESEND_API_KEY is not set: first call writes one missing_api_key audit row; subsequent calls write zero", async () => {
     vi.stubEnv("RESEND_API_KEY", "");
     delete process.env.RESEND_API_KEY;
 
@@ -27,8 +27,19 @@ describe("sendEmail", () => {
     vi.doMock("../lib/auditHelper", () => ({ writeAudit: mockAudit }));
 
     const { sendEmail } = await import("../lib/emailHelper");
+
     await expect(sendEmail(baseOpts)).resolves.toBeUndefined();
-    expect(mockAudit).not.toHaveBeenCalled();
+    expect(mockAudit).toHaveBeenCalledOnce();
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: "email_send_failed",
+        details: expect.objectContaining({ reason: "missing_api_key" }),
+      }),
+    );
+
+    await expect(sendEmail(baseOpts)).resolves.toBeUndefined();
+    await expect(sendEmail(baseOpts)).resolves.toBeUndefined();
+    expect(mockAudit).toHaveBeenCalledOnce(); // still 1 — latch held
   });
 
   it("when Resend returns { error }: resolves void, writeAudit called with email_send_failed", async () => {

@@ -185,6 +185,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
       }, 800);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [user, steps.length, startDemo]);
 
   const nextStep = useCallback(() => {

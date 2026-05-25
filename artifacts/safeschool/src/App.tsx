@@ -10,6 +10,8 @@ import { DemoProvider, DemoOverlay } from "@/components/demo/DemoWalkthrough";
 
 // Pages
 import Login from "@/pages/login";
+import ForgotPassword from "@/pages/forgot-password";
+import ResetPassword from "@/pages/reset-password";
 import Dashboard from "@/pages/dashboard";
 import ReportIncident from "@/pages/report-incident";
 import IncidentsList from "@/pages/incidents";
@@ -85,6 +87,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
+      <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
       <Route path="/how-it-works" component={HowItWorksPage} />
       <Route path="/">
         {() => <ProtectedRoute component={Dashboard} />}

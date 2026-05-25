@@ -169,28 +169,28 @@ function PtaDashboardTab() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
           title={t("incidentsThisTerm")}
-          value={data.incidentsThisTerm}
+          value={data.incidentsThisTerm ?? 0}
           subtitle={`${trend >= 0 ? "+" : ""}${trendPct}% ${t("vsLastTerm")}`}
           icon={AlertTriangle}
           color={trend > 0 ? "text-amber-600" : "text-green-600"}
         />
         <KpiCard
           title={t("openProtocols")}
-          value={data.protocols.open}
-          subtitle={`${data.protocols.closedThisTerm} ${t("closedThisTerm")}`}
+          value={data.protocols.open ?? 0}
+          subtitle={`${data.protocols.closedThisTerm ?? 0} ${t("closedThisTerm")}`}
           icon={Shield}
           color="text-blue-600"
         />
         <KpiCard
           title={t("amberAlerts")}
-          value={data.alerts.amber}
-          subtitle={`${data.alerts.resolvedThisTerm} ${t("resolvedThisTerm")}`}
+          value={data.alerts.amber ?? 0}
+          subtitle={`${data.alerts.resolvedThisTerm ?? 0} ${t("resolvedThisTerm")}`}
           icon={Activity}
           color="text-amber-600"
         />
         <KpiCard
           title={t("redAlerts")}
-          value={data.alerts.red}
+          value={data.alerts.red ?? 0}
           subtitle={t("immediateResponse")}
           icon={AlertTriangle}
           color="text-red-600"
@@ -514,10 +514,11 @@ function PtaPolicyTab() {
 
   const policy = data.currentPolicy;
   const acks = data.acknowledgements || [];
+  if (!policy) return null;
 
   const handleAcknowledge = async () => {
     await acknowledgeMutation.mutateAsync({
-      data: { policyVersion: policy.version }
+      data: { policyVersion: policy.version ?? "" }
     });
     refetch();
   };
@@ -525,7 +526,7 @@ function PtaPolicyTab() {
   const handleFlag = async () => {
     if (!flagComment.trim()) return;
     await flagMutation.mutateAsync({
-      data: { policyVersion: policy.version, comment: flagComment.trim() }
+      data: { policyVersion: policy.version ?? "", comment: flagComment.trim() }
     });
     setFlagComment("");
     setShowFlagForm(false);
@@ -545,7 +546,7 @@ function PtaPolicyTab() {
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">
-            {policy.sections.map((s: string, i: number) => (
+            {(policy.sections ?? []).map((s: string, i: number) => (
               <li key={i} className="flex items-start gap-2 text-sm">
                 <CheckCircle2 size={16} className="text-green-600 mt-0.5 shrink-0" />
                 <span>{s}</span>

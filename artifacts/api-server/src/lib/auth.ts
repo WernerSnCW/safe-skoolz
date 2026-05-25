@@ -32,6 +32,12 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   try {
     const token = authHeader.substring(7);
     const payload = verifyToken(token);
+    // T11: mfa-challenge tokens are scoped to /api/auth/mfa/challenge only;
+    // they must not authenticate any other endpoint.
+    if ((payload as any).kind === "mfa-challenge") {
+      res.status(401).json({ error: "MFA challenge required" });
+      return;
+    }
     (req as any).user = payload;
     next();
   } catch {

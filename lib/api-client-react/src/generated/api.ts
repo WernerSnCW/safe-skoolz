@@ -41,7 +41,6 @@ import type {
   ListProtocolsParams,
   ListPtaConcerns200,
   ListPtaMessages200,
-  ListPupilsBySchoolParams,
   LoginResponse,
   Notification,
   PaginatedAlerts,
@@ -57,7 +56,8 @@ import type {
   PtaMessage,
   PtaPolicyData,
   PupilLoginBody,
-  PupilSummary,
+  PupilStartBody,
+  PupilStartResponse,
   School,
   SendPtaMessageBody,
   StaffLoginBody,
@@ -156,7 +156,93 @@ export function useHealthCheck<
 }
 
 /**
- * @summary Pupil login with PIN
+ * @summary Start pupil login with school access code
+ */
+export const getPupilStartLoginUrl = () => {
+  return `/api/auth/pupil/start`;
+};
+
+export const pupilStartLogin = async (
+  pupilStartBody: PupilStartBody,
+  options?: RequestInit,
+): Promise<PupilStartResponse> => {
+  return customFetch<PupilStartResponse>(getPupilStartLoginUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(pupilStartBody),
+  });
+};
+
+export const getPupilStartLoginMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof pupilStartLogin>>,
+    TError,
+    { data: BodyType<PupilStartBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof pupilStartLogin>>,
+  TError,
+  { data: BodyType<PupilStartBody> },
+  TContext
+> => {
+  const mutationKey = ["pupilStartLogin"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof pupilStartLogin>>,
+    { data: BodyType<PupilStartBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return pupilStartLogin(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PupilStartLoginMutationResult = NonNullable<
+  Awaited<ReturnType<typeof pupilStartLogin>>
+>;
+export type PupilStartLoginMutationBody = BodyType<PupilStartBody>;
+export type PupilStartLoginMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Start pupil login with school access code
+ */
+export const usePupilStartLogin = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof pupilStartLogin>>,
+    TError,
+    { data: BodyType<PupilStartBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof pupilStartLogin>>,
+  TError,
+  { data: BodyType<PupilStartBody> },
+  TContext
+> => {
+  return useMutation(getPupilStartLoginMutationOptions(options));
+};
+
+/**
+ * @summary Complete pupil login with session token, profile key, and PIN
  */
 export const getPupilLoginUrl = () => {
   return `/api/auth/pupil/login`;
@@ -219,7 +305,7 @@ export type PupilLoginMutationBody = BodyType<PupilLoginBody>;
 export type PupilLoginMutationError = ErrorType<ErrorResponse>;
 
 /**
- * @summary Pupil login with PIN
+ * @summary Complete pupil login with session token, profile key, and PIN
  */
 export const usePupilLogin = <
   TError = ErrorType<ErrorResponse>,
@@ -551,126 +637,6 @@ export function useListSchools<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getListSchoolsQueryOptions(options);
-
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
- * @summary List pupils for a school
- */
-export const getListPupilsBySchoolUrl = (
-  schoolId: string,
-  params?: ListPupilsBySchoolParams,
-) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/api/schools/${schoolId}/pupils?${stringifiedParams}`
-    : `/api/schools/${schoolId}/pupils`;
-};
-
-export const listPupilsBySchool = async (
-  schoolId: string,
-  params?: ListPupilsBySchoolParams,
-  options?: RequestInit,
-): Promise<PupilSummary[]> => {
-  return customFetch<PupilSummary[]>(
-    getListPupilsBySchoolUrl(schoolId, params),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
-};
-
-export const getListPupilsBySchoolQueryKey = (
-  schoolId: string,
-  params?: ListPupilsBySchoolParams,
-) => {
-  return [
-    `/api/schools/${schoolId}/pupils`,
-    ...(params ? [params] : []),
-  ] as const;
-};
-
-export const getListPupilsBySchoolQueryOptions = <
-  TData = Awaited<ReturnType<typeof listPupilsBySchool>>,
-  TError = ErrorType<unknown>,
->(
-  schoolId: string,
-  params?: ListPupilsBySchoolParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof listPupilsBySchool>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey =
-    queryOptions?.queryKey ?? getListPupilsBySchoolQueryKey(schoolId, params);
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof listPupilsBySchool>>
-  > = ({ signal }) =>
-    listPupilsBySchool(schoolId, params, { signal, ...requestOptions });
-
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!schoolId,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof listPupilsBySchool>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export type ListPupilsBySchoolQueryResult = NonNullable<
-  Awaited<ReturnType<typeof listPupilsBySchool>>
->;
-export type ListPupilsBySchoolQueryError = ErrorType<unknown>;
-
-/**
- * @summary List pupils for a school
- */
-
-export function useListPupilsBySchool<
-  TData = Awaited<ReturnType<typeof listPupilsBySchool>>,
-  TError = ErrorType<unknown>,
->(
-  schoolId: string,
-  params?: ListPupilsBySchoolParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof listPupilsBySchool>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getListPupilsBySchoolQueryOptions(
-    schoolId,
-    params,
-    options,
-  );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -2912,64 +2878,70 @@ export const generatePtaReport = async (
   });
 };
 
-export const getGeneratePtaReportQueryKey = () => {
-  return [`/api/pta/report/generate`] as const;
-};
-
-export const getGeneratePtaReportQueryOptions = <
-  TData = Awaited<ReturnType<typeof generatePtaReport>>,
+export const getGeneratePtaReportMutationOptions = <
   TError = ErrorType<unknown>,
+  TContext = unknown,
 >(options?: {
-  query?: UseQueryOptions<
+  mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof generatePtaReport>>,
     TError,
-    TData
+    void,
+    TContext
   >;
   request?: SecondParameter<typeof customFetch>;
-}) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof generatePtaReport>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["generatePtaReport"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
 
-  const queryKey = queryOptions?.queryKey ?? getGeneratePtaReportQueryKey();
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof generatePtaReport>>
-  > = ({ signal }) => generatePtaReport({ signal, ...requestOptions });
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+  const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof generatePtaReport>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
+    void
+  > = () => {
+    return generatePtaReport(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
 };
 
-export type GeneratePtaReportQueryResult = NonNullable<
+export type GeneratePtaReportMutationResult = NonNullable<
   Awaited<ReturnType<typeof generatePtaReport>>
 >;
-export type GeneratePtaReportQueryError = ErrorType<unknown>;
+
+export type GeneratePtaReportMutationError = ErrorType<unknown>;
 
 /**
  * @summary Generate draft annual report
  */
-
-export function useGeneratePtaReport<
-  TData = Awaited<ReturnType<typeof generatePtaReport>>,
+export const useGeneratePtaReport = <
   TError = ErrorType<unknown>,
+  TContext = unknown,
 >(options?: {
-  query?: UseQueryOptions<
+  mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof generatePtaReport>>,
     TError,
-    TData
+    void,
+    TContext
   >;
   request?: SecondParameter<typeof customFetch>;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGeneratePtaReportQueryOptions(options);
-
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
+}): UseMutationResult<
+  Awaited<ReturnType<typeof generatePtaReport>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getGeneratePtaReportMutationOptions(options));
+};
 
 /**
  * @summary Approve annual report for PTA access

@@ -155,7 +155,8 @@ export default function IncidentDetail() {
       setIsUpdating(true);
       await assessMutation.mutateAsync({
         id,
-        data: assessForm,
+        // UI collects structured witness statements; server accepts them as JSON. Spec types this field as string (drift — see OVERNIGHT_LOG.md T02).
+        data: assessForm as unknown as Parameters<typeof assessMutation.mutateAsync>[0]["data"],
       });
       queryClient.invalidateQueries({ queryKey: ['/api/incidents'] });
       queryClient.invalidateQueries({ queryKey: [`/api/incidents/${id}`] });

@@ -24,6 +24,16 @@ const AUDIT_EVENT_TYPES = [
   "pta_policy_acknowledged", "pta_policy_flagged", "pta_report_generated",
   "pta_report_approved", "pta_codesign_response", "parent_pta_message_sent",
   "email_send_failed",
+  "pupil_login_session_started",
+  "password_reset_requested",
+  "password_reset_completed",
+  "mfa_setup_started",
+  "mfa_enabled",
+  "mfa_disabled",
+  "mfa_challenge_succeeded",
+  "mfa_challenge_failed",
+  "data_export_requested",
+  "retention_sweep_completed",
 ];
 
 router.get(

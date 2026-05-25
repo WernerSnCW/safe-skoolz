@@ -24,6 +24,9 @@ import teacherPostsRouter from "./teacherPosts";
 import exportRouter from "./export";
 import trainingRouter from "./training";
 import auditRouter from "./audit";
+import passwordResetRouter from "./passwordReset";
+import mfaRouter from "./mfa";
+import meRouter from "./me";
 
 const router: IRouter = Router();
 
@@ -31,6 +34,9 @@ router.use(healthRouter);
 router.use(configRouter);
 router.use(newsletterRouter);
 router.use(authRouter);
+router.use(passwordResetRouter);
+router.use(mfaRouter);
+router.use(meRouter);
 router.use(schoolsRouter);
 router.use(exportRouter);
 router.use(incidentsRouter);

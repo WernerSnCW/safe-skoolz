@@ -1,7 +1,8 @@
 import app from "./app";
 import { db } from "@workspace/db";
 import { sql } from "drizzle-orm";
-import { runScheduledPatternScan } from "./lib/patternDetection";
+import { startPatternScanScheduler } from "./jobs/patternScan";
+import { startRetentionSweepScheduler } from "./jobs/retentionSweep";
 import { seedDemoData } from "./lib/seed";
 
 const rawPort = process.env["PORT"];
@@ -51,14 +52,23 @@ async function startup() {
 
 startup();
 
+// T06 — fail loudly in production if Resend isn't configured. In dev we warn and
+// continue so the developer experience stays unblocked when RESEND_API_KEY is absent.
+// The audit table is reachable by the time emailHelper makes its first call (startup
+// has already run), so the one-shot missing_api_key audit row written in emailHelper
+// will land successfully.
+if (!process.env.RESEND_API_KEY) {
+  if (process.env.NODE_ENV === "production") {
+    console.error("[boot] FATAL: RESEND_API_KEY is required in production");
+    process.exit(1);
+  } else {
+    console.warn("[boot] RESEND_API_KEY not set; emails will be skipped (dev mode)");
+  }
+}
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
 
-const PATTERN_SCAN_INTERVAL_MS = 60 * 60 * 1000;
-setInterval(() => {
-  runScheduledPatternScan().catch((err) => {
-    console.error("[cron] Scheduled pattern scan failed:", err);
-  });
-}, PATTERN_SCAN_INTERVAL_MS);
-console.log(`[cron] Pattern detection scan scheduled every ${PATTERN_SCAN_INTERVAL_MS / 60000} minutes`);
+startPatternScanScheduler();
+startRetentionSweepScheduler();

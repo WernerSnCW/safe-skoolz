@@ -2,6 +2,9 @@ import { Resend } from "resend";
 import { writeAudit } from "./auditHelper";
 
 let resendClient: Resend | null = null;
+// Process-scoped latch: write at most one missing-key audit row per process so we
+// surface the misconfig without spamming the audit log on every subsequent send.
+let missingKeyAuditWritten = false;
 
 function getResend(): Resend | null {
   if (resendClient) return resendClient;
@@ -23,6 +26,24 @@ export async function sendEmail(opts: {
   const client = getResend();
   if (!client) {
     console.warn(`[email] Resend not configured (RESEND_API_KEY missing). Skipping email: ${opts.trigger}`);
+    if (!missingKeyAuditWritten) {
+      missingKeyAuditWritten = true;
+      try {
+        await writeAudit({
+          schoolId: opts.schoolId,
+          eventType: "email_send_failed",
+          targetType: "email",
+          targetId: opts.recipientId,
+          details: {
+            trigger: opts.trigger,
+            recipientId: opts.recipientId,
+            reason: "missing_api_key",
+          },
+        });
+      } catch {
+        // Audit failure must not propagate — sendEmail is fire-and-forget by contract.
+      }
+    }
     return;
   }
 

@@ -13,9 +13,28 @@ export interface ErrorResponse {
   error: string;
 }
 
-export interface PupilLoginBody {
+export interface PupilStartBody {
   schoolId: string;
-  pupilId: string;
+  accessCode: string;
+}
+
+export type PupilStartResponseProfilesItem = {
+  loginKey?: string;
+  displayName?: string;
+  avatarType?: string;
+  avatarValue?: string;
+  yearGroup?: string;
+  className?: string;
+};
+
+export interface PupilStartResponse {
+  loginSessionToken: string;
+  profiles: PupilStartResponseProfilesItem[];
+}
+
+export interface PupilLoginBody {
+  loginSessionToken: string;
+  loginKey: string;
   pin: string;
 }
 
@@ -533,10 +552,6 @@ export interface PtaResource {
   category: string;
   type: string;
 }
-
-export type ListPupilsBySchoolParams = {
-  className?: string;
-};
 
 export type ListIncidentsParams = {
   status?: string;

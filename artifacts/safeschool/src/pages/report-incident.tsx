@@ -167,7 +167,7 @@ function PupilSearchPicker({
   const [showResults, setShowResults] = useState(false);
   const [allLoaded, setAllLoaded] = useState(false);
   const [groupFilter, setGroupFilter] = useState<"none" | "year" | "class">("none");
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
   const fetchIdRef = useRef(0);
 
@@ -605,7 +605,8 @@ export default function ReportIncident() {
     }
 
     try {
-      const result = await createMutation.mutateAsync({
+      // UI sends `unknownPersonDescriptions` which the spec doesn't declare (drift — see OVERNIGHT_LOG.md T02). Server accepts it.
+      const result = await (createMutation.mutateAsync as any)({
         data: {
           category: data.categories.join(","),
           incidentDate: new Date(data.incidentDate).toISOString(),
@@ -629,6 +630,7 @@ export default function ReportIncident() {
       setSubmittedResult(result);
       setIsSuccess(true);
       setSubmitError("");
+      // Note: the call site above sends `unknownPersonDescriptions` which the spec does not yet declare (drift — see OVERNIGHT_LOG.md T02).
     } catch (error) {
       console.error(error);
       setSubmitError("Something went wrong submitting your report. Please try again.");

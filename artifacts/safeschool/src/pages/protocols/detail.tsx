@@ -57,7 +57,14 @@ export default function ProtocolDetail() {
     </div>
   );
 
-  const prot = detail.protocol || detail;
+  // Local extended type: the API response wrapper hides full Protocol fields, and the spec lacks risk* fields (drift — see OVERNIGHT_LOG.md T02).
+  type ProtocolFull = {
+    [key: string]: any;
+    riskLevel?: string | null;
+    riskFactors?: string[] | null;
+    protectiveFactors?: string[] | null;
+  };
+  const prot = ((detail as any).protocol || detail) as ProtocolFull;
   const rlStyle = prot.riskLevel ? {
     bg: prot.riskLevel === "low" ? "bg-green-100 dark:bg-green-950/30" :
         prot.riskLevel === "medium" ? "bg-amber-100 dark:bg-amber-950/30" :

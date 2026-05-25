@@ -33,12 +33,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = "/login";
   }, []);
 
+  // orval-generated options now require `queryKey`; the hook supplies its own. Cast at the boundary.
   const { data: user, isLoading: isUserLoading, isError } = useGetCurrentUser({
     query: {
       enabled: !!token,
       retry: false,
-    },
-    request: { headers: { Authorization: `Bearer ${token}` } } as any 
+    } as any,
+    request: { headers: { Authorization: `Bearer ${token}` } } as any
   });
 
   useEffect(() => {

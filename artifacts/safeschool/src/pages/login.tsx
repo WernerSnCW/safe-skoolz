@@ -44,6 +44,47 @@ export default function Login() {
   const [error, setError] = useState("");
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [demoEnabled, setDemoEnabled] = useState(false);
+  // T11: MFA challenge step.
+  const [mfaToken, setMfaToken] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
+  const [mfaBackup, setMfaBackup] = useState("");
+  const [mfaSubmitting, setMfaSubmitting] = useState(false);
+
+  const handleMfaChallenge = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setError("");
+    setMfaSubmitting(true);
+    try {
+      const body: Record<string, string> = { mfaToken };
+      if (mfaCode) body.code = mfaCode;
+      else if (mfaBackup) body.backupCode = mfaBackup;
+      else {
+        setError("Enter a 6-digit code or a backup code.");
+        setMfaSubmitting(false);
+        return;
+      }
+      const r = await fetch(`${apiBase}api/auth/mfa/challenge`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await r.json();
+      if (!r.ok || !data.token) {
+        setError(data?.error || "Invalid code.");
+        setMfaSubmitting(false);
+        return;
+      }
+      setToken(data.token);
+      setMfaToken("");
+      setMfaCode("");
+      setMfaBackup("");
+      setLocation("/");
+    } catch {
+      setError("Verification failed. Please try again.");
+    } finally {
+      setMfaSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const apiBase = (() => {
@@ -219,6 +260,13 @@ export default function Login() {
         });
       }
 
+      // T11: staff login may return { requiresMfa, mfaToken } instead of a
+      // full JWT when MFA is enforced and enabled for the user.
+      const r = res as any;
+      if (r?.requiresMfa && r?.mfaToken) {
+        setMfaToken(r.mfaToken as string);
+        return;
+      }
       setToken(res.token);
       setLocation("/");
     } catch (err: any) {
@@ -592,6 +640,51 @@ export default function Login() {
                   </motion.div>
                 )}
               </AnimatePresence>
+            ) : mfaToken ? (
+              <form onSubmit={handleMfaChallenge} className="space-y-5">
+                <div>
+                  <Label htmlFor="mfaCode">Authenticator app code</Label>
+                  <Input
+                    id="mfaCode"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    value={mfaCode}
+                    onChange={e => { setMfaCode(e.target.value); setMfaBackup(""); }}
+                    placeholder="123456"
+                    className="h-14 text-base"
+                    style={{ fontSize: "16px" }}
+                  />
+                </div>
+                <div className="flex items-center gap-3 text-muted-foreground text-xs">
+                  <div className="flex-1 h-px bg-border" />
+                  <span>or use a backup code</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                <div>
+                  <Label htmlFor="mfaBackup">Backup code</Label>
+                  <Input
+                    id="mfaBackup"
+                    value={mfaBackup}
+                    onChange={e => { setMfaBackup(e.target.value.toUpperCase()); setMfaCode(""); }}
+                    placeholder="ABCDE-12345"
+                    className="h-14 text-base"
+                    style={{ fontSize: "16px" }}
+                  />
+                </div>
+                {error && (
+                  <div className="p-3 rounded-xl bg-destructive/10 text-destructive text-sm">{error}</div>
+                )}
+                <Button type="submit" size="lg" className="w-full" disabled={mfaSubmitting || (!mfaCode && !mfaBackup)}>
+                  {mfaSubmitting ? "Verifying…" : "Verify and continue"}
+                </Button>
+                <button
+                  type="button"
+                  className="w-full text-center text-sm text-muted-foreground hover:text-foreground"
+                  onClick={() => { setMfaToken(""); setMfaCode(""); setMfaBackup(""); setError(""); }}
+                >
+                  ← Back to sign in
+                </button>
+              </form>
             ) : (
               <form onSubmit={handleStaffSubmit} className="space-y-5">
                 <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
@@ -661,6 +754,11 @@ export default function Login() {
                             onChange={e => setPassword(e.target.value)}
                             autoComplete="current-password"
                           />
+                          <div className="mt-2 text-right">
+                            <Link href="/forgot-password" className="text-xs text-primary hover:underline">
+                              Forgot password?
+                            </Link>
+                          </div>
                         </div>
                       </>
                     );

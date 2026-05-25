@@ -5,9 +5,9 @@
  * SafeSchool safeguarding and incident reporting API
  * OpenAPI spec version: 0.2.0
  */
+import type { PupilStartResponseProfilesItem } from "./pupilStartResponseProfilesItem";
 
-export interface PupilLoginBody {
+export interface PupilStartResponse {
   loginSessionToken: string;
-  loginKey: string;
-  pin: string;
+  profiles: PupilStartResponseProfilesItem[];
 }

@@ -143,7 +143,7 @@ async function seedHistory() {
       if (daysAgo < 15) continue;
 
       const isStaffReport = Math.random() > 0.55;
-      let reporter, reporterRole: string, victim, perpetrator;
+      let reporter: any, reporterRole: string, victim: any, perpetrator: any;
       let description: string;
       let category: string;
       let emotion: string | undefined;

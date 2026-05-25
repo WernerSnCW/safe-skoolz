@@ -21,3 +21,7 @@ export * from "./teacherPosts";
 export * from "./schoolLoginCodes";
 export * from "./disclosurePermissions";
 export * from "./trainingCompletions";
+export * from "./rateLimitBuckets";
+export * from "./pupilLoginSessions";
+export * from "./passwordResetTokens";
+export * from "./userMfaSecrets";

@@ -15,11 +15,33 @@ export const HealthCheckResponse = zod.object({
 });
 
 /**
- * @summary Pupil login with PIN
+ * @summary Start pupil login with school access code
+ */
+export const PupilStartLoginBody = zod.object({
+  schoolId: zod.string(),
+  accessCode: zod.string(),
+});
+
+export const PupilStartLoginResponse = zod.object({
+  loginSessionToken: zod.string(),
+  profiles: zod.array(
+    zod.object({
+      loginKey: zod.string().optional(),
+      displayName: zod.string().optional(),
+      avatarType: zod.string().optional(),
+      avatarValue: zod.string().optional(),
+      yearGroup: zod.string().optional(),
+      className: zod.string().optional(),
+    }),
+  ),
+});
+
+/**
+ * @summary Complete pupil login with session token, profile key, and PIN
  */
 export const PupilLoginBody = zod.object({
-  schoolId: zod.string(),
-  pupilId: zod.string(),
+  loginSessionToken: zod.string(),
+  loginKey: zod.string(),
   pin: zod.string(),
 });
 
@@ -136,30 +158,6 @@ export const ListSchoolsResponseItem = zod.object({
   active: zod.boolean(),
 });
 export const ListSchoolsResponse = zod.array(ListSchoolsResponseItem);
-
-/**
- * @summary List pupils for a school
- */
-export const ListPupilsBySchoolParams = zod.object({
-  schoolId: zod.coerce.string(),
-});
-
-export const ListPupilsBySchoolQueryParams = zod.object({
-  className: zod.coerce.string().optional(),
-});
-
-export const ListPupilsBySchoolResponseItem = zod.object({
-  id: zod.string(),
-  firstName: zod.string(),
-  lastName: zod.string(),
-  yearGroup: zod.string().nullish(),
-  className: zod.string().nullish(),
-  avatarType: zod.string().nullish(),
-  avatarValue: zod.string().nullish(),
-});
-export const ListPupilsBySchoolResponse = zod.array(
-  ListPupilsBySchoolResponseItem,
-);
 
 /**
  * @summary List staff for a school

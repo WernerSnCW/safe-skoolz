@@ -2,37 +2,19 @@ import { Router, type IRouter } from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { eq, and, isNull, gt, inArray } from "drizzle-orm";
-import { db, usersTable, schoolLoginCodesTable } from "@workspace/db";
+import { eq, and, isNull, gt, inArray, sql } from "drizzle-orm";
+import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
+import { signMfaChallengeToken, MFA_ENFORCED_ROLES } from "./mfa";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
-const PUPIL_LOGIN_SESSION_TTL_SECONDS = 10 * 60;
+const PUPIL_LOGIN_SESSION_TTL_MS = 10 * 60 * 1000;
 
-interface PupilLoginSessionPayload {
-  kind: "pupil_login_session";
-  schoolId: string;
-  profiles: { loginKey: string; pupilId: string }[];
-}
-
-function signPupilLoginSession(schoolId: string, profiles: { loginKey: string; pupilId: string }[]): string {
-  const payload: PupilLoginSessionPayload = { kind: "pupil_login_session", schoolId, profiles };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: PUPIL_LOGIN_SESSION_TTL_SECONDS });
-}
-
-function verifyPupilLoginSession(token: string): PupilLoginSessionPayload | null {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as PupilLoginSessionPayload;
-    if (decoded.kind !== "pupil_login_session" || !decoded.schoolId || !Array.isArray(decoded.profiles)) {
-      return null;
-    }
-    return decoded;
-  } catch {
-    return null;
-  }
-}
+// T08: pupil login sessions are stored in `pupil_login_sessions` so they survive
+// restarts, can be marked consumed (single-use), and can be revoked. The previous
+// stateless JWT helpers (`signPupilLoginSession`/`verifyPupilLoginSession`) are gone.
 
 const router: IRouter = Router();
 
@@ -205,9 +187,26 @@ router.post("/auth/pupil/start", async (req, res): Promise<void> => {
     };
   });
 
-  const loginSessionToken = signPupilLoginSession(schoolId, profileEntries);
+  const expiresAt = new Date(Date.now() + PUPIL_LOGIN_SESSION_TTL_MS);
+  const [session] = await db
+    .insert(pupilLoginSessionsTable)
+    .values({
+      schoolId,
+      classCodeHash: matchedCode.codeHash,
+      pupilCandidates: profileEntries,
+      expiresAt,
+    })
+    .returning({ id: pupilLoginSessionsTable.id });
 
-  res.json({ loginSessionToken, profiles });
+  await writeAudit({
+    schoolId,
+    eventType: "pupil_login_session_started",
+    targetType: "pupil_login_session",
+    targetId: session.id,
+    details: { profileCount: profileEntries.length, className: matchedCode.className ?? null },
+  }).catch(() => {});
+
+  res.json({ loginSessionToken: session.id, profiles });
 });
 
 router.post("/auth/pupil/login", async (req, res): Promise<void> => {
@@ -218,11 +217,36 @@ router.post("/auth/pupil/login", async (req, res): Promise<void> => {
     return;
   }
 
-  const session = verifyPupilLoginSession(loginSessionToken);
-  if (!session) {
+  // Atomically claim the session: SELECT FOR UPDATE + UPDATE consumed_at in one tx,
+  // rejecting expired/already-consumed rows. Single-use by construction.
+  const claim = await db.transaction(async (tx) => {
+    const rows = await tx.execute<{
+      id: string;
+      school_id: string;
+      pupil_candidates: { loginKey: string; pupilId: string }[];
+      expires_at: Date;
+      consumed_at: Date | null;
+    }>(
+      sql`SELECT id, school_id, pupil_candidates, expires_at, consumed_at
+          FROM pupil_login_sessions WHERE id = ${loginSessionToken} FOR UPDATE`,
+    );
+    const row = (rows as any).rows?.[0] ?? (rows as any)[0];
+    if (!row) return { ok: false as const, reason: "not_found" as const };
+    if (row.consumed_at) return { ok: false as const, reason: "consumed" as const };
+    if (new Date(row.expires_at) < new Date()) return { ok: false as const, reason: "expired" as const };
+    await tx.execute(sql`UPDATE pupil_login_sessions SET consumed_at = NOW() WHERE id = ${loginSessionToken}`);
+    return {
+      ok: true as const,
+      schoolId: row.school_id,
+      profiles: row.pupil_candidates,
+    };
+  }).catch(() => ({ ok: false as const, reason: "tx_failed" as const }));
+
+  if (!claim.ok) {
     res.status(401).json({ error: "Login session expired. Please start again." });
     return;
   }
+  const session = { schoolId: claim.schoolId, profiles: claim.profiles };
 
   const profileEntry = session.profiles.find((p) => p.loginKey === loginKey);
   if (!profileEntry) {
@@ -360,6 +384,26 @@ router.post("/auth/staff/login", async (req, res): Promise<void> => {
 
   const firstLogin = !user.lastLogin;
   await db.update(usersTable).set({ lastLogin: new Date() }).where(eq(usersTable.id, user.id));
+
+  // T11: if user is in an MFA-enforced role and has MFA enabled, return a
+  // short-lived challenge token instead of the full JWT. The frontend prompts
+  // for a TOTP / backup code and calls /api/auth/mfa/challenge to upgrade it.
+  if (process.env.MFA_ENFORCED === "true" && MFA_ENFORCED_ROLES.includes(user.role)) {
+    const [mfaRow] = await db
+      .select()
+      .from(userMfaSecretsTable)
+      .where(eq(userMfaSecretsTable.userId, user.id));
+    if (mfaRow?.enabled) {
+      const mfaToken = signMfaChallengeToken({
+        userId: user.id,
+        schoolId: user.schoolId,
+        role: user.role,
+        email: user.email || undefined,
+      });
+      res.json({ requiresMfa: true, mfaToken });
+      return;
+    }
+  }
 
   const token = signToken({ userId: user.id, schoolId: user.schoolId, role: user.role, email: user.email || undefined });
 

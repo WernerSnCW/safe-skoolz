@@ -278,7 +278,7 @@ export default function CoordinatorDashboardView() {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          {unlockResult?.pupilId === pupil.id && (
+                          {unlockResult && unlockResult.pupilId === pupil.id && (
                             <span className="text-xs font-mono font-bold text-green-700 bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded">{t("newPin", { pin: unlockResult.newPin })}</span>
                           )}
                           <Button
