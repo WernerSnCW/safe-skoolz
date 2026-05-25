@@ -255,7 +255,7 @@ router.get("/messages", authMiddleware, async (req, res): Promise<void> => {
 
 router.patch("/messages/:id/read", authMiddleware, async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
-  const id = req.params.id;
+  const id = String(req.params.id);
 
   const [message] = await db.select().from(messagesTable).where(
     and(eq(messagesTable.id, id), eq(messagesTable.recipientId, user.userId))

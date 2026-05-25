@@ -92,7 +92,7 @@ router.post("/senco/caseload", authMiddleware, requireRole("senco"), async (req,
 
 router.delete("/senco/caseload/:id", authMiddleware, requireRole("senco"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
-  const { id } = req.params;
+  const id = String(req.params.id);
 
   await db.update(sencoCaseloadTable)
     .set({ active: false })
@@ -112,7 +112,7 @@ router.delete("/senco/caseload/:id", authMiddleware, requireRole("senco"), async
 
 router.get("/senco/caseload/:id/tracking", authMiddleware, requireRole("senco"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
-  const { id } = req.params;
+  const id = String(req.params.id);
 
   const [entry] = await db.select().from(sencoCaseloadTable).where(
     and(eq(sencoCaseloadTable.id, id), eq(sencoCaseloadTable.sencoId, user.userId), eq(sencoCaseloadTable.schoolId, user.schoolId), eq(sencoCaseloadTable.active, true))
@@ -131,7 +131,7 @@ router.get("/senco/caseload/:id/tracking", authMiddleware, requireRole("senco"),
 
 router.post("/senco/caseload/:id/tracking", authMiddleware, requireRole("senco"), async (req, res): Promise<void> => {
   const user = (req as any).user as JwtPayload;
-  const { id } = req.params;
+  const id = String(req.params.id);
   const { progressRating, feelingsRating, attitudeToLearning, attitudeToOthers, notes } = req.body;
 
   const [entry] = await db.select().from(sencoCaseloadTable).where(

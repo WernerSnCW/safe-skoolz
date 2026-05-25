@@ -1,0 +1,68 @@
+==============================================================
+SCOPE EXPANSION — SAME BUG PATTERN, BOUNDED
+==============================================================
+
+Read-only stays off. Scope expands as follows.
+
+GOAL (unchanged)
+  `pnpm -w typecheck` exits 0.
+  `pnpm -w build` exits 0.
+  `pnpm --filter @workspace/api-server test` stays 58/58 green.
+
+EXPANDED BLAST RADIUS
+  You may now touch any file where the failing error is the
+  IDENTICAL bug pattern:
+    `req.params.X` typed as `string | string[]` flowing into
+    Drizzle's `eq()`, `insert().values({...})`, or similar
+    overload, causing TS2769 or the "Object literal may only
+    specify known properties" cascade that follows.
+
+  Confirmed in scope: training.ts (already fixed), teacherPosts.ts
+  (errors at 130, 145, and the schoolId cascade).
+
+  HARD CAPS:
+  - If typecheck reveals a THIRD file with the same bug pattern
+    after teacherPosts.ts is fixed: fix it too, same approach.
+  - If typecheck reveals a file with a DIFFERENT bug pattern
+    (not `req.params.X: string | string[]`): STOP and ask. Do
+    not improvise a fix for a new shape.
+  - If you find yourself touching more than 5 files total: STOP
+    and ask. That's a smell, not a fix.
+
+APPROACH GATE — PER FILE
+  Before editing each file, paste into the chat:
+    - The 2-3 line excerpt showing the `req.params.X` read.
+    - The chosen narrow point (top-of-handler local, same shape
+      as the training.ts fix).
+    - The exact diff you'll apply.
+  Then apply, then move on.
+
+WORK
+  - Fix teacherPosts.ts first.
+  - Re-run `pnpm -w typecheck`. If green, proceed to verify.
+  - If red and the new error is the same pattern: fix that file,
+    re-run. Loop until green or until a hard cap fires.
+
+VERIFY (all must be green)
+  pnpm -w typecheck
+  pnpm -w build
+  pnpm --filter @workspace/api-server test          (58/58)
+
+COMMIT
+  ONE commit covering training.ts + teacherPosts.ts + any other
+  same-pattern files. Message:
+    Fix req.params.X string|string[] typing across route files
+
+  Show me:
+    - The SHA.
+    - `git show --stat <sha>` output.
+    - Green tails of typecheck, build, and tests.
+    - A list of files touched and which line in each was the
+      narrow point.
+
+OUT OF SCOPE
+  Stripe string. README. T09 shared lock-key. T11 SELECT
+  assertion. The `as any` on the `MODULE_IDS.includes` check
+  you mentioned (leave it).
+  No `git grep` cleanup pass on `req.params\.` across the codebase
+  even if you spot it. That's tomorrow.
