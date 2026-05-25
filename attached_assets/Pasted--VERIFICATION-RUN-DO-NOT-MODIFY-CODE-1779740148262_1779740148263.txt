@@ -1,0 +1,69 @@
+==============================================================
+VERIFICATION RUN — DO NOT MODIFY CODE
+==============================================================
+
+You completed 13 tickets overnight. Before I trust the result,
+prove it. Do NOT write or edit any source code in this session.
+Read-only operations and test runs only.
+
+PRODUCE A VERIFICATION REPORT covering these checks. Be specific.
+Cite file paths, line numbers, commit SHAs, and test names.
+
+1. INVENTORY
+   - `git log --oneline` since the start of the overnight run.
+     List every commit. Flag any commit that touches more than
+     its declared ticket's blast radius.
+   - Paste the full contents of OVERNIGHT_LOG.md.
+   - For every ticket marked DONE: name the commit SHA and the
+     test file path containing its acceptance test.
+
+2. RE-RUN ALL VERIFICATION
+   - `pnpm typecheck`                              — paste tail
+   - `pnpm --filter @workspace/api-server test`    — paste tail
+   - `pnpm build`                                  — paste tail
+   - Report exact test count and any skips.
+
+3. SPOT-CHECK THE HARD TESTS
+   For each of these, paste the FULL test body (not a summary)
+   and explain in 2 lines what it actually proves vs what it
+   pretends to prove:
+     - T08: pupil-login session durability across server restart.
+       (Does the test actually re-import / re-instantiate the
+       module, or just call into the same in-process state?)
+     - T09: pattern-scan advisory lock prevents double-run.
+       (Does the test open TWO real connections with separate
+       transactions, or simulate with mocks?)
+     - T11: MFA backup code single-use.
+       (Does the test consume the code via the real /challenge
+       endpoint, or mutate state directly?)
+
+4. SMOKE THE DEMO
+   - Start the api-server and the safeschool dev server.
+   - Demo-login as coordinator. Confirm /api/audit returns rows.
+   - Demo-login as pupil. Confirm pupil flow still works
+     end-to-end (start → login → report incident).
+   - Hit /api/healthz. Confirm db=ok.
+   - Send an OPTIONS request with Origin: https://evil.example.
+     Confirm no Access-Control-Allow-Origin header.
+
+5. CHECK FOR INVISIBLE CHEATS
+   - grep the diff for `it.skip`, `test.skip`, `describe.skip`,
+     `xit(`, `xdescribe(`. List every match.
+   - grep for `// @ts-ignore` and `// @ts-expect-error` added in
+     this run. List every match with the file + line + the
+     comment text.
+   - grep for `as any` added in this run. List every match.
+   - Confirm the Stripe string in artifacts/api-server/build.ts
+     is still present (it should be — "mention don't delete").
+   - Confirm no hand-edits to lib/api-client-react/src/generated/
+     or lib/api-zod/src/generated/ (run `git log -p` against
+     those paths since the overnight start).
+
+6. PRODUCTION READINESS
+   List every env var the agent says must be set before deploying.
+   For each one, state: required in dev? required in prod? what
+   happens if missing? Source: .env.example + OVERNIGHT_LOG.md +
+   the code that reads it.
+
+Do not deploy. Do not declare the run "verified". Just produce
+the report. Tom will read it and decide.
