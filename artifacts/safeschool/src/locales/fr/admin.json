@@ -3,7 +3,20 @@
   "subtitle": "Aperçu en lecture seule de la configuration de l'établissement.",
   "tabs": {
     "policies": "Politiques et protocoles",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "frameworks": "Cadres et réglementations"
+  },
+  "frameworks": {
+    "cardTitle": "Cadres légaux et réglementations",
+    "intro": "Cadres de protection que cette plateforme prend en charge. Chaque carte indique le nombre de modèles documentaires actuellement disponibles pour ce cadre.",
+    "chipActive": "Modèles disponibles",
+    "chipComingSoon": "Bientôt disponible",
+    "templatesCount": "{{count}} modèle(s) disponible(s)",
+    "footer": "Besoin d'ajouter ou de mettre à jour un cadre ? Contactez votre responsable du traitement désigné.",
+    "explainer1": "Loi organique espagnole de 2021 sur la protection intégrale des enfants et des adolescents contre la violence. Elle impose à chaque établissement éducatif de désigner un coordinateur du bien-être et de la protection, et de tenir à jour des protocoles de protection documentés, des mesures de prévention et un dispositif clair de signalement de toute forme de violence à l'égard d'un mineur.",
+    "explainer2": "Cadre du gouvernement des Îles Baléares pour la vie scolaire et la résolution des conflits, géré par la Conselleria d'Educació. Il définit des protocoles obligatoires pour les incidents tels que le harcèlement, le cyberharcèlement et la violence sexiste, et prescrit les voies de documentation et d'orientation externe que les établissements doivent suivre.",
+    "explainer3": "Guide statutaire de protection du ministère britannique de l'Éducation, mis à jour chaque année, que tous les établissements scolaires d'Angleterre doivent respecter. Il impose de désigner un référent protection, de tenir un registre central unique des vérifications du personnel, et de suivre un protocole de réponse structuré couvrant identifier, évaluer, décider et orienter.",
+    "explainer4": "Cadre espagnol intégré de prévention et de réponse à la violence sexiste, fondé sur la Loi organique 1/2004 et renforcé par le Pacte d'État contre la violence sexiste. En milieu éducatif, il impose aux établissements d'identifier et de signaler les indicateurs de violence contre les femmes et les filles, de proposer des contenus de prévention adaptés à l'âge et de se coordonner avec les services externes spécialisés."
   },
   "protocolsCardTitle": "Protocoles de protection",
   "protocolsCardDescription": "Décompte des protocoles actuellement enregistrés pour cet établissement, regroupés par statut.",

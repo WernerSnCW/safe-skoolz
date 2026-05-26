@@ -3,7 +3,20 @@
   "subtitle": "Resumen de solo lectura de la configuración del centro.",
   "tabs": {
     "policies": "Políticas y protocolos",
-    "permissions": "Permisos"
+    "permissions": "Permisos",
+    "frameworks": "Marcos y normativa"
+  },
+  "frameworks": {
+    "cardTitle": "Marcos legales y normativa",
+    "intro": "Marcos de protección que esta plataforma soporta. Cada tarjeta muestra el número de plantillas documentales actualmente disponibles para ese marco.",
+    "chipActive": "Plantillas disponibles",
+    "chipComingSoon": "Próximamente",
+    "templatesCount": "{{count}} plantilla(s) disponible(s)",
+    "footer": "¿Necesita añadir o actualizar un marco? Póngase en contacto con el responsable del tratamiento designado.",
+    "explainer1": "Ley orgánica española de 2021 de protección integral a la infancia y la adolescencia frente a la violencia. Exige que todo centro educativo designe un coordinador de bienestar y protección y mantenga protocolos de protección documentados, medidas de prevención y un cauce claro de comunicación ante cualquier forma de violencia contra un menor.",
+    "explainer2": "Marco del Govern de les Illes Balears para la convivencia escolar y la resolución de conflictos, gestionado por la Conselleria d'Educació. Define protocolos obligatorios ante incidentes como acoso escolar, ciberacoso y violencia de género, y prescribe las vías de documentación y derivación externa que los centros deben seguir.",
+    "explainer3": "Guía estatutaria de protección del Departamento de Educación del Reino Unido, actualizada anualmente, que todos los centros escolares de Inglaterra deben cumplir. Exige designar un responsable de protección, mantener un registro central único de los antecedentes del personal y seguir un protocolo estructurado de identificar, evaluar, decidir y derivar.",
+    "explainer4": "Marco integral español para la prevención y respuesta ante la violencia de género, basado en la Ley Orgánica 1/2004 y reforzado por el Pacto de Estado contra la Violencia de Género. En el ámbito educativo exige identificar y comunicar indicadores de violencia contra mujeres y niñas, impartir contenidos de prevención adaptados a la edad y coordinarse con los servicios especializados externos."
   },
   "protocolsCardTitle": "Protocolos de protección",
   "protocolsCardDescription": "Recuento de protocolos registrados actualmente en este centro, agrupados por estado.",

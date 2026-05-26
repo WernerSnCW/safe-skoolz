@@ -3,7 +3,20 @@
   "subtitle": "Alleen-lezen overzicht van de schoolconfiguratie.",
   "tabs": {
     "policies": "Beleid en protocollen",
-    "permissions": "Rechten"
+    "permissions": "Rechten",
+    "frameworks": "Kaders en regelgeving"
+  },
+  "frameworks": {
+    "cardTitle": "Wettelijke kaders en regelgeving",
+    "intro": "Beschermingskaders die dit platform ondersteunt. Elke kaart toont het aantal documentsjablonen dat momenteel beschikbaar is voor dat kader.",
+    "chipActive": "Sjablonen beschikbaar",
+    "chipComingSoon": "Binnenkort beschikbaar",
+    "templatesCount": "{{count}} sjabloon/sjablonen beschikbaar",
+    "footer": "Een kader toevoegen of bijwerken? Neem contact op met uw aangewezen verwerkingsverantwoordelijke.",
+    "explainer1": "Spaanse organieke wet uit 2021 voor de integrale bescherming van kinderen en adolescenten tegen geweld. Vereist dat elke onderwijsinstelling een coördinator voor welzijn en bescherming aanstelt en gedocumenteerde beschermingsprotocollen, preventiemaatregelen en een duidelijk meldingstraject voor elke vorm van geweld tegen een minderjarige bijhoudt.",
+    "explainer2": "Kader van de regering van de Balearen voor samenleven op school en conflictoplossing, beheerd door de Conselleria d'Educació. Definieert verplichte protocollen voor incidenten zoals pesten, cyberpesten en gendergerelateerd geweld, en schrijft de documentatie- en externe doorverwijzingstrajecten voor die scholen moeten volgen.",
+    "explainer3": "Wettelijke beschermingsrichtlijn van het Britse ministerie van Onderwijs, jaarlijks bijgewerkt, die alle scholen en colleges in Engeland moeten volgen. Vereist dat elke instelling een Safeguarding Lead aanwijst, een centraal register van personeelsscreening bijhoudt en een gestructureerd responsprotocol volgt dat identificeren, beoordelen, beslissen en doorverwijzen omvat.",
+    "explainer4": "Spaans integraal kader voor preventie van en respons op gendergerelateerd geweld, verankerd in Organieke Wet 1/2004 en versterkt door het Staatspact tegen gendergerelateerd geweld. In het onderwijs vereist het dat scholen indicatoren van geweld tegen vrouwen en meisjes identificeren en melden, leeftijdsgerichte preventie aanbieden en samenwerken met gespecialiseerde externe diensten."
   },
   "protocolsCardTitle": "Beschermingsprotocollen",
   "protocolsCardDescription": "Aantal protocollen dat momenteel voor deze school is geregistreerd, gegroepeerd op status.",

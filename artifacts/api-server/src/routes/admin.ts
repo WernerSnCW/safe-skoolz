@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, sql } from "drizzle-orm";
-import { db, protocolsTable } from "@workspace/db";
+import { db, protocolsTable, annexTemplatesTable } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 
 export const ADMIN_ALLOWED_ROLES = ["coordinator"] as const;
@@ -26,6 +26,23 @@ export function aggregateProtocolCounts(rows: ProtocolStatusRow[]): ProtocolCoun
   return { total, by_status };
 }
 
+export interface FrameworkCountRow {
+  framework: string;
+  count: number;
+}
+
+export interface AnnexTemplatesSummary {
+  by_framework: Record<string, number>;
+}
+
+export function aggregateFrameworkCounts(rows: FrameworkCountRow[]): AnnexTemplatesSummary {
+  const by_framework: Record<string, number> = {};
+  for (const row of rows) {
+    by_framework[row.framework] = Number(row.count) || 0;
+  }
+  return { by_framework };
+}
+
 const router: IRouter = Router();
 
 router.get(
@@ -35,18 +52,28 @@ router.get(
   async (req, res): Promise<void> => {
     const user = (req as any).user as JwtPayload;
 
-    const rawRows = await db
-      .select({
-        status: protocolsTable.status,
-        count: sql<number>`count(*)::int`,
-      })
-      .from(protocolsTable)
-      .where(eq(protocolsTable.schoolId, user.schoolId))
-      .groupBy(protocolsTable.status);
+    const [protocolRows, frameworkRows] = await Promise.all([
+      db
+        .select({
+          status: protocolsTable.status,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(protocolsTable)
+        .where(eq(protocolsTable.schoolId, user.schoolId))
+        .groupBy(protocolsTable.status),
+      db
+        .select({
+          framework: annexTemplatesTable.framework,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(annexTemplatesTable)
+        .groupBy(annexTemplatesTable.framework),
+    ]);
 
-    const summary = aggregateProtocolCounts(rawRows as ProtocolStatusRow[]);
-
-    res.json({ protocols: summary });
+    res.json({
+      protocols: aggregateProtocolCounts(protocolRows as ProtocolStatusRow[]),
+      annex_templates: aggregateFrameworkCounts(frameworkRows as FrameworkCountRow[]),
+    });
   }
 );
 

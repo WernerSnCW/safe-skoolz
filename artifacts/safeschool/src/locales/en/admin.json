@@ -3,7 +3,20 @@
   "subtitle": "Read-only overview of school configuration.",
   "tabs": {
     "policies": "Policies & Protocols",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "frameworks": "Frameworks & Regulations"
+  },
+  "frameworks": {
+    "cardTitle": "Statutory frameworks & regulations",
+    "intro": "Safeguarding frameworks this platform is built to support. Each card shows the number of document templates currently available for that framework.",
+    "chipActive": "Templates available",
+    "chipComingSoon": "Coming soon",
+    "templatesCount": "{{count}} template(s) available",
+    "footer": "Need a framework added or updated? Contact your appointed data controller.",
+    "explainer1": "Spain's 2021 organic law on the integral protection of children and adolescents against violence. It requires every educational centre to appoint a designated wellbeing and protection coordinator and to maintain documented safeguarding protocols, prevention measures, and a clear reporting pathway for any form of violence against a minor.",
+    "explainer2": "The Balearic Islands government's framework for school coexistence and conflict resolution, administered by the Conselleria d'Educació. It defines mandatory protocols for incidents including bullying, cyberbullying, and gender-based violence, and prescribes the documentation and external referral pathways that schools must follow.",
+    "explainer3": "The UK Department for Education's statutory safeguarding guidance, updated annually, that all schools and colleges in England must follow. It requires every institution to designate a Safeguarding Lead, maintain a single central record of staff vetting, and follow a structured response protocol covering identify, assess, decide, and refer.",
+    "explainer4": "Spain's integrated framework for the prevention of and response to gender-based violence, anchored in Organic Law 1/2004 and reinforced by the State Pact against Gender Violence. In educational settings it requires schools to identify and report indicators of violence against women and girls, deliver age-appropriate prevention content, and coordinate with specialist external services."
   },
   "protocolsCardTitle": "Safeguarding protocols",
   "protocolsCardDescription": "Counts of protocols currently logged for this school, grouped by status.",

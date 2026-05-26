@@ -3,6 +3,7 @@ import { ShieldCheck } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PoliciesTab from "@/components/admin/PoliciesTab";
 import PermissionsTab from "@/components/admin/PermissionsTab";
+import FrameworksTab from "@/components/admin/FrameworksTab";
 
 export default function AdminPage() {
   const { t } = useTranslation("admin");
@@ -23,6 +24,7 @@ export default function AdminPage() {
         <TabsList className="mb-5">
           <TabsTrigger value="policies">{t("tabs.policies")}</TabsTrigger>
           <TabsTrigger value="permissions">{t("tabs.permissions")}</TabsTrigger>
+          <TabsTrigger value="frameworks">{t("tabs.frameworks")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="policies" className="mt-0">
@@ -31,6 +33,10 @@ export default function AdminPage() {
 
         <TabsContent value="permissions" className="mt-0">
           <PermissionsTab />
+        </TabsContent>
+
+        <TabsContent value="frameworks" className="mt-0">
+          <FrameworksTab />
         </TabsContent>
       </Tabs>
     </div>

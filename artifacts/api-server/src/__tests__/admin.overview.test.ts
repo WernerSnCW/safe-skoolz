@@ -4,6 +4,7 @@ import { requireRole } from "../lib/auth";
 import {
   ADMIN_ALLOWED_ROLES,
   aggregateProtocolCounts,
+  aggregateFrameworkCounts,
 } from "../routes/admin";
 
 describe("aggregateProtocolCounts", () => {
@@ -28,6 +29,27 @@ describe("aggregateProtocolCounts", () => {
     ]);
     expect(result.total).toBe(5);
     expect(result.by_status).toEqual({ open: 5, bad: 0 });
+  });
+});
+
+describe("aggregateFrameworkCounts", () => {
+  it("returns an empty by_framework map for no rows", () => {
+    expect(aggregateFrameworkCounts([])).toEqual({ by_framework: {} });
+  });
+
+  it("groups counts by framework key and coerces non-numeric counts to 0", () => {
+    const result = aggregateFrameworkCounts([
+      { framework: "lopivi", count: 4 },
+      { framework: "convivexit", count: 7 },
+      { framework: "machista_violence", count: "4" as unknown as number },
+      { framework: "weird", count: NaN as unknown as number },
+    ]);
+    expect(result.by_framework).toEqual({
+      lopivi: 4,
+      convivexit: 7,
+      machista_violence: 4,
+      weird: 0,
+    });
   });
 });
 
