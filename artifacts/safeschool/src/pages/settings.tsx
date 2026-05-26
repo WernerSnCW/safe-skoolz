@@ -10,22 +10,12 @@ type ThemePref = "light" | "dark" | "system";
 
 function useTheme() {
   const [pref, setPrefState] = useState<ThemePref>(() => {
-    return (localStorage.getItem("safeschool_theme") as ThemePref) || "system";
+    return (localStorage.getItem("safeschool_theme") as ThemePref) || "light";
   });
 
   useEffect(() => {
-    const apply = (p: ThemePref) => {
-      const isDark = p === "dark" || (p === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      document.documentElement.classList.toggle("dark", isDark);
-    };
-    apply(pref);
-    if (pref === "system") {
-      const mq = window.matchMedia("(prefers-color-scheme: dark)");
-      const handler = () => apply("system");
-      mq.addEventListener("change", handler);
-      return () => mq.removeEventListener("change", handler);
-    }
-    return undefined;
+    const isDark = pref === "dark";
+    document.documentElement.classList.toggle("dark", isDark);
   }, [pref]);
 
   const setPref = (p: ThemePref) => {

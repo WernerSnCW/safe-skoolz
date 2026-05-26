@@ -1,0 +1,48 @@
+Clean ship on tab 2. The agent's i18n note (4 new keys under admin.roles.* for parent/pta/pupil/dataController) was the right call — surfacing the small deviation rather than papering over it. The alternatives it considered (fake-mapping to marketing headlines) would have been worse. Worth a quiet tick for honest surfacing.
+
+Two messages ready. **Send white background first** because tab 3 (and tab 4) will then be designed against white from the start. If you ship more tabs against dark and only swap later, every card needs restyling.
+
+**Message 1 — white background (send next):**
+
+> quick visual fix before tab 3: app background should be white, not dark. Claudia's first walkthrough note. structured:
+>
+> approach gate: identify where the current dark theme is set (tailwind config darkMode, ThemeProvider component, dark class on root html, CSS variables in index.css). paste what you find. if components have hard-coded dark utility classes (bg-gray-900, text-white etc), list them at the gate — don't touch yet.
+>
+> scope: theme/CSS centralization first (variables, theme provider, tailwind config). if individual components also need changes, list them at the gate and i'll confirm before you sweep them. focus on demo-walkthrough routes if the sweep would be large: login, dashboard, incidents, protocols, /admin.
+>
+> acceptance: those demo routes render with white background and dark text. no contrast regressions on cards, buttons, or text. typecheck stays at 17. tests stay 66/66.
+>
+> one commit. report sha, git show --stat, brief note on which routes needed extra styling fixes.
+
+**Message 2 — tab 3 frameworks (send after white background lands):**
+
+> tab 3, frameworks & regulations. structured:
+>
+> approach gate: paste the result of SELECT DISTINCT framework FROM annex_templates WHERE school_id = <morna's id>. confirm which of the four cards below display "Active" (templates loaded) vs "Available" (zero loaded). also confirm whether /api/admin/overview already returns annex_templates by framework, or whether it needs one line added.
+>
+> scope: frontend tab + at most one extra field on the existing /api/admin/overview response. no new endpoint. no new audit event. no schema. add a third tab to existing admin.tsx Tabs.
+>
+> content: 4 cards in responsive grid (2 cols desktop, 1 col mobile). framework names stay native across all locales — do NOT translate LOPIVI, Convivèxit, or KCSiE. explainer prose translated.
+>
+> Card 1 — LOPIVI
+> "Spain's 2021 organic law on the integral protection of children and adolescents against violence. It requires every educational centre to appoint a designated wellbeing and protection coordinator and to maintain documented safeguarding protocols, prevention measures, and a clear reporting pathway for any form of violence against a minor."
+>
+> Card 2 — Convivèxit
+> "The Balearic Islands government's framework for school coexistence and conflict resolution, administered by the Conselleria d'Educació. It defines mandatory protocols for incidents including bullying, cyberbullying, and gender-based violence, and prescribes the documentation and external referral pathways that schools must follow."
+>
+> Card 3 — Keeping Children Safe in Education
+> "The UK Department for Education's statutory safeguarding guidance, updated annually, that all schools and colleges in England must follow. It requires every institution to designate a Safeguarding Lead, maintain a single central record of staff vetting, and follow a structured response protocol covering identify, assess, decide, and refer."
+>
+> Card 4 — Machista-violence framework (Spain)
+> "Spain's integrated framework for the prevention of and response to gender-based violence, anchored in Organic Law 1/2004 and reinforced by the State Pact against Gender Violence. In educational settings it requires schools to identify and report indicators of violence against women and girls, deliver age-appropriate prevention content, and coordinate with specialist external services."
+>
+> footer below grid (translated):
+> "Need a framework added or updated? Contact your appointed data controller."
+>
+> each card shows: framework name (untranslated), 2-sentence explainer body (translated), template count from /api/admin/overview, status chip "Active" or "Available".
+>
+> acceptance: coordinator opens /admin → sees three tabs → "Frameworks & Regulations" renders 4 cards in grid. framework names appear unchanged when language toggled to es/fr/nl. status chips reflect real DB state. typecheck stays at 17. tests stay 66/66.
+>
+> one commit. report sha, git show --stat, the DISTINCT framework values found.
+
+After tab 3 ships, tab 4 (Data Controller, using `count of active appointments` not names) is the last piece. I'll draft that one in the same shape when you're ready for it.
