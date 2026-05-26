@@ -49,6 +49,68 @@ export default function Login() {
   const [mfaCode, setMfaCode] = useState("");
   const [mfaBackup, setMfaBackup] = useState("");
   const [mfaSubmitting, setMfaSubmitting] = useState(false);
+  // T3: forced re-enrolment after an admin reset.
+  const [enrollmentToken, setEnrollmentToken] = useState("");
+  const [enrollQr, setEnrollQr] = useState<string | null>(null);
+  const [enrollCode, setEnrollCode] = useState("");
+  const [enrollBackupCodes, setEnrollBackupCodes] = useState<string[] | null>(null);
+  const [enrollSubmitting, setEnrollSubmitting] = useState(false);
+
+  const beginEnrollment = async (token: string) => {
+    setEnrollmentToken(token);
+    setError("");
+    try {
+      const r = await fetch(`${apiBase}api/auth/mfa/enroll/setup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enrollmentToken: token }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data?.error || "Could not start MFA enrolment.");
+        return;
+      }
+      setEnrollQr(data.qrDataUrl);
+    } catch {
+      setError("Could not start MFA enrolment.");
+    }
+  };
+
+  const handleEnrollmentVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setError("");
+    setEnrollSubmitting(true);
+    try {
+      const r = await fetch(`${apiBase}api/auth/mfa/enroll/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enrollmentToken, code: enrollCode }),
+      });
+      const data = await r.json();
+      if (!r.ok || !data.token) {
+        setError(data?.error || "Invalid code.");
+        return;
+      }
+      setEnrollBackupCodes(data.backupCodes || []);
+      // Hold the session JWT but don't redirect until the user has seen the
+      // backup codes and clicked "Continue".
+      (window as any).__pendingMfaJwt = data.token;
+    } finally {
+      setEnrollSubmitting(false);
+    }
+  };
+
+  const finishEnrollment = () => {
+    const jwt = (window as any).__pendingMfaJwt as string | undefined;
+    if (!jwt) return;
+    delete (window as any).__pendingMfaJwt;
+    setEnrollmentToken("");
+    setEnrollQr(null);
+    setEnrollCode("");
+    setEnrollBackupCodes(null);
+    setToken(jwt);
+    setLocation("/");
+  };
 
   const handleMfaChallenge = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -263,6 +325,11 @@ export default function Login() {
       // T11: staff login may return { requiresMfa, mfaToken } instead of a
       // full JWT when MFA is enforced and enabled for the user.
       const r = res as any;
+      if (r?.requiresMfaEnrollment && r?.enrollmentToken) {
+        // T3: an admin has reset this user's MFA — route them into re-enrol.
+        await beginEnrollment(r.enrollmentToken as string);
+        return;
+      }
       if (r?.requiresMfa && r?.mfaToken) {
         setMfaToken(r.mfaToken as string);
         return;
@@ -640,6 +707,73 @@ export default function Login() {
                   </motion.div>
                 )}
               </AnimatePresence>
+            ) : enrollmentToken ? (
+              <div className="space-y-5">
+                <div className="p-3 rounded-xl bg-primary/10 text-sm">
+                  Your two-factor authentication was reset by an administrator.
+                  Please re-enrol an authenticator app to continue.
+                </div>
+                {enrollBackupCodes ? (
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold">Backup codes (save these now)</p>
+                    <ul className="grid grid-cols-2 gap-1 font-mono text-sm">
+                      {enrollBackupCodes.map(c => (
+                        <li key={c} className="p-2 bg-muted rounded">{c}</li>
+                      ))}
+                    </ul>
+                    <p className="text-xs text-muted-foreground">
+                      Each code works once. They will not be shown again.
+                    </p>
+                    <Button size="lg" className="w-full" onClick={finishEnrollment}>
+                      I have saved my backup codes — continue
+                    </Button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleEnrollmentVerify} className="space-y-4">
+                    {enrollQr ? (
+                      <>
+                        <p className="text-sm">
+                          Scan this QR with your authenticator app, then enter the
+                          6-digit code below.
+                        </p>
+                        <img
+                          src={enrollQr}
+                          alt="MFA QR code"
+                          className="border rounded-lg w-48 h-48 mx-auto"
+                        />
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Loading…</p>
+                    )}
+                    <div>
+                      <Label htmlFor="enrollCode">Verification code</Label>
+                      <Input
+                        id="enrollCode"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        value={enrollCode}
+                        onChange={e => setEnrollCode(e.target.value)}
+                        placeholder="123456"
+                        className="h-14 text-base"
+                        style={{ fontSize: "16px" }}
+                      />
+                    </div>
+                    {error && (
+                      <div className="p-3 rounded-xl bg-destructive/10 text-destructive text-sm">
+                        {error}
+                      </div>
+                    )}
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full"
+                      disabled={enrollSubmitting || enrollCode.length < 6 || !enrollQr}
+                    >
+                      {enrollSubmitting ? "Verifying…" : "Verify and enable"}
+                    </Button>
+                  </form>
+                )}
+              </div>
             ) : mfaToken ? (
               <form onSubmit={handleMfaChallenge} className="space-y-5">
                 <div>

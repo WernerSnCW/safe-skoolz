@@ -32,6 +32,9 @@ const AUDIT_EVENT_TYPES = [
   "mfa_disabled",
   "mfa_challenge_succeeded",
   "mfa_challenge_failed",
+  "mfa_reset_requested",
+  "mfa_reset_cancelled",
+  "mfa_reset_by_admin",
   "data_export_requested",
   "retention_sweep_completed",
 ];

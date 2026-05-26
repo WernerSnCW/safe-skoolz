@@ -21,6 +21,10 @@ export const usersTable = pgTable("users", {
   failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
   active: boolean("active").default(true).notNull(),
+  // T3: set by an admin-initiated MFA reset; cleared after the user completes
+  // re-enrolment. While true, normal login is blocked and the user is routed
+  // straight into the enrolment flow.
+  mfaEnrollmentRequired: boolean("mfa_enrollment_required").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   lastLogin: timestamp("last_login", { withTimezone: true }),
 }, (table) => [

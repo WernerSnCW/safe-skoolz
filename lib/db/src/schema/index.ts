@@ -25,3 +25,4 @@ export * from "./rateLimitBuckets";
 export * from "./pupilLoginSessions";
 export * from "./passwordResetTokens";
 export * from "./userMfaSecrets";
+export * from "./mfaResetRequests";

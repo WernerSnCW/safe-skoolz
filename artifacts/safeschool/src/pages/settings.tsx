@@ -283,6 +283,7 @@ export default function Settings() {
       </Card>
 
       {(user.role === "coordinator" || user.role === "head_teacher") && <MfaPanel />}
+      {(user.role === "coordinator" || user.role === "head_teacher") && <AdminMfaResetPanel />}
     </div>
   );
 }
@@ -421,6 +422,231 @@ function MfaPanel() {
           </div>
         )}
 
+        {msg && <p className="text-sm">{msg}</p>}
+      </CardContent>
+    </Card>
+  );
+}
+
+// T3: Admin recovery panel. A coordinator or head_teacher can request an MFA
+// reset for another user in their school; a *different* admin must then confirm
+// (four-eyes). Confirmation wipes the user's MFA secret, forcing them to
+// re-enrol at next login.
+interface StaffEntry {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string | null;
+  role: string;
+}
+interface PendingResetRow {
+  id: string;
+  target: StaffEntry;
+  requestedBy: StaffEntry;
+  requestedByIsMe: boolean;
+  createdAt: string;
+  expiresAt: string;
+}
+
+function AdminMfaResetPanel() {
+  const { user } = useAuth();
+  const apiBase = (() => {
+    const b = import.meta.env.BASE_URL || "/";
+    return b.endsWith("/") ? b : b + "/";
+  })();
+  const token = localStorage.getItem("safeschool_token") || "";
+  const authHeaders = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+
+  const [staff, setStaff] = useState<StaffEntry[]>([]);
+  const [pending, setPending] = useState<PendingResetRow[]>([]);
+  const [targetId, setTargetId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+
+  const loadAll = async () => {
+    if (!user) return;
+    try {
+      const [staffRes, reqRes] = await Promise.all([
+        fetch(`${apiBase}api/schools/${user.schoolId}/staff`, { headers: authHeaders }),
+        fetch(`${apiBase}api/auth/mfa/admin/reset-requests`, { headers: authHeaders }),
+      ]);
+      if (staffRes.ok) {
+        const list = await staffRes.json();
+        setStaff(
+          list.filter((u: any) => u.id !== user.id)
+            .map((u: any) => ({
+              id: u.id,
+              firstName: u.firstName,
+              lastName: u.lastName,
+              email: u.email ?? null,
+              role: u.role,
+            })),
+        );
+      }
+      if (reqRes.ok) {
+        const data = await reqRes.json();
+        setPending(data.requests || []);
+      }
+    } catch {
+      // ignore — panel is best-effort
+    }
+  };
+
+  useEffect(() => {
+    loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  const requestReset = async () => {
+    setBusy(true);
+    setError("");
+    setMsg("");
+    try {
+      const r = await fetch(`${apiBase}api/auth/mfa/admin/reset-request`, {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ targetUserId: targetId }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data?.error || "Could not request reset.");
+        return;
+      }
+      setMsg("Reset requested. A different admin must confirm within 30 minutes.");
+      setTargetId("");
+      await loadAll();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const confirmReset = async (requestId: string) => {
+    setBusy(true);
+    setError("");
+    setMsg("");
+    try {
+      const r = await fetch(`${apiBase}api/auth/mfa/admin/reset-confirm`, {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ requestId }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data?.error || "Could not confirm reset.");
+        return;
+      }
+      setMsg("MFA reset. The user must re-enrol at next login.");
+      await loadAll();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const cancelReset = async (requestId: string) => {
+    setBusy(true);
+    setError("");
+    setMsg("");
+    try {
+      const r = await fetch(`${apiBase}api/auth/mfa/admin/reset-cancel`, {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ requestId }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data?.error || "Could not cancel.");
+        return;
+      }
+      setMsg("Reset request cancelled.");
+      await loadAll();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardContent className="p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Shield size={18} className="text-primary" />
+          <h2 className="text-lg font-bold">Reset another user's MFA</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Use this if a staff member has lost both their authenticator device and all their
+          backup codes. A second coordinator or head teacher must confirm before the reset
+          completes.
+        </p>
+
+        <div className="flex flex-col gap-2 md:flex-row md:items-end">
+          <div className="flex-1">
+            <Label htmlFor="mfaResetTarget">Staff member</Label>
+            <select
+              id="mfaResetTarget"
+              value={targetId}
+              onChange={(e) => setTargetId(e.target.value)}
+              className="w-full h-10 rounded-xl border border-border bg-background px-3 text-sm"
+            >
+              <option value="">Select a staff member…</option>
+              {staff.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.firstName} {s.lastName} ({s.role.replace("_", " ")})
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button onClick={requestReset} disabled={busy || !targetId}>
+            Request reset
+          </Button>
+        </div>
+
+        <div className="pt-3 border-t border-border">
+          <h3 className="text-sm font-bold mb-2">Pending reset requests</h3>
+          {pending.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No pending requests.</p>
+          ) : (
+            <ul className="space-y-2">
+              {pending.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex flex-col gap-2 rounded-xl border border-border p-3 md:flex-row md:items-center md:justify-between"
+                >
+                  <div className="text-sm">
+                    <p>
+                      <span className="font-semibold">
+                        {p.target.firstName} {p.target.lastName}
+                      </span>{" "}
+                      <span className="text-muted-foreground">({p.target.role.replace("_", " ")})</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Requested by {p.requestedBy.firstName} {p.requestedBy.lastName} ·
+                      expires {new Date(p.expiresAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    {p.requestedByIsMe ? (
+                      <span className="text-xs text-muted-foreground self-center">
+                        Awaiting confirmation by another admin
+                      </span>
+                    ) : (
+                      <Button onClick={() => confirmReset(p.id)} disabled={busy}>
+                        Confirm reset
+                      </Button>
+                    )}
+                    <Button variant="ghost" onClick={() => cancelReset(p.id)} disabled={busy}>
+                      Cancel
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {error && <p className="text-sm text-destructive">{error}</p>}
         {msg && <p className="text-sm">{msg}</p>}
       </CardContent>
     </Card>

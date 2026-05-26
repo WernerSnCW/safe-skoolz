@@ -7,7 +7,7 @@ import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfa
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
-import { signMfaChallengeToken, MFA_ENFORCED_ROLES } from "./mfa";
+import { signMfaChallengeToken, signMfaEnrollmentToken, MFA_ENFORCED_ROLES } from "./mfa";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const PUPIL_LOGIN_SESSION_TTL_MS = 10 * 60 * 1000;
@@ -384,6 +384,19 @@ router.post("/auth/staff/login", async (req, res): Promise<void> => {
 
   const firstLogin = !user.lastLogin;
   await db.update(usersTable).set({ lastLogin: new Date() }).where(eq(usersTable.id, user.id));
+
+  // T3: if an admin has reset this user's MFA, block normal login and return
+  // an enrolment token so the frontend can route them straight into re-enrol.
+  if (user.mfaEnrollmentRequired) {
+    const enrollmentToken = signMfaEnrollmentToken({
+      userId: user.id,
+      schoolId: user.schoolId,
+      role: user.role,
+      email: user.email || undefined,
+    });
+    res.json({ requiresMfaEnrollment: true, enrollmentToken });
+    return;
+  }
 
   // T11: if user is in an MFA-enforced role and has MFA enabled, return a
   // short-lived challenge token instead of the full JWT. The frontend prompts

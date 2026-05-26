@@ -34,8 +34,15 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
     const payload = verifyToken(token);
     // T11: mfa-challenge tokens are scoped to /api/auth/mfa/challenge only;
     // they must not authenticate any other endpoint.
-    if ((payload as any).kind === "mfa-challenge") {
+    const kind = (payload as any).kind;
+    if (kind === "mfa-challenge") {
       res.status(401).json({ error: "MFA challenge required" });
+      return;
+    }
+    if (kind === "mfa-enrollment") {
+      // T3: enrollment tokens are scoped to /api/auth/mfa/enroll/* only — they
+      // must not authenticate any normal endpoint.
+      res.status(401).json({ error: "MFA enrolment required" });
       return;
     }
     (req as any).user = payload;
