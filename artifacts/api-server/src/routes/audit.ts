@@ -2,6 +2,13 @@ import { Router, type IRouter } from "express";
 import { db, auditLogTable } from "@workspace/db";
 import { eq, and, or, lt, lte, gte, desc } from "drizzle-orm";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { RETENTION_DAYS, type RetentionCategory } from "../lib/retentionPolicies";
+
+// T13 follow-up: a deployment that has silently stopped running the
+// retention sweep (bad deploy, JOBS_ENABLED=false, crashed scheduler)
+// is a data-protection problem we cannot afford to discover from a
+// regulator. 36h gives a 24h job a full cycle of slack before we shout.
+const RETENTION_STALE_MS = 36 * 60 * 60 * 1000;
 
 const router: IRouter = Router();
 
@@ -120,6 +127,89 @@ router.get(
         : null;
 
     res.json({ data, nextCursor, hasMore });
+  }
+);
+
+// T13 follow-up: dedicated shortcut for the admin "is the retention sweep
+// still running?" widget. We return one entry per known category (even if
+// it has never run) so the UI can render a complete checklist instead of
+// silently omitting a missing category.
+//
+// The audit row is anchored to the oldest school in the DB (see
+// jobs/retentionSweep.ts), so we deliberately do NOT filter by
+// req.user.schoolId — retention is a system-wide event and every
+// coordinator should see the same status.
+router.get(
+  "/audit/retention-status",
+  authMiddleware,
+  requireRole("coordinator", "head_teacher"),
+  async (_req, res): Promise<void> => {
+    const rows = await db
+      .select({
+        id: auditLogTable.id,
+        createdAt: auditLogTable.createdAt,
+        details: auditLogTable.details,
+      })
+      .from(auditLogTable)
+      .where(eq(auditLogTable.eventType, "retention_sweep_completed"))
+      .orderBy(desc(auditLogTable.createdAt))
+      .limit(500);
+
+    const latestByCategory = new Map<
+      string,
+      { id: string; createdAt: Date; deletedCount: number; thresholdAt: string | null }
+    >();
+    for (const row of rows) {
+      const details = (row.details ?? {}) as {
+        category?: string;
+        deleted_count?: number;
+        threshold_at?: string;
+      };
+      const cat = details.category;
+      if (!cat || latestByCategory.has(cat)) continue;
+      latestByCategory.set(cat, {
+        id: row.id,
+        createdAt: row.createdAt,
+        deletedCount: Number(details.deleted_count ?? 0),
+        thresholdAt: details.threshold_at ?? null,
+      });
+    }
+
+    const now = Date.now();
+    const categories = (Object.keys(RETENTION_DAYS) as RetentionCategory[]).map((cat) => {
+      const latest = latestByCategory.get(cat);
+      if (!latest) {
+        return {
+          category: cat,
+          retentionDays: RETENTION_DAYS[cat],
+          lastRunAt: null,
+          lastRunId: null,
+          deletedCount: null,
+          thresholdAt: null,
+          ageMs: null,
+          stale: true,
+        };
+      }
+      const ageMs = now - latest.createdAt.getTime();
+      return {
+        category: cat,
+        retentionDays: RETENTION_DAYS[cat],
+        lastRunAt: latest.createdAt.toISOString(),
+        lastRunId: latest.id,
+        deletedCount: latest.deletedCount,
+        thresholdAt: latest.thresholdAt,
+        ageMs,
+        stale: ageMs > RETENTION_STALE_MS,
+      };
+    });
+
+    const anyStale = categories.some((c) => c.stale);
+    res.json({
+      staleThresholdMs: RETENTION_STALE_MS,
+      anyStale,
+      categories,
+      generatedAt: new Date().toISOString(),
+    });
   }
 );
 

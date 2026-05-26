@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ScrollText, Loader2, Filter, X } from "lucide-react";
+import { ScrollText, Loader2, Filter, X, ShieldCheck, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui-polished";
 import { Button } from "@/components/ui-polished";
 
@@ -23,6 +23,36 @@ interface AuditResponse {
   nextCursor: string | null;
   hasMore: boolean;
 }
+
+interface RetentionStatusCategory {
+  category: string;
+  retentionDays: number;
+  lastRunAt: string | null;
+  lastRunId: string | null;
+  deletedCount: number | null;
+  thresholdAt: string | null;
+  ageMs: number | null;
+  stale: boolean;
+}
+
+interface RetentionStatusResponse {
+  staleThresholdMs: number;
+  anyStale: boolean;
+  categories: RetentionStatusCategory[];
+  generatedAt: string;
+}
+
+const formatAge = (ms: number | null): string => {
+  if (ms === null) return "never";
+  const hours = Math.floor(ms / 3_600_000);
+  if (hours < 1) {
+    const mins = Math.max(1, Math.floor(ms / 60_000));
+    return `${mins} min ago`;
+  }
+  if (hours < 48) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+};
 
 const formatEventType = (et: string) =>
   et.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -57,6 +87,16 @@ export default function AuditPage() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [allRows, setAllRows] = useState<AuditRow[]>([]);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  const { data: retentionStatus, isLoading: retentionLoading } = useQuery<RetentionStatusResponse>({
+    queryKey: ["/api/audit/retention-status"],
+    queryFn: async () => {
+      const res = await fetch(`${apiBase}api/audit/retention-status`, { headers: authHeaders() });
+      if (!res.ok) throw new Error("Failed to load retention status");
+      return res.json();
+    },
+    refetchInterval: 5 * 60 * 1000,
+  });
 
   const { data: eventTypesData } = useQuery<{ eventTypes: string[] }>({
     queryKey: ["/api/audit/event-types"],
@@ -126,6 +166,112 @@ export default function AuditPage() {
           </p>
         </div>
       </div>
+
+      <Card
+        data-testid="card-retention-status"
+        className={
+          retentionStatus?.anyStale
+            ? "border-amber-400 dark:border-amber-500"
+            : undefined
+        }
+      >
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <div
+              className={
+                "p-2 rounded-xl shrink-0 " +
+                (retentionStatus?.anyStale
+                  ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                  : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300")
+              }
+            >
+              {retentionStatus?.anyStale ? (
+                <AlertTriangle className="h-5 w-5" />
+              ) : (
+                <ShieldCheck className="h-5 w-5" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="font-semibold">Retention sweep status</h2>
+                {retentionLoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                ) : retentionStatus?.anyStale ? (
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
+                    Action needed
+                  </span>
+                ) : (
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200">
+                    Healthy
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Automated deletion of expired records. Alerts if any category
+                hasn't run in the last 36 hours.
+              </p>
+              {retentionStatus && (
+                <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {retentionStatus.categories.map((cat) => (
+                    <div
+                      key={cat.category}
+                      data-testid={`retention-category-${cat.category}`}
+                      className={
+                        "rounded-lg border p-3 text-sm " +
+                        (cat.stale
+                          ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30"
+                          : "border-border bg-muted/30")
+                      }
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium">
+                          {formatEventType(cat.category)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {cat.retentionDays}d window
+                        </span>
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Last run:{" "}
+                        <span
+                          className={
+                            cat.stale
+                              ? "font-semibold text-amber-700 dark:text-amber-300"
+                              : "font-medium text-foreground"
+                          }
+                        >
+                          {cat.lastRunAt ? formatAge(cat.ageMs) : "never"}
+                        </span>
+                        {cat.lastRunAt && (
+                          <span className="ml-1">
+                            ({formatDateTime(cat.lastRunAt)})
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">
+                        Deleted last run:{" "}
+                        <span className="font-medium text-foreground">
+                          {cat.deletedCount ?? "—"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="mt-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEventTypeChange("retention_sweep_completed")}
+                  data-testid="button-view-retention-events"
+                >
+                  View all sweep events in log →
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="p-4">
