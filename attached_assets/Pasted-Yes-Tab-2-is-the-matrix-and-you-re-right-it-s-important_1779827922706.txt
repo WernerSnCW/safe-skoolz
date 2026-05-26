@@ -1,0 +1,41 @@
+Yes. Tab 2 is the matrix, and you're right it's important for the demo — it's the visible answer to "who can see what" which is the question every school will ask. Same structured shape as tab 1, all content baked in so the agent doesn't gate back to you.
+
+Send this:
+
+> tab 1 landed clean. next: tab 2, permissions matrix. structured:
+>
+> approach gate: paste current admin.tsx, the proposed restructure to shadcn Tabs, and the new file path for the permissions tab component. also paste where existing role names are translated so we can reuse those keys.
+>
+> scope: frontend only. no new api route. no new audit event. no schema. restructure admin.tsx to use shadcn Tabs, add permissions as a new component file. existing protocol-counts content becomes tab 1.
+>
+> content: render the explainer paragraph followed by the matrix as a responsive table (stacks to cards on mobile). all text via i18n. reuse existing role-name translations — don't create new ones for Coordinator/Teacher/Parent etc.
+>
+> explainer (body translated in all 4 locales):
+>
+> "Permissions are granted by the school's appointed administrator (the designated data controller). Parents see only their own children's data. Teachers see only their own class. Specialist safeguarding staff (Coordinator, Head Teacher, SENCO) see school-wide data within their remit. The PTA sees aggregated, anonymised data only. The administrator alone configures policies and grants access. No vendor, founder, or unappointed person has access to incident data."
+>
+> matrix:
+>
+> Legend: ✓ full · ◐ partial / scoped / anonymised · ✗ none · — not applicable
+>
+> Columns: Role | Own profile | Own children | Own class/year | All school data | Audit log | Aggregated stats | Policies & config
+>
+> Coordinator                         | ✓ | — | ✓ | ✓ | ✓ | ✓ | ◐ view only
+> Head Teacher                        | ✓ | — | ✓ | ✓ | ✓ | ✓ | ◐ view only
+> SENCO                               | ✓ | — | ◐ caseload only | ◐ caseload | ✗ | ◐ caseload | ✗
+> Teacher                             | ✓ | — | ✓ own class | ✗ | ✗ | ◐ own class | ✗
+> Head of Year                        | ✓ | — | ✓ own year | ✗ | ✗ | ◐ own year | ✗
+> Parent                              | ✓ | ✓ own children only | ✗ | ✗ | ✗ | ✗ | ✗
+> PTA member                          | ✓ | ✗ | ✗ | ✗ | ✗ | ◐ anonymised only | ✗
+> Pupil                               | ✓ own data only | — | ✗ | ✗ | ✗ | ✗ | ✗
+> Admin / Data Controller             | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
+>
+> acceptance: coordinator opens /admin → sees two tabs ("Policies & Protocols", "Permissions") → tab 2 renders explainer + matrix. typecheck stays at 17. tests stay 66/66. mobile viewport stacks each matrix row as its own card.
+>
+> one commit. report sha, git show --stat, green tails.
+
+What's in here that wasn't in tab 1: the restructure of admin.tsx into a Tabs container (shadcn already in the project), the matrix content baked in so the agent doesn't have to draft it, explicit i18n reuse instruction so role names don't get duplicated, and a mobile-stacking acceptance criterion because the matrix is wide.
+
+Clean on all three patterns the agent flagged earlier: no audit event, no scrutiny-lowering preamble, no names. Just a generic role/data-access grid.
+
+After this lands you'll send tab 3 (frameworks) and tab 4 (data controller). I'll draft those in the same shape when tab 2 ships.

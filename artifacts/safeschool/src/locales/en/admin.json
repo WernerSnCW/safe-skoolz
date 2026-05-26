@@ -1,10 +1,58 @@
 {
   "title": "Admin",
   "subtitle": "Read-only overview of school configuration.",
+  "tabs": {
+    "policies": "Policies & Protocols",
+    "permissions": "Permissions"
+  },
   "protocolsCardTitle": "Safeguarding protocols",
   "protocolsCardDescription": "Counts of protocols currently logged for this school, grouped by status.",
   "totalProtocols": "protocols total",
   "noProtocols": "No protocols have been logged yet.",
   "loading": "Loading…",
-  "loadError": "Could not load admin overview. Please try again."
+  "loadError": "Could not load admin overview. Please try again.",
+  "permissionsCardTitle": "Who can see what",
+  "permissionsExplainer": "Permissions are granted by the school's appointed administrator (the designated data controller). Parents see only their own children's data. Teachers see only their own class. Specialist safeguarding staff (Coordinator, Head Teacher, SENCO) see school-wide data within their remit. The PTA sees aggregated, anonymised data only. The administrator alone configures policies and grants access. No vendor, founder, or unappointed person has access to incident data.",
+  "legend": {
+    "fullSymbol": "✓",
+    "full": "full",
+    "partialSymbol": "◐",
+    "partial": "partial / scoped / anonymised",
+    "noneSymbol": "✗",
+    "none": "none",
+    "naSymbol": "—",
+    "na": "not applicable"
+  },
+  "roles": {
+    "parent": "Parent",
+    "pta": "PTA member",
+    "pupil": "Pupil",
+    "dataController": "Admin / Data Controller"
+  },
+  "matrix": {
+    "roleColumn": "Role",
+    "columns": {
+      "ownProfile": "Own profile",
+      "ownChildren": "Own children",
+      "ownClassYear": "Own class/year",
+      "allSchoolData": "All school data",
+      "auditLog": "Audit log",
+      "aggregatedStats": "Aggregated stats",
+      "policiesConfig": "Policies & config"
+    },
+    "cells": {
+      "full": "✓",
+      "none": "✗",
+      "na": "—",
+      "fullOwnChildren": "✓ own children only",
+      "fullOwnClass": "✓ own class",
+      "fullOwnYear": "✓ own year",
+      "fullOwnData": "✓ own data only",
+      "partialCaseload": "◐ caseload",
+      "partialOwnClass": "◐ own class",
+      "partialOwnYear": "◐ own year",
+      "partialAnonymised": "◐ anonymised only",
+      "partialView": "◐ view only"
+    }
+  }
 }

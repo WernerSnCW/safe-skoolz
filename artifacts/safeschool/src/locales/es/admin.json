@@ -1,10 +1,58 @@
 {
   "title": "Administración",
   "subtitle": "Resumen de solo lectura de la configuración del centro.",
+  "tabs": {
+    "policies": "Políticas y protocolos",
+    "permissions": "Permisos"
+  },
   "protocolsCardTitle": "Protocolos de protección",
   "protocolsCardDescription": "Recuento de protocolos registrados actualmente en este centro, agrupados por estado.",
   "totalProtocols": "protocolos en total",
   "noProtocols": "Aún no se ha registrado ningún protocolo.",
   "loading": "Cargando…",
-  "loadError": "No se pudo cargar el resumen de administración. Inténtelo de nuevo."
+  "loadError": "No se pudo cargar el resumen de administración. Inténtelo de nuevo.",
+  "permissionsCardTitle": "Quién puede ver qué",
+  "permissionsExplainer": "Los permisos los concede el administrador designado por el centro (el responsable del tratamiento de datos). Las familias solo ven los datos de sus propios hijos. El profesorado solo ve los de su propia clase. El personal especialista en protección (Coordinador, Director, Orientador) accede a los datos del centro dentro de su ámbito. El AMPA solo ve datos agregados y anonimizados. Solo el administrador configura las políticas y concede los accesos. Ningún proveedor, fundador ni persona no designada tiene acceso a los datos de incidentes.",
+  "legend": {
+    "fullSymbol": "✓",
+    "full": "total",
+    "partialSymbol": "◐",
+    "partial": "parcial / limitado / anonimizado",
+    "noneSymbol": "✗",
+    "none": "ninguno",
+    "naSymbol": "—",
+    "na": "no procede"
+  },
+  "roles": {
+    "parent": "Familia",
+    "pta": "Miembro del AMPA",
+    "pupil": "Alumnado",
+    "dataController": "Administrador / Responsable del tratamiento"
+  },
+  "matrix": {
+    "roleColumn": "Rol",
+    "columns": {
+      "ownProfile": "Perfil propio",
+      "ownChildren": "Hijos propios",
+      "ownClassYear": "Clase/curso propio",
+      "allSchoolData": "Datos de todo el centro",
+      "auditLog": "Registro de auditoría",
+      "aggregatedStats": "Estadísticas agregadas",
+      "policiesConfig": "Políticas y configuración"
+    },
+    "cells": {
+      "full": "✓",
+      "none": "✗",
+      "na": "—",
+      "fullOwnChildren": "✓ solo hijos propios",
+      "fullOwnClass": "✓ clase propia",
+      "fullOwnYear": "✓ curso propio",
+      "fullOwnData": "✓ solo datos propios",
+      "partialCaseload": "◐ casos asignados",
+      "partialOwnClass": "◐ clase propia",
+      "partialOwnYear": "◐ curso propio",
+      "partialAnonymised": "◐ solo anonimizado",
+      "partialView": "◐ solo lectura"
+    }
+  }
 }

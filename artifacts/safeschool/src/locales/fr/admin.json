@@ -1,10 +1,58 @@
 {
   "title": "Administration",
   "subtitle": "Aperçu en lecture seule de la configuration de l'établissement.",
+  "tabs": {
+    "policies": "Politiques et protocoles",
+    "permissions": "Permissions"
+  },
   "protocolsCardTitle": "Protocoles de protection",
   "protocolsCardDescription": "Décompte des protocoles actuellement enregistrés pour cet établissement, regroupés par statut.",
   "totalProtocols": "protocoles au total",
   "noProtocols": "Aucun protocole n'a encore été enregistré.",
   "loading": "Chargement…",
-  "loadError": "Impossible de charger l'aperçu administratif. Veuillez réessayer."
+  "loadError": "Impossible de charger l'aperçu administratif. Veuillez réessayer.",
+  "permissionsCardTitle": "Qui peut voir quoi",
+  "permissionsExplainer": "Les autorisations sont accordées par l'administrateur désigné par l'établissement (le responsable du traitement des données). Les parents ne voient que les données de leurs propres enfants. Les enseignants ne voient que leur propre classe. Le personnel spécialisé en protection (Coordinateur, Directeur, SENCO) accède aux données de tout l'établissement dans le cadre de ses fonctions. L'association de parents (PTA) ne voit que des données agrégées et anonymisées. Seul l'administrateur configure les politiques et accorde les accès. Aucun prestataire, fondateur ou personne non désignée n'a accès aux données d'incident.",
+  "legend": {
+    "fullSymbol": "✓",
+    "full": "complet",
+    "partialSymbol": "◐",
+    "partial": "partiel / restreint / anonymisé",
+    "noneSymbol": "✗",
+    "none": "aucun",
+    "naSymbol": "—",
+    "na": "non applicable"
+  },
+  "roles": {
+    "parent": "Parent",
+    "pta": "Membre de l'association",
+    "pupil": "Élève",
+    "dataController": "Administrateur / Responsable du traitement"
+  },
+  "matrix": {
+    "roleColumn": "Rôle",
+    "columns": {
+      "ownProfile": "Profil personnel",
+      "ownChildren": "Ses enfants",
+      "ownClassYear": "Sa classe/année",
+      "allSchoolData": "Données de l'établissement",
+      "auditLog": "Journal d'audit",
+      "aggregatedStats": "Statistiques agrégées",
+      "policiesConfig": "Politiques et configuration"
+    },
+    "cells": {
+      "full": "✓",
+      "none": "✗",
+      "na": "—",
+      "fullOwnChildren": "✓ ses enfants uniquement",
+      "fullOwnClass": "✓ sa classe",
+      "fullOwnYear": "✓ son année",
+      "fullOwnData": "✓ ses données uniquement",
+      "partialCaseload": "◐ ses dossiers",
+      "partialOwnClass": "◐ sa classe",
+      "partialOwnYear": "◐ son année",
+      "partialAnonymised": "◐ anonymisé uniquement",
+      "partialView": "◐ lecture seule"
+    }
+  }
 }

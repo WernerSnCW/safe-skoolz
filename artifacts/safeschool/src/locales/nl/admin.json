@@ -1,10 +1,58 @@
 {
   "title": "Beheer",
   "subtitle": "Alleen-lezen overzicht van de schoolconfiguratie.",
+  "tabs": {
+    "policies": "Beleid en protocollen",
+    "permissions": "Rechten"
+  },
   "protocolsCardTitle": "Beschermingsprotocollen",
   "protocolsCardDescription": "Aantal protocollen dat momenteel voor deze school is geregistreerd, gegroepeerd op status.",
   "totalProtocols": "protocollen in totaal",
   "noProtocols": "Er zijn nog geen protocollen geregistreerd.",
   "loading": "Laden…",
-  "loadError": "Kan beheeroverzicht niet laden. Probeer het opnieuw."
+  "loadError": "Kan beheeroverzicht niet laden. Probeer het opnieuw.",
+  "permissionsCardTitle": "Wie ziet wat",
+  "permissionsExplainer": "Rechten worden toegekend door de door de school aangewezen beheerder (de verwerkingsverantwoordelijke). Ouders zien alleen de gegevens van hun eigen kinderen. Leerkrachten zien alleen hun eigen klas. Gespecialiseerd zorgpersoneel (Coördinator, Directeur, SENCO) ziet schoolbrede gegevens binnen hun bevoegdheid. De oudervereniging ziet uitsluitend geaggregeerde, geanonimiseerde gegevens. Alleen de beheerder configureert beleid en kent toegang toe. Geen leverancier, oprichter of niet-aangewezen persoon heeft toegang tot incidentgegevens.",
+  "legend": {
+    "fullSymbol": "✓",
+    "full": "volledig",
+    "partialSymbol": "◐",
+    "partial": "gedeeltelijk / beperkt / geanonimiseerd",
+    "noneSymbol": "✗",
+    "none": "geen",
+    "naSymbol": "—",
+    "na": "niet van toepassing"
+  },
+  "roles": {
+    "parent": "Ouder",
+    "pta": "Lid oudervereniging",
+    "pupil": "Leerling",
+    "dataController": "Beheerder / Verwerkingsverantwoordelijke"
+  },
+  "matrix": {
+    "roleColumn": "Rol",
+    "columns": {
+      "ownProfile": "Eigen profiel",
+      "ownChildren": "Eigen kinderen",
+      "ownClassYear": "Eigen klas/jaar",
+      "allSchoolData": "Alle schoolgegevens",
+      "auditLog": "Auditlogboek",
+      "aggregatedStats": "Geaggregeerde statistieken",
+      "policiesConfig": "Beleid en configuratie"
+    },
+    "cells": {
+      "full": "✓",
+      "none": "✗",
+      "na": "—",
+      "fullOwnChildren": "✓ alleen eigen kinderen",
+      "fullOwnClass": "✓ eigen klas",
+      "fullOwnYear": "✓ eigen jaar",
+      "fullOwnData": "✓ alleen eigen gegevens",
+      "partialCaseload": "◐ eigen dossiers",
+      "partialOwnClass": "◐ eigen klas",
+      "partialOwnYear": "◐ eigen jaar",
+      "partialAnonymised": "◐ alleen geanonimiseerd",
+      "partialView": "◐ alleen lezen"
+    }
+  }
 }
