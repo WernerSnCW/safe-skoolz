@@ -176,6 +176,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       { name: t("protocols"), href: "/protocols", icon: Shield },
       { name: t("alerts"), href: "/alerts", icon: Activity },
       { name: t("auditLog"), href: "/audit", icon: ScrollText },
+      ...(user.role === "coordinator"
+        ? [{ name: t("admin"), href: "/admin", icon: ShieldCheck }]
+        : []),
       { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
       { name: t("learn"), href: "/learn", icon: BookOpen },
       { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },

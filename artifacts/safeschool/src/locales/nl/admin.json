@@ -1,0 +1,10 @@
+{
+  "title": "Beheer",
+  "subtitle": "Alleen-lezen overzicht van de schoolconfiguratie.",
+  "protocolsCardTitle": "Beschermingsprotocollen",
+  "protocolsCardDescription": "Aantal protocollen dat momenteel voor deze school is geregistreerd, gegroepeerd op status.",
+  "totalProtocols": "protocollen in totaal",
+  "noProtocols": "Er zijn nog geen protocollen geregistreerd.",
+  "loading": "Laden…",
+  "loadError": "Kan beheeroverzicht niet laden. Probeer het opnieuw."
+}

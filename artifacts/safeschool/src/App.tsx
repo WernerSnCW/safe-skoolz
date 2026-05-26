@@ -36,6 +36,7 @@ import CaseStudiesPage from "@/pages/case-studies";
 import HowItWorksPage from "@/pages/how-it-works";
 import TrainingStatusPage from "@/pages/training-status";
 import AuditPage from "@/pages/audit";
+import AdminPage from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();

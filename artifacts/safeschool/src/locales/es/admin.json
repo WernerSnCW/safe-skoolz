@@ -1,0 +1,10 @@
+{
+  "title": "Administración",
+  "subtitle": "Resumen de solo lectura de la configuración del centro.",
+  "protocolsCardTitle": "Protocolos de protección",
+  "protocolsCardDescription": "Recuento de protocolos registrados actualmente en este centro, agrupados por estado.",
+  "totalProtocols": "protocolos en total",
+  "noProtocols": "Aún no se ha registrado ningún protocolo.",
+  "loading": "Cargando…",
+  "loadError": "No se pudo cargar el resumen de administración. Inténtelo de nuevo."
+}

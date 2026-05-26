@@ -18,6 +18,7 @@ import enCaseload from "@/locales/en/caseload.json";
 import enDiagnostics from "@/locales/en/diagnostics.json";
 import enTraining from "@/locales/en/training.json";
 import enTour from "@/locales/en/tour.json";
+import enAdmin from "@/locales/en/admin.json";
 
 import esCommon from "@/locales/es/common.json";
 import esNav from "@/locales/es/nav.json";
@@ -36,6 +37,7 @@ import esCaseload from "@/locales/es/caseload.json";
 import esDiagnostics from "@/locales/es/diagnostics.json";
 import esTraining from "@/locales/es/training.json";
 import esTour from "@/locales/es/tour.json";
+import esAdmin from "@/locales/es/admin.json";
 
 import nlCommon from "@/locales/nl/common.json";
 import nlNav from "@/locales/nl/nav.json";
@@ -53,6 +55,7 @@ import nlBehaviour from "@/locales/nl/behaviour.json";
 import nlCaseload from "@/locales/nl/caseload.json";
 import nlDiagnostics from "@/locales/nl/diagnostics.json";
 import nlTraining from "@/locales/nl/training.json";
+import nlAdmin from "@/locales/nl/admin.json";
 
 import frCommon from "@/locales/fr/common.json";
 import frNav from "@/locales/fr/nav.json";
@@ -70,6 +73,7 @@ import frBehaviour from "@/locales/fr/behaviour.json";
 import frCaseload from "@/locales/fr/caseload.json";
 import frDiagnostics from "@/locales/fr/diagnostics.json";
 import frTraining from "@/locales/fr/training.json";
+import frAdmin from "@/locales/fr/admin.json";
 
 i18n.use(initReactI18next).init({
   lng: localStorage.getItem("safeskoolz_lang") ?? "en",
@@ -95,6 +99,7 @@ i18n.use(initReactI18next).init({
       diagnostics: enDiagnostics,
       training: enTraining,
       tour: enTour,
+      admin: enAdmin,
     },
     es: {
       common: esCommon,
@@ -114,6 +119,7 @@ i18n.use(initReactI18next).init({
       diagnostics: esDiagnostics,
       training: esTraining,
       tour: esTour,
+      admin: esAdmin,
     },
     nl: {
       common: nlCommon,
@@ -132,6 +138,7 @@ i18n.use(initReactI18next).init({
       caseload: nlCaseload,
       diagnostics: nlDiagnostics,
       training: nlTraining,
+      admin: nlAdmin,
     },
     fr: {
       common: frCommon,
@@ -150,6 +157,7 @@ i18n.use(initReactI18next).init({
       caseload: frCaseload,
       diagnostics: frDiagnostics,
       training: frTraining,
+      admin: frAdmin,
     },
   },
 });

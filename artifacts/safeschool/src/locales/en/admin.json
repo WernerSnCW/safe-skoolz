@@ -1,0 +1,10 @@
+{
+  "title": "Admin",
+  "subtitle": "Read-only overview of school configuration.",
+  "protocolsCardTitle": "Safeguarding protocols",
+  "protocolsCardDescription": "Counts of protocols currently logged for this school, grouped by status.",
+  "totalProtocols": "protocols total",
+  "noProtocols": "No protocols have been logged yet.",
+  "loading": "Loading…",
+  "loadError": "Could not load admin overview. Please try again."
+}

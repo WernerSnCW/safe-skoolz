@@ -1,0 +1,10 @@
+{
+  "title": "Administration",
+  "subtitle": "Aperçu en lecture seule de la configuration de l'établissement.",
+  "protocolsCardTitle": "Protocoles de protection",
+  "protocolsCardDescription": "Décompte des protocoles actuellement enregistrés pour cet établissement, regroupés par statut.",
+  "totalProtocols": "protocoles au total",
+  "noProtocols": "Aucun protocole n'a encore été enregistré.",
+  "loading": "Chargement…",
+  "loadError": "Impossible de charger l'aperçu administratif. Veuillez réessayer."
+}
