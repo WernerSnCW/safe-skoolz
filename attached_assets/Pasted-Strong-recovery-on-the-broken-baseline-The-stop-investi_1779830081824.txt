@@ -1,0 +1,37 @@
+Strong recovery on the broken baseline. The stop-investigate-fix-then-ship sequence is exactly what principle 1 looks like in practice, and saving the post-merge recipe to memory means future-you catches it on the first pass. Worth a quiet tick.
+
+Tab 4 (Data Controller) is the last piece. Same shape as tabs 2 and 3. No names surfaced — counts only.
+
+Send this:
+
+> tab 4, data controller. structured:
+>
+> approach gate: confirm delegated_roles table schema (columns) and the distinct role_type values currently in Morna's data. paste the proposed query: SELECT role_type, COUNT(*) FILTER (WHERE revoked_at IS NULL AND (expires_at IS NULL OR expires_at > now())) AS active_count FROM delegated_roles WHERE school_id=$1 GROUP BY role_type. confirm which role_type string represents the DSL (likely "designated_safeguarding_lead" or "dsl" — check seed).
+>
+> scope: frontend tab + one extra field on existing /api/admin/overview response (delegated_roles.by_role_type). no new endpoint. no new audit event. no schema change. no individual names surfaced anywhere — counts only.
+>
+> content: DSL status card at top, then role_type breakdown cards, then static explainer footer.
+>
+> DSL status card:
+> - if at least one active delegated_role exists with the DSL role_type: render "Designated Safeguarding Lead: Appointed (N active)"
+> - if zero: render "Designated Safeguarding Lead: Not yet appointed" with a muted "Coming with the Admin upload tools" hint
+>
+> other role_type cards (responsive grid, 2 cols desktop, 1 col mobile):
+> - one card per distinct role_type from the query
+> - shows: role_type name (translated where keys exist, fallback to humanised role_type string), active count, "Manage" button DISABLED with tooltip "Coming with the Admin upload tools"
+>
+> static footer paragraph (translated all 4 locales):
+> "The administrator alone configures policies and grants access. No vendor, founder, or unappointed person has access to incident data. Permissions can only be set or revoked by the appointed data controller."
+>
+> i18n: the "Coming with the Admin upload tools" hint should be ONE shared key reused across DSL empty-state and disabled Manage buttons, not duplicated.
+>
+> acceptance: coordinator opens /admin → sees 4 tabs → "Data Controller" renders DSL status card + role_type cards (or clean empty state if delegated_roles is empty for Morna) + footer paragraph. no individual names visible anywhere on the tab. typecheck stays at 17. tests stay at 68 (one new test for the aggregator). all visible text covered by i18n.
+>
+> one commit. report sha, git show --stat, distinct role_type values found in Morna's data.
+
+After this lands, /admin has all four tabs and the demo Admin story is complete. You can:
+1. Spot-check the live preview with Sarah's coordinator login.
+2. Send Claudia a short "QC the Admin section pls" message with the URL.
+3. Sleep.
+
+If the approach gate surfaces that Morna has zero delegated_roles seeded (possible — original demo seed may not have included them), the agent should ship the empty-state cleanly rather than seeding new rows. If you want a DSL appointment seeded for the demo specifically, that's a separate one-line request you send after this lands ("seed one delegated_role with role_type=designated_safeguarding_lead for Morna, appointed_at=now, no name fields populated beyond what the schema requires"). Decide on the spot when you see the gate output.
