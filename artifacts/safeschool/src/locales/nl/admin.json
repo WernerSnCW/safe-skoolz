@@ -4,7 +4,26 @@
   "tabs": {
     "policies": "Beleid en protocollen",
     "permissions": "Rechten",
-    "frameworks": "Kaders en regelgeving"
+    "frameworks": "Kaders en regelgeving",
+    "dataController": "Verwerkingsverantwoordelijke"
+  },
+  "dataController": {
+    "cardTitle": "Verwerkingsverantwoordelijke en gedelegeerde rollen",
+    "intro": "Wettelijke aanstellingen en gedelegeerde verantwoordelijkheden op uw school. Alleen aantallen — er worden geen individuele namen getoond.",
+    "statusAppointed": "Aangesteld",
+    "statusNotAppointed": "Niet aangesteld",
+    "dslAppointed": "Aangesteld ({{count}} actief)",
+    "dslNotAppointed": "Nog niet aangesteld",
+    "comingSoonHint": "Beschikbaar met de upload-tools voor beheerders",
+    "otherRolesHeading": "Overige gedelegeerde rollen",
+    "activeCount": "{{count}} actief",
+    "manage": "Beheren",
+    "footer": "Alleen de beheerder configureert het beleid en verleent toegang. Geen leverancier, oprichter of niet-aangewezen persoon heeft toegang tot incidentgegevens. Rechten kunnen uitsluitend worden ingesteld of ingetrokken door de aangewezen verwerkingsverantwoordelijke.",
+    "roleNames": {
+      "convivexit_coordinator": "Convivèxit-coördinator",
+      "machista_protocol_lead": "Verantwoordelijke protocol gendergerelateerd geweld",
+      "senco_lead": "SENCO-coördinator"
+    }
   },
   "frameworks": {
     "cardTitle": "Wettelijke kaders en regelgeving",

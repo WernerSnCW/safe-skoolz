@@ -4,7 +4,26 @@
   "tabs": {
     "policies": "Policies & Protocols",
     "permissions": "Permissions",
-    "frameworks": "Frameworks & Regulations"
+    "frameworks": "Frameworks & Regulations",
+    "dataController": "Data Controller"
+  },
+  "dataController": {
+    "cardTitle": "Data controller & delegated roles",
+    "intro": "Statutory appointments and delegated responsibilities at your school. Counts only — no individual names are shown here.",
+    "statusAppointed": "Appointed",
+    "statusNotAppointed": "Not appointed",
+    "dslAppointed": "Appointed ({{count}} active)",
+    "dslNotAppointed": "Not yet appointed",
+    "comingSoonHint": "Coming with the Admin upload tools",
+    "otherRolesHeading": "Other delegated roles",
+    "activeCount": "{{count}} active",
+    "manage": "Manage",
+    "footer": "The administrator alone configures policies and grants access. No vendor, founder, or unappointed person has access to incident data. Permissions can only be set or revoked by the appointed data controller.",
+    "roleNames": {
+      "convivexit_coordinator": "Convivèxit coordinator",
+      "machista_protocol_lead": "Gender-based violence protocol lead",
+      "senco_lead": "SENCO lead"
+    }
   },
   "frameworks": {
     "cardTitle": "Statutory frameworks & regulations",

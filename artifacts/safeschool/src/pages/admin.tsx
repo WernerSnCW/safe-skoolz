@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PoliciesTab from "@/components/admin/PoliciesTab";
 import PermissionsTab from "@/components/admin/PermissionsTab";
 import FrameworksTab from "@/components/admin/FrameworksTab";
+import DataControllerTab from "@/components/admin/DataControllerTab";
 
 export default function AdminPage() {
   const { t } = useTranslation("admin");
@@ -25,6 +26,7 @@ export default function AdminPage() {
           <TabsTrigger value="policies">{t("tabs.policies")}</TabsTrigger>
           <TabsTrigger value="permissions">{t("tabs.permissions")}</TabsTrigger>
           <TabsTrigger value="frameworks">{t("tabs.frameworks")}</TabsTrigger>
+          <TabsTrigger value="dataController">{t("tabs.dataController")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="policies" className="mt-0">
@@ -37,6 +39,10 @@ export default function AdminPage() {
 
         <TabsContent value="frameworks" className="mt-0">
           <FrameworksTab />
+        </TabsContent>
+
+        <TabsContent value="dataController" className="mt-0">
+          <DataControllerTab />
         </TabsContent>
       </Tabs>
     </div>

@@ -5,6 +5,7 @@ import {
   ADMIN_ALLOWED_ROLES,
   aggregateProtocolCounts,
   aggregateFrameworkCounts,
+  aggregateDelegatedRoleCounts,
 } from "../routes/admin";
 
 describe("aggregateProtocolCounts", () => {
@@ -49,6 +50,25 @@ describe("aggregateFrameworkCounts", () => {
       convivexit: 7,
       machista_violence: 4,
       weird: 0,
+    });
+  });
+});
+
+describe("aggregateDelegatedRoleCounts", () => {
+  it("groups active counts by role_type, returns empty map for no rows, and coerces non-numerics to 0", () => {
+    expect(aggregateDelegatedRoleCounts([])).toEqual({ by_role_type: {} });
+
+    const result = aggregateDelegatedRoleCounts([
+      { role_type: "lopivi_delegate", count: 1 },
+      { role_type: "convivexit_coordinator", count: 1 },
+      { role_type: "machista_protocol_lead", count: "2" as unknown as number },
+      { role_type: "senco_lead", count: NaN as unknown as number },
+    ]);
+    expect(result.by_role_type).toEqual({
+      lopivi_delegate: 1,
+      convivexit_coordinator: 1,
+      machista_protocol_lead: 2,
+      senco_lead: 0,
     });
   });
 });

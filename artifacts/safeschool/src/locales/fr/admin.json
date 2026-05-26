@@ -4,7 +4,26 @@
   "tabs": {
     "policies": "Politiques et protocoles",
     "permissions": "Permissions",
-    "frameworks": "Cadres et réglementations"
+    "frameworks": "Cadres et réglementations",
+    "dataController": "Responsable de traitement"
+  },
+  "dataController": {
+    "cardTitle": "Responsable de traitement et rôles délégués",
+    "intro": "Nominations statutaires et responsabilités déléguées dans votre établissement. Décomptes uniquement — aucun nom individuel n'est affiché ici.",
+    "statusAppointed": "Désigné",
+    "statusNotAppointed": "Non désigné",
+    "dslAppointed": "Désigné ({{count}} actif(s))",
+    "dslNotAppointed": "Pas encore désigné",
+    "comingSoonHint": "Disponible avec les outils d'import de l'administrateur",
+    "otherRolesHeading": "Autres rôles délégués",
+    "activeCount": "{{count}} actif(s)",
+    "manage": "Gérer",
+    "footer": "Seul l'administrateur configure les politiques et accorde les accès. Aucun fournisseur, fondateur ou personne non désignée n'a accès aux données d'incident. Les permissions ne peuvent être attribuées ou révoquées que par le responsable de traitement désigné.",
+    "roleNames": {
+      "convivexit_coordinator": "Coordinateur Convivèxit",
+      "machista_protocol_lead": "Référent protocole violences sexistes",
+      "senco_lead": "Référent SENCO"
+    }
   },
   "frameworks": {
     "cardTitle": "Cadres légaux et réglementations",

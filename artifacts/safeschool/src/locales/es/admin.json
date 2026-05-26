@@ -4,7 +4,26 @@
   "tabs": {
     "policies": "Políticas y protocolos",
     "permissions": "Permisos",
-    "frameworks": "Marcos y normativa"
+    "frameworks": "Marcos y normativa",
+    "dataController": "Responsable de datos"
+  },
+  "dataController": {
+    "cardTitle": "Responsable de datos y roles delegados",
+    "intro": "Nombramientos estatutarios y responsabilidades delegadas en su centro. Solo recuentos: no se muestra ningún nombre individual.",
+    "statusAppointed": "Designado",
+    "statusNotAppointed": "Sin designar",
+    "dslAppointed": "Designado ({{count}} activo/s)",
+    "dslNotAppointed": "Aún sin designar",
+    "comingSoonHint": "Disponible con las herramientas de carga del administrador",
+    "otherRolesHeading": "Otros roles delegados",
+    "activeCount": "{{count}} activo/s",
+    "manage": "Gestionar",
+    "footer": "Solo el administrador configura las políticas y concede los accesos. Ningún proveedor, fundador o persona no designada tiene acceso a los datos de incidentes. Los permisos solo pueden establecerse o revocarse por el responsable de tratamiento designado.",
+    "roleNames": {
+      "convivexit_coordinator": "Coordinador/a Convivèxit",
+      "machista_protocol_lead": "Responsable del protocolo de violencia de género",
+      "senco_lead": "Coordinador/a SENCO"
+    }
   },
   "frameworks": {
     "cardTitle": "Marcos legales y normativa",
