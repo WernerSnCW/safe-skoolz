@@ -1,0 +1,395 @@
+==============================================================
+HARD OVERRIDE — PRE-DEMO ADMIN SECTION (HEADLINE TICKET)
+==============================================================
+
+This is Tom. Demo tomorrow morning. The Admin section is the
+single most important thing to ship tonight — Claudia raised
+it in yesterday's walkthrough as the missing piece, and it's
+what tells the school "this app adapts to your regulations and
+your data-protection setup."
+
+Karpathy principles apply. Approach gate before every sub-
+deliverable, blast radius declared, surgical, additive only,
+per-ticket commits, no auth/schema changes that could break
+the dev preview.
+
+CONTEXT — WHAT THE ADMIN SECTION IS
+  Coordinator + head_teacher + admin roles see an "Admin" nav
+  entry that opens onto a page presenting how the school is
+  configured: which policies are loaded, which regulatory
+  frameworks apply, who has access to what, who the appointed
+  data controller is.
+
+  IMPORTANT: this is a presentation layer over existing data
+  plus two new static pages. We are NOT building upload, edit,
+  policy parsing, or country-aware rule propagation tonight.
+  Those are post-demo. We're shipping the visible structure
+  that lets the school see "yes, this app knows about our
+  regulations and our access boundaries."
+
+HARD CONSTRAINTS — APPLY THROUGHOUT
+  - NO new DB tables. NO new columns. NO drizzle push.
+  - NO new auth, MFA, CORS, helmet, rate-limit changes.
+  - NO touching the 17 deferred typecheck errors (Shapes A, E,
+    F, H from Session 2). They stay parked for post-demo.
+  - Tests must stay 58/58 minimum.
+  - Dev preview at b564e282-…picard.replit.dev must keep
+    rendering after every commit.
+  - i18n keys for every new UI label across en/es/fr/nl.
+  - DO NOT translate proper framework names. LOPIVI,
+    Convivèxit stay native across all locales. Only the
+    surrounding explainer prose gets translated.
+  - Nav entry gated to coordinator + head_teacher + admin
+    roles ONLY. Other roles must not see it.
+
+==============================================================
+ADMIN — THE HEADLINE TICKET (4 SUB-DELIVERABLES)
+==============================================================
+
+GOAL
+  Ship /admin route with 4 tabs that render cleanly and pull
+  from existing data where possible. Demo-ready visual quality.
+
+BLAST RADIUS
+  artifacts/safeschool/src/pages/admin.tsx (new)
+  artifacts/safeschool/src/components/admin/* (new subfolder
+    allowed — Tabs.tsx, PoliciesTab.tsx, PermissionsTab.tsx,
+    FrameworksTab.tsx, DataControllerTab.tsx)
+  artifacts/safeschool/src/App.tsx (add route)
+  artifacts/safeschool/src/components/layout/AppLayout.tsx
+    (add nav entry, gated)
+  artifacts/api-server/src/routes/admin.ts (new — single GET
+    endpoint returning aggregated counts)
+  artifacts/api-server/src/routes/index.ts (mount)
+
+  DO NOT TOUCH: any other route file, any schema, any auth
+  middleware.
+
+APPROACH GATE — MANDATORY PRE-INVESTIGATION
+  Before any code, paste into the log:
+    (a) Confirmation of the existing tables we'll surface:
+          protocols (count by status, by gender_based_violence
+            flag)
+          annex_templates (count, grouped by framework field)
+          referral_bodies (count, by body_type and island)
+          delegated_roles (count by role_type)
+        Confirm these tables exist with these columns. If any
+        are missing or differently named, STOP and ask.
+    (b) The exact /admin URL route and where it sits in App.tsx.
+    (c) The AppLayout nav-entry diff (where in the role-gated
+        array, what icon — ShieldCheck or Settings2 from
+        lucide-react are good candidates).
+    (d) The tab order on /admin:
+          1. Policies & Protocols
+          2. Permissions
+          3. Frameworks & Regulations
+          4. Data Controller
+
+==============================================================
+ADM-01 — Admin landing + Policies & Protocols tab
+==============================================================
+
+GOAL
+  /admin renders. Tab 1 shows the policies/protocols summary
+  pulled live from existing DB.
+
+WORK
+  Backend:
+    GET /api/admin/overview (auth, requireRole("coordinator",
+      "head_teacher", "admin")) returns:
+        {
+          protocols: { total, by_status: {...}, gbv_count },
+          annex_templates: [{ framework, count }],
+          referral_bodies: { total, by_island: [...] },
+          delegated_roles: [{ role_type, count }]
+        }
+    All queries scoped to req.user.schoolId.
+    Audit: write `admin_overview_viewed` event (new event type,
+      add to routes/audit.ts list).
+
+  Frontend:
+    Admin page with Tabs component (from shadcn).
+    Tab 1 (Policies & Protocols) renders:
+      - Card: "Safeguarding protocols" with count + status
+        breakdown + link to /protocols.
+      - Card: "Annex templates" grouped by framework with
+        counts + link to /annex-templates if such a page
+        exists (skip the link if not).
+      - Card: "Referral bodies" with count + island
+        breakdown + link to /referral-bodies if a page
+        exists.
+      - Card: "Bullying-related protocols" (filter on
+        protocols where category includes bullying — confirm
+        the protocol_type values; if no clean filter, omit
+        this card).
+
+ACCEPTANCE
+  - Coordinator role sees /admin nav entry, can open Tab 1,
+    sees real counts from the demo DB.
+  - Non-privileged roles (pupil, parent, teacher, PTA) do NOT
+    see the nav entry. 403 from /api/admin/overview if they
+    hit it directly.
+  - typecheck unchanged from baseline (still 17 deferred
+    errors, no new ones).
+  - Tests pass. Add one test in api-server/__tests__/admin-
+    overview.test.ts: coordinator gets 200 + non-empty data;
+    pupil gets 403.
+
+==============================================================
+ADM-02 — Permissions tab (matrix + explainer)
+==============================================================
+
+GOAL
+  Read-only role × data-access matrix. Generic, no individual
+  names. Matrix content provided below — do NOT redesign or
+  reword it.
+
+CONTENT TO RENDER (verbatim)
+
+  Above the matrix, this explainer paragraph:
+
+    "Permissions are granted by the school's appointed
+    administrator (the designated data controller). Parents
+    see only their own children's data. Teachers see only
+    their own class. Specialist safeguarding staff
+    (Coordinator, Head Teacher, SENCO) see school-wide data
+    within their remit. The PTA sees aggregated, anonymised
+    data only. The administrator alone configures policies
+    and grants access. No vendor, founder, or unappointed
+    person has access to incident data."
+
+  Then the matrix.
+
+  Legend: ✓ full · ◐ partial / scoped / anonymised · ✗ none ·
+  — not applicable
+
+  Columns (left to right):
+    Role | Own profile | Own children | Own class / year |
+    All school data | Audit log | Aggregated stats |
+    Policies & config
+
+  Rows:
+    Coordinator         | ✓ | — | ✓                 | ✓ | ✓ | ✓        | ◐ view only
+    Head Teacher        | ✓ | — | ✓                 | ✓ | ✓ | ✓        | ◐ view only
+    SENCO               | ✓ | — | ◐ caseload only   | ◐ caseload scope | ✗ | ◐ caseload | ✗
+    Teacher             | ✓ | — | ✓ own class       | ✗ | ✗ | ◐ own class | ✗
+    Head of Year        | ✓ | — | ✓ own year        | ✗ | ✗ | ◐ own year  | ✗
+    Parent              | ✓ | ✓ own children only | ✗ | ✗ | ✗ | ✗ | ✗
+    PTA member          | ✓ | ✗ | ✗ | ✗ | ✗ | ◐ anonymised only | ✗
+    Pupil               | ✓ own data only | — | ✗ | ✗ | ✗ | ✗ | ✗
+    Admin / Data Controller (appointed) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
+
+WORK
+  Frontend only. No new endpoint, no DB data.
+  Tab 2 renders the explainer paragraph then the matrix as a
+  responsive table.
+  On mobile, stack each row as its own card (Role at the top,
+  then the column-name + value pairs underneath).
+  Use the existing Badge / Tag component for ✓ ◐ ✗ to colour
+  the cells lightly (green / amber / grey respectively) for
+  readability.
+
+  i18n: the explainer paragraph gets keys in en/es/fr/nl.
+  The role names and column headers also get keys. The cell
+  values (✓ ◐ ✗ —) and the legend text are i18n-keyed too.
+
+ACCEPTANCE
+  - Tab 2 renders for coordinator, head_teacher, admin.
+  - Matrix readable on mobile.
+  - All visible text covered by i18n.
+  - typecheck unchanged. 58/58 tests still pass.
+
+==============================================================
+ADM-03 — Frameworks & Regulations tab
+==============================================================
+
+GOAL
+  Show which regulatory frameworks the school is configured
+  against. Pull distinct framework values from annex_templates.
+  Plus the four static explainer cards below.
+
+CONTENT TO RENDER (verbatim, framework names NOT translated)
+
+  Card 1 — LOPIVI
+    Body:
+      "Spain's 2021 organic law on the integral protection of
+      children and adolescents against violence. It requires
+      every educational centre to appoint a designated
+      wellbeing and protection coordinator and to maintain
+      documented safeguarding protocols, prevention measures,
+      and a clear reporting pathway for any form of violence
+      against a minor."
+
+  Card 2 — Convivèxit
+    Body:
+      "The Balearic Islands government's framework for school
+      coexistence and conflict resolution, administered by the
+      Conselleria d'Educació. It defines mandatory protocols
+      for incidents including bullying, cyberbullying, and
+      gender-based violence, and prescribes the documentation
+      and external referral pathways that schools must follow."
+
+  Card 3 — Keeping Children Safe in Education
+    Body:
+      "The UK Department for Education's statutory safeguarding
+      guidance, updated annually, that all schools and colleges
+      in England must follow. It requires every institution to
+      designate a Safeguarding Lead, maintain a single central
+      record of staff vetting, and follow a structured response
+      protocol covering identify, assess, decide, and refer."
+
+  Card 4 — Machista-violence framework (Spain)
+    Body:
+      "Spain's integrated framework for the prevention of and
+      response to gender-based violence, anchored in Organic
+      Law 1/2004 and reinforced by the State Pact against
+      Gender Violence. In educational settings it requires
+      schools to identify and report indicators of violence
+      against women and girls, deliver age-appropriate
+      prevention content, and coordinate with specialist
+      external services."
+
+APPROACH GATE
+  Paste:
+    (a) result of: SELECT DISTINCT framework FROM
+        annex_templates WHERE school_id = <demo school id>;
+    (b) which of the four cards above will display a "Active"
+        status chip (because at least one annex_template
+        exists with that framework value) vs "Available"
+        (zero templates loaded).
+
+WORK
+  Frontend:
+    Tab 3 renders a grid of 4 cards (responsive: 2 columns on
+    desktop, 1 on mobile).
+    Each card: framework name (NOT translated), 2-sentence
+    explainer (translated), count of annex_templates linked
+    (pulled from /api/admin/overview), status chip "Active"
+    or "Available".
+    Below the grid, static paragraph:
+      "Need a framework added or updated? Contact your
+      appointed data controller."
+    This sentence is translated.
+
+ACCEPTANCE
+  - Tab 3 renders the four cards.
+  - Framework names appear unchanged in es/fr/nl locale
+    switching (verify by toggling language).
+  - Explainer prose appears translated.
+  - Status chips reflect real DB state from annex_templates.
+  - typecheck unchanged. Tests pass.
+
+==============================================================
+ADM-04 — Data Controller tab
+==============================================================
+
+GOAL
+  Surface the appointed data controller and delegated-roles
+  setup. Reads from existing delegated_roles table.
+
+APPROACH GATE
+  Paste:
+    (a) the existing delegated_roles schema (columns).
+    (b) the seeded delegated_roles for the demo school (if
+        any). If none, surface this — Tom may want to seed
+        one before the demo.
+    (c) the proposed display: a card per delegated role
+        showing role_type, mandate_scope, appointed_at,
+        expires_at, "Revoke" button DISABLED with tooltip
+        "Coming with the Admin upload tools".
+
+WORK
+  Frontend:
+    Tab 4 renders the delegated roles list.
+    Top of tab: card titled "Designated Safeguarding Lead"
+    with name pulled from delegated_roles where role_type
+    matches the DSL role (confirm the value in DB), or
+    placeholder "Not yet appointed" if missing.
+    Below: list of all delegated roles for the school.
+    Static paragraph at bottom (same explainer language as
+    ADM-02):
+      "The administrator alone configures policies and grants
+      access. No vendor, founder, or unappointed person has
+      access to incident data. Permissions can only be set
+      or revoked by the appointed data controller."
+    Translated.
+
+ACCEPTANCE
+  - Tab 4 renders.
+  - If no delegated_roles exist for the demo school, the tab
+    shows a clean empty-state with a "Coming with the Admin
+    upload tools" hint, NOT a broken page.
+  - i18n keys covered.
+
+==============================================================
+ORDER + STOP CONDITIONS FOR ADMIN
+==============================================================
+
+ORDER: ADM-01 (foundational — page + first tab) → ADM-02
+(permissions matrix, content baked in above) → ADM-04
+(simplest of the remaining) → ADM-03 (most content-heavy).
+
+STOP if:
+  - Any approach gate reveals a schema mismatch with what the
+    state dump claimed.
+  - Tests drop below 58.
+  - typecheck count goes above 17.
+  - Dev preview stops rendering.
+
+If you can only ship ADM-01 + ADM-02 cleanly, that's still a
+demo win. Log ADM-03 and ADM-04 as DEFERRED and stop. Do not
+ship a half-built tab.
+
+==============================================================
+K02 — Translation lift (only if Admin is fully shipped)
+==============================================================
+
+If all 4 ADM sub-deliverables are DONE with green tests and
+typecheck still at 17 errors, proceed to K02 translation
+regeneration. Spec: gpt-5-nano via the existing OpenAI proxy,
+European Spanish (NOT Latin American), ICU placeholders
+preserved, en untouched. Framework proper names (LOPIVI,
+Convivèxit) stay native — do not let the model translate them.
+
+Skip K02 if Admin took the whole night. K02 is post-demo work
+then.
+
+==============================================================
+K06 — Methodology page (only if K02 also done)
+==============================================================
+
+If K02 is also done, write a /methodology page with sections:
+  - Our framework
+  - Alignment with LOPIVI
+  - Alignment with Convivèxit
+  - How our audit trail meets regulator expectations
+  - Where we sit alongside prevention programmes (mention
+    KiVa-style prevention as complementary, not competitive)
+  - Permissions and data-access enforcement
+  - Roadmap for evidence-base studies
+
+Draft 2-3 paragraphs per section. Paste the draft into chat
+for Tom to review BEFORE committing. Auth-gated route.
+
+Skip if Admin + K02 took the whole night.
+
+==============================================================
+COMPLETION REPORT
+==============================================================
+
+Append "Pre-demo Admin section" block to OVERNIGHT_LOG.md:
+  - ADM-01/02/03/04 status: DONE / DEFERRED / FAILED / ASKED
+  - Commit SHAs.
+  - Final typecheck count (target: 17, MUST NOT exceed).
+  - Final test count (target: 58+).
+  - For ADM-03: paste the DISTINCT framework results from the
+    DB so Tom can sanity-check the Active/Available chip
+    accuracy.
+  - For ADM-04: confirm whether delegated_roles is seeded for
+    the demo school; if not, flag this to Tom as a pre-demo
+    manual action.
+  - K02 / K06 status if attempted.
+  - Manual actions for Tom before 9am: list any seeding
+    decisions, env vars, or content edits needed.
+
+Begin with the top-level approach gate.
