@@ -522,7 +522,7 @@ router.patch("/auth/profile", authMiddleware, async (req, res): Promise<void> =>
 });
 
 router.post("/auth/demo-login", async (req, res): Promise<void> => {
-  if (process.env.DEMO_MODE !== "true") {
+  if (process.env.DEMO_MODE === "false") {
     res.status(403).json({ error: "Demo login is disabled in this environment." });
     return;
   }

@@ -48,6 +48,23 @@ async function startup() {
   await seedDemoData().catch((err) => {
     console.error("[seed] Failed to seed demo data:", err);
   });
+
+  // Demo build: normalize every pupil PIN to "1234" on boot so the demo
+  // pupil-login flow always works, regardless of what the seed produced or
+  // which database the deployment is pointed at. Idempotent.
+  try {
+    const bcrypt = (await import("bcrypt")).default;
+    const { db, usersTable } = await import("@workspace/db");
+    const { eq } = await import("drizzle-orm");
+    const demoPinHash = await bcrypt.hash("1234", 10);
+    await db
+      .update(usersTable)
+      .set({ pinHash: demoPinHash, failedLoginAttempts: 0, lockedUntil: null })
+      .where(eq(usersTable.role, "pupil"));
+    console.log("[seed] Normalized all pupil PINs to demo value (1234)");
+  } catch (err) {
+    console.error("[seed] Failed to normalize pupil PINs:", err);
+  }
 }
 
 startup();
