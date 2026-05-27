@@ -5,6 +5,7 @@ import {
   protocolsTable,
   annexTemplatesTable,
   delegatedRolesTable,
+  usersTable,
 } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 
@@ -55,6 +56,7 @@ export interface DelegatedRoleCountRow {
 
 export interface DelegatedRolesSummary {
   by_role_type: Record<string, number>;
+  dsl_holders?: string[];
 }
 
 export function aggregateDelegatedRoleCounts(rows: DelegatedRoleCountRow[]): DelegatedRolesSummary {
@@ -74,7 +76,7 @@ router.get(
   async (req, res): Promise<void> => {
     const user = (req as any).user as JwtPayload;
 
-    const [protocolRows, frameworkRows, delegatedRoleRows] = await Promise.all([
+    const [protocolRows, frameworkRows, delegatedRoleRows, dslHolderRows] = await Promise.all([
       db
         .select({
           status: protocolsTable.status,
@@ -107,12 +109,35 @@ router.get(
           )
         )
         .groupBy(delegatedRolesTable.roleType),
+      db
+        .select({
+          firstName: usersTable.firstName,
+          lastName: usersTable.lastName,
+        })
+        .from(delegatedRolesTable)
+        .innerJoin(usersTable, eq(delegatedRolesTable.userId, usersTable.id))
+        .where(
+          and(
+            eq(delegatedRolesTable.schoolId, user.schoolId),
+            eq(delegatedRolesTable.roleType, "lopivi_delegate"),
+            isNull(delegatedRolesTable.revokedAt),
+            or(
+              isNull(delegatedRolesTable.expiresAt),
+              gt(delegatedRolesTable.expiresAt, sql`now()`)
+            )
+          )
+        ),
     ]);
+
+    const delegated_roles = aggregateDelegatedRoleCounts(delegatedRoleRows as DelegatedRoleCountRow[]);
+    delegated_roles.dsl_holders = (dslHolderRows as { firstName: string; lastName: string }[]).map(
+      (r) => `${r.firstName} ${r.lastName}`.trim()
+    );
 
     res.json({
       protocols: aggregateProtocolCounts(protocolRows as ProtocolStatusRow[]),
       annex_templates: aggregateFrameworkCounts(frameworkRows as FrameworkCountRow[]),
-      delegated_roles: aggregateDelegatedRoleCounts(delegatedRoleRows as DelegatedRoleCountRow[]),
+      delegated_roles,
     });
   }
 );

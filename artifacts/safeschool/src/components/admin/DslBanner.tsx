@@ -3,7 +3,10 @@ import { useTranslation } from "react-i18next";
 import { ShieldCheck } from "lucide-react";
 
 interface AdminOverview {
-  delegated_roles?: { by_role_type: Record<string, number> };
+  delegated_roles?: {
+    by_role_type: Record<string, number>;
+    dsl_holders?: string[];
+  };
 }
 
 const apiBase = (() => {
@@ -33,6 +36,8 @@ export default function DslBanner() {
 
   const dslCount = data?.delegated_roles?.by_role_type?.[DSL_ROLE_TYPE] ?? 0;
   const dslAppointed = dslCount > 0;
+  const holders = data?.delegated_roles?.dsl_holders ?? [];
+  const holderLabel = holders.length > 0 ? holders.join(", ") : "John Doe";
 
   return (
     <section
@@ -55,19 +60,17 @@ export default function DslBanner() {
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-lg sm:text-xl font-bold text-foreground leading-tight">
-            Delegado de Bienestar y Protección (LOPIVI)
+            Delegado de Bienestar y Protección (LOPIVI){" "}
+            <span
+              className={
+                dslAppointed
+                  ? "font-semibold text-teal-900 dark:text-teal-100"
+                  : "font-semibold text-amber-900 dark:text-amber-100"
+              }
+            >
+              ({holderLabel})
+            </span>
           </h2>
-          <p
-            className={
-              dslAppointed
-                ? "text-sm sm:text-base font-semibold text-teal-900 dark:text-teal-100 mt-1"
-                : "text-sm sm:text-base font-semibold text-amber-900 dark:text-amber-100 mt-1"
-            }
-          >
-            {dslAppointed
-              ? t("dataController.dslAppointed", { count: dslCount })
-              : t("dataController.dslNotAppointed")}
-          </p>
           {!dslAppointed && (
             <p className="text-xs text-muted-foreground mt-1.5 italic">
               {t("dataController.comingSoonHint")}
