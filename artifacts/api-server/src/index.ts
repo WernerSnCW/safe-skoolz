@@ -58,12 +58,9 @@ startup();
 // has already run), so the one-shot missing_api_key audit row written in emailHelper
 // will land successfully.
 if (!process.env.RESEND_API_KEY) {
-  if (process.env.NODE_ENV === "production") {
-    console.error("[boot] FATAL: RESEND_API_KEY is required in production");
-    process.exit(1);
-  } else {
-    console.warn("[boot] RESEND_API_KEY not set; emails will be skipped (dev mode)");
-  }
+  // Demo build: warn-only in all environments. Outbound emails (password reset,
+  // notifications) will no-op until RESEND_API_KEY is configured.
+  console.warn("[boot] RESEND_API_KEY not set; emails will be skipped");
 }
 
 app.listen(port, () => {
