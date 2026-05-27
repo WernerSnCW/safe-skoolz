@@ -166,6 +166,9 @@ function Router() {
       <Route path="/settings">
         {() => <ProtectedRoute component={Settings} />}
       </Route>
+      <Route path="/admin">
+        {() => <ProtectedRoute component={AdminPage} allowedRoles={["coordinator"]} />}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
