@@ -934,12 +934,29 @@ export default function Login() {
                   {isPending ? t("common:signingIn") : t("signInSecurely")}
                 </Button>
                 {demoEnabled && (
-                  <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
-                    <p className="font-bold text-primary/90 mb-1">Demo credentials</p>
-                    <p>Pick your name from the list above, then use password <code>password123</code>.</p>
-                    {activeTab === "pta" && (
-                      <p className="mt-1">PTA emails: <code>pta.chair@safeschool.dev</code>, <code>pta.member1@safeschool.dev</code></p>
+                  <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground space-y-1">
+                    <p className="font-bold text-primary/90">Demo credentials</p>
+                    {activeTab === "staff" && (
+                      <>
+                        <p>Coordinator: <code>coordinator@safeschool.dev</code></p>
+                        <p>Head teacher: <code>head@safeschool.dev</code></p>
+                        <p>Teacher: <code>teacher@safeschool.dev</code></p>
+                        <p>SENCO: <code>senco@safeschool.dev</code></p>
+                      </>
                     )}
+                    {activeTab === "parent" && (
+                      <>
+                        <p>Parent A: <code>parent.a@safeschool.dev</code></p>
+                        <p>Parent B: <code>parent.b@safeschool.dev</code></p>
+                      </>
+                    )}
+                    {activeTab === "pta" && (
+                      <>
+                        <p>PTA chair: <code>pta.chair@safeschool.dev</code></p>
+                        <p>PTA member: <code>pta.member1@safeschool.dev</code></p>
+                      </>
+                    )}
+                    <p className="pt-1">Password for all demo accounts: <code>password123</code></p>
                   </div>
                 )}
               </form>

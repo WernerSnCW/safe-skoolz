@@ -196,9 +196,9 @@ export default function AdminLogin() {
               {demoEnabled && (
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground space-y-1">
                   <p className="font-bold text-primary/90">Demo credentials</p>
-                  <p>Coordinator: <code>coordinator@safeschool.dev</code></p>
+                  <p>Coordinator (DSL): <code>coordinator@safeschool.dev</code></p>
                   <p>Head teacher: <code>head@safeschool.dev</code></p>
-                  <p>Password for all demo accounts: <code>password123</code></p>
+                  <p>Password for both: <code>password123</code></p>
                 </div>
               )}
             </form>
