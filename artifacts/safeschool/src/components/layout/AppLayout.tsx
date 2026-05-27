@@ -12,7 +12,7 @@ import { useMessageNotifications, useMessageNotificationEngine } from "@/hooks/u
 import { motion, AnimatePresence } from "framer-motion";
 
 const MOBILE_PRIORITY_HREFS: Record<string, string[]> = {
-  pupil: ["/", "/report", "/diary", "/learn"],
+  pupil: ["/", "/learn", "/diary", "/messages"],
   parent: ["/", "/report", "/messages", "/notifications"],
   teacher: ["/", "/report", "/class", "/messages"],
   head_of_year: ["/", "/report", "/class", "/messages"],
@@ -66,15 +66,19 @@ export function AppLayout({ children }: AppLayoutProps) {
     const base = [{ name: t("dashboard"), href: "/", icon: Home }];
     
     if (user.role === "pupil") {
+      // Phase 1 ticket 3: wellbeing-first nav for pupils.
+      // Learn / Diary / Messages lead; Report demoted to position 6
+      // (still in nav, but no longer the front-door safeguarding item).
+      // /behaviour, /case-studies, /diagnostics are intentionally NOT
+      // surfaced here for the year-7 pilot — routes remain live and
+      // reachable by direct URL, just not in the pupil sidebar.
       return [
         ...base,
-        { name: t("reportIncident"), href: "/report", icon: AlertTriangle },
-        { name: t("myDiary"), href: "/diary", icon: BookHeart },
-        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
-        { name: t("myBehaviour"), href: "/behaviour", icon: Gauge },
         { name: t("learn"), href: "/learn", icon: BookOpen },
-        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
-        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
+        { name: t("myDiary"), href: "/diary", icon: BookHeart },
+        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
+        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
+        { name: t("reportIncident"), href: "/report", icon: AlertTriangle },
         { name: t("mySettings"), href: "/settings", icon: Settings },
       ];
     }
