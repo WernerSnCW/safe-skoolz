@@ -43,8 +43,8 @@ export default function DslBanner() {
     <section
       className={
         dslAppointed
-          ? "mb-6 rounded-2xl border-2 border-teal-300 bg-teal-50/70 dark:bg-teal-950/30 p-5 sm:p-6"
-          : "mb-6 rounded-2xl border-2 border-amber-300 bg-amber-50/70 dark:bg-amber-950/30 p-5 sm:p-6"
+          ? "mb-6 rounded-2xl border-2 border-primary/40 bg-primary/5 p-5 sm:p-6"
+          : "mb-6 rounded-2xl border-2 border-border bg-muted/40 p-5 sm:p-6"
       }
       aria-label="Designated Safeguarding Lead status"
     >
@@ -52,8 +52,8 @@ export default function DslBanner() {
         <div
           className={
             dslAppointed
-              ? "shrink-0 p-3 rounded-xl bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300"
-              : "shrink-0 p-3 rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300"
+              ? "shrink-0 p-3 rounded-xl bg-primary/10 text-primary"
+              : "shrink-0 p-3 rounded-xl bg-muted text-muted-foreground"
           }
         >
           <ShieldCheck size={28} strokeWidth={2.2} />
@@ -64,8 +64,8 @@ export default function DslBanner() {
             <span
               className={
                 dslAppointed
-                  ? "font-semibold text-teal-900 dark:text-teal-100"
-                  : "font-semibold text-amber-900 dark:text-amber-100"
+                  ? "font-semibold text-primary"
+                  : "font-semibold text-muted-foreground"
               }
             >
               ({holderLabel})
@@ -80,8 +80,8 @@ export default function DslBanner() {
         <span
           className={
             dslAppointed
-              ? "shrink-0 text-xs font-bold px-3 py-1.5 rounded-full bg-teal-600 text-white"
-              : "shrink-0 text-xs font-bold px-3 py-1.5 rounded-full bg-amber-600 text-white"
+              ? "shrink-0 text-xs font-bold px-3 py-1.5 rounded-full bg-primary text-primary-foreground"
+              : "shrink-0 text-xs font-bold px-3 py-1.5 rounded-full bg-muted text-muted-foreground border border-border"
           }
         >
           {dslAppointed

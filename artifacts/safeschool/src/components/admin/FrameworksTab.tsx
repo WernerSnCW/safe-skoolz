@@ -86,8 +86,8 @@ export default function FrameworksTab() {
                     <span
                       className={
                         isActive
-                          ? "shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800"
-                          : "shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800"
+                          ? "shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary"
+                          : "shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border"
                       }
                     >
                       {isActive
