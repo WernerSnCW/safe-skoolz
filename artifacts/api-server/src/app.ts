@@ -40,14 +40,18 @@ function isOriginAllowed(origin: string): boolean {
     .map((s) => s.trim())
     .filter(Boolean);
   if (list.includes(origin)) return true;
-  if (process.env.NODE_ENV !== "production") {
-    try {
-      const u = new URL(origin);
+  try {
+    const u = new URL(origin);
+    // Production custom domain(s) for the deployed demo.
+    if (u.hostname === "safeskoolz.com" || u.hostname === "www.safeskoolz.com") return true;
+    // Replit-hosted preview + deployment domains are always trusted.
+    if (u.hostname.endsWith(".replit.dev")) return true;
+    if (u.hostname.endsWith(".replit.app")) return true;
+    if (process.env.NODE_ENV !== "production") {
       if (u.hostname === "localhost" || u.hostname === "127.0.0.1") return true;
-      if (u.hostname.endsWith(".replit.dev")) return true;
-    } catch {
-      // Malformed origin string — fall through to rejection.
     }
+  } catch {
+    // Malformed origin string — fall through to rejection.
   }
   return false;
 }
