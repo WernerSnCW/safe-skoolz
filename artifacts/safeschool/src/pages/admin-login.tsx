@@ -124,10 +124,10 @@ export default function AdminLogin() {
             <ShieldCheck size={40} strokeWidth={2.5} aria-hidden="true" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Compliance overview
+            Admin sign-in
           </h1>
           <p className="mt-3 text-muted-foreground">
-            Sign in as the appointed Data Controller
+            For the appointed Data Controller
           </p>
         </div>
 
