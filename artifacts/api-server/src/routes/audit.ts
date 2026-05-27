@@ -44,6 +44,9 @@ const AUDIT_EVENT_TYPES = [
   "mfa_reset_by_admin",
   "data_export_requested",
   "retention_sweep_completed",
+  "lesson_started",
+  "lesson_quiz_submitted",
+  "lesson_completed",
 ];
 
 router.get(
