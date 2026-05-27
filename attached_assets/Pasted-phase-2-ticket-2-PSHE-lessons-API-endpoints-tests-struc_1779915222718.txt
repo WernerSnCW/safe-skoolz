@@ -1,0 +1,37 @@
+phase 2 ticket 2: PSHE lessons API endpoints + tests. structured:
+
+approach gate: paste current
+(a) one existing route file as a pattern reference (e.g. routes/admin.ts or routes/teacherPosts.ts) so we match style
+(b) the audit log helper writeAudit() signature (so we know what to pass)
+(c) confirmation of role-scoping pattern (which role IDs can see what)
+
+scope: artifacts/api-server/src/routes/lessons.ts (new) + routes/index.ts mount + tests file. no schema changes.
+
+endpoints:
+
+GET /api/lessons (authMiddleware, returns lessons where school_id IS NULL OR school_id = user.schoolId, filtered by key_stage matching user's year_group mapping). returns lessons + per-pupil progress status.
+GET /api/lessons/:id (authMiddleware, returns lesson with quiz questions, no correct answers exposed to pupil)
+POST /api/lessons/:id/start (authMiddleware, creates lesson_progress row if not exists, writeAudit "lesson_started")
+POST /api/lessons/:id/quiz (authMiddleware, body = answers, returns score, writes to lesson_progress.quiz_score, writeAudit "lesson_quiz_submitted")
+POST /api/lessons/:id/complete (authMiddleware, marks completed_at, writeAudit "lesson_completed")
+GET /api/lessons/progress (authMiddleware, returns pupil's progress across all lessons)
+role scoping: pupils see their own progress only. teachers/coordinators get aggregate progress in a future ticket (NOT this one).
+
+audit event types to add: lesson_started, lesson_quiz_submitted, lesson_completed. add to event-types list in routes/audit.ts.
+
+tests (in tests/lessons.test.ts):
+
+pupil can list lessons for their key_stage, not others
+pupil completing a quiz writes correct score
+lesson_progress role-scoping: pupil A cannot see pupil B's progress
+audit events fire correctly
+completion endpoint marks completed_at
+acceptance:
+
+all endpoints work via curl with a demo pupil JWT
+5+ new tests pass (total goes from 66+ to 71+)
+typecheck stays at 17
+audit events visible in audit log
+out of scope: frontend (ticket 7), seed content (ticket 8), teacher analytics endpoints, lesson editing/uploading (post-pilot work)
+
+one commit. report sha, git show --stat, test count delta, curl examples for the main endpoints.
