@@ -393,13 +393,37 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full flex bg-background relative overflow-hidden">
-      <Link
-        href="/admin"
-        className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-600 text-white text-xs sm:text-sm font-bold shadow-md hover:bg-teal-700 transition-colors z-20"
+      <button
+        type="button"
+        disabled={!!demoLoading}
+        onClick={async () => {
+          setError("");
+          setDemoLoading("coordinator");
+          try {
+            const res = await fetch(`${apiBase}api/auth/demo-login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ role: "coordinator" }),
+            });
+            if (!res.ok) {
+              const data = await res.json().catch(() => ({}));
+              setError(data.error || "Admin demo login failed");
+              setDemoLoading(null);
+              return;
+            }
+            const data = await res.json();
+            setToken(data.token);
+            setLocation("/admin");
+          } catch {
+            setError("Could not open Admin demo. Please try again.");
+            setDemoLoading(null);
+          }
+        }}
+        className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-600 text-white text-xs sm:text-sm font-bold shadow-md hover:bg-teal-700 transition-colors z-20 disabled:opacity-60"
       >
         <ShieldCheck size={14} />
         Admin
-      </Link>
+      </button>
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-background"></div>
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/10 blur-3xl -translate-y-1/2 translate-x-1/2"></div>

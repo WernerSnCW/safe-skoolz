@@ -528,8 +528,8 @@ router.post("/auth/demo-login", async (req, res): Promise<void> => {
   }
 
   const { role } = req.body;
-  if (!role || !["pupil", "staff", "parent", "pta"].includes(role)) {
-    res.status(400).json({ error: "Invalid role. Must be pupil, staff, parent, or pta." });
+  if (!role || !["pupil", "staff", "parent", "pta", "coordinator"].includes(role)) {
+    res.status(400).json({ error: "Invalid role. Must be pupil, staff, parent, pta, or coordinator." });
     return;
   }
 
@@ -543,6 +543,8 @@ router.post("/auth/demo-login", async (req, res): Promise<void> => {
     [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "parent"), eq(usersTable.active, true))).limit(1);
   } else if (role === "pta") {
     [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "pta"), eq(usersTable.active, true))).limit(1);
+  } else if (role === "coordinator") {
+    [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "coordinator"), eq(usersTable.active, true))).limit(1);
   } else {
     [user] = await db.select().from(usersTable).where(and(eq(usersTable.role, "teacher"), eq(usersTable.active, true))).limit(1);
   }
