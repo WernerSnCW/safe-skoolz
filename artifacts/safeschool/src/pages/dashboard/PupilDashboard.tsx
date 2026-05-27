@@ -517,58 +517,58 @@ export default function PupilDashboard({ user }: { user: any }) {
   ];
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="space-y-6 md:space-y-10 max-w-4xl mx-auto">
       <div className="text-center md:text-left">
-        <h1 className="text-4xl font-display font-bold text-foreground">{t("dashboard:hi", { name: user.firstName })}</h1>
-        <p className="mt-2 text-xl text-muted-foreground">{t("dashboard:howAreYouFeeling")}</p>
+        <h1 className="text-3xl md:text-5xl font-display font-bold tracking-tight text-foreground">{t("dashboard:hi", { name: user.firstName })}</h1>
+        <p className="mt-2 md:mt-3 text-lg md:text-xl text-muted-foreground/90 leading-relaxed">{t("dashboard:howAreYouFeeling")}</p>
       </div>
 
       {/* Wellbeing-led headline: mood + PSHE learning. */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:border-primary/40 group overflow-hidden relative">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 mt-6 md:mt-8">
+        <Card className="rounded-2xl shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:border-primary/40 group overflow-hidden relative">
           <div className="absolute right-[-20px] top-[-20px] opacity-10 group-hover:scale-110 transition-transform duration-500">
             <Smile size={180} />
           </div>
-          <CardContent className="p-8 relative z-10">
-            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-primary/30">
+          <CardContent className="p-6 md:p-8 relative z-10">
+            <div className="w-14 h-14 md:w-16 md:h-16 bg-primary rounded-2xl flex items-center justify-center text-white mb-5 md:mb-6 shadow-md shadow-primary/30">
               <Smile size={32} />
             </div>
-            <h2 className="text-2xl font-bold mb-2">{t("dashboard:feelingHeadline")}</h2>
-            <p className="text-muted-foreground mb-6">{t("dashboard:feelingSubtitle")}</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">{t("dashboard:feelingHeadline")}</h2>
+            <p className="text-muted-foreground mb-6 leading-relaxed">{t("dashboard:feelingSubtitle")}</p>
             <div className="grid grid-cols-5 gap-2 mb-6" role="group" aria-label={t("dashboard:feelingHeadline")}>
               {MOOD_CHIPS.map((m) => (
                 <Link key={m.value} href={`/diary?mood=${m.value}`}>
                   <button
                     type="button"
                     aria-label={t(`diary:${m.labelKey}`)}
-                    className="w-full aspect-square rounded-2xl bg-background border-2 border-border hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1 group/chip"
+                    className="w-full aspect-square min-h-[72px] rounded-2xl bg-background border-2 border-border hover:border-primary hover:bg-primary/5 hover:shadow-sm transition-all flex flex-col items-center justify-center gap-1 group/chip"
                   >
                     <span className="text-3xl group-hover/chip:scale-110 transition-transform" aria-hidden="true">{m.emoji}</span>
-                    <span className="text-[10px] font-semibold text-muted-foreground truncate w-full text-center px-1">{t(`diary:${m.labelKey}`)}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground truncate w-full text-center px-1 uppercase tracking-wide">{t(`diary:${m.labelKey}`)}</span>
                   </button>
                 </Link>
               ))}
             </div>
             <Link href="/diary">
-              <Button size="lg" className="w-full text-base shadow-xl shadow-primary/20">
+              <Button size="lg" className="w-full text-base font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 {t("dashboard:feelingCta")} <ArrowRight className="ml-2" size={18} />
               </Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20 hover:border-secondary/40 group overflow-hidden relative">
+        <Card className="rounded-2xl shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20 hover:border-secondary/40 group overflow-hidden relative">
           <div className="absolute right-[-20px] top-[-20px] opacity-10 group-hover:scale-110 transition-transform duration-500">
             <BookOpen size={180} />
           </div>
-          <CardContent className="p-8 relative z-10 flex flex-col h-full">
-            <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-secondary/30">
+          <CardContent className="p-6 md:p-8 relative z-10 flex flex-col h-full">
+            <div className="w-14 h-14 md:w-16 md:h-16 bg-secondary rounded-2xl flex items-center justify-center text-white mb-5 md:mb-6 shadow-md shadow-secondary/30">
               <BookOpen size={32} />
             </div>
-            <h2 className="text-2xl font-bold mb-2">{t("dashboard:pshHeadline")}</h2>
-            <p className="text-muted-foreground mb-6 flex-1">{t("dashboard:pshPlaceholder")}</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">{t("dashboard:pshHeadline")}</h2>
+            <p className="text-muted-foreground mb-6 flex-1 leading-relaxed">{t("dashboard:pshPlaceholder")}</p>
             <Link href="/learn">
-              <Button size="lg" variant="outline" className="w-full text-base">
+              <Button size="lg" variant="outline" className="w-full text-base font-semibold hover:-translate-y-0.5 transition-all">
                 {t("dashboard:pshCta")} <ArrowRight className="ml-2" size={18} />
               </Button>
             </Link>
@@ -577,14 +577,14 @@ export default function PupilDashboard({ user }: { user: any }) {
       </div>
 
       {/* Safe contacts card — unchanged behaviour, now full width below the headline. */}
-      <Card className="bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20">
-        <CardContent className="p-6 flex flex-col h-full">
-          <div className="mb-4">
-            <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center text-white mb-3 shadow-lg shadow-secondary/30">
+      <Card className="rounded-2xl shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20">
+        <CardContent className="p-5 md:p-7 flex flex-col h-full">
+          <div className="mb-5">
+            <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center text-white mb-3 shadow-md shadow-secondary/30">
               <Users size={24} />
             </div>
-            <h2 className="text-xl font-bold mb-1">{t("dashboard:mySafeContacts")}</h2>
-            <p className="text-sm text-muted-foreground">{t("dashboard:tapToSendMessage")}</p>
+            <h2 className="text-xl md:text-2xl font-bold mb-1">{t("dashboard:mySafeContacts")}</h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">{t("dashboard:tapToSendMessage")}</p>
           </div>
           <div className="space-y-2 flex-1">
             {safeContacts.slice(0, 4).map((c: any) => {
@@ -594,7 +594,7 @@ export default function PupilDashboard({ user }: { user: any }) {
                   key={c.id}
                   type="button"
                   onClick={() => setMessageContact(c)}
-                  className={`w-full flex items-center gap-3 bg-background p-3 rounded-xl border transition-all text-left group ${
+                  className={`w-full flex items-center gap-3 bg-background p-3 md:p-4 rounded-2xl border transition-all text-left group hover:shadow-sm ${
                     unread > 0
                       ? "border-primary/60 bg-primary/5 hover:border-primary"
                       : "border-border/50 hover:border-primary/40 hover:bg-primary/5"
@@ -611,8 +611,8 @@ export default function PupilDashboard({ user }: { user: any }) {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm truncate ${unread > 0 ? "font-bold" : "font-semibold"}`}>{c.firstName} {c.lastName}</p>
-                    <p className="text-xs text-muted-foreground">{c.displayRole}{c.isFormTutor ? ` \u00b7 ${t("dashboard:yourTutor")}` : ""}</p>
+                    <p className={`text-sm md:text-base truncate ${unread > 0 ? "font-bold" : "font-semibold"}`}>{c.firstName} {c.lastName}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{c.displayRole}{c.isFormTutor ? ` \u00b7 ${t("dashboard:yourTutor")}` : ""}</p>
                   </div>
                   <MessageCircle size={16} className={`shrink-0 transition-colors ${unread > 0 ? "text-primary" : "text-muted-foreground group-hover:text-primary"}`} aria-hidden="true" />
                 </button>
@@ -625,14 +625,14 @@ export default function PupilDashboard({ user }: { user: any }) {
       <button
         type="button"
         onClick={() => setShowUrgentHelp(true)}
-        className="w-full flex items-center justify-center gap-3 p-5 rounded-2xl bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 hover:border-red-400 hover:bg-red-100 dark:hover:bg-red-950/30 transition-all group"
+        className="w-full flex items-center justify-center gap-3 p-5 md:p-6 rounded-2xl bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 hover:border-red-400 hover:bg-red-100 dark:hover:bg-red-950/30 shadow-sm hover:shadow-md transition-all group"
       >
-        <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
+        <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-red-600/30 group-hover:scale-105 transition-transform">
           <Zap size={24} />
         </div>
         <div className="text-left">
           <p className="font-bold text-red-700 dark:text-red-400 text-lg">{t("dashboard:iNeedHelpNow")}</p>
-          <p className="text-sm text-red-600/70 dark:text-red-400/70">{t("dashboard:sendUrgentAlertToTeachers")}</p>
+          <p className="text-sm text-red-600/70 dark:text-red-400/70 leading-relaxed">{t("dashboard:sendUrgentAlertToTeachers")}</p>
         </div>
       </button>
 
@@ -641,17 +641,17 @@ export default function PupilDashboard({ user }: { user: any }) {
       {/* Demoted: reporting tool now lives at the foot of the dashboard as a
           small secondary card, not the front-door headline. /report route is
           unchanged. */}
-      <Card className="border-border/60 bg-muted/20">
-        <CardContent className="p-5 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
+      <Card className="rounded-2xl border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors">
+        <CardContent className="p-4 md:p-5 flex items-start gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
             <MessageSquareWarning size={20} aria-hidden="true" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm">{t("dashboard:talkOrReportHeadline")}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{t("dashboard:talkOrReportBody")}</p>
+            <p className="font-bold text-sm md:text-base">{t("dashboard:talkOrReportHeadline")}</p>
+            <p className="text-xs md:text-sm text-muted-foreground mt-0.5 leading-relaxed">{t("dashboard:talkOrReportBody")}</p>
           </div>
           <Link href="/report">
-            <Button size="sm" variant="outline" className="shrink-0">
+            <Button size="sm" variant="outline" className="shrink-0 font-semibold">
               {t("dashboard:talkOrReportCta")}
             </Button>
           </Link>

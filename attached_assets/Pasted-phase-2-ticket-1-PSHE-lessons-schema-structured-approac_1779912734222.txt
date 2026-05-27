@@ -1,0 +1,36 @@
+phase 2 ticket 1: PSHE lessons schema. structured:
+
+approach gate: paste current
+(a) lib/db/src/schema/index.ts (so we see export structure)
+(b) any existing schema files that follow a similar pattern (e.g. teacherPosts.ts or annexTemplates.ts) so we match style
+(c) confirmation that drizzle-kit push (not push-force) is the migration command
+(d) decision required: reflection_text field on lesson_progress — store encrypted or not store at all? see scope note below
+
+scope: three new schema files in lib/db/src/schema/ + index.ts export updates + one drizzle push.
+
+tables:
+
+lessons (id uuid PK default randomUUID(), school_id uuid FK schools nullable for global lessons, key_stage varchar(10), strand varchar(40), topic varchar(60), title text, hook text, body text (markdown), duration_minutes int, active bool default true, sort_order int, created_at timestamptz default now(), updated_at timestamptz)
+
+lesson_quizzes (id uuid PK, lesson_id uuid FK lessons, question text, option_a text, option_b text, option_c text, option_d text, correct_option char(1), sort_order int, created_at)
+
+lesson_progress (id uuid PK, school_id uuid FK schools, user_id uuid FK users, lesson_id uuid FK lessons, started_at timestamptz default now(), completed_at timestamptz nullable, quiz_score int nullable, reflection_text text nullable — SEE DECISION BELOW)
+
+DECISION on reflection_text:
+option A: store as plaintext, accessible only to the pupil who wrote it (never visible to coordinator). simplest.
+option B: don't store at all. reflection is private; only completion is logged. safest from a safeguarding-disclosure-in-reflection-text perspective.
+option C: store encrypted at rest, accessible by coordinator only if pupil explicitly flags for review.
+
+recommendation: option B for v1. reflections are private to the pupil. if pupils need to flag something they wrote, they use the existing reporting/messages flow. document this choice in the schema file comments.
+
+indexes on common query paths: school_id + key_stage on lessons, lesson_id on quizzes, user_id + lesson_id on progress, completed_at on progress.
+
+acceptance:
+
+three tables created via drizzle push (no errors)
+schema files committed
+typecheck stays at 17, no new errors
+no tests yet (next ticket adds API + tests together)
+out of scope: API endpoints (ticket 6), frontend (ticket 7), seed content (ticket 8), KS1/KS2/KS4/KS5 lessons
+
+one commit. report sha, git show --stat, decision chosen for reflection_text, output of drizzle push.
