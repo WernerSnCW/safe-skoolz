@@ -49,25 +49,76 @@ async function startup() {
     console.error("[seed] Failed to seed demo data:", err);
   });
 
-  // Demo build: normalize every pupil PIN to "1234" and every non-pupil
-  // password to "password123" on boot so the demo flows always work,
-  // regardless of what the seed produced, which database the deployment is
-  // pointed at, or any lockouts incurred earlier. Idempotent.
+  // Demo build: normalize every credential on boot so the demo flows always
+  // work, regardless of what the seed produced, which database the deployment
+  // is pointed at, any prior lockouts, or stale MFA state. Idempotent.
   try {
     const bcrypt = (await import("bcrypt")).default;
-    const { db, usersTable } = await import("@workspace/db");
-    const { eq, ne } = await import("drizzle-orm");
+    const { db, usersTable, schoolLoginCodesTable, schoolsTable } = await import("@workspace/db");
+    const { eq, ne, and, sql: dsql } = await import("drizzle-orm");
+
     const demoPinHash = await bcrypt.hash("1234", 10);
     const demoPasswordHash = await bcrypt.hash("password123", 10);
+
+    // 1. All pupil PINs → 1234, clear lockouts + stale MFA.
     await db
       .update(usersTable)
-      .set({ pinHash: demoPinHash, failedLoginAttempts: 0, lockedUntil: null })
+      .set({
+        pinHash: demoPinHash,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+        mfaEnrollmentRequired: false,
+      })
       .where(eq(usersTable.role, "pupil"));
+
+    // 2. All non-pupil passwords → password123, clear lockouts + stale MFA.
     await db
       .update(usersTable)
-      .set({ passwordHash: demoPasswordHash, failedLoginAttempts: 0, lockedUntil: null })
+      .set({
+        passwordHash: demoPasswordHash,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+        mfaEnrollmentRequired: false,
+      })
       .where(ne(usersTable.role, "pupil"));
-    console.log("[seed] Normalized demo credentials: pupils PIN=1234, others password=password123");
+
+    // 3. Ensure pupil-login access codes exist for every school. If a school
+    // has zero active pupil_login codes, recreate the standard four. This
+    // protects us when prod is on a fresh DB or the seed was partial.
+    const schools = await db.select({ id: schoolsTable.id }).from(schoolsTable);
+    const standardCodes = [
+      { code: "3A-MORNA", className: "3A" },
+      { code: "4A-MORNA", className: "4A" },
+      { code: "5B-MORNA", className: "5B" },
+      { code: "6A-MORNA", className: "6A" },
+    ];
+    for (const s of schools) {
+      const existing = await db
+        .select({ id: schoolLoginCodesTable.id })
+        .from(schoolLoginCodesTable)
+        .where(
+          and(
+            eq(schoolLoginCodesTable.schoolId, s.id),
+            eq(schoolLoginCodesTable.codeType, "pupil_login"),
+            eq(schoolLoginCodesTable.active, true)
+          )
+        );
+      if (existing.length === 0) {
+        for (const { code, className } of standardCodes) {
+          const codeHash = await bcrypt.hash(code, 12);
+          await db.insert(schoolLoginCodesTable).values({
+            schoolId: s.id,
+            codeType: "pupil_login",
+            codeHash,
+            className,
+          });
+        }
+        console.log(`[seed] Recreated demo pupil access codes for school ${s.id}`);
+      }
+    }
+
+    void dsql;
+    console.log("[seed] Normalized demo credentials: pupil PIN=1234, others password=password123, MFA cleared, lockouts cleared, access codes ensured");
   } catch (err) {
     console.error("[seed] Failed to normalize demo credentials:", err);
   }
