@@ -10,6 +10,7 @@ import { DemoProvider, DemoOverlay } from "@/components/demo/DemoWalkthrough";
 
 // Pages
 import Login from "@/pages/login";
+import AdminLogin from "@/pages/admin-login";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
 import Dashboard from "@/pages/dashboard";
@@ -48,6 +49,7 @@ function ProtectedRoute({
 }: {
   component: React.ComponentType;
   allowedRoles?: string[];
+  unauthRedirect?: string;
 }) {
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -62,7 +64,7 @@ function ProtectedRoute({
   if (!isAuthenticated) {
     // We cannot use hooks conditionally, so just window location redirect is fine here 
     // or return a redirect component. Wouter's useLocation is fine.
-    window.location.href = "/login";
+    window.location.href = unauthRedirect || "/login";
     return null;
   }
 
@@ -88,6 +90,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
+      <Route path="/admin/login" component={AdminLogin} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/how-it-works" component={HowItWorksPage} />
@@ -167,7 +170,7 @@ function Router() {
         {() => <ProtectedRoute component={Settings} />}
       </Route>
       <Route path="/admin">
-        {() => <ProtectedRoute component={AdminPage} allowedRoles={["coordinator"]} />}
+        {() => <ProtectedRoute component={AdminPage} allowedRoles={["coordinator"]} unauthRedirect="/admin/login" />}
       </Route>
       <Route component={NotFound} />
     </Switch>
