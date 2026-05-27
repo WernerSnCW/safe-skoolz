@@ -93,28 +93,26 @@ async function startup() {
       { code: "6A-MORNA", className: "6A" },
     ];
     for (const s of schools) {
-      const existing = await db
-        .select({ id: schoolLoginCodesTable.id })
-        .from(schoolLoginCodesTable)
+      // Wipe any existing pupil_login codes (they may not match the demo
+      // strings) and reinsert the canonical four. Idempotent.
+      await db
+        .delete(schoolLoginCodesTable)
         .where(
           and(
             eq(schoolLoginCodesTable.schoolId, s.id),
-            eq(schoolLoginCodesTable.codeType, "pupil_login"),
-            eq(schoolLoginCodesTable.active, true)
+            eq(schoolLoginCodesTable.codeType, "pupil_login")
           )
         );
-      if (existing.length === 0) {
-        for (const { code, className } of standardCodes) {
-          const codeHash = await bcrypt.hash(code, 12);
-          await db.insert(schoolLoginCodesTable).values({
-            schoolId: s.id,
-            codeType: "pupil_login",
-            codeHash,
-            className,
-          });
-        }
-        console.log(`[seed] Recreated demo pupil access codes for school ${s.id}`);
+      for (const { code, className } of standardCodes) {
+        const codeHash = await bcrypt.hash(code, 12);
+        await db.insert(schoolLoginCodesTable).values({
+          schoolId: s.id,
+          codeType: "pupil_login",
+          codeHash,
+          className,
+        });
       }
+      console.log(`[seed] Reset demo pupil access codes for school ${s.id}`);
     }
 
     void dsql;
