@@ -5,7 +5,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import {
   AlertTriangle, HeartHandshake, ArrowRight, Users,
-  MessageCircle, Send, Zap, X, ChevronDown, ChevronUp, CheckCircle2
+  MessageCircle, Send, Zap, X, ChevronDown, ChevronUp, CheckCircle2,
+  Smile, BookOpen, MessageSquareWarning
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
@@ -486,7 +487,7 @@ function PupilMyMessages({ user, totalUnread }: { user: any; totalUnread: number
 }
 
 export default function PupilDashboard({ user }: { user: any }) {
-  const { t } = useTranslation("dashboard");
+  const { t } = useTranslation(["dashboard", "diary"]);
   const [messageContact, setMessageContact] = useState<any>(null);
   const [showUrgentHelp, setShowUrgentHelp] = useState(false);
   const { unreadByContact, totalUnread } = useMessageNotifications();
@@ -503,77 +504,123 @@ export default function PupilDashboard({ user }: { user: any }) {
 
   const safeContacts = contacts || [];
 
+  // Phase 1 ticket 2: wellbeing-led headline. Mood chips reuse the same 5
+  // mood definitions as the diary page so the labels stay in lockstep —
+  // clicking a chip navigates to /diary?mood=N (the diary page can preselect
+  // later; pre-selection is out of scope here).
+  const MOOD_CHIPS = [
+    { value: 1, emoji: "\uD83D\uDE22", labelKey: "sad" },
+    { value: 2, emoji: "\uD83D\uDE1F", labelKey: "worried" },
+    { value: 3, emoji: "\uD83D\uDE10", labelKey: "meh" },
+    { value: 4, emoji: "\uD83D\uDE0A", labelKey: "happy" },
+    { value: 5, emoji: "\uD83E\uDD29", labelKey: "amazing" },
+  ];
+
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <div className="text-center md:text-left">
-        <h1 className="text-4xl font-display font-bold text-foreground">{t("hi", { name: user.firstName })}</h1>
-        <p className="mt-2 text-xl text-muted-foreground">{t("howAreYouFeeling")}</p>
+        <h1 className="text-4xl font-display font-bold text-foreground">{t("dashboard:hi", { name: user.firstName })}</h1>
+        <p className="mt-2 text-xl text-muted-foreground">{t("dashboard:howAreYouFeeling")}</p>
       </div>
 
+      {/* Wellbeing-led headline: mood + PSHE learning. */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:border-primary/40 group overflow-hidden relative">
           <div className="absolute right-[-20px] top-[-20px] opacity-10 group-hover:scale-110 transition-transform duration-500">
-             <HeartHandshake size={180} />
+            <Smile size={180} />
           </div>
           <CardContent className="p-8 relative z-10">
             <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-primary/30">
-              <HeartHandshake size={32} />
+              <Smile size={32} />
             </div>
-            <h2 className="text-2xl font-bold mb-2">{t("speakUp")}</h2>
-            <p className="text-muted-foreground mb-8">{t("ifSomethingNotRight")}</p>
-            <Link href="/report">
-              <Button size="lg" className="w-full text-lg shadow-xl shadow-primary/20">
-                {t("reportAConcern")} <ArrowRight className="ml-2" size={20} />
+            <h2 className="text-2xl font-bold mb-2">{t("dashboard:feelingHeadline")}</h2>
+            <p className="text-muted-foreground mb-6">{t("dashboard:feelingSubtitle")}</p>
+            <div className="grid grid-cols-5 gap-2 mb-6" role="group" aria-label={t("dashboard:feelingHeadline")}>
+              {MOOD_CHIPS.map((m) => (
+                <Link key={m.value} href={`/diary?mood=${m.value}`}>
+                  <button
+                    type="button"
+                    aria-label={t(`diary:${m.labelKey}`)}
+                    className="w-full aspect-square rounded-2xl bg-background border-2 border-border hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1 group/chip"
+                  >
+                    <span className="text-3xl group-hover/chip:scale-110 transition-transform" aria-hidden="true">{m.emoji}</span>
+                    <span className="text-[10px] font-semibold text-muted-foreground truncate w-full text-center px-1">{t(`diary:${m.labelKey}`)}</span>
+                  </button>
+                </Link>
+              ))}
+            </div>
+            <Link href="/diary">
+              <Button size="lg" className="w-full text-base shadow-xl shadow-primary/20">
+                {t("dashboard:feelingCta")} <ArrowRight className="ml-2" size={18} />
               </Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20">
-          <CardContent className="p-6 flex flex-col h-full">
-            <div className="mb-4">
-              <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center text-white mb-3 shadow-lg shadow-secondary/30">
-                <Users size={24} />
-              </div>
-              <h2 className="text-xl font-bold mb-1">{t("mySafeContacts")}</h2>
-              <p className="text-sm text-muted-foreground">{t("tapToSendMessage")}</p>
+        <Card className="bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20 hover:border-secondary/40 group overflow-hidden relative">
+          <div className="absolute right-[-20px] top-[-20px] opacity-10 group-hover:scale-110 transition-transform duration-500">
+            <BookOpen size={180} />
+          </div>
+          <CardContent className="p-8 relative z-10 flex flex-col h-full">
+            <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-secondary/30">
+              <BookOpen size={32} />
             </div>
-            <div className="space-y-2 flex-1">
-              {safeContacts.slice(0, 4).map((c: any) => {
-                const unread = unreadByContact[c.id] || 0;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setMessageContact(c)}
-                    className={`w-full flex items-center gap-3 bg-background p-3 rounded-xl border transition-all text-left group ${
-                      unread > 0
-                        ? "border-primary/60 bg-primary/5 hover:border-primary"
-                        : "border-border/50 hover:border-primary/40 hover:bg-primary/5"
-                    }`}
-                  >
-                    <div className="relative shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold">
-                        {c.firstName?.charAt(0)}
-                      </div>
-                      {unread > 0 && (
-                        <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold ring-2 ring-background">
-                          {unread > 9 ? "9+" : unread}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm truncate ${unread > 0 ? "font-bold" : "font-semibold"}`}>{c.firstName} {c.lastName}</p>
-                      <p className="text-xs text-muted-foreground">{c.displayRole}{c.isFormTutor ? ` \u00b7 ${t("yourTutor")}` : ""}</p>
-                    </div>
-                    <MessageCircle size={16} className={`shrink-0 transition-colors ${unread > 0 ? "text-primary" : "text-muted-foreground group-hover:text-primary"}`} aria-hidden="true" />
-                  </button>
-                );
-              })}
-            </div>
+            <h2 className="text-2xl font-bold mb-2">{t("dashboard:pshHeadline")}</h2>
+            <p className="text-muted-foreground mb-6 flex-1">{t("dashboard:pshPlaceholder")}</p>
+            <Link href="/learn">
+              <Button size="lg" variant="outline" className="w-full text-base">
+                {t("dashboard:pshCta")} <ArrowRight className="ml-2" size={18} />
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
+
+      {/* Safe contacts card — unchanged behaviour, now full width below the headline. */}
+      <Card className="bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20">
+        <CardContent className="p-6 flex flex-col h-full">
+          <div className="mb-4">
+            <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center text-white mb-3 shadow-lg shadow-secondary/30">
+              <Users size={24} />
+            </div>
+            <h2 className="text-xl font-bold mb-1">{t("dashboard:mySafeContacts")}</h2>
+            <p className="text-sm text-muted-foreground">{t("dashboard:tapToSendMessage")}</p>
+          </div>
+          <div className="space-y-2 flex-1">
+            {safeContacts.slice(0, 4).map((c: any) => {
+              const unread = unreadByContact[c.id] || 0;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setMessageContact(c)}
+                  className={`w-full flex items-center gap-3 bg-background p-3 rounded-xl border transition-all text-left group ${
+                    unread > 0
+                      ? "border-primary/60 bg-primary/5 hover:border-primary"
+                      : "border-border/50 hover:border-primary/40 hover:bg-primary/5"
+                  }`}
+                >
+                  <div className="relative shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold">
+                      {c.firstName?.charAt(0)}
+                    </div>
+                    {unread > 0 && (
+                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold ring-2 ring-background">
+                        {unread > 9 ? "9+" : unread}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm truncate ${unread > 0 ? "font-bold" : "font-semibold"}`}>{c.firstName} {c.lastName}</p>
+                    <p className="text-xs text-muted-foreground">{c.displayRole}{c.isFormTutor ? ` \u00b7 ${t("dashboard:yourTutor")}` : ""}</p>
+                  </div>
+                  <MessageCircle size={16} className={`shrink-0 transition-colors ${unread > 0 ? "text-primary" : "text-muted-foreground group-hover:text-primary"}`} aria-hidden="true" />
+                </button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       <button
         type="button"
@@ -584,12 +631,32 @@ export default function PupilDashboard({ user }: { user: any }) {
           <Zap size={24} />
         </div>
         <div className="text-left">
-          <p className="font-bold text-red-700 dark:text-red-400 text-lg">{t("iNeedHelpNow")}</p>
-          <p className="text-sm text-red-600/70 dark:text-red-400/70">{t("sendUrgentAlertToTeachers")}</p>
+          <p className="font-bold text-red-700 dark:text-red-400 text-lg">{t("dashboard:iNeedHelpNow")}</p>
+          <p className="text-sm text-red-600/70 dark:text-red-400/70">{t("dashboard:sendUrgentAlertToTeachers")}</p>
         </div>
       </button>
 
       <PupilMyMessages user={user} totalUnread={totalUnread} />
+
+      {/* Demoted: reporting tool now lives at the foot of the dashboard as a
+          small secondary card, not the front-door headline. /report route is
+          unchanged. */}
+      <Card className="border-border/60 bg-muted/20">
+        <CardContent className="p-5 flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
+            <MessageSquareWarning size={20} aria-hidden="true" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm">{t("dashboard:talkOrReportHeadline")}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("dashboard:talkOrReportBody")}</p>
+          </div>
+          <Link href="/report">
+            <Button size="sm" variant="outline" className="shrink-0">
+              {t("dashboard:talkOrReportCta")}
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
 
       {messageContact && (
         <MessageDialog contact={messageContact} onClose={() => setMessageContact(null)} user={user} />

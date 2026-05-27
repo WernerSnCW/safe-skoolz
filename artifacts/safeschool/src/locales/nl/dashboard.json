@@ -1,4 +1,13 @@
 {
+  "feelingHeadline": "How are you feeling today?",
+  "feelingSubtitle": "Tap a mood to start today's diary entry.",
+  "feelingCta": "Open my diary",
+  "pshHeadline": "Your PSHE learning",
+  "pshPlaceholder": "Lessons coming soon — your first PSHE module lands when the curriculum goes live.",
+  "pshCta": "Browse learning",
+  "talkOrReportHeadline": "Need to talk to someone, or report something?",
+  "talkOrReportBody": "Tell a trusted adult at school, or use the reporting tool if it's easier.",
+  "talkOrReportCta": "Open reporting tool",
   "welcomeBack": "Welkom terug, {{name}}",
   "useNavToStart": "Gebruik het navigatiemenu om te beginnen.",
   "reportAnIncident": "Incident melden",
