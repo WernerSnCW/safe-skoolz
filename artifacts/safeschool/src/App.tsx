@@ -46,6 +46,7 @@ const queryClient = new QueryClient();
 function ProtectedRoute({
   component: Component,
   allowedRoles,
+  unauthRedirect,
 }: {
   component: React.ComponentType;
   allowedRoles?: string[];
