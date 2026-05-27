@@ -1,0 +1,297 @@
+Phase 1 + Phase 2 in one go. Each ticket marked with what to send first. Later tickets may need light adjustments based on what earlier tickets surface, but the shape is ready.
+
+---
+
+## Ticket 2 — Pupil dashboard headline swap
+
+**Send AFTER ticket 1 lands cleanly and you've verified the new login copy renders.**
+
+> phase 1 ticket 2: pupil dashboard headline swap. structured:
+>
+> approach gate: paste current
+> (a) PupilDashboard.tsx (or whichever component renders /dashboard for pupil role) — full file
+> (b) location and current content of any "report an incident" / "raise a concern" / safeguarding-led headline card
+> (c) confirmation whether /diary route exists and is functional (state dump suggested it does)
+> (d) i18n keys currently used on pupil dashboard
+>
+> scope: PupilDashboard.tsx + i18n only. no new routes, no new API, no schema. /report route stays as-is; just demoted in visual prominence.
+>
+> work:
+> - replace the existing incident-led headline with TWO cards arranged in priority order
+> - card 1 (top): "How are you feeling today?" with a quick mood selector chip row (1-5 mood icons or similar). clicking links to /diary
+> - card 2 (below or alongside): "Your PSHE learning" placeholder. static state: "Lessons coming soon — your first PSHE module lands when the curriculum goes live." if /learn route exists, link to it; otherwise no-op the click for now
+> - demote the existing report-an-incident card. relocate to a smaller secondary card lower on the page, retitled "Need to talk to someone, or report something?" with link to /report
+> - keep all existing functional cards (messages preview, recent activity, etc) unchanged in behaviour, just below the new headline
+>
+> acceptance:
+> - pupil demo-login lands on dashboard, sees mood + PSHE cards at top
+> - secondary report card visible lower on page, still functional
+> - /report route still works when accessed directly
+> - all four role demos still work (smoke test each)
+> - typecheck stays at 17, tests stay green
+>
+> out of scope: changing /report itself, /diary internal logic, adding lesson content (phase 2), changing coordinator or other-role dashboards
+>
+> one commit. report sha, git show --stat, brief note on rendered state.
+
+---
+
+## Ticket 3 — Sidebar nav restructure
+
+**Send AFTER ticket 2 lands.**
+
+> phase 1 ticket 3: sidebar nav restructure for pupil role. structured:
+>
+> approach gate: paste current
+> (a) AppLayout.tsx pupil nav block (lines)
+> (b) full enumeration of existing pupil nav items and the routes they link to
+> (c) confirmation which routes exist as working pages (don't break anything)
+>
+> scope: AppLayout.tsx single file + i18n if new labels added. no new routes, no new pages.
+>
+> work:
+> reorder the pupil nav block to wellbeing-first sequence:
+> 1. Dashboard
+> 2. Learn (if /learn exists, link to it; otherwise placeholder with "Coming soon" badge)
+> 3. Diary (link to /diary if it exists)
+> 4. Messages
+> 5. Noticeboard / Learnings (existing /learnings route)
+> 6. Report (existing /report — kept in nav but demoted to this position)
+> 7. Settings
+>
+> coordinator / head_teacher / other role navs: leave unchanged in this ticket. that's a separate ticket once we've validated the pupil reorder lands well.
+>
+> reuse existing i18n keys where they exist. add new keys only for nav labels that don't already have translations (likely "Learn" and "Diary" if those aren't already i18n-keyed).
+>
+> acceptance:
+> - pupil sidebar shows new order
+> - every existing pupil route still reachable from the new nav
+> - typecheck stays at 17, tests stay green
+> - other roles' navs unchanged
+>
+> out of scope: coordinator/teacher/parent/PTA nav restructure (separate ticket), route changes, new pages
+>
+> one commit. report sha, git show --stat.
+
+---
+
+## Ticket 4 — KS3 visual treatment pass
+
+**Send AFTER ticket 3 lands.**
+
+> phase 1 ticket 4: KS3 visual treatment pass, proof of concept on pupil dashboard. structured:
+>
+> approach gate: paste current
+> (a) tailwind config (if any custom theme tokens exist)
+> (b) globals.css / index.css for any custom CSS variables
+> (c) PupilDashboard.tsx after ticket 2 (so we see current visual baseline)
+> (d) confirmation of which fonts are currently loaded (Inter, system-ui, custom?)
+>
+> scope: globals.css / tailwind config + PupilDashboard.tsx as proof of concept. NOT a sweep of all pages. If this lands well, follow-up tickets extend to other pages.
+>
+> work — settle a "slick" KS3 visual language:
+> - increase default border-radius on cards (more modern: rounded-2xl rather than rounded-md)
+> - tighten typography hierarchy: bolder headings (font-bold or font-semibold), more whitespace between sections, more confident sub-headlines
+> - subtle elevation: drop-shadow-sm or similar on interactive cards, deeper on focus
+> - confirm body font reads as modern (Inter, Geist, or similar sans-serif — NOT serif, NOT default browser font)
+> - slightly higher contrast on interactive elements (buttons, links)
+> - card padding tighter on mobile, more generous on desktop
+>
+> apply only to PupilDashboard.tsx as proof of concept. other pages may look slightly inconsistent until follow-up tickets sweep them — that's expected.
+>
+> acceptance:
+> - pupil dashboard renders with the new treatment
+> - mobile preview works (smoke test in browser dev tools narrow viewport)
+> - no layout breaks on tablet or wide desktop
+> - typecheck stays at 17, tests stay green
+> - other pages may look slightly off vs the new treatment — that's expected
+>
+> out of scope: sweeping other pages with the new treatment (separate tickets), changing the component library, importing new fonts beyond what's already configured
+>
+> one commit. report sha, git show --stat, screenshot or brief description of the rendered treatment.
+
+---
+
+## Ticket 5 — PSHE lessons schema (Phase 2 starts here)
+
+**Send AFTER ticket 4 lands. This starts Phase 2.**
+
+> phase 2 ticket 1: PSHE lessons schema. structured:
+>
+> approach gate: paste current
+> (a) lib/db/src/schema/index.ts (so we see export structure)
+> (b) any existing schema files that follow a similar pattern (e.g. teacherPosts.ts or annexTemplates.ts) so we match style
+> (c) confirmation that drizzle-kit push (not push-force) is the migration command
+> (d) decision required: reflection_text field on lesson_progress — store encrypted or not store at all? see scope note below
+>
+> scope: three new schema files in lib/db/src/schema/ + index.ts export updates + one drizzle push.
+>
+> tables:
+>
+> lessons (id uuid PK default randomUUID(), school_id uuid FK schools nullable for global lessons, key_stage varchar(10), strand varchar(40), topic varchar(60), title text, hook text, body text (markdown), duration_minutes int, active bool default true, sort_order int, created_at timestamptz default now(), updated_at timestamptz)
+>
+> lesson_quizzes (id uuid PK, lesson_id uuid FK lessons, question text, option_a text, option_b text, option_c text, option_d text, correct_option char(1), sort_order int, created_at)
+>
+> lesson_progress (id uuid PK, school_id uuid FK schools, user_id uuid FK users, lesson_id uuid FK lessons, started_at timestamptz default now(), completed_at timestamptz nullable, quiz_score int nullable, reflection_text text nullable — SEE DECISION BELOW)
+>
+> DECISION on reflection_text:
+> option A: store as plaintext, accessible only to the pupil who wrote it (never visible to coordinator). simplest.
+> option B: don't store at all. reflection is private; only completion is logged. safest from a safeguarding-disclosure-in-reflection-text perspective.
+> option C: store encrypted at rest, accessible by coordinator only if pupil explicitly flags for review.
+>
+> recommendation: option B for v1. reflections are private to the pupil. if pupils need to flag something they wrote, they use the existing reporting/messages flow. document this choice in the schema file comments.
+>
+> indexes on common query paths: school_id + key_stage on lessons, lesson_id on quizzes, user_id + lesson_id on progress, completed_at on progress.
+>
+> acceptance:
+> - three tables created via drizzle push (no errors)
+> - schema files committed
+> - typecheck stays at 17, no new errors
+> - no tests yet (next ticket adds API + tests together)
+>
+> out of scope: API endpoints (ticket 6), frontend (ticket 7), seed content (ticket 8), KS1/KS2/KS4/KS5 lessons
+>
+> one commit. report sha, git show --stat, decision chosen for reflection_text, output of drizzle push.
+
+---
+
+## Ticket 6 — PSHE lessons API + tests
+
+**Send AFTER ticket 5 lands and the schema is verified in the DB.**
+
+> phase 2 ticket 2: PSHE lessons API endpoints + tests. structured:
+>
+> approach gate: paste current
+> (a) one existing route file as a pattern reference (e.g. routes/admin.ts or routes/teacherPosts.ts) so we match style
+> (b) the audit log helper writeAudit() signature (so we know what to pass)
+> (c) confirmation of role-scoping pattern (which role IDs can see what)
+>
+> scope: artifacts/api-server/src/routes/lessons.ts (new) + routes/index.ts mount + tests file. no schema changes.
+>
+> endpoints:
+> - GET /api/lessons (authMiddleware, returns lessons where school_id IS NULL OR school_id = user.schoolId, filtered by key_stage matching user's year_group mapping). returns lessons + per-pupil progress status.
+> - GET /api/lessons/:id (authMiddleware, returns lesson with quiz questions, no correct answers exposed to pupil)
+> - POST /api/lessons/:id/start (authMiddleware, creates lesson_progress row if not exists, writeAudit "lesson_started")
+> - POST /api/lessons/:id/quiz (authMiddleware, body = answers, returns score, writes to lesson_progress.quiz_score, writeAudit "lesson_quiz_submitted")
+> - POST /api/lessons/:id/complete (authMiddleware, marks completed_at, writeAudit "lesson_completed")
+> - GET /api/lessons/progress (authMiddleware, returns pupil's progress across all lessons)
+>
+> role scoping: pupils see their own progress only. teachers/coordinators get aggregate progress in a future ticket (NOT this one).
+>
+> audit event types to add: lesson_started, lesson_quiz_submitted, lesson_completed. add to event-types list in routes/audit.ts.
+>
+> tests (in __tests__/lessons.test.ts):
+> 1. pupil can list lessons for their key_stage, not others
+> 2. pupil completing a quiz writes correct score
+> 3. lesson_progress role-scoping: pupil A cannot see pupil B's progress
+> 4. audit events fire correctly
+> 5. completion endpoint marks completed_at
+>
+> acceptance:
+> - all endpoints work via curl with a demo pupil JWT
+> - 5+ new tests pass (total goes from 66+ to 71+)
+> - typecheck stays at 17
+> - audit events visible in audit log
+>
+> out of scope: frontend (ticket 7), seed content (ticket 8), teacher analytics endpoints, lesson editing/uploading (post-pilot work)
+>
+> one commit. report sha, git show --stat, test count delta, curl examples for the main endpoints.
+
+---
+
+## Ticket 7 — Pupil-facing /learn page
+
+**Send AFTER ticket 6 lands. API must be working.**
+
+> phase 2 ticket 3: pupil-facing /learn page. structured:
+>
+> approach gate: paste current
+> (a) artifacts/safeschool/src/pages/learn.tsx if it exists, or confirm it doesn't
+> (b) one existing pupil-facing page (e.g. pupil dashboard after ticket 2/4) as a styling reference
+> (c) the generated React Query hooks for the lessons API if they exist; if not, confirm we use direct fetch
+> (d) the markdown rendering library currently in use (or note that none is, and we need to add one)
+>
+> scope: artifacts/safeschool/src/pages/learn.tsx + components/learn/* (new subfolder allowed) + i18n. no schema, no API changes (uses ticket 6's endpoints).
+>
+> page structure (/learn):
+> - hero: "PSHE & wellbeing"
+> - subtitle: "Lessons designed for your year, in your own time."
+> - strand filter tabs: "Me & My Wellbeing" / "Me & Others" / "Me & The World"
+> - lesson card grid (responsive: 1 col mobile, 2 col tablet, 3 col desktop)
+> - each card: title, hook excerpt (1 sentence), duration, status chip ("Not started" / "In progress" / "Completed"), strand color accent
+>
+> lesson detail page (/learn/:id):
+> - title + hook
+> - markdown body rendered
+> - quiz at end
+> - on quiz submit: show score, save progress
+> - on complete: mark completed, return to /learn
+>
+> KS3 visual treatment (per ticket 4's pattern): same rounded cards, same typography hierarchy, modern feel.
+>
+> if a markdown renderer isn't already in the project, add react-markdown (small, safe, no script execution by default).
+>
+> acceptance:
+> - pupil opens /learn, sees lesson cards (likely empty grid until ticket 8 seeds content — that's expected, show empty state "Lessons coming soon" if zero results)
+> - clicking a lesson loads detail page with markdown body
+> - completing a quiz updates progress
+> - returning to /learn shows updated status
+> - typecheck stays at 17, tests stay green
+> - mobile renders correctly
+>
+> out of scope: seed content (next ticket), teacher presentation mode (phase 3), lesson editing UI
+>
+> one commit. report sha, git show --stat, brief render notes.
+
+---
+
+## Ticket 8 — Seed the 14 Year 7 lessons
+
+**Send AFTER ticket 7 lands. /learn must render the empty state correctly first.**
+
+I'll deliver the 14 lessons in structured seed format as a separate message when you're ready to send this ticket. The seed content is already drafted (the 14 lessons I gave you across batches 1-4); it just needs converting to the schema shape. Ping me with "send the seed format" and I'll output it as a TypeScript const array ready for the agent to drop into seed.ts.
+
+The ticket itself will look like:
+
+> phase 2 ticket 4: seed 14 Year 7 PSHE lessons. structured:
+>
+> approach gate: paste current
+> (a) artifacts/api-server/src/lib/seed.ts seedDemoData() function
+> (b) confirm where the seed file expects content (inline const, separate JSON file, etc)
+>
+> scope: extend seed.ts to insert 14 lesson rows + their quiz rows. use the content i'll provide in chat. no schema changes.
+>
+> work:
+> - insert 14 lessons into the lessons table (school_id = NULL for global content)
+> - insert quiz questions linked to each lesson
+> - idempotent (don't double-insert on restart)
+>
+> acceptance:
+> - after seed runs, lessons table has 14 rows
+> - /learn page renders all 14 cards
+> - each lesson opens with content and quiz
+> - typecheck stays at 17, tests stay green
+>
+> out of scope: lessons for other key stages, lesson editing UI
+>
+> one commit.
+
+---
+
+## What's next after Phase 2
+
+Phase 3 (teacher presentation mode) is roughly 2-3 tickets:
+- Schema for live-session state
+- Backend sync mechanism (polling or websocket)
+- Teacher presentation UI + pupil follow-along view
+
+I'll draft those when you're ready, after Phase 2's seed lands. Phase 3 is the "killer feature" from the school meeting — teacher runs a lesson from the board, pupils follow on devices, anonymous response aggregation.
+
+## What to keep handy
+
+Between tickets, watch for:
+- The agent may surface a sixth file or schema mismatch (similar to the typecheck shapes from Session 2). If so, scope the fix to the specific blast radius and don't let it grow.
+- If a ticket's approach gate reveals something doesn't exist that we assumed does (e.g. /diary doesn't actually exist), the agent will flag it. Decide on the spot whether to scaffold a placeholder or skip.
+- Typecheck baseline is 17 errors (the parked shapes A/E/F/H). Each ticket should hold that line, not exceed it.
+
+That's the next 7 tickets. Phase 1 (tickets 2-4) takes the visual + IA from safeguarding-led to wellbeing-led. Phase 2 (tickets 5-8) builds the PSHE learning centre and seeds the Year 7 curriculum. Tickets 6 and 7 are the heavier work; the rest are lighter.
