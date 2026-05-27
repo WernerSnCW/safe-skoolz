@@ -6,19 +6,35 @@
     "policies": "Policies & Protocols",
     "permissions": "Permissions",
     "frameworks": "Frameworks & Regulations",
-    "dataController": "Data Controller"
+    "dataController": "Policies & documents"
+  },
+  "policies": {
+    "heading": "Policy library",
+    "intro": "Upload your school's safeguarding policies and core documents. Items marked Required must be in place for compliance.",
+    "statutoryBadge": "Required",
+    "uploadButton": "Upload PDF",
+    "replaceButton": "Replace",
+    "notUploaded": "Not uploaded yet",
+    "uploadedLabel": "just now",
+    "items": {
+      "safeguarding": { "title": "Safeguarding & Child Protection Policy", "helper": "Comprehensive policy on protecting pupils from all forms of harm." },
+      "antiBullying": { "title": "Anti-Bullying Policy", "helper": "Prevention, reporting, response and follow-up of bullying incidents." },
+      "behaviour": { "title": "Behaviour Policy / Code of Conduct", "helper": "Expected conduct for pupils and staff." },
+      "onlineSafety": { "title": "Online Safety & Acceptable Use", "helper": "Use of digital tools, devices and platforms by pupils and staff." },
+      "send": { "title": "SEND Policy", "helper": "Special educational needs and disabilities provision." },
+      "complaints": { "title": "Complaints Procedure", "helper": "How families and staff raise concerns." },
+      "whistleblowing": { "title": "Whistleblowing Policy", "helper": "Protected disclosure of wrongdoing." },
+      "dataProtection": { "title": "Data Protection & GDPR Policy", "helper": "How personal data is collected, stored and shared." },
+      "convivencia": { "title": "Plan de Convivencia", "helper": "School coexistence and conflict resolution plan." },
+      "lopivi": { "title": "Protocolo LOPIVI", "helper": "Designated wellbeing and protection coordinator protocol." }
+    }
   },
   "dataController": {
-    "cardTitle": "Data controller & delegated roles",
     "intro": "Statutory appointments and delegated responsibilities at your school. Counts only — no individual names are shown here.",
     "statusAppointed": "Appointed",
-    "statusNotAppointed": "Not appointed",
-    "dslAppointed": "Appointed ({{count}} active)",
-    "dslNotAppointed": "Not yet appointed",
     "comingSoonHint": "Coming with the Admin upload tools",
     "otherRolesHeading": "Other delegated roles",
     "activeCount": "{{count}} active",
-    "manage": "Manage",
     "roleNames": {
       "convivexit_coordinator": "Convivèxit coordinator",
       "machista_protocol_lead": "Gender-based violence protocol lead",

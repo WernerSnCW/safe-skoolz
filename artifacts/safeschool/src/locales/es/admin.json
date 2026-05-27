@@ -6,19 +6,35 @@
     "policies": "Políticas y protocolos",
     "permissions": "Permisos",
     "frameworks": "Marcos y normativa",
-    "dataController": "Responsable de datos"
+    "dataController": "Políticas y documentos"
+  },
+  "policies": {
+    "heading": "Biblioteca de políticas",
+    "intro": "Suba las políticas de protección y los documentos clave de su centro. Los marcados como Obligatorio deben estar en vigor.",
+    "statutoryBadge": "Obligatorio",
+    "uploadButton": "Subir PDF",
+    "replaceButton": "Reemplazar",
+    "notUploaded": "Aún no subido",
+    "uploadedLabel": "ahora mismo",
+    "items": {
+      "safeguarding": { "title": "Política de protección a la infancia", "helper": "Política integral para proteger al alumnado frente a cualquier forma de daño." },
+      "antiBullying": { "title": "Política contra el acoso escolar", "helper": "Prevención, comunicación, respuesta y seguimiento de casos de acoso." },
+      "behaviour": { "title": "Reglamento de conducta / Normas de convivencia", "helper": "Conducta esperada del alumnado y del personal." },
+      "onlineSafety": { "title": "Seguridad digital y uso aceptable", "helper": "Uso de herramientas, dispositivos y plataformas digitales." },
+      "send": { "title": "Política de NEE", "helper": "Atención al alumnado con necesidades educativas especiales." },
+      "complaints": { "title": "Procedimiento de quejas", "helper": "Cómo presentan quejas las familias y el personal." },
+      "whistleblowing": { "title": "Política de denuncia interna", "helper": "Comunicación protegida de irregularidades." },
+      "dataProtection": { "title": "Política de protección de datos / RGPD", "helper": "Cómo se recogen, almacenan y comparten los datos personales." },
+      "convivencia": { "title": "Plan de Convivencia", "helper": "Plan de convivencia y resolución de conflictos del centro." },
+      "lopivi": { "title": "Protocolo LOPIVI", "helper": "Protocolo del coordinador de bienestar y protección designado." }
+    }
   },
   "dataController": {
-    "cardTitle": "Responsable de datos y roles delegados",
     "intro": "Nombramientos estatutarios y responsabilidades delegadas en su centro. Solo recuentos: no se muestra ningún nombre individual.",
     "statusAppointed": "Designado",
-    "statusNotAppointed": "Sin designar",
-    "dslAppointed": "Designado ({{count}} activo/s)",
-    "dslNotAppointed": "Aún sin designar",
     "comingSoonHint": "Disponible con las herramientas de carga del administrador",
     "otherRolesHeading": "Otros roles delegados",
     "activeCount": "{{count}} activo/s",
-    "manage": "Gestionar",
     "roleNames": {
       "convivexit_coordinator": "Coordinador/a Convivèxit",
       "machista_protocol_lead": "Responsable del protocolo de violencia de género",

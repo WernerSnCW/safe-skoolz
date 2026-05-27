@@ -6,19 +6,35 @@
     "policies": "Beleid en protocollen",
     "permissions": "Rechten",
     "frameworks": "Kaders en regelgeving",
-    "dataController": "Verwerkingsverantwoordelijke"
+    "dataController": "Beleid en documenten"
+  },
+  "policies": {
+    "heading": "Beleidsbibliotheek",
+    "intro": "Upload het beschermingsbeleid en de kerndocumenten van uw school. Items met Verplicht moeten aanwezig zijn voor naleving.",
+    "statutoryBadge": "Verplicht",
+    "uploadButton": "PDF uploaden",
+    "replaceButton": "Vervangen",
+    "notUploaded": "Nog niet geüpload",
+    "uploadedLabel": "zojuist",
+    "items": {
+      "safeguarding": { "title": "Beleid kinderbescherming", "helper": "Allesomvattend beleid om leerlingen te beschermen tegen elke vorm van schade." },
+      "antiBullying": { "title": "Anti-pestbeleid", "helper": "Preventie, melden, reageren en opvolgen van pestincidenten." },
+      "behaviour": { "title": "Gedragsreglement / Schoolregels", "helper": "Verwacht gedrag van leerlingen en personeel." },
+      "onlineSafety": { "title": "Online veiligheid en aanvaardbaar gebruik", "helper": "Gebruik van digitale tools, apparaten en platforms." },
+      "send": { "title": "Beleid passend onderwijs", "helper": "Ondersteuning van leerlingen met speciale onderwijsbehoeften." },
+      "complaints": { "title": "Klachtenprocedure", "helper": "Hoe gezinnen en personeel zorgen melden." },
+      "whistleblowing": { "title": "Klokkenluidersregeling", "helper": "Beschermde melding van misstanden." },
+      "dataProtection": { "title": "Gegevensbescherming / AVG-beleid", "helper": "Hoe persoonsgegevens worden verzameld, opgeslagen en gedeeld." },
+      "convivencia": { "title": "Plan de Convivencia", "helper": "Plan voor samenleven op school en conflictoplossing." },
+      "lopivi": { "title": "LOPIVI-protocol", "helper": "Protocol van de aangewezen coördinator welzijn en bescherming." }
+    }
   },
   "dataController": {
-    "cardTitle": "Verwerkingsverantwoordelijke en gedelegeerde rollen",
     "intro": "Wettelijke aanstellingen en gedelegeerde verantwoordelijkheden op uw school. Alleen aantallen — er worden geen individuele namen getoond.",
     "statusAppointed": "Aangesteld",
-    "statusNotAppointed": "Niet aangesteld",
-    "dslAppointed": "Aangesteld ({{count}} actief)",
-    "dslNotAppointed": "Nog niet aangesteld",
     "comingSoonHint": "Beschikbaar met de upload-tools voor beheerders",
     "otherRolesHeading": "Overige gedelegeerde rollen",
     "activeCount": "{{count}} actief",
-    "manage": "Beheren",
     "roleNames": {
       "convivexit_coordinator": "Convivèxit-coördinator",
       "machista_protocol_lead": "Verantwoordelijke protocol gendergerelateerd geweld",

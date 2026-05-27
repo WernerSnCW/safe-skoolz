@@ -6,19 +6,35 @@
     "policies": "Politiques et protocoles",
     "permissions": "Permissions",
     "frameworks": "Cadres et réglementations",
-    "dataController": "Responsable de traitement"
+    "dataController": "Politiques et documents"
+  },
+  "policies": {
+    "heading": "Bibliothèque de politiques",
+    "intro": "Téléversez les politiques de protection et les documents clés de votre établissement. Les éléments marqués Obligatoire doivent être en place.",
+    "statutoryBadge": "Obligatoire",
+    "uploadButton": "Téléverser PDF",
+    "replaceButton": "Remplacer",
+    "notUploaded": "Pas encore téléversé",
+    "uploadedLabel": "à l'instant",
+    "items": {
+      "safeguarding": { "title": "Politique de protection de l'enfance", "helper": "Politique complète de protection des élèves contre toute forme de violence." },
+      "antiBullying": { "title": "Politique anti-harcèlement", "helper": "Prévention, signalement, réponse et suivi des cas de harcèlement." },
+      "behaviour": { "title": "Règlement intérieur / Code de conduite", "helper": "Conduite attendue des élèves et du personnel." },
+      "onlineSafety": { "title": "Sécurité numérique et usage acceptable", "helper": "Utilisation des outils, appareils et plateformes numériques." },
+      "send": { "title": "Politique besoins éducatifs particuliers", "helper": "Prise en charge des élèves à besoins éducatifs particuliers." },
+      "complaints": { "title": "Procédure de réclamation", "helper": "Comment les familles et le personnel font remonter leurs préoccupations." },
+      "whistleblowing": { "title": "Politique de lanceur d'alerte", "helper": "Signalement protégé de manquements." },
+      "dataProtection": { "title": "Politique de protection des données / RGPD", "helper": "Comment les données personnelles sont collectées, stockées et partagées." },
+      "convivencia": { "title": "Plan de Convivencia", "helper": "Plan de vie scolaire et de résolution des conflits." },
+      "lopivi": { "title": "Protocole LOPIVI", "helper": "Protocole du coordinateur bien-être et protection désigné." }
+    }
   },
   "dataController": {
-    "cardTitle": "Responsable de traitement et rôles délégués",
     "intro": "Nominations statutaires et responsabilités déléguées dans votre établissement. Décomptes uniquement — aucun nom individuel n'est affiché ici.",
     "statusAppointed": "Désigné",
-    "statusNotAppointed": "Non désigné",
-    "dslAppointed": "Désigné ({{count}} actif(s))",
-    "dslNotAppointed": "Pas encore désigné",
     "comingSoonHint": "Disponible avec les outils d'import de l'administrateur",
     "otherRolesHeading": "Autres rôles délégués",
     "activeCount": "{{count}} actif(s)",
-    "manage": "Gérer",
     "roleNames": {
       "convivexit_coordinator": "Coordinateur Convivèxit",
       "machista_protocol_lead": "Référent protocole violences sexistes",
