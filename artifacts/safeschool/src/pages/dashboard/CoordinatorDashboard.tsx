@@ -9,7 +9,7 @@ import { Button } from "@/components/ui-polished";
 import {
   AlertTriangle, ShieldAlert, FileText, Activity,
   TrendingUp, BarChart3, PieChart as PieChartIcon, Eye,
-  MapPin, Users, CheckCircle2, Clock, Download, Loader2, GraduationCap, ChevronRight, Lock, Unlock, ScrollText
+  MapPin, Users, CheckCircle2, Clock, Download, Loader2, GraduationCap, ChevronRight, Lock, Unlock, ScrollText, ShieldCheck
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -333,6 +333,25 @@ export default function CoordinatorDashboardView() {
                     <h3 className="font-bold">Audit Log</h3>
                     <p className="text-sm text-muted-foreground">
                       Complete record of all actions
+                    </p>
+                  </div>
+                  <ChevronRight size={18} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+                </CardContent>
+              </Card>
+            </Link>
+          )}
+
+          {user?.role === "coordinator" && (
+            <Link href="/admin">
+              <Card className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-teal-400">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                    <ShieldCheck size={24} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold">{t("adminTileTitle")}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {t("adminTileDescription")}
                     </p>
                   </div>
                   <ChevronRight size={18} className="text-muted-foreground group-hover:text-foreground transition-colors" />

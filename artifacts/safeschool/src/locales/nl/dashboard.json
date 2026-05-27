@@ -82,5 +82,7 @@
   "leftOut": "Buitengesloten",
   "friendshipIssues": "Vriendschapsproblemen",
   "safeguardingConcern": "Veiligheidszorg",
-  "welfare": "Welzijn"
+  "welfare": "Welzijn",
+  "adminTileTitle": "Beheer",
+  "adminTileDescription": "Beleid, rechten, kaders en verwerkingsverantwoordelijke"
 }

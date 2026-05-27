@@ -82,5 +82,7 @@
   "leftOut": "Exclu(e)",
   "friendshipIssues": "Problèmes d'amitié",
   "safeguardingConcern": "Préoccupation de protection",
-  "welfare": "Bien-être"
+  "welfare": "Bien-être",
+  "adminTileTitle": "Administration",
+  "adminTileDescription": "Politiques, permissions, cadres et responsable de traitement"
 }

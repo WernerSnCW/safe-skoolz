@@ -250,5 +250,7 @@
   "type": "Type",
   "howTheyFelt": "How they felt",
   "currentStatus": "Current Status",
-  "reviewedBy": "Reviewed by {{name}} on {{date}}"
+  "reviewedBy": "Reviewed by {{name}} on {{date}}",
+  "adminTileTitle": "Admin",
+  "adminTileDescription": "Policies, permissions, frameworks, and data controller"
 }
