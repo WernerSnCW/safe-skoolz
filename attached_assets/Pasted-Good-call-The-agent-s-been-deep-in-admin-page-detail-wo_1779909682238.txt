@@ -1,0 +1,20 @@
+Good call. The agent's been deep in admin-page detail work; the repositioning is a strategic shift it hasn't been briefed on. Send a short context message first, get acknowledgment, then send the ticket.
+
+> context update before the next sequence of tickets.
+>
+> we had a real-school walkthrough this week with morna's PSHE coordinator and head. main takeaway: the platform should be positioned as a WELLBEING app, not an anti-bullying / safeguarding app. safeguarding capture stays as a feature but stops being the front door. PSHE delivery becomes the central pupil-facing surface, alongside mood tracking, learning content, and safe-contact messaging. reporting stays available but is one feature among many, not the headline.
+>
+> pilot target: year 7 cohort at morna, september 2026 start. roughly 3 months out.
+>
+> what's coming: a sequenced phase 1 of repositioning tickets (login copy → pupil dashboard → sidebar nav restructure → KS3 visual pass), then phase 2 PSHE learning centre (schema + pupil-facing surface + 14 lessons of content i've already drafted), then phase 3 teacher presentation mode for PSHE delivery. all incremental, all short-message-shaped, same karpathy rules apply. tests stay 66+. typecheck stays at 17 (the parked shapes A/E/F/H from session 2). dev preview must keep working through every commit.
+>
+> a few decisions still open that affect downstream tickets:
+> - app name: "safeskoolz" stays as the literal string for now. we'll rename in lockstep across all surfaces once decided. don't rename ahead of that decision; just track occurrences as you find them.
+> - iSAMS integration: pending decision; not phase 1 work.
+> - pupil home-access auth model: pending; not phase 1.
+>
+> next message: phase 1 ticket 1 (login copy refresh, wellbeing-led). acknowledge this context and i'll send it.
+
+That gives the agent the why before the what. Once it acknowledges (probably a "got it, ready" type reply), paste the ticket 1 message I drafted in my previous turn.
+
+If the agent comes back with substantive questions on the context (e.g. "what happens to the existing /report front-door — does it move or get removed?"), reply in your own voice with the answer before sending the ticket. The ticket itself is scoped to login page only, so most of those questions can be answered with "we'll handle that in ticket 2 or 3."
