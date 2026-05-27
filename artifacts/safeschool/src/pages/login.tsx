@@ -933,6 +933,15 @@ export default function Login() {
                 <Button type="submit" size="lg" className="w-full mt-6" disabled={isPending}>
                   {isPending ? t("common:signingIn") : t("signInSecurely")}
                 </Button>
+                {demoEnabled && (
+                  <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
+                    <p className="font-bold text-primary/90 mb-1">Demo credentials</p>
+                    <p>Pick your name from the list above, then use password <code>password123</code>.</p>
+                    {activeTab === "pta" && (
+                      <p className="mt-1">PTA emails: <code>pta.chair@safeschool.dev</code>, <code>pta.member1@safeschool.dev</code></p>
+                    )}
+                  </div>
+                )}
               </form>
             )}
 

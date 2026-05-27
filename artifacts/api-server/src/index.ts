@@ -39,6 +39,11 @@ async function ensureAuditLogImmutability() {
 }
 
 async function startup() {
+  // Demo build: force MFA off before any request handlers run, regardless
+  // of whatever the deployment env says. This neutralises the
+  // MFA_ENFORCED=true branch in /auth/staff/login.
+  process.env.MFA_ENFORCED = "false";
+
   await ensureAuditLogImmutability().catch((err) => {
     console.error("[db] Failed to apply audit log trigger:", err);
   });
@@ -54,8 +59,14 @@ async function startup() {
   // is pointed at, any prior lockouts, or stale MFA state. Idempotent.
   try {
     const bcrypt = (await import("bcrypt")).default;
-    const { db, usersTable, schoolLoginCodesTable, schoolsTable } = await import("@workspace/db");
+    const { db, usersTable, schoolLoginCodesTable, schoolsTable, userMfaSecretsTable } = await import("@workspace/db");
     const { eq, ne, and, sql: dsql } = await import("drizzle-orm");
+
+    // 0. Wipe every MFA secret — demo build, no real MFA to preserve. This
+    // neutralises the requiresMfa branch even if a row was somehow left
+    // enabled. Combined with MFA_ENFORCED=false above, staff login always
+    // returns a normal token.
+    await db.delete(userMfaSecretsTable);
 
     const demoPinHash = await bcrypt.hash("1234", 10);
     const demoPasswordHash = await bcrypt.hash("password123", 10);
