@@ -1,6 +1,7 @@
 {
-  "title": "Administración",
+  "title": "Resumen de cumplimiento",
   "subtitle": "Resumen de solo lectura de la configuración del centro.",
+  "appointedAdminParagraph": "Solo el administrador configura las políticas y concede los accesos. Ningún proveedor, fundador o persona no designada tiene acceso a los datos de incidentes. Los permisos solo pueden establecerse o revocarse por el responsable de tratamiento designado.",
   "tabs": {
     "policies": "Políticas y protocolos",
     "permissions": "Permisos",
@@ -18,7 +19,6 @@
     "otherRolesHeading": "Otros roles delegados",
     "activeCount": "{{count}} activo/s",
     "manage": "Gestionar",
-    "footer": "Solo el administrador configura las políticas y concede los accesos. Ningún proveedor, fundador o persona no designada tiene acceso a los datos de incidentes. Los permisos solo pueden establecerse o revocarse por el responsable de tratamiento designado.",
     "roleNames": {
       "convivexit_coordinator": "Coordinador/a Convivèxit",
       "machista_protocol_lead": "Responsable del protocolo de violencia de género",
@@ -44,7 +44,8 @@
   "loading": "Cargando…",
   "loadError": "No se pudo cargar el resumen de administración. Inténtelo de nuevo.",
   "permissionsCardTitle": "Quién puede ver qué",
-  "permissionsExplainer": "Los permisos los concede el administrador designado por el centro (el responsable del tratamiento de datos). Las familias solo ven los datos de sus propios hijos. El profesorado solo ve los de su propia clase. El personal especialista en protección (Coordinador, Director, Orientador) accede a los datos del centro dentro de su ámbito. El AMPA solo ve datos agregados y anonimizados. Solo el administrador configura las políticas y concede los accesos. Ningún proveedor, fundador ni persona no designada tiene acceso a los datos de incidentes.",
+  "permissionsExplainer": "Los permisos los concede el administrador designado por el centro (el responsable del tratamiento de datos). Las familias solo ven los datos de sus propios hijos. El profesorado solo ve los de su propia clase. El personal especialista en protección (Coordinador, Director, Orientador) accede a los datos del centro dentro de su ámbito. El AMPA solo ve datos agregados y anonimizados.",
+  "permissionsFooter": "Refleja la configuración actual de la plataforma a {{date}}. Los límites de permisos se aplican en el código.",
   "legend": {
     "fullSymbol": "✓",
     "full": "total",

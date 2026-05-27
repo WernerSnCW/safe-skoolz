@@ -5,13 +5,14 @@ import PoliciesTab from "@/components/admin/PoliciesTab";
 import PermissionsTab from "@/components/admin/PermissionsTab";
 import FrameworksTab from "@/components/admin/FrameworksTab";
 import DataControllerTab from "@/components/admin/DataControllerTab";
+import DslBanner from "@/components/admin/DslBanner";
 
 export default function AdminPage() {
   const { t } = useTranslation("admin");
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-4">
         <div className="bg-primary/10 text-primary p-3 rounded-xl">
           <ShieldCheck size={28} strokeWidth={2.2} />
         </div>
@@ -21,21 +22,19 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="policies" className="w-full">
+      <p className="text-sm text-muted-foreground italic mb-6 leading-relaxed">
+        {t("appointedAdminParagraph")}
+      </p>
+
+      <DslBanner />
+
+      <Tabs defaultValue="frameworks" className="w-full">
         <TabsList className="mb-5">
-          <TabsTrigger value="policies">{t("tabs.policies")}</TabsTrigger>
-          <TabsTrigger value="permissions">{t("tabs.permissions")}</TabsTrigger>
           <TabsTrigger value="frameworks">{t("tabs.frameworks")}</TabsTrigger>
           <TabsTrigger value="dataController">{t("tabs.dataController")}</TabsTrigger>
+          <TabsTrigger value="policies">{t("tabs.policies")}</TabsTrigger>
+          <TabsTrigger value="permissions">{t("tabs.permissions")}</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="policies" className="mt-0">
-          <PoliciesTab />
-        </TabsContent>
-
-        <TabsContent value="permissions" className="mt-0">
-          <PermissionsTab />
-        </TabsContent>
 
         <TabsContent value="frameworks" className="mt-0">
           <FrameworksTab />
@@ -43,6 +42,14 @@ export default function AdminPage() {
 
         <TabsContent value="dataController" className="mt-0">
           <DataControllerTab />
+        </TabsContent>
+
+        <TabsContent value="policies" className="mt-0">
+          <PoliciesTab />
+        </TabsContent>
+
+        <TabsContent value="permissions" className="mt-0">
+          <PermissionsTab />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,6 +1,7 @@
 {
-  "title": "Administration",
+  "title": "Vue d'ensemble de la conformité",
   "subtitle": "Aperçu en lecture seule de la configuration de l'établissement.",
+  "appointedAdminParagraph": "Seul l'administrateur configure les politiques et accorde les accès. Aucun fournisseur, fondateur ou personne non désignée n'a accès aux données d'incident. Les permissions ne peuvent être attribuées ou révoquées que par le responsable de traitement désigné.",
   "tabs": {
     "policies": "Politiques et protocoles",
     "permissions": "Permissions",
@@ -18,7 +19,6 @@
     "otherRolesHeading": "Autres rôles délégués",
     "activeCount": "{{count}} actif(s)",
     "manage": "Gérer",
-    "footer": "Seul l'administrateur configure les politiques et accorde les accès. Aucun fournisseur, fondateur ou personne non désignée n'a accès aux données d'incident. Les permissions ne peuvent être attribuées ou révoquées que par le responsable de traitement désigné.",
     "roleNames": {
       "convivexit_coordinator": "Coordinateur Convivèxit",
       "machista_protocol_lead": "Référent protocole violences sexistes",
@@ -44,7 +44,8 @@
   "loading": "Chargement…",
   "loadError": "Impossible de charger l'aperçu administratif. Veuillez réessayer.",
   "permissionsCardTitle": "Qui peut voir quoi",
-  "permissionsExplainer": "Les autorisations sont accordées par l'administrateur désigné par l'établissement (le responsable du traitement des données). Les parents ne voient que les données de leurs propres enfants. Les enseignants ne voient que leur propre classe. Le personnel spécialisé en protection (Coordinateur, Directeur, SENCO) accède aux données de tout l'établissement dans le cadre de ses fonctions. L'association de parents (PTA) ne voit que des données agrégées et anonymisées. Seul l'administrateur configure les politiques et accorde les accès. Aucun prestataire, fondateur ou personne non désignée n'a accès aux données d'incident.",
+  "permissionsExplainer": "Les autorisations sont accordées par l'administrateur désigné par l'établissement (le responsable du traitement des données). Les parents ne voient que les données de leurs propres enfants. Les enseignants ne voient que leur propre classe. Le personnel spécialisé en protection (Coordinateur, Directeur, SENCO) accède aux données de tout l'établissement dans le cadre de ses fonctions. L'association de parents (PTA) ne voit que des données agrégées et anonymisées.",
+  "permissionsFooter": "Reflète la configuration actuelle de la plateforme au {{date}}. Les limites de permissions sont appliquées dans le code.",
   "legend": {
     "fullSymbol": "✓",
     "full": "complet",

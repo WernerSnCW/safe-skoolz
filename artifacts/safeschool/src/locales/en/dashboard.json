@@ -251,6 +251,6 @@
   "howTheyFelt": "How they felt",
   "currentStatus": "Current Status",
   "reviewedBy": "Reviewed by {{name}} on {{date}}",
-  "adminTileTitle": "Admin",
+  "adminTileTitle": "Compliance overview",
   "adminTileDescription": "Policies, permissions, frameworks, and data controller"
 }

@@ -422,7 +422,7 @@ export default function Login() {
         className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-600 text-white text-xs sm:text-sm font-bold shadow-md hover:bg-teal-700 transition-colors z-20 disabled:opacity-60"
       >
         <ShieldCheck size={14} />
-        Admin
+        Compliance overview
       </button>
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-background"></div>

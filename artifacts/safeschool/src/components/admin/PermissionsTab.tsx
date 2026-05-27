@@ -30,8 +30,13 @@ const COLUMN_KEYS = [
 ] as const;
 
 export default function PermissionsTab() {
-  const { t } = useTranslation("admin");
+  const { t, i18n } = useTranslation("admin");
   const { t: tTraining } = useTranslation("training");
+  const today = new Date().toLocaleDateString(i18n.language, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   const rows: RoleRow[] = [
     {
@@ -154,6 +159,10 @@ export default function PermissionsTab() {
           </li>
         ))}
       </ul>
+
+      <p className="text-xs text-muted-foreground italic mt-6 pt-4 border-t border-border">
+        {t("permissionsFooter", { date: today })}
+      </p>
     </section>
   );
 }

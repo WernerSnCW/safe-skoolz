@@ -1,6 +1,7 @@
 {
-  "title": "Admin",
+  "title": "Compliance overview",
   "subtitle": "Read-only overview of school configuration.",
+  "appointedAdminParagraph": "The administrator alone configures policies and grants access. No vendor, founder, or unappointed person has access to incident data. Permissions can only be set or revoked by the appointed data controller.",
   "tabs": {
     "policies": "Policies & Protocols",
     "permissions": "Permissions",
@@ -18,7 +19,6 @@
     "otherRolesHeading": "Other delegated roles",
     "activeCount": "{{count}} active",
     "manage": "Manage",
-    "footer": "The administrator alone configures policies and grants access. No vendor, founder, or unappointed person has access to incident data. Permissions can only be set or revoked by the appointed data controller.",
     "roleNames": {
       "convivexit_coordinator": "Convivèxit coordinator",
       "machista_protocol_lead": "Gender-based violence protocol lead",
@@ -44,7 +44,8 @@
   "loading": "Loading…",
   "loadError": "Could not load admin overview. Please try again.",
   "permissionsCardTitle": "Who can see what",
-  "permissionsExplainer": "Permissions are granted by the school's appointed administrator (the designated data controller). Parents see only their own children's data. Teachers see only their own class. Specialist safeguarding staff (Coordinator, Head Teacher, SENCO) see school-wide data within their remit. The PTA sees aggregated, anonymised data only. The administrator alone configures policies and grants access. No vendor, founder, or unappointed person has access to incident data.",
+  "permissionsExplainer": "Permissions are granted by the school's appointed administrator (the designated data controller). Parents see only their own children's data. Teachers see only their own class. Specialist safeguarding staff (Coordinator, Head Teacher, SENCO) see school-wide data within their remit. The PTA sees aggregated, anonymised data only.",
+  "permissionsFooter": "Reflects current platform configuration as of {{date}}. Permission boundaries are enforced in code.",
   "legend": {
     "fullSymbol": "✓",
     "full": "full",

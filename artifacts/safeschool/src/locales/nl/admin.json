@@ -1,6 +1,7 @@
 {
-  "title": "Beheer",
+  "title": "Nalevingsoverzicht",
   "subtitle": "Alleen-lezen overzicht van de schoolconfiguratie.",
+  "appointedAdminParagraph": "Alleen de beheerder configureert het beleid en verleent toegang. Geen leverancier, oprichter of niet-aangewezen persoon heeft toegang tot incidentgegevens. Rechten kunnen uitsluitend worden ingesteld of ingetrokken door de aangewezen verwerkingsverantwoordelijke.",
   "tabs": {
     "policies": "Beleid en protocollen",
     "permissions": "Rechten",
@@ -18,7 +19,6 @@
     "otherRolesHeading": "Overige gedelegeerde rollen",
     "activeCount": "{{count}} actief",
     "manage": "Beheren",
-    "footer": "Alleen de beheerder configureert het beleid en verleent toegang. Geen leverancier, oprichter of niet-aangewezen persoon heeft toegang tot incidentgegevens. Rechten kunnen uitsluitend worden ingesteld of ingetrokken door de aangewezen verwerkingsverantwoordelijke.",
     "roleNames": {
       "convivexit_coordinator": "Convivèxit-coördinator",
       "machista_protocol_lead": "Verantwoordelijke protocol gendergerelateerd geweld",
@@ -44,7 +44,8 @@
   "loading": "Laden…",
   "loadError": "Kan beheeroverzicht niet laden. Probeer het opnieuw.",
   "permissionsCardTitle": "Wie ziet wat",
-  "permissionsExplainer": "Rechten worden toegekend door de door de school aangewezen beheerder (de verwerkingsverantwoordelijke). Ouders zien alleen de gegevens van hun eigen kinderen. Leerkrachten zien alleen hun eigen klas. Gespecialiseerd zorgpersoneel (Coördinator, Directeur, SENCO) ziet schoolbrede gegevens binnen hun bevoegdheid. De oudervereniging ziet uitsluitend geaggregeerde, geanonimiseerde gegevens. Alleen de beheerder configureert beleid en kent toegang toe. Geen leverancier, oprichter of niet-aangewezen persoon heeft toegang tot incidentgegevens.",
+  "permissionsExplainer": "Rechten worden toegekend door de door de school aangewezen beheerder (de verwerkingsverantwoordelijke). Ouders zien alleen de gegevens van hun eigen kinderen. Leerkrachten zien alleen hun eigen klas. Gespecialiseerd zorgpersoneel (Coördinator, Directeur, SENCO) ziet schoolbrede gegevens binnen hun bevoegdheid. De oudervereniging ziet uitsluitend geaggregeerde, geanonimiseerde gegevens.",
+  "permissionsFooter": "Geeft de huidige platformconfiguratie weer op {{date}}. Rechten worden in code afgedwongen.",
   "legend": {
     "fullSymbol": "✓",
     "full": "volledig",

@@ -1,0 +1,37 @@
+Here you go.
+
+> admin page redesign + restructure. structured:
+>
+> approach gate: paste current
+>   (a) /admin page header markup
+>   (b) AppLayout nav entry for admin (file + line + current label)
+>   (c) /login Admin pill (file + line)
+>   (d) CoordinatorDashboard tile linking to /admin (file + line)
+>   (e) admin.json en file (so renames map cleanly)
+>   (f) nav.json en file
+>
+> also search for any cross-references to the DataControllerTab DSL card and the appointed-admin footer paragraph before you plan to remove them.
+>
+> scope:
+>   - rename "Admin" → "Compliance overview" across: page header, AppLayout nav entry, dashboard tile, /login pill
+>   - i18n: update title in admin.json, key value in nav.json, across all 4 locales (keep subtitle as-is)
+>   - tab reorder: Frameworks & Regulations FIRST, then Data Controller, then Policies & Protocols, then Permissions (positioning → trust → activity → boundaries)
+>   - promote DSL status to a page-level banner ABOVE the Tabs component. shows "Delegado de Bienestar y Protección (LOPIVI): Appointed (N active)" or "Not yet appointed" + "Coming with the Admin upload tools" hint. visually heavier than a card — treat as the page's headline statement.
+>   - remove the now-duplicated DSL card from inside DataControllerTab (it lives in the banner).
+>   - de-duplicate the appointed-admin paragraph ("The administrator alone configures policies and grants access..."): render ONCE at the top of /admin under the subtitle, remove from PermissionsTab, remove from DataControllerTab footer.
+>   - PermissionsTab: add a small footer line "Reflects current platform configuration as of [today's date]. Permission boundaries are enforced in code."
+>   - DataControllerTab content becomes: heading "Other delegated roles", the existing grid of role_type cards, no standalone DSL card, no appointed-admin footer.
+>
+> out of scope: empty states for new-school case, the permissions registry refactor.
+>
+> acceptance:
+>   - /admin header reads "Compliance overview"
+>   - DSL banner renders above Tabs, shows "Appointed (1 active)" for Morna
+>   - tabs in new order
+>   - appointed-admin paragraph appears once under subtitle, nowhere else
+>   - permissions tab footer shows the "Reflects current platform configuration as of [date]" line
+>   - sidebar nav, dashboard tile, /login pill all say "Compliance overview"
+>   - typecheck stays at 17, tests still pass, no new errors
+>   - all 4 locales updated
+>
+> one commit. report sha, git show --stat, brief note on whether the DSL card and footer removal surfaced any cross-references that needed adjusting.
