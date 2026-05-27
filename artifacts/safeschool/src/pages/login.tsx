@@ -393,6 +393,13 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full flex bg-background relative overflow-hidden">
+      <Link
+        href="/admin"
+        className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-600 text-white text-xs sm:text-sm font-bold shadow-md hover:bg-teal-700 transition-colors z-20"
+      >
+        <ShieldCheck size={14} />
+        Admin
+      </Link>
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-background"></div>
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/10 blur-3xl -translate-y-1/2 translate-x-1/2"></div>
