@@ -1,1 +1,2 @@
 - [Post-merge schema reconciliation](post-merge-schema-reconciliation.md) — when a merge adds a Drizzle schema change, the automated post-merge script breaks two ways at once: live DB DDL is not applied and `lib/db/dist/*.d.ts` is stale.
+- [Drizzle push rename trap](drizzle-push-rename-trap.md) — drizzle-kit push hangs on a TTY rename prompt when a new table looks like an orphan in the live DB; pipes don't answer it. Inspect and drop the orphan.

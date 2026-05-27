@@ -26,3 +26,6 @@ export * from "./pupilLoginSessions";
 export * from "./passwordResetTokens";
 export * from "./userMfaSecrets";
 export * from "./mfaResetRequests";
+export * from "./lessons";
+export * from "./lessonQuizzes";
+export * from "./lessonProgress";
