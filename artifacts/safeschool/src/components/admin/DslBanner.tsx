@@ -77,17 +77,11 @@ export default function DslBanner() {
             </p>
           )}
         </div>
-        <span
-          className={
-            dslAppointed
-              ? "shrink-0 text-xs font-bold px-3 py-1.5 rounded-full bg-primary text-primary-foreground"
-              : "shrink-0 text-xs font-bold px-3 py-1.5 rounded-full bg-muted text-muted-foreground border border-border"
-          }
-        >
-          {dslAppointed
-            ? t("dataController.statusAppointed")
-            : t("dataController.statusNotAppointed")}
-        </span>
+        {dslAppointed && (
+          <span className="shrink-0 text-xs font-bold px-3 py-1.5 rounded-full bg-primary text-primary-foreground">
+            {t("dataController.statusAppointed")}
+          </span>
+        )}
       </div>
     </section>
   );
