@@ -25,6 +25,7 @@ import NotificationsList from "@/pages/notifications";
 import Settings from "@/pages/settings";
 import MyClass from "@/pages/my-class";
 import LearnPage from "@/pages/learn";
+import LearnLessonPage from "@/pages/learn-lesson";
 import MessagesPage from "@/pages/messages";
 import CaseloadPage from "@/pages/caseload";
 import BehaviourPage from "@/pages/behaviour";
@@ -127,6 +128,9 @@ function Router() {
       </Route>
       <Route path="/learn">
         {() => <ProtectedRoute component={LearnPage} />}
+      </Route>
+      <Route path="/learn/:id">
+        {() => <ProtectedRoute component={LearnLessonPage} />}
       </Route>
       <Route path="/education">
         {() => <ProtectedRoute component={LearnPage} />}

@@ -34,7 +34,7 @@ a TTY for the prompt. Pipes hang the push.
 3. If the orphan has data or is referenced, do NOT drop — answer the prompt
    in a real TTY (locally) or migrate the data out first.
 
-Concrete example from Phase 2 ticket 5 (PSHE lessons schema): an empty
-`t09_scan_counter` table (KV shape `(key text, n int)` left by an earlier
-abandoned task) caused drizzle to offer it as a rename source for the new
-`lessons` table. Dropping `t09_scan_counter` made push apply cleanly.
+Concrete example: an empty `t09_scan_counter` table (KV shape
+`(key text, n int)` left by an earlier abandoned task) caused drizzle to
+offer it as a rename source for a brand-new `lessons` table. Dropping
+`t09_scan_counter` made push apply cleanly.

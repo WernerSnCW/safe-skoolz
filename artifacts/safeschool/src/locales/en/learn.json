@@ -1,4 +1,36 @@
 {
   "aboutSafeguarding": "About Safeguarding",
-  "usingSafeskoolz": "Using safeskoolz"
+  "usingSafeskoolz": "Using safeskoolz",
+  "pupil": {
+    "heroTitle": "PSHE & wellbeing",
+    "heroSubtitle": "Lessons designed for your year, in your own time.",
+    "strandAll": "All",
+    "strands": {
+      "me_and_my_wellbeing": "Me & My Wellbeing",
+      "me_and_others": "Me & Others",
+      "me_and_the_world": "Me & The World"
+    },
+    "status": {
+      "notStarted": "Not started",
+      "inProgress": "In progress",
+      "completed": "Completed"
+    },
+    "minutes": "{{count}} min",
+    "emptyTitle": "Lessons coming soon",
+    "emptyBody": "New lessons will appear here as soon as they're ready.",
+    "loadError": "Couldn't load lessons. Please try again in a moment."
+  },
+  "detail": {
+    "backToLearn": "Back to lessons",
+    "quizTitle": "Quick check",
+    "submitQuiz": "Submit answers",
+    "yourScore": "Your score",
+    "outOf": "({{correct}} of {{total}} correct)",
+    "markComplete": "Mark lesson complete",
+    "correct": "Correct",
+    "incorrect": "Not quite",
+    "loadError": "Couldn't load this lesson.",
+    "accessDeniedTitle": "Pupil lessons",
+    "accessDeniedBody": "PSHE lessons are for pupils. Use the staff Learn area instead."
+  }
 }

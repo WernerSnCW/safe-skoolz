@@ -3,13 +3,20 @@ import { BookOpen, GraduationCap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Education from "./education";
 import TrainingPage from "./training";
+import PupilLearn from "./learn-pupil";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/hooks/use-auth";
 
 type LearnTab = "safeguarding" | "using";
 
 export default function LearnPage() {
   const { t } = useTranslation("learn");
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<LearnTab>("safeguarding");
+
+  if (user?.role === "pupil") {
+    return <PupilLearn />;
+  }
 
   return (
     <div className="space-y-6">

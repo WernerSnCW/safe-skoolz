@@ -76,6 +76,8 @@
   },
   "dependencies": {
     "i18next": "^26.0.4",
-    "react-i18next": "^17.0.2"
+    "react-i18next": "^17.0.2",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   }
 }

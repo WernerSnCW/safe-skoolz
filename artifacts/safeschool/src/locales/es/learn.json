@@ -1,4 +1,36 @@
 {
   "aboutSafeguarding": "Sobre protección",
-  "usingSafeskoolz": "Usando safeskoolz"
+  "usingSafeskoolz": "Usando safeskoolz",
+  "pupil": {
+    "heroTitle": "PSHE y bienestar",
+    "heroSubtitle": "Lecciones diseñadas para tu curso, a tu ritmo.",
+    "strandAll": "Todo",
+    "strands": {
+      "me_and_my_wellbeing": "Yo y mi bienestar",
+      "me_and_others": "Yo y los demás",
+      "me_and_the_world": "Yo y el mundo"
+    },
+    "status": {
+      "notStarted": "Sin empezar",
+      "inProgress": "En curso",
+      "completed": "Completada"
+    },
+    "minutes": "{{count}} min",
+    "emptyTitle": "Lecciones próximamente",
+    "emptyBody": "Las nuevas lecciones aparecerán aquí en cuanto estén listas.",
+    "loadError": "No se han podido cargar las lecciones. Inténtalo de nuevo en un momento."
+  },
+  "detail": {
+    "backToLearn": "Volver a las lecciones",
+    "quizTitle": "Comprobación rápida",
+    "submitQuiz": "Enviar respuestas",
+    "yourScore": "Tu puntuación",
+    "outOf": "({{correct}} de {{total}} correctas)",
+    "markComplete": "Marcar lección como completada",
+    "correct": "Correcto",
+    "incorrect": "Casi",
+    "loadError": "No se ha podido cargar esta lección.",
+    "accessDeniedTitle": "Lecciones del alumnado",
+    "accessDeniedBody": "Las lecciones de PSHE son para el alumnado. Usa el área Aprender del personal."
+  }
 }
