@@ -28,6 +28,7 @@ let schoolId: string;
 let pupilA: string;  // Y7 (KS3)
 let pupilB: string;  // Y7 (KS3) — used to prove pupil-isolation
 let pupilC: string;  // Y4 (KS2) — used to prove key_stage filter
+let pupilD: string;  // null year_group — used to prove fail-closed behaviour
 let globalLessonId: string;
 let ks3LessonId: string;
 let ks2LessonId: string;
@@ -45,6 +46,14 @@ function tokenFor(userId: string): string {
   );
 }
 
+function tokenForRole(userId: string, role: string): string {
+  return jwt.sign(
+    { userId, schoolId, role },
+    process.env.JWT_SECRET!,
+    { expiresIn: "1h" }
+  );
+}
+
 beforeAll(async () => {
   process.env.JWT_SECRET ||= "test-secret";
 
@@ -54,17 +63,18 @@ beforeAll(async () => {
   );
   schoolId = sch.rows[0].id;
 
-  const mkPupil = async (yg: string) => {
+  const mkPupil = async (yg: string | null) => {
     const r = await pool.query<{ id: string }>(
       `INSERT INTO users (school_id, role, first_name, last_name, year_group, active)
        VALUES ($1, 'pupil', 'T12', $2, $3, true) RETURNING id`,
-      [schoolId, `Pupil-${yg}`, yg]
+      [schoolId, `Pupil-${yg ?? "null"}`, yg]
     );
     return r.rows[0].id;
   };
   pupilA = await mkPupil("Y7");
   pupilB = await mkPupil("Y7");
   pupilC = await mkPupil("Y4");
+  pupilD = await mkPupil(null);
 
   // Three lessons:
   //  - global KS3 (school_id NULL)        → visible to KS3 pupils everywhere
@@ -134,7 +144,7 @@ afterAll(async () => {
     ks3LessonId,
     ks2LessonId,
   ]);
-  await pool.query(`DELETE FROM users WHERE id IN ($1, $2, $3)`, [pupilA, pupilB, pupilC]);
+  await pool.query(`DELETE FROM users WHERE id IN ($1, $2, $3, $4)`, [pupilA, pupilB, pupilC, pupilD]);
   // school row left in place — audit_log rows from this test reference it
   // via FK and audit_log is append-only.
 });
@@ -281,5 +291,76 @@ describe("PSHE lessons API", () => {
     );
     expect(row.rows[0]?.completed_at).not.toBeNull();
     expect(row.rows[0]?.completed_at instanceof Date).toBe(true);
+  });
+
+  // Ticket 6.5 — auth gaps surfaced by architect review of ticket 7.
+
+  it("non-pupil roles are rejected with 403 on every lessons endpoint", async () => {
+    // requireRole rejects on the JWT role before any DB lookup, so reusing
+    // pupilA's id with a coordinator role is enough to prove the guard.
+    const h = { authorization: `Bearer ${tokenForRole(pupilA, "coordinator")}` };
+    const jsonH = { ...h, "content-type": "application/json" };
+
+    expect((await fetch(`${baseUrl}/api/lessons`, { headers: h })).status).toBe(403);
+    expect((await fetch(`${baseUrl}/api/lessons/progress`, { headers: h })).status).toBe(403);
+    expect((await fetch(`${baseUrl}/api/lessons/${ks3LessonId}`, { headers: h })).status).toBe(403);
+    expect(
+      (await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/start`, { method: "POST", headers: h })).status
+    ).toBe(403);
+    expect(
+      (
+        await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/quiz`, {
+          method: "POST",
+          headers: jsonH,
+          body: JSON.stringify({ answers: {} }),
+        })
+      ).status
+    ).toBe(403);
+    expect(
+      (await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/complete`, { method: "POST", headers: h })).status
+    ).toBe(403);
+  });
+
+  it("a pupil outside the lesson's key stage gets 404 on read and on every write", async () => {
+    // pupilC is Y4 (KS2); ks3LessonId is KS3 → all five lesson-id endpoints 404.
+    const h = { authorization: `Bearer ${tokenFor(pupilC)}` };
+
+    expect((await fetch(`${baseUrl}/api/lessons/${ks3LessonId}`, { headers: h })).status).toBe(404);
+    expect(
+      (await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/start`, { method: "POST", headers: h })).status
+    ).toBe(404);
+    expect(
+      (
+        await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/quiz`, {
+          method: "POST",
+          headers: { ...h, "content-type": "application/json" },
+          body: JSON.stringify({ answers: { [quizId1]: "A" } }),
+        })
+      ).status
+    ).toBe(404);
+    expect(
+      (await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/complete`, { method: "POST", headers: h })).status
+    ).toBe(404);
+
+    // No progress row may have leaked through for pupil C on the KS3 lesson.
+    const row = await pool.query(
+      `SELECT 1 FROM lesson_progress WHERE user_id = $1 AND lesson_id = $2`,
+      [pupilC, ks3LessonId]
+    );
+    expect(row.rowCount).toBe(0);
+  });
+
+  it("a pupil with an unmapped year group fails closed (empty list, 404 on detail/writes)", async () => {
+    // pupilD has a null year_group → keyStage is null → must never see content.
+    const h = { authorization: `Bearer ${tokenFor(pupilD)}` };
+
+    const listRes = await fetch(`${baseUrl}/api/lessons`, { headers: h });
+    expect(listRes.status).toBe(200);
+    expect(((await listRes.json()) as unknown[]).length).toBe(0);
+
+    expect((await fetch(`${baseUrl}/api/lessons/${globalLessonId}`, { headers: h })).status).toBe(404);
+    expect(
+      (await fetch(`${baseUrl}/api/lessons/${globalLessonId}/start`, { method: "POST", headers: h })).status
+    ).toBe(404);
   });
 });

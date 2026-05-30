@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { authMiddleware, type JwtPayload } from "../lib/auth";
+import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import {
   db,
   lessonsTable,
@@ -44,6 +44,7 @@ async function getUserKeyStage(userId: string): Promise<{ keyStage: string | nul
 router.get(
   "/lessons/progress",
   authMiddleware,
+  requireRole("pupil"),
   async (req: Request, res: Response): Promise<void> => {
     const user = (req as any).user as JwtPayload;
 
@@ -74,6 +75,7 @@ router.get(
 router.get(
   "/lessons",
   authMiddleware,
+  requireRole("pupil"),
   async (req: Request, res: Response): Promise<void> => {
     const user = (req as any).user as JwtPayload;
     const { keyStage } = await getUserKeyStage(user.userId);
@@ -137,6 +139,7 @@ router.get(
 router.get(
   "/lessons/:id",
   authMiddleware,
+  requireRole("pupil"),
   async (req: Request, res: Response): Promise<void> => {
     const user = (req as any).user as JwtPayload;
     const lessonId = String(req.params.id);
@@ -158,9 +161,10 @@ router.get(
       return;
     }
 
-    // Belt-and-braces: also enforce key_stage match so a pupil can't read a
-    // lesson outside their stage by guessing the id.
-    if (keyStage && lesson.keyStage !== keyStage) {
+    // Fail closed: a pupil with no mapped key stage (null/unknown year group)
+    // or one whose stage doesn't match the lesson cannot read it by guessing
+    // the id. Null keyStage must 404, not pass.
+    if (!keyStage || lesson.keyStage !== keyStage) {
       res.status(404).json({ error: "Lesson not found" });
       return;
     }
@@ -193,12 +197,14 @@ router.get(
 router.post(
   "/lessons/:id/start",
   authMiddleware,
+  requireRole("pupil"),
   async (req: Request, res: Response): Promise<void> => {
     const user = (req as any).user as JwtPayload;
     const lessonId = String(req.params.id);
+    const { keyStage } = await getUserKeyStage(user.userId);
 
     const [lesson] = await db
-      .select({ id: lessonsTable.id })
+      .select({ id: lessonsTable.id, keyStage: lessonsTable.keyStage })
       .from(lessonsTable)
       .where(
         and(
@@ -209,6 +215,13 @@ router.post(
       );
 
     if (!lesson) {
+      res.status(404).json({ error: "Lesson not found" });
+      return;
+    }
+
+    // Fail closed: pupil's mapped key stage must match the lesson's, so a
+    // pupil cannot write progress against an out-of-stage lesson.
+    if (!keyStage || lesson.keyStage !== keyStage) {
       res.status(404).json({ error: "Lesson not found" });
       return;
     }
@@ -252,6 +265,7 @@ router.post(
 router.post(
   "/lessons/:id/quiz",
   authMiddleware,
+  requireRole("pupil"),
   async (req: Request, res: Response): Promise<void> => {
     const user = (req as any).user as JwtPayload;
     const lessonId = String(req.params.id);
@@ -262,8 +276,10 @@ router.post(
       return;
     }
 
+    const { keyStage } = await getUserKeyStage(user.userId);
+
     const [lesson] = await db
-      .select({ id: lessonsTable.id })
+      .select({ id: lessonsTable.id, keyStage: lessonsTable.keyStage })
       .from(lessonsTable)
       .where(
         and(
@@ -274,6 +290,12 @@ router.post(
       );
 
     if (!lesson) {
+      res.status(404).json({ error: "Lesson not found" });
+      return;
+    }
+
+    // Fail closed: pupil's key stage must match the lesson's.
+    if (!keyStage || lesson.keyStage !== keyStage) {
       res.status(404).json({ error: "Lesson not found" });
       return;
     }
@@ -334,12 +356,14 @@ router.post(
 router.post(
   "/lessons/:id/complete",
   authMiddleware,
+  requireRole("pupil"),
   async (req: Request, res: Response): Promise<void> => {
     const user = (req as any).user as JwtPayload;
     const lessonId = String(req.params.id);
+    const { keyStage } = await getUserKeyStage(user.userId);
 
     const [lesson] = await db
-      .select({ id: lessonsTable.id })
+      .select({ id: lessonsTable.id, keyStage: lessonsTable.keyStage })
       .from(lessonsTable)
       .where(
         and(
@@ -350,6 +374,12 @@ router.post(
       );
 
     if (!lesson) {
+      res.status(404).json({ error: "Lesson not found" });
+      return;
+    }
+
+    // Fail closed: pupil's key stage must match the lesson's.
+    if (!keyStage || lesson.keyStage !== keyStage) {
       res.status(404).json({ error: "Lesson not found" });
       return;
     }

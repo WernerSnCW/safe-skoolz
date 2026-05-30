@@ -1,0 +1,80 @@
+Do 6.5 now, before ticket 8
+Reasoning:
+
+Seeding 14 lessons into routes with auth gaps means the seed gets verified against the wrong threat model. Fix the doors first, then put content behind them.
+30 minutes is small enough to ship as its own focused ticket. Clean separate commit, clean audit trail.
+Ticket 8 is content + DB inserts. Mixing it with auth-middleware work muddies both diffs.
+If 6.5 surfaces a second auth gap during the fix (likely — the bug pattern is "conditional auth that fails open"), you'd rather discover it before, not during, the seed.
+Send this to Replit next:
+
+ticket 6.5: fix auth gaps in /api/lessons routes. surfaced by architect review of ticket 7. structured:
+
+approach gate: paste current
+(a) full routes/lessons.ts after ticket 6's commit
+(b) the requireRole middleware (or equivalent) used elsewhere — match its pattern
+(c) the year_group → key_stage mapping function from ticket 6
+
+scope: routes/lessons.ts only + the related test file. no other route files, no schema changes.
+
+work:
+
+add role check on all 5 endpoints: if (req.user.role !== "pupil") return 403. either inline or via a thin requirePupil helper.
+tighten GET /:id key_stage check to fail closed: if (!keyStage || lesson.key_stage !== keyStage) return 404. (current code only checks when keyStage is truthy — non-pupils with null keyStage can fetch any lesson detail.)
+apply the same fail-closed key_stage filter to /start, /quiz, /complete so a pupil can't write progress against a lesson outside their key stage.
+tests (add to existing lessons.test.ts):
+
+coordinator JWT gets 403 on each of the 5 endpoints
+pupil with Y4 (KS2) gets 404 trying to access a KS3 lesson
+pupil with null/unknown year_group gets 404 (not 200)
+existing pupil-happy-path tests still pass
+acceptance:
+
+75 → 78+ tests, all green
+api typecheck still 17, web typecheck still 0
+curl: coordinator gets 403; cross-keystage pupil gets 404; in-keystage pupil unchanged
+out of scope: auditing other route files for the same pattern. that's a separate ticket. do NOT sweep.
+
+one commit. report sha, git show --stat, before/after curl examples.
+
+The broader audit (separate ticket, after 6.5)
+The architect found one instance. The same bug pattern almost certainly exists in other route files added recently — admin.ts, mfa.ts, passwordReset.ts, the audit log read endpoints. Conditional auth that fails open is a class, not a one-off.
+
+After 6.5 ships, send this:
+
+ticket P0 (pre-pilot security pass): API auth gap audit. structured:
+
+approach gate: list every file under artifacts/api-server/src/routes/. for each, paste the auth middleware chain used.
+
+scope: read-only audit of all route files. NO code changes in this ticket. output is a report appended to OVERNIGHT_LOG.md under "API auth audit (pre-pilot)".
+
+work: for each route file, classify every endpoint by:
+
+does it check role? (requireRole / inline / none)
+does it scope to school_id?
+does it scope to user_id where relevant?
+does it have any conditional auth check that fails open if the condition is falsy (the lessons.ts bug pattern)?
+output table: route | method | path | role check | school scope | user scope | conditional-fail-open risk | recommended fix
+
+mark each row CLEAN / NEEDS-FIX / NEEDS-INVESTIGATION.
+
+hard cap: if NEEDS-FIX count exceeds 10, STOP and surface. that's a refactor decision, not a fix sweep.
+
+acceptance: report appended to OVERNIGHT_LOG. no code touched. tom reviews and decides which fixes to ship.
+
+That ticket gives you a complete punch list. You then decide whether to fix all of them as one sweep, fix critical ones now and defer the rest, or accept the risk for pilot.
+
+Connecting to the handover
+The two tickets above slot cleanly into PILOT_BRIEF.md:
+
+6.5 → add to Phase 2 between ticket 7 and ticket 8
+P0 → add to Phase 5 (Pilot prep) as the first item
+Update PILOT_BRIEF.md to reflect the new sequence before handover so the next agent session sees them in the right order. The line in Phase 2 becomes:
+
+- Ticket 6.5: Fix auth gaps in lessons routes (surfaced by architect review of ticket 7)
+- Ticket 8: Seed 14 Year 7 PSHE lessons from CURRICULUM_YEAR7.md
+And in Phase 5:
+
+- Ticket P0: API auth gap audit (read-only, report only — fixes decided per finding)
+- Ticket P1: Accessibility audit
+- Ticket P2: Playwright e2e smoke tests
+... etc
