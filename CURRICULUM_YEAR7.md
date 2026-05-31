@@ -1,0 +1,911 @@
+# CURRICULUM_YEAR7.md
+
+Year 7 PSHE curriculum for safeskoolz pilot at Morna International College. 14 lessons across three strands. All placeholders preserved verbatim for the Morna information-request document.
+
+Each lesson contains: hook, learning objectives, 5-7 slides of content, activity, reflection prompt, quiz (3-4 multiple choice), teacher notes, safeguarding signposts.
+
+## Strand A: Me & My Wellbeing
+
+### A1. Starting secondary: the brain you're bringing with you
+
+**Hook:** Year 7 is the biggest cognitive jump since you learned to read.
+
+**Learning objectives:**
+- Understand that significant brain change in Year 7 is normal
+- Develop more precise vocabulary for naming emotions
+- Identify your own emotional state with one specific word
+
+**Slide 1.** Your brain right now is going through the biggest rewiring since you were two. Year 7 isn't just a new building and new teachers. It's your brain literally restructuring how it makes decisions, manages emotions, and connects with other people.
+
+**Slide 2.** Between 11 and 16, your prefrontal cortex (the part that handles planning, impulse control, and big decisions) is going through a major rewiring. It's like an electrician ripping out old wires and putting in faster ones. While it's happening, things feel weird. Sometimes you're sharp. Sometimes you're foggy. Sometimes you snap at people you love. This is normal.
+
+**Slide 3.** When an adult asks how you are, the easiest answer is "fine." Fine covers everything. It also says nothing. The problem is, if you never name what you're actually feeling, you can't tell what to do about it. "I'm overwhelmed because I have three deadlines" is solvable. "I'm fine" isn't.
+
+**Slide 4.** Five states you might be having right now that aren't "fine":
+- Overwhelmed: too much to handle at once
+- Apprehensive: nervous about something specific coming up
+- Disconnected: feeling like you're going through motions
+- Restless: bored but also fidgety
+- Content: not happy exactly, but okay
+
+**Slide 5.** When you can name what you're feeling, three things happen. You can tell someone who can help. You can notice when something changes. And you can stop pretending you're okay when you're not. This isn't soft. This is one of the most useful skills you'll learn this year.
+
+**Activity (60 seconds, silent, private):** Write down one word that describes how you feel right now. Not "fine." Not "good." A specific word. If you can't find one, that's interesting too.
+
+**Reflection:** Think of a time in the last week when you said "fine" but meant something else. What word would have been more accurate?
+
+**Quiz:**
+1. The prefrontal cortex handles which of these? (A) Memory of facts (B) Planning, impulse control, decisions (C) Vision (D) Heartbeat → **B**
+2. Why avoid saying "fine"? (A) It's rude (B) It doesn't help you figure out what to do (C) Teachers prefer other words (D) It's old-fashioned → **B**
+3. Brain rewiring during Year 7 is: (A) Unusual and concerning (B) Only for some people (C) Normal and happens to everyone (D) A myth → **C**
+
+**Teacher notes:** Gateway lesson. The "fine" framing recurs in A6. If a pupil writes a significant word, follow up privately. The 60-second activity is silent; don't ask pupils to share what they wrote.
+
+**Safeguarding signposts:** Persistent low mood or distress disclosed during the reflection triggers escalation per [PLACEHOLDER: school safeguarding pathway].
+
+---
+
+### A2. Your body, your rules
+
+**Hook:** When someone touches you, you're the only person who decides if that's okay.
+
+**Learning objectives:**
+- Understand bodily autonomy as a right, not a privilege
+- Identify your own discomfort signals
+- Know your options when something doesn't feel right
+
+**Slide 1.** This is one of the most important sentences you'll hear in school: when someone touches you, you're the only person who decides if that's okay. Not them. Not their friends. Not because it's a hug from family. Not because they didn't mean anything by it. You.
+
+**Slide 2.** "Okay" means YOU feel okay. Not "I should be okay," not "they meant well," not "they didn't realise." Your body sends signals when something isn't right. Stomach tightening. Going still. Wanting to move away. Suddenly feeling cold. These signals are information. They're not overreacting.
+
+**Slide 3.** This lesson isn't only about sexual contact. It's about all of it. A friend who hugs you when you didn't want to. An adult who ruffles your hair when you don't like it. A cousin who keeps poking you in the ribs. Someone who stands too close. Your bodily autonomy covers all of these.
+
+**Slide 4.** Saying no is harder than it sounds. You'll worry about being rude. About hurting feelings. About being "a big deal." That worry is real but it's smaller than your right to feel safe in your own body. Scripts that work:
+- "I'd rather not."
+- "Not right now."
+- "I don't like that, please stop."
+- Or just step back. You don't have to explain.
+
+**Slide 5.** Sometimes you only realise after that something wasn't okay. That's normal. The signal sometimes arrives late. If something happened that didn't feel okay, you can tell someone, even days, weeks, or months later. The right to talk about it doesn't expire.
+
+**Slide 6.** If something happens you want to talk about: a parent or carer, a teacher you trust, the school's safeguarding lead. You can use the safeskoolz app to message a safe contact. You can tell ONE person without telling everyone. Telling someone doesn't mean "big trouble." It means you talking to someone who can help.
+
+**Activity (in pairs, private answers):** Read these. Decide whether each one is okay or not, and why. Don't compare until after.
+1. A friend hugs you tightly when you've had a bad day.
+2. An adult relative kisses you on the lips when greeting you.
+3. A classmate keeps tapping your shoulder while you're working.
+4. A new friend wants a photo with their arm around you.
+5. Someone you don't know well puts their hand on your knee under the table.
+
+**Reflection:** Think of one time in the last year when someone did something physical you didn't want, but you didn't say anything. What stopped you?
+
+**Quiz:**
+1. Who decides if physical contact is okay? (A) Other person (B) You (C) Teacher (D) Whoever's older → **B**
+2. A body signal something isn't okay? (A) Feeling proud (B) Stomach tight, going still (C) Feeling hungry (D) Feeling sleepy → **B**
+3. If you realise weeks later something wasn't okay, can you still talk about it? (A) No (B) Only first hour (C) Yes, anytime (D) Only to police → **C**
+4. Bodily autonomy is: (A) A privilege you earn (B) A rule for adults only (C) A right that belongs to you (D) Something to negotiate → **C**
+
+**Teacher notes:** Foundational. Some pupils may disclose during or after. Have the coordinator on call. Activity discussion stays private unless pupil chooses to share.
+
+**Safeguarding signposts:** Any disclosure triggers the school's standard safeguarding process. Lesson signposts the app's safe-contacts feature.
+
+---
+
+### A3. The body you're growing into
+
+**Hook:** Your body is rebuilding itself. Here's what's happening, and why none of it makes you weird.
+
+**Learning objectives:**
+- Understand puberty as a normal biological process with variable timing
+- Recognise the gap between bodies in real life and bodies in media
+- Develop body-image vocabulary that isn't tied to filters
+
+**Slide 1.** Between roughly 9 and 16, your body goes through more change than at any time since you were a baby. Hormones rewire how you sleep, how you think, how you smell, how you grow. None of this is broken. All of this is on schedule. Your schedule, specifically — which may not match anyone else's in your class.
+
+**Slide 2.** Some of what's happening:
+- Growth spurts (sometimes 5-10 cm in a year, with the bones aching as they go)
+- Sweat glands switching on
+- Skin oil changes (hello, spots)
+- Body hair appearing
+- Bodies developing in different ways depending on whether you're going through male or female puberty (and for some, both or neither in straightforward ways)
+- Voice changes
+- Periods starting (for those with the relevant biology, usually between 9 and 15)
+- Erections happening unexpectedly (for those with the relevant biology, sometimes mortifying)
+
+All of this is normal. All of this happens to nearly everyone. The variation is in WHEN.
+
+**Slide 3.** Timing is the biggest stress. The kid who hits puberty at 9 feels weird because they're ahead. The kid who hits it at 14 feels weird because they're behind. Almost nobody feels on time. The truth is that the range is wide and your timing is your timing. Nothing's gone wrong.
+
+**Slide 4.** The bodies you see on Instagram, TikTok, in films — almost all of them are filtered, edited, lit, or surgically modified. The teenagers on screen with perfect skin and perfect proportions are either older actors playing teenagers, or real teenagers with two hours of professional makeup, or AI-generated. The version of "normal" that social media shows you isn't normal. It's commercial.
+
+**Slide 5.** A way to check: look up "before and after Instagram filters" or "real bodies vs filtered bodies." What you see online is a curated highlight reel. Your unfiltered body is what real looks like, and so is every other unfiltered body in your class.
+
+**Slide 6.** Body-image vocabulary worth having:
+- Body neutrality: your body is the vehicle you live in. You don't have to love it. You can just let it be.
+- Comparison: noticing you're judging yourself against an unfair standard. The moment you notice it, the comparison loses some power.
+- Filter dysmorphia: when filtered versions of your face start to feel more "real" than your actual face. It's a known thing, well-studied, and uncomfortably common.
+
+You don't have to be confident about your body. You have to live in it. Those are different things.
+
+**Activity (private):** List three things your body does well that have nothing to do with how it looks. Examples: "carries me up four flights of stairs," "lets me kick a ball precisely," "lets me feel music." Write them down.
+
+**Reflection:** Have you ever compared yourself to someone on social media and felt worse afterwards? What might have been different about their image vs reality?
+
+**Quiz:**
+1. The variation in puberty is mostly about: (A) Whether it happens (B) When it happens (C) Where it happens (D) Why it happens → **B**
+2. Bodies shown on Instagram and TikTok are typically: (A) Random samples of real bodies (B) Filtered, edited, lit, or AI-generated (C) Banned (D) The most accurate available → **B**
+3. Body neutrality means: (A) You must love your body (B) Your body is the vehicle you live in; you don't have to love it (C) Your body is bad (D) You ignore your body → **B**
+4. Filter dysmorphia is: (A) A camera setting (B) When filtered versions feel more real than your actual face (C) A rare disease (D) A type of phone → **B**
+
+**Teacher notes:** Sensitive for some pupils, especially those whose puberty timing is unusual or whose gender identity may differ from sex assigned at birth. [PLACEHOLDER: Morna coordinator to confirm whether the gender-inclusive framing in Slide 2 is appropriate for school context.]
+
+**Safeguarding signposts:** Disclosures of body dysmorphia, eating disorders, self-harm, or gender distress trigger the school's safeguarding response via [PLACEHOLDER: school safeguarding lead contact].
+
+---
+
+### A4. Sleep, screens, and the brain you can't see
+
+**Hook:** Your brain rebuilds itself every night. Skip sleep, you skip yourself.
+
+**Learning objectives:**
+- Understand sleep as biological maintenance, not optional rest
+- Recognise the relationship between screens, dopamine, and attention
+- Identify your own sleep and screen patterns
+
+**Slide 1.** Sleep isn't just "rest." Every night your brain runs a maintenance program. It clears out chemical waste. It moves memories from short-term storage to long-term. It rebuilds the connections that learning depends on. When you skip sleep, you skip the maintenance. Things get worse not just the next day, but next week and next month.
+
+**Slide 2.** At your age, you need 9 to 11 hours of sleep. Most Year 7s get 6 to 8. The gap shows up as:
+- Slower thinking
+- Worse mood (irritability and sadness both spike with sleep loss)
+- Reduced memory of what you learned that day
+- Worse impulse control (you snap at people you don't mean to)
+- Lower immunity (you get sick more)
+
+Sleep deprivation is the single most under-recognised cause of bad days at school.
+
+**Slide 3.** Why is sleep so hard at your age? Because your brain's natural sleep cycle shifts in puberty. You feel awake later. You feel tired later in the morning. You want to be on your phone at midnight because your body is genuinely telling you "this is when I'm alert." Schools mostly start before this cycle wants you to.
+
+**Slide 4.** Screens at night make it worse, but probably not for the reason you've been told. Blue light is a smaller factor than most people think. The bigger factor is the dopamine cycle. TikTok, Snapchat, games — they're designed to release small dopamine hits to keep you engaged. Your brain registers these as rewards. When you put the phone down, you crave the next hit. So you pick it back up. That cycle makes falling asleep hard.
+
+**Slide 5.** What actually works for sleep, based on evidence:
+- A consistent bedtime, even on weekends (your brain learns the schedule)
+- Phone out of the bedroom (not just face-down on the bedside table — out of the room)
+- Cool, dark room
+- No caffeine after lunch (energy drinks are sneaky about caffeine content)
+- The "wind-down hour" — anything that isn't a screen for 60 minutes before sleep. Reading, drawing, talking, music.
+
+You don't have to do all of these. Doing one consistently moves the needle.
+
+**Slide 6.** Screens during the day — not all screen time is equal. Texting a friend, watching a film, doing homework on a laptop, scrolling TikTok for an hour — these have different effects on your brain. The kind of screen use that causes the most harm is endless-scroll feeds (TikTok, Instagram Reels, YouTube Shorts), specifically because they're designed to keep you scrolling. An hour of TikTok feels less satisfying than an hour of anything else, but you'll do it longer.
+
+**Activity (this week):** Track for 7 days. Each morning, write down (a) what time you actually went to sleep, (b) what time you woke up, (c) one word for your mood that day. See if you find a pattern.
+
+**Reflection:** What's your current relationship with sleep — are you getting enough, or is something getting in the way? What's one change you could try this week?
+
+**Quiz:**
+1. How many hours of sleep do Year 7s need? (A) 6-8 (B) 7-9 (C) 9-11 (D) 12+ → **C**
+2. The bigger reason screens at night affect sleep is: (A) Blue light damages eyes (B) Dopamine cycle keeps you engaged (C) Phones are heavy (D) Screens emit radiation → **B**
+3. Sleep deprivation affects which of these? (A) Mood only (B) Memory only (C) Mood, memory, impulse control, immunity (D) Nothing measurable → **C**
+4. "Wind-down hour" means: (A) An hour of exercise (B) An hour of meditation (C) An hour of non-screen activity before sleep (D) An hour of homework → **C**
+
+**Teacher notes:** Lays groundwork for digital wellbeing in B3 and B4. Sleep-tracking activity often surfaces useful information for pastoral conversations.
+
+**Safeguarding signposts:** Severe sleep deprivation, persistent insomnia, or screen use to escape distress can be safeguarding indicators. Escalate per [PLACEHOLDER: school safeguarding pathway].
+
+---
+
+### A5. Vapes, drinks, and the lies you'll be told
+
+**Hook:** By the end of Year 7, someone will offer you a vape. Here's what they won't tell you.
+
+**Learning objectives:**
+- Understand the actual physiological effects of vaping and alcohol on a developing brain
+- Recognise common peer pressure tactics
+- Have practised refusal responses you can actually use
+
+**Slide 1.** A reality check before anything else. By the end of Year 7, statistically, someone will offer you a vape. By the end of Year 8, it'll be alcohol. By the end of Year 9, it might be something stronger. The point of this lesson isn't to scare you — scare tactics don't work and you know that. The point is to give you actual information so you can decide for yourself.
+
+**Slide 2.** What's actually in a vape:
+- Nicotine, in concentrations far higher than older cigarettes. One disposable vape can contain as much nicotine as 50 cigarettes.
+- Flavouring chemicals, some of which are safe to eat but not safe to inhale (the lungs and the gut process chemicals very differently)
+- Heavy metals from the heating element
+- Particulate matter that lodges in the smallest airways of your lungs
+
+The "it's just water vapour" line is marketing. It isn't.
+
+**Slide 3.** What nicotine actually does to a brain your age:
+- Hits dopamine receptors the same way TikTok does, but harder
+- Builds dependency faster in adolescent brains than in adult brains (your brain is still wiring; it wires nicotine into the wiring)
+- Affects memory formation, attention, mood regulation
+- Once dependency forms, withdrawal feels physically uncomfortable — and the only thing that fixes it is more nicotine. That's the trap.
+
+The brain you're vaping with is not the brain you'll have at 25. You're shaping the older one.
+
+**Slide 4.** Alcohol, briefly:
+- A developing brain (you, until ~25) processes alcohol differently than an adult brain. The damage from heavy drinking at 14 is bigger than the same drinking at 24.
+- Alcohol disinhibits the part of your brain that stops you doing things you'll regret. That's why people get loud, embarrassing, aggressive, or vulnerable when drunk.
+- Small amounts socially are different from heavy drinking. The line matters.
+
+**Slide 5.** What you'll actually hear when offered:
+- "It's not even strong"
+- "Everyone's doing it"
+- "Just one"
+- "Don't be boring"
+- "I won't tell anyone"
+- "Don't be a baby"
+
+These aren't friendly. They're designed to make refusing feel like a personality flaw. They're not.
+
+**Slide 6.** Responses that work. Practise these so they come out without thinking:
+- "No, I'm good." (Walk away. No explanation needed.)
+- "Nah, my coach would kill me." (External reason, not a moral one.)
+- "Asthma." (Even if you don't have it. They won't argue with a medical reason.)
+- "Maybe later." (Buys time. They'll usually forget.)
+- "I tried it, didn't like it." (Closes the conversation.)
+
+You don't owe anyone the truth about why you're saying no. The point is to say no, not to win the argument.
+
+**Slide 7.** When to actually worry — for yourself or a friend:
+- Daily use of anything (vape, alcohol, anything)
+- Use that you're hiding from everyone
+- Use that's affecting school, sleep, or mood
+- Use to deal with bad feelings (this is the most dangerous, because it works in the short term)
+
+If any of these are happening for you or someone you know, tell an adult you trust.
+
+**Activity (in pairs, switch roles):** One of you offers a vape using one of the lines from Slide 5. The other refuses using one of the responses from Slide 6. Practise it three times each. It feels awkward. That's the point — it's awkward because you've never said it before. The awkwardness goes away.
+
+**Reflection:** What would make it harder for you to refuse — being offered by a close friend, in front of a group, when you're feeling low? What could you do in advance to make refusing easier?
+
+**Quiz:**
+1. One disposable vape can contain nicotine equivalent to: (A) 1 cigarette (B) 5 cigarettes (C) 50 cigarettes (D) 500 cigarettes → **C**
+2. Nicotine dependency forms faster in adolescent brains because: (A) Adolescents are weaker (B) The brain is still wiring (C) Vapes are stronger (D) It doesn't, that's a myth → **B**
+3. Heavy drinking at 14 vs 24 — the damage is: (A) Smaller at 14 (B) The same (C) Larger at 14 (D) Only depends on quantity → **C**
+4. Which refusal response is in the lesson? (A) "Vaping is bad" (B) "No, I'm good" (C) "I'll tell my parents" (D) "You're stupid" → **B**
+
+**Teacher notes:** Most likely lesson to receive parental pushback for being "too direct." Framing is deliberately non-moralising — you lose pupils if you preach. [PLACEHOLDER: Flag for Morna coordinator if Slide 5's directness needs softening for cultural context.]
+
+**Safeguarding signposts:** Disclosures of personal or family substance use, or coercion to use, trigger the school's safeguarding process. Slide 7 explicitly invites disclosure.
+
+---
+
+### A6. Worry, sadness, and the difference that matters
+
+**Hook:** Sadness is weather. Depression is climate. Here's how to tell.
+
+**Learning objectives:**
+- Distinguish normal emotional fluctuations from persistent low mood
+- Build emotional vocabulary beyond "sad" and "anxious"
+- Know when and how to ask for help
+
+**Slide 1.** Sadness is weather. It moves through. You feel it, sometimes hard, but it passes. Depression is climate. It's the average state, not the storm. The difference isn't how bad it feels in any given moment. It's how long it stays.
+
+**Slide 2.** Everyone has bad days. Bad weeks even. Year 7 has more emotional weather than most years of your life. You'll feel things you don't have words for yet. That's not a sign something is wrong with you. That's a sign you're 12.
+
+**Slide 3.** Three signals that sadness might have become depression:
+- Time: it doesn't pass after a week or two
+- Reach: it's affecting your sleep, appetite, energy, and interest in things you usually like
+- Anchor: there's no specific cause you can name. It's just there.
+
+If two or three are true, that's worth talking to someone about. Not because you're broken. Because you'd want to know.
+
+**Slide 4.** English is bad at emotion words. We get happy, sad, angry, scared, and then we run out. But you might be feeling:
+- Numb (nothing in particular, just blank)
+- Heavy (everything takes more effort than it should)
+- Restless (can't settle, can't sleep, can't focus)
+- Disconnected (you're there but you're not there)
+- Hopeless (you can't see things getting better)
+
+Any of these worth naming. Any of these worth talking about.
+
+**Slide 5.** Anxiety isn't the same as sadness. Anxiety is your brain trying to solve a problem that hasn't happened yet, and won't stop. It feels physical: racing heart, tight chest, shallow breathing, can't stop thinking. Like sadness, occasional anxiety before tests is normal. Persistent anxiety that interferes with daily life is something to talk about.
+
+**Slide 6.** You don't need a therapist. You need one person you can talk to honestly. Then ideally five, because the same person isn't always available. Your five-person list:
+- One parent or carer (if safe)
+- One adult who isn't family (teacher, mentor, family friend)
+- One peer your own age
+- One emergency line (school safeguarding lead, a helpline)
+- One way to talk anonymously (the safeskoolz app, a written diary)
+
+If you don't have five, start with one.
+
+**Slide 7.** Some signals mean don't wait. If you're thinking about hurting yourself, thinking about not being here, or feeling like there's no way out — tell someone today. A trusted adult. The school's safeguarding lead. [PLACEHOLDER: Local helpline e.g. Samaritans 116 123 UK, Teléfono de la Esperanza 717 003 717 Spain]. It doesn't matter who you tell. It matters that you tell.
+
+**Activity (private):** Build your five-person support map. If you can't fill all five, write "I need to find one for this" next to the gap. The school can help you find people for gaps.
+
+**Reflection:** Has anyone in your life ever asked how you were and you said "fine" when you weren't? What would you want them to do differently next time?
+
+**Quiz:**
+1. Difference between sadness and depression? (A) Depression is just stronger sadness (B) Depression lasts longer and affects more areas (C) Only adults get depression (D) They're the same → **B**
+2. Anxiety often feels like... (A) Sadness (B) Physical symptoms — racing heart, tight chest (C) Anger (D) Nothing → **B**
+3. How many people on your support map? (A) 1 (B) 2 (C) 5 (D) 50 → **C**
+4. If you have thoughts of hurting yourself, the lesson says you should: (A) Wait and see if they pass (B) Tell someone today (C) Keep it private (D) Talk to no one → **B**
+
+**Teacher notes:** Crisis content in Slide 7. Pupils who disclose suicidal ideation, self-harm, or hopelessness require immediate safeguarding response per policy. [PLACEHOLDER: Helpline numbers tailored to school region.] Five-person map is private — don't collect.
+
+**Safeguarding signposts:** Any disclosure of self-harm, suicidal ideation, or persistent hopelessness triggers immediate escalation per [PLACEHOLDER: school safeguarding pathway].
+
+---
+
+## Strand B: Me & Others
+
+### B1. Friendship: the science of who's good for you
+
+**Hook:** The friends you make this year shape who you'll be at 18.
+
+**Learning objectives:**
+- Recognise the qualities of healthy vs unhealthy friendships
+- Identify one-sided or draining relationships
+- Understand peer pressure as a normal force, and how to push back on it
+
+**Slide 1.** Here's something the research keeps confirming: the friends you spend the most time with shape your habits, your mood, your tastes, even your grades. Not because they're trying to influence you. Because being around someone every day rewires how you behave. This isn't a warning — it's information. The friends you choose now matter more than you think.
+
+**Slide 2.** Healthy friendships have a few signatures:
+- You can be quiet around them without it being weird
+- They notice when something's off and ask without pushing
+- They're happy when good things happen to you (not jealous, not competitive)
+- You don't have to perform — you can be your less-impressive self around them
+- Disagreements happen but they pass
+- You leave time with them feeling like yourself, not drained
+
+If most of these are true with someone, that's a good friend.
+
+**Slide 3.** Unhealthy friendships have other signatures:
+- You feel anxious about whether they'll be in a good mood
+- They're nice to you alone but different (sometimes mean) in front of other people
+- They put you down and call it joking
+- They make you compete for their attention
+- They get angry when something good happens to you
+- You leave time with them feeling tired or smaller
+
+If most of these are true with someone, that's not a friend you have to keep. People grow apart in Year 7. It's expected.
+
+**Slide 4.** One-sided friendships are a specific shape. You message them more than they message you. You initiate plans every time. You remember details about their life, they don't remember yours. This isn't always their fault — some people just take more than they give without realising. But it's draining for you. You're allowed to step back.
+
+**Slide 5.** Peer pressure is a real force and pretending it isn't doesn't help. Your brain is wired to want to fit in — this isn't weakness, it's a survival instinct from when fitting in with the tribe kept you alive. Knowing this lets you spot when it's happening:
+- "Everyone's doing it" (probably not everyone)
+- Group laughter that you don't actually find funny
+- Doing something you wouldn't do alone, just because everyone is
+
+You can fit in with one group AND keep your own judgement. The two aren't opposites.
+
+**Slide 6.** How to push back without losing the friend:
+- "I'm out, but you do you." (Doesn't judge them, removes you.)
+- "Nah, not feeling it tonight." (No reason needed.)
+- "That's not really my thing." (Closes the conversation.)
+- Just leave. You don't have to announce it.
+
+Real friends respect a "no." Friends who don't respect a "no" are showing you who they are.
+
+**Slide 7.** Year 7 is one of the biggest friendship-reshuffles of your life. Primary school friendships often don't carry forward, and that's not betrayal — it's growth. You'll find new friends. You'll keep some old ones. Some friendships will get closer. Some will fade. All of this is normal.
+
+**Activity (private):** Think of the five people you spend the most time with. For each, ask yourself: do you leave their company feeling more like yourself, or less? No need to write names. Just notice the pattern.
+
+**Reflection:** Is there a friendship right now that drains more than it gives? What would change if you spent less time with them?
+
+**Quiz:**
+1. According to the lesson, the friends you spend the most time with shape: (A) Only your tastes in music (B) Your habits, mood, tastes, grades (C) Nothing significant (D) Only your appearance → **B**
+2. A signature of an unhealthy friendship is: (A) Disagreement that passes (B) Anxious about whether they're in a good mood (C) Being quiet around them (D) Noticing when something's off → **B**
+3. A one-sided friendship looks like: (A) Both messaging equally (B) You initiating every plan, them not remembering your life (C) Equal effort (D) No conversation → **B**
+4. The lesson says peer pressure is: (A) A weakness (B) A wiring/survival instinct (C) Imaginary (D) Only a problem online → **B**
+
+**Teacher notes:** Surfaces friendship distress that often goes unreported. The "private notice without naming" activity protects them; you may want to invite optional follow-up via [PLACEHOLDER: school's pastoral channel].
+
+**Safeguarding signposts:** Disclosures of coercive friendships, social isolation, or peer-driven distress trigger the school's pastoral process.
+
+---
+
+### B2. When friendship goes wrong
+
+**Hook:** Most bullying isn't dramatic. It's quiet, repeated, and easy to miss.
+
+**Learning objectives:**
+- Recognise the full spectrum of bullying, including subtle forms
+- Distinguish bullying from conflict
+- Know your options as victim, witness, or peer
+
+**Slide 1.** When you imagine bullying, you probably picture punching, name-calling, money being taken. That's some bullying. Most isn't. Most is quieter: being left out, being whispered about, being copied in a way that's mocking, being constantly "just joking." This kind is harder to spot AND harder to stop.
+
+**Slide 2.** Bullying has three parts:
+- It's intentional (someone wants it to happen)
+- It's repeated (more than once)
+- It involves a power imbalance (the bully has more social, physical, or status power)
+
+A single bad incident isn't bullying, it's a problem. A repeated pattern between equals is conflict. A repeated pattern from someone with more power is bullying.
+
+**Slide 3.** Examples that ARE bullying even if they don't look dramatic:
+- Always being excluded from a group on purpose
+- A nickname used after you've asked them to stop
+- Comments about your appearance, family, religion, sexuality, neurodiversity
+- Mocking imitation
+- "Friendly" physical contact that isn't friendly (shoves, taps, blocking)
+- Group screenshots, group chats where you're the target
+- Spreading something private about you
+- Pressuring someone to do something they don't want to do
+
+The fact that the bully says "it's a joke" doesn't make it a joke.
+
+**Slide 4.** Conflict vs bullying matters because the response is different.
+
+Conflict: disagreement between equals. Both sides can hear each other. The solution is often a conversation.
+
+Bullying: power imbalance, repeated pattern. The solution is not a conversation between the two. It's adults intervening with the bully. If a teacher tries to make you and a bully "just talk it out," that's the wrong response. You can say so.
+
+**Slide 5.** If you're not being bullied but you see it, you're a witness. Witnesses have more power than they think.
+- Active: intervene safely (only if it's safe), say "this isn't okay," distract
+- Reporting: tell someone. You don't need to confront the bully.
+- Solidarity: spend time with the person being bullied. Sit with them at lunch. Say something kind. Make them less alone.
+
+The worst thing a witness can do is laugh. The next worst is do nothing.
+
+**Slide 6.** If you're being bullied:
+- It's not your fault, even if someone tries to convince you it is
+- The bully is not powerful. They're often quite scared.
+- Telling someone is the most useful thing you can do. The myth that "telling makes it worse" isn't true; not telling makes it last longer.
+
+Telling is not snitching. Snitching is reporting trivial things to get someone in trouble. Bullying isn't trivial.
+
+**Activity:** For each, decide: bullying, conflict, or one-off problem. Then one sentence on what you'd do.
+1. Two pupils argue about who started a fight in PE. Both look upset.
+2. A pupil has been called "lobster" for two weeks because of a sunburn. Their friends laugh every time.
+3. Three older pupils block a younger one's way in the corridor every Tuesday after the same lesson.
+4. A friend posts a photo of you online that you didn't agree to.
+5. Someone bumps into you in the hall, says sorry, and walks off.
+
+**Reflection:** Have you ever been a witness to something you knew wasn't okay, but didn't act? What would have made it easier to do something?
+
+**Quiz:**
+1. Three things that make bullying bullying: (A) Anger, secrecy, money (B) Intentional, repeated, power imbalance (C) Online, offline, in-person (D) Loud, public, group → **B**
+2. Conflict vs bullying difference? (A) Bullying is louder (B) Conflict is between equals; bullying has a power imbalance (C) Conflict is always physical (D) Bullying is only online → **B**
+3. Telling someone about bullying: (A) Makes it worse (B) Same as snitching (C) Most useful thing you can do (D) Only with proof → **C**
+4. Witnessing bullying when it's not safe to intervene? (A) Do nothing (B) Laugh along (C) Tell someone, or sit with the person at lunch (D) Confront the bully → **C**
+
+**Teacher notes:** High-disclosure lesson. Expect pupils to approach afterwards. The "telling isn't snitching" framing addresses Morna teachers' cultural concern.
+
+**Safeguarding signposts:** Pupils disclosing ongoing bullying triggers the school's anti-bullying protocol. Lesson signposts the safeskoolz reporting feature.
+
+---
+
+### B3. The internet doesn't forget
+
+**Hook:** Everything you post now is findable by someone you care about in five years. Including you.
+
+**Learning objectives:**
+- Understand digital footprint as a permanent, cumulative record
+- Recognise deepfakes, AI-generated content, and screenshots as risks
+- Develop habits that protect future-you
+
+**Slide 1.** Here's the thing about the internet you've been told and probably ignored: it doesn't forget. A photo, a comment, a video, a meme. Once it exists, copies exist. Even if you delete the original. Even if it's on a private account. Even if it's a "disappearing" message. Someone screenshots, someone saves, the algorithm caches it. Five years from now, someone you want to impress can find what you posted today.
+
+**Slide 2.** Three categories of digital trace, ranked by danger:
+- **Stuff YOU post**: photos, videos, comments. You control these for about 3 seconds. After that, anyone can save them.
+- **Stuff OTHERS post about you**: tagged photos, shared screenshots, comments on your posts. You don't control these at all.
+- **Stuff that LOOKS like you**: deepfakes, AI-generated content, photos edited to put your face on someone else's body. This is the newest danger and growing fast.
+
+**Slide 3.** Deepfakes specifically. AI can now generate realistic videos and photos of any face, including yours, if it has enough images to work from. Year 7s are already being targeted: fake explicit photos of a real classmate, fake videos of someone "saying" something they didn't, fake screenshots of conversations that never happened.
+
+This isn't science fiction. It's happening in schools right now. The defence isn't to avoid existing online (not realistic). The defence is to know it can happen, tell an adult immediately if it happens to you, and absolutely refuse to share deepfakes when others make them.
+
+**Slide 4.** The five-year test. Before posting something, ask: would I be okay with my future self finding this? With my future employer finding this? With my future partner's parents finding this? Not because adults are watching now. Because future-you is the one who'll deal with it. Future-you is on your side. Listen to them.
+
+**Slide 5.** The screenshot rule. Assume everything you send privately can be screenshotted and shared. WhatsApp, Snapchat, Discord, DMs of any kind. "Disappearing" messages can still be photographed by a second phone. This isn't paranoia. It's how every recent scandal involving young people online has happened.
+
+Simplest version: if you wouldn't say it on a postcard sent to your whole school, don't send it digitally.
+
+**Slide 6.** What to do if something exists online about you that you don't want:
+- Don't panic. Don't try to engage with whoever shared it.
+- Screenshot it yourself, as evidence (yes, the irony)
+- Tell a trusted adult immediately
+- Most platforms have reporting tools. Use them.
+- For explicit images of under-18s, the law is firmly on your side. Adults will help.
+- [PLACEHOLDER: Morna-specific reporting pathway; relevant local helpline e.g. UK Report Remove for under-18 image takedown, Spanish equivalent service]
+
+**Slide 7.** What you have power over:
+- What you choose to share
+- Whether you share other people's stuff
+- Whether you ask before posting a photo with someone else in it
+- Whether you screenshot and forward (you can choose not to)
+- Whether you stand up when someone in a group chat is being targeted
+
+Most of the harm done online to young people isn't done by strangers. It's done by people sharing things they shouldn't, in groups they shouldn't, with people they call friends. You can be the person who doesn't.
+
+**Activity (private):** Think of three things you've posted, sent, or shared in the last month. For each, would you be okay with future-you finding it? If any answer is "no," what would you do differently next time?
+
+**Reflection:** Have you ever shared something about someone else (a screenshot, a photo, a comment) that you wouldn't want shared about you? What stopped you from thinking twice?
+
+**Quiz:**
+1. Once you post something online, you control it for: (A) Forever (B) Until you delete it (C) About 3 seconds (D) 24 hours → **C**
+2. A deepfake is: (A) A real photo (B) AI-generated image or video of a face (C) A camera filter (D) A type of meme → **B**
+3. "Disappearing" messages can: (A) Never be saved (B) Be photographed by a second phone (C) Only be saved by parents (D) Be saved only with permission → **B**
+4. According to the lesson, most online harm to young people is done by: (A) Strangers (B) Algorithms (C) People they call friends (D) Schools → **C**
+
+**Teacher notes:** Pupils may disclose existing online harm during this lesson. [PLACEHOLDER: Morna coordinator to confirm specific local reporting pathway and school-issued-device context.]
+
+**Safeguarding signposts:** Disclosures of leaked images, deepfakes, online grooming, or cyber-harassment trigger immediate escalation per [PLACEHOLDER: school safeguarding pathway].
+
+---
+
+### B4. People who pretend
+
+**Hook:** Some adults will pretend to be your age. Some apps will pretend to be your friend. Here's how to spot the difference.
+
+**Learning objectives:**
+- Recognise online grooming red flags
+- Understand parasocial relationships and AI companions as emotional manipulation vectors
+- Develop a checklist for verifying online relationships
+
+**Slide 1.** This lesson is uncomfortable but important. The internet connects you to billions of people, and most of them are fine. A small number are not. The ones who target children online are usually not the cartoon-villain creepy strangers in films. They're patient, friendly, often funny, and they know exactly what they're doing. This lesson teaches you the patterns so you can spot them.
+
+**Slide 2.** Online grooming has a recognisable shape:
+- **Excessive flattery early**: they tell you you're mature, special, different from other kids your age
+- **Building a private channel**: they want to move from a public game or app to private DMs, then to a different app, then to phone calls
+- **Asking you to keep the relationship secret**: "your parents wouldn't understand," "don't tell your friends"
+- **Gifts or favours**: in-game items, money, premium accounts, sent without you asking
+- **Slow shift to inappropriate topics**: general chat, then personal questions, eventually body, sex, or photos
+- **Testing your boundaries**: small uncomfortable requests first, to see if you push back
+
+Each step alone might seem innocent. The pattern is what tells you.
+
+**Slide 3.** Who actually targets young people online:
+- People posing as your age (often the most common, adults pretending to be 13-15)
+- People openly older who frame it as "different friendship" or "mentorship"
+- People targeting through games with chat or voice
+- People targeting through Discord servers, Instagram DMs, Snapchat
+- People targeting via comments on your TikTok or YouTube
+
+If someone online is pushing past your comfort, the answer is the same: stop responding, screenshot the conversation, tell a trusted adult, block them.
+
+**Slide 4.** AI companions are a newer thing and worth understanding. Apps like Character AI, Replika, Snap's My AI, and dozens of others let you have ongoing "conversations" with AI characters. These can feel like friendships. They're designed to. The AI remembers what you told it, asks how your day was, validates your feelings.
+
+This isn't automatically bad. But two things to know:
+- AI companions tell you what you want to hear. Real friends sometimes disagree with you. AI companions almost never do. That's not friendship; that's flattery on demand.
+- The companies running these apps see your conversations. Some sell the data. Some use it to train better models. Anything you tell an AI companion isn't private.
+
+If you use AI companions, use them like a video game. Entertainment, not a replacement for human relationships.
+
+**Slide 5.** Parasocial relationships. This is the technical term for feeling like you "know" someone you've only watched online: a YouTuber, streamer, influencer. They feel like a friend because you've seen so much of them. They don't know you exist. This is normal and not harmful by itself.
+
+It becomes a problem when:
+- You take their opinions as fact without questioning
+- You feel personally betrayed when they say something you disagree with
+- You start adopting their views without thinking it through
+- You spend money or time supporting them in ways that affect your life
+
+**Slide 6.** A specific pattern worth flagging: there's a category of online influencer whose content is aimed at teenage boys and which appears to be about confidence, success, or "becoming a man," but which gradually introduces views that women are inferior, that emotional vulnerability is weakness, that controlling behaviour in relationships is normal. The packaging is self-help. The substance is something else.
+
+If you watch a creator who:
+- Talks a lot about how women "really are"
+- Frames being respectful or kind as weakness
+- Mocks any expression of feelings
+- Tells you the world is against you and only they can help
+
+That's the pattern. The signal isn't "this person is sometimes wrong." The signal is "this person is trying to recruit me to a worldview."
+
+[PLACEHOLDER: Morna coordinator decision on whether to name specific manosphere figures (e.g. Andrew Tate) in Slide 6 or keep abstract. Current draft is abstract; named-example version available on request.]
+
+**Slide 7.** A verification checklist for any online relationship:
+- Can you see this person in real life with someone you trust?
+- Have they asked you to keep the friendship secret?
+- Have they sent you anything you didn't ask for?
+- Have they steered the conversation toward personal or body topics?
+- Have they tried to move you to a more private app?
+- Do they seem to know exactly what to say to make you feel special?
+
+If two or more are yes, stop responding, screenshot, tell a trusted adult.
+
+**Activity (private):** Write down the names of three people you talk to online who you've never met in real life. For each, run them through the Slide 7 checklist. You don't have to share results. Just notice if anything flags.
+
+**Reflection:** Have you ever felt like someone online "got you" better than people you know in real life? What might have made you feel that way?
+
+**Quiz:**
+1. The shape of online grooming includes: (A) Excessive flattery and secret-keeping (B) Public posts only (C) Random strangers being mean (D) Adult friends of your parents → **A**
+2. AI companions are designed to: (A) Disagree with you (B) Tell you what you want to hear (C) Replace your parents (D) Block you when you're rude → **B**
+3. Parasocial relationships are: (A) Always harmful (B) Feeling like you "know" someone you've only watched online (C) Real friendships (D) Banned in schools → **B**
+4. If two or more checklist items are "yes," the lesson says you should: (A) Confront the person (B) Stop responding, screenshot, tell a trusted adult (C) Tell your friends (D) Ignore it → **B**
+
+**Teacher notes:** Highest-risk lesson by content. Coordinator review required before delivery. [PLACEHOLDER: Morna coordinator to confirm framing in Slides 5-6, specifically whether to name manosphere influencers explicitly.] Pupils may disclose existing online relationships during this lesson; assume disclosure is likely.
+
+**Safeguarding signposts:** Any disclosure of online relationships with adults, leaked images, sextortion, or coercion triggers immediate escalation per [PLACEHOLDER: school safeguarding pathway]. [PLACEHOLDER: Relevant local online-abuse reporting service, e.g. UK CEOP, Spanish equivalent.]
+
+---
+
+### B5. Family: love, friction, and finding your voice
+
+**Hook:** Year 7 is when you start disagreeing with your parents about things that matter. That's normal, and there's a way to do it that works.
+
+**Learning objectives:**
+- Understand parent-teen conflict as developmental, not personal
+- Practise direct, respectful disagreement
+- Recognise when family relationships feel unsafe and what to do
+
+**Slide 1.** Until about Year 6, most kids assume their parents are mostly right. Year 7 is when that starts changing. You'll notice the gaps in their logic. You'll disagree with their rules. You'll find their opinions wrong on things that matter to you. This isn't ingratitude or rebellion. It's your brain developing the capacity to think independently. Parents who have done this before generally know it's coming. Parents who haven't are sometimes surprised.
+
+**Slide 2.** The friction is biological. Your brain is wiring up the part that questions authority. Their brain (if they're around 40-50) is wiring up the part that holds onto control. You're going to grate against each other. Some of this is unavoidable. How you handle it isn't.
+
+**Slide 3.** Disagreement done well looks like:
+- "I don't agree with that. Can I explain why?"
+- "I hear what you're saying. I see it differently."
+- "What if I tried this instead, and we revisited it in a week?"
+
+Disagreement done badly looks like:
+- Slammed doors
+- Silent treatment that lasts days
+- "You don't understand anything"
+- Cold-shoulder for things they don't even know about
+
+The first set sometimes works. The second set never does. Even when you're right.
+
+**Slide 4.** Things you have more control over than you realise:
+- The volume you use (louder you go, less they hear)
+- Whether you respond immediately or take time
+- Whether you say it in front of others or in private
+- The words you choose for the same point ("I think you're wrong" lands very differently to "I see this differently")
+
+You're allowed to disagree. The skill is in HOW.
+
+**Slide 5.** When parents have rules you think are wrong, three options:
+- Accept the rule for now, knowing you can negotiate later
+- Negotiate the rule by proposing an alternative, not just complaining
+- Break the rule (works once or twice, then you've lost their trust for years)
+
+The third option costs much more than the first two. Most things worth disagreeing about are worth doing as a negotiation, not a fight.
+
+**Slide 6.** Some family situations aren't normal friction. These are different:
+- Being hit, hurt, or threatened
+- Being made afraid to come home
+- Being told you're worthless, stupid, or unwanted (repeatedly, not in a passing moment)
+- Watching one parent hurt the other
+- Being neglected, not having enough food, clean clothes, basic care
+- Being touched in ways that don't feel right (see A2)
+- Being asked to keep secrets from one parent by another
+
+These aren't friction. They're not your fault. They aren't normal. And they don't fix themselves.
+
+**Slide 7.** If any of those apply, talk to someone outside the family. A teacher you trust. The school's safeguarding lead. A grandparent or uncle/aunt if they're not part of the problem. The safeskoolz app's safe contacts list. You can also call [PLACEHOLDER: local child protection helpline, e.g. UK Childline 0800 1111, Spanish ANAR helpline 900 20 20 10].
+
+If you're not sure whether what's happening at home is okay or not, that uncertainty is itself a reason to talk to someone. Adults can help you figure it out.
+
+**Activity (private):** Think of the last time you and a parent had real friction. What did you do, and what could you have done differently? Don't share with the class.
+
+**Reflection:** Is there one disagreement you have with a parent right now that you'd be willing to try the "negotiate, don't fight" approach with? What would the conversation look like?
+
+**Quiz:**
+1. Parent-teen friction at Year 7 is mostly: (A) A sign of ingratitude (B) Your brain developing independent thinking (C) Avoidable if you're polite (D) Unique to your family → **B**
+2. Disagreement done well looks like: (A) Slammed doors (B) Silent treatment (C) "I hear you, I see it differently" (D) Cold-shoulder → **C**
+3. Of three options for parental rules you disagree with, breaking the rule: (A) Always works (B) Costs you trust for years (C) Is recommended (D) Has no consequences → **B**
+4. Situations that aren't "normal friction" include: (A) Being hit, threatened, or neglected (B) Disagreeing about screen time (C) Different opinions on music (D) Curfew arguments → **A**
+
+**Teacher notes:** Slide 6 is the lesson's safeguarding pivot. Some pupils will recognise their own situations. Have the safeguarding lead aware that this lesson is being delivered that day. [PLACEHOLDER: Helpline numbers in Slide 7 need region-specific confirmation by Morna coordinator.]
+
+**Safeguarding signposts:** Disclosures of physical abuse, emotional abuse, neglect, witnessing domestic violence, or coercion at home trigger immediate escalation per [PLACEHOLDER: school safeguarding pathway] AND statutory reporting per local jurisdiction.
+
+---
+
+## Strand C: Me & The World
+
+### C1. Difference, and why it isn't a problem to solve
+
+**Hook:** If everyone you know is exactly like you, you're missing most of the world.
+
+**Learning objectives:**
+- Recognise diversity as descriptive, not prescriptive
+- Identify everyday microaggressions and their impact
+- Understand allyship as small daily acts, not heroic gestures
+
+**Slide 1.** If everyone you know is exactly like you, you're missing most of the world. Diversity isn't a political position. It's a description of reality. The classroom you're in right now contains pupils from different families, different cultures, different beliefs, different abilities, different identities. This is true in every school. Some schools pretend it isn't.
+
+**Slide 2.** What diversity actually covers:
+- Race and ethnicity (where your family's from, or what you look like)
+- Religion and belief (Christian, Muslim, Jewish, Hindu, Sikh, Buddhist, none, something else)
+- Sexuality (who you might love when you grow up, including straight, gay, bi, asexual, still figuring it out)
+- Gender (your own sense of being a girl, boy, both, neither, or somewhere else)
+- Neurodiversity (autism, ADHD, dyslexia, dyspraxia, and others; different brains, different strengths)
+- Disability (visible and invisible)
+- Family shape (two parents, one parent, step-parents, adopted, kinship care, lots of others)
+- Socioeconomic background (some families have more, some less, both are normal)
+
+You don't have to be expert in all of these. You have to be aware they exist.
+
+**Slide 3.** Microaggressions are small comments or actions that, individually, look minor, but accumulate to make someone feel "less than" or "other." Examples:
+- "You speak good English" — to someone born in the same country as you
+- "Where are you really from?" — same thing
+- "You're not like other [X]" — pretending it's a compliment when it's not
+- "That's so gay" — used to mean "bad"
+- Asking someone with two mothers "but who's your real mum?"
+- Constantly mispronouncing a name you can pronounce
+- Touching someone's hair without asking
+- "I don't see colour" — pretending difference doesn't exist
+
+None of these are dramatic. All of them, repeated, wear someone down. The person on the receiving end has had a thousand of them before they met you.
+
+**Slide 4.** Respect for diversity doesn't mean you have to agree with every choice anyone makes. You can disagree with someone's politics, religion, or lifestyle. But there's a line. Respect means: every person has the same right to dignity and safety as you. Disagreement is fine. Mocking, excluding, threatening, or "joking" about someone's identity is not disagreement. It's harm.
+
+**Slide 5.** Allyship is the practice of being on someone's side when you're not the one being targeted. It's not heroic. It's small.
+- Pronouncing someone's name properly even when it's hard
+- Asking what pronouns someone uses if you're not sure (then using them)
+- Stopping a "joke" by saying "that one wasn't funny"
+- Sitting with someone who's been left out
+- Not laughing at things that aren't actually funny
+- Believing someone the first time they tell you something hurt them
+
+Allyship is what you do when no one's watching. Not what you post.
+
+**Slide 6.** The cost of "tolerating" vs respecting. "Tolerating" someone means putting up with them existing. Respecting them means treating them as equal. "I tolerate gay people" is a slightly dressed-up version of "I think there's something wrong with them but I won't say so." That isn't respect. Respect doesn't require you to put up with anyone. It just requires you to treat them the same way you'd treat anyone else.
+
+[PLACEHOLDER: Morna coordinator decision on whether to keep Slide 6's tolerance/respect distinction as-is. Some schools in religious contexts prefer softer framing.]
+
+**Activity (private):** Think of one microaggression you've heard recently (in school, online, at home). Did you say anything? What could you have said?
+
+**Reflection:** Is there a difference in your school or community that you haven't thought much about? What would it cost you to learn one thing about it this week?
+
+**Quiz:**
+1. According to the lesson, diversity is: (A) A political position (B) A description of reality (C) Mandatory (D) New → **B**
+2. A microaggression is: (A) A physical attack (B) Small comment or action that accumulates harm (C) Disagreement (D) A loud insult → **B**
+3. Respect for diversity means: (A) Agreeing with every choice anyone makes (B) Same right to dignity and safety as you (C) Saying nothing controversial (D) Avoiding people who are different → **B**
+4. Allyship looks like: (A) Posting about it online (B) Small daily acts when no one's watching (C) Big public gestures (D) Lecturing people → **B**
+
+**Teacher notes:** [PLACEHOLDER: Morna coordinator decision on inclusion of sexuality and gender in Slide 2; inclusive by default in this draft.] [PLACEHOLDER: Morna coordinator decision on Slide 6's tolerance vs respect framing.] Some pupils may disclose experiences of discrimination during this lesson.
+
+**Safeguarding signposts:** Disclosures of discrimination, hate-based bullying, or unsafe home environments related to identity trigger immediate escalation per [PLACEHOLDER: school safeguarding pathway].
+
+---
+
+### C2. Money you'll have, money you'll be sold
+
+**Hook:** Companies spend billions making you want things. Here's how the trick works.
+
+**Learning objectives:**
+- Recognise marketing tactics designed to manipulate desire
+- Understand basic budgeting and spending discipline
+- Identify scam and predatory financial patterns
+
+**Slide 1.** Companies spend billions every year on advertising aimed specifically at you. They're not doing it because they like you. They're doing it because your generation, with smartphones and pocket money and parents who say yes more often than they used to, is the most profitable market in history.
+
+**Slide 2.** Marketing isn't about telling you a product exists. It's about making you feel something — usually that you're missing out, that you're not enough as you are, or that buying this thing will make you the version of yourself you want to be. The product is secondary. The feeling is the actual sale.
+
+Five tricks used on you constantly:
+- **Scarcity:** "Only 3 left!" Makes you decide fast, before you can think.
+- **Social proof:** "Everyone's wearing this." Your tribe-brain wants in.
+- **Aspiration:** showing you a version of you you don't yet have.
+- **FOMO:** making you feel you'll regret not buying.
+- **Authenticity-washing:** pretending an ad is a normal post by a normal person. It's not.
+
+**Slide 3.** In-game purchases specifically. Games designed for your age group use the same psychology, refined for digital:
+- "Free" games where progress is slow until you pay to skip
+- Loot boxes — buying random rewards (this is gambling, legally a grey area, banned in some countries)
+- Limited-time skins, weapons, characters (scarcity again)
+- Daily streaks (making you feel guilty if you don't log in)
+- Battle passes (paying for the chance to grind for content)
+
+Each one is designed by professionals. You're not weak for falling for them. You'd be weird if you didn't sometimes. The trick is noticing.
+
+**Slide 4.** The scroll economy. When you watch a TikTok or an Instagram Reel, the company makes money in two ways: ads served to you, and data about what you watched. The longer you scroll, the more they earn. This is why the algorithm shows you exactly what will keep you scrolling, even if it makes you feel worse. The system doesn't care how you feel afterwards. It only cares that you stayed.
+
+Your attention is the product being sold. You're not the customer. Advertisers are.
+
+**Slide 5.** Budgeting, very briefly. If you have any money at all, even pocket money:
+- Know what comes in and what goes out
+- Save a percentage automatically before you spend (10% is a good start)
+- Distinguish wants from needs (most things are wants; that's okay, just know it)
+- Wait 24 hours before any non-essential purchase. Most "wants" don't survive 24 hours.
+
+This isn't about being stingy. It's about not being someone else's profit margin.
+
+**Slide 6.** Scams targeting young people:
+- **Gift card scams:** "send me a Roblox gift card and I'll give you 1000 Robux." They take the card and disappear.
+- **Fake giveaways:** any account asking you to send a small amount to "verify" before receiving a bigger amount is a scam, every time.
+- **Account takeovers:** "your friend" messaging you with an urgent ask, then asking for your account login. It's their hacked account.
+- **Crypto/investment schemes** promising guaranteed returns. Guaranteed returns don't exist. Anyone promising them is lying.
+
+If something sounds too good to be true, it is. The defence is one second of pause.
+
+**Slide 7.** Money is a tool. It's not a measure of your worth. It doesn't make you a better or worse person. The skill isn't earning the most — it's keeping your decision-making yours, instead of letting marketing make decisions for you.
+
+**Activity (private):** Look at one app you use frequently. Identify three ways it's designed to make you spend money or stay on it longer.
+
+**Reflection:** What was the last thing you bought that you regretted? What feeling were you buying when you bought it?
+
+**Quiz:**
+1. The main thing marketing sells is: (A) Products (B) Feelings (C) Information (D) Quality → **B**
+2. Loot boxes use a psychology similar to: (A) Reading (B) Gambling (C) Sleeping (D) Exercise → **B**
+3. When you scroll TikTok, the product being sold is: (A) The videos (B) Your attention (C) The creators (D) Free → **B**
+4. Any account promising guaranteed returns is: (A) Trustworthy (B) Lying (C) Government-backed (D) For experts only → **B**
+
+**Teacher notes:** Money is a sensitive topic; some pupils' families have very different economic situations. Avoid examples that assume affluence. [PLACEHOLDER: Morna coordinator may want to add specific local examples of scam patterns common in Spain or the Balearic Islands.]
+
+**Safeguarding signposts:** Disclosures of financial coercion, theft from a pupil, or being targeted by scams trigger pastoral follow-up. Disclosures involving family financial distress may indicate broader safeguarding concerns.
+
+---
+
+### C3. The news, the noise, and how to know what's true
+
+**Hook:** AI can write convincing fake news in seconds. Here's how to not be fooled.
+
+**Learning objectives:**
+- Evaluate sources of information
+- Recognise AI-generated content (where currently possible)
+- Understand echo chambers and lateral reading
+
+**Slide 1.** Five years ago, you could mostly trust a video. If you saw it on the news or someone's phone, it probably happened. That's over. AI can now generate convincing videos of people saying things they never said, in seconds, for free. The same AI can write news articles that look indistinguishable from real ones. Welcome to the world you'll grow up in.
+
+**Slide 2.** Information shapes decisions. Decisions shape lives. If you can be fooled by fake news, fake videos, fake screenshots, you can be made to vote a certain way, hate a certain group, buy a certain product, panic about a non-existent threat. The people making fake content aren't doing it for fun. They're doing it because it works.
+
+**Slide 3.** Where fake content lives:
+- **AI-generated images:** photos of events that didn't happen
+- **AI-generated video (deepfakes):** people "saying" things they didn't
+- **AI-generated text:** news articles, social media posts, fake reviews
+- **Out-of-context real content:** real footage from one event labelled as another
+- **Coordinated networks:** groups of accounts pushing the same message to make it look organic
+
+Most viral "shocking" content turns out to be one of these. Default to suspicion.
+
+**Slide 4.** How to check:
+- **Lateral reading:** when you see a claim, don't dig deeper into the source. Open a new tab and search for the same claim. If reputable sources are reporting it, it's probably real. If only one site is, be suspicious.
+- **Reverse image search:** take any image, paste it into Google Images or TinEye. You'll see if it's been used before, often in a totally different context.
+- **Check the date:** a lot of viral content is real but years old, reshared as if it's happening now.
+- **Look at the source:** a website you've never heard of, with a name like "Truth Daily News," isn't journalism. Established news organisations have rules, editors, retraction processes. They get things wrong, but they correct.
+- **Read past the headline:** clickbait headlines often don't match the article. Read the whole thing before sharing.
+
+**Slide 5.** Spotting AI-generated content (some current tells, will change fast):
+- **Images:** extra fingers, weird hands, melted backgrounds, text in the image that doesn't quite spell, faces with slightly wrong proportions
+- **Video:** blinking that's slightly off, lip-sync off, hands behaving strangely
+- **Text:** oddly generic phrasing, no specific details, no quotes from real people, no named author
+
+These tells are disappearing. In two years, you won't be able to spot AI content by looking. The defence will increasingly be about source verification, not visual inspection.
+
+**Slide 6.** Echo chambers. Social media algorithms show you content similar to what you already engage with. If you spend time on videos taking one political position, you'll be shown more of that position, and less of the opposite. Over months, your sense of "what most people think" gets distorted. You're not seeing the world. You're seeing an algorithm's guess about what you'll click on.
+
+The defence is to deliberately seek out viewpoints you disagree with. Not to convert. To stay honest about what's actually being debated.
+
+**Slide 7.** The truth test. Before sharing anything that triggers a strong reaction (anger, outrage, fear), ask:
+- What's the source?
+- When was it actually from?
+- Have I seen this reported anywhere reputable?
+- Could this be designed to make me feel exactly this way?
+
+If the answer to question 4 is "yes, probably," that's the moment to wait. Strong emotional content is the most likely to be manipulated, because manipulated content is engineered to provoke exactly that.
+
+**Activity (in pairs):** Three news headlines (real and fake, mixed). Decide which is which, then check with the lesson's "how to check" steps. [PLACEHOLDER: Teacher provides 3 current headlines, at least one AI-generated or fake, one real but misleading, one real and accurate. Refresh each term as examples become dated.]
+
+**Reflection:** Has there been a time you shared something online and later found out it wasn't true? What made it convincing in the moment?
+
+**Quiz:**
+1. "Lateral reading" means: (A) Reading line by line (B) Opening a new tab to check the claim against other sources (C) Reading in a foreign language (D) Reading bottom up → **B**
+2. Most viral "shocking" content turns out to be: (A) Definitely true (B) AI-generated, out-of-context, or coordinated (C) Government-vetted (D) Always real but exaggerated → **B**
+3. Echo chambers form because: (A) Schools enforce them (B) Algorithms show you more of what you already engage with (C) Friends agree with each other (D) The news is biased → **B**
+4. Before sharing content that triggers a strong emotion: (A) Share fast before it disappears (B) Pause and check the source (C) Add a comment (D) Forward to all friends → **B**
+
+**Teacher notes:** Activity requires teacher-provided examples that need updating regularly. [PLACEHOLDER: Provide three current sample headlines; refresh each term.] [PLACEHOLDER: Morna coordinator may want to localise examples to Spanish-language news sources and local political context.] The "spotting AI content" tells in Slide 5 will become outdated fast; flag this lesson for content review every 6 months.
+
+**Safeguarding signposts:** This lesson doesn't typically generate direct safeguarding disclosures. A pupil consuming a lot of conspiracy or extreme content may surface through related discussions. Pastoral follow-up recommended for any pupil who shows distress about "what's really true."
+
+---
+
+## Placeholder summary (for Morna info-request document)
+
+**Region-specific contacts:**
+- Under-18 image takedown service
+- Online-abuse reporting service
+- Child protection helpline
+- Mental health / suicidal ideation helpline
+- General pastoral helpline
+
+**School pathway:**
+- Named safeguarding lead and escalation route
+- Pastoral follow-up channel for sensitive lessons
+- Statutory reporting jurisdiction
+
+**Coordinator approval decisions:**
+- A3 Slide 2 — gender-inclusive puberty language
+- A5 Slide 5 — directness of peer-pressure refusal lines
+- B3 Slide 6 — school-issued-device reporting context
+- B4 Slide 6 — name manosphere figures explicitly or stay abstract
+- C1 Slide 2 — inclusion of sexuality and gender categories
+- C1 Slide 6 — tolerance vs respect framing
+
+**Teacher-maintained content:**
+- C3 activity headlines (refresh each term)
+- C3 Slide 5 AI-detection tells (review every 6 months)
+- A5 statistics (review annually for currency)
+
+End of curriculum.
