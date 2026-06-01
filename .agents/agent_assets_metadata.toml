@@ -84,3 +84,9 @@ id = "qwyU9iwTcULAH2Q4V6Gis"
 uri = "file://CURRENT_STATE_OF_THE_APP.md"
 type = "text"
 title = "Current State of the App — Safeskoolz audit"
+
+[[outputs]]
+id = "QKfXqzXw5J6muUljHOPA4"
+uri = "file://CURRICULUM_YEAR7.md"
+type = "text"
+title = "CURRICULUM_YEAR7.md — 14 Year 7 PSHE lessons"
