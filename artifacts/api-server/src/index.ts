@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import { startPatternScanScheduler } from "./jobs/patternScan";
 import { startRetentionSweepScheduler } from "./jobs/retentionSweep";
 import { seedDemoData } from "./lib/seed";
+import { seedLessons } from "./lib/seedLessons";
 
 const rawPort = process.env["PORT"];
 
@@ -52,6 +53,13 @@ async function startup() {
   // database already has data, so it's safe to run on every startup.
   await seedDemoData().catch((err) => {
     console.error("[seed] Failed to seed demo data:", err);
+  });
+
+  // Seed Year 7 (KS3) PSHE lessons. Independently idempotent (skips when the
+  // lessons table is non-empty), so it backfills an existing database that was
+  // seeded before lessons existed, as well as a fresh one.
+  await seedLessons().catch((err) => {
+    console.error("[seed] Failed to seed lessons:", err);
   });
 
   // Demo build: normalize every credential on boot so the demo flows always
