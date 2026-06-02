@@ -48,6 +48,7 @@ export async function seedDemoData() {
     { code: "4A-MORNA", className: "4A" },
     { code: "5B-MORNA", className: "5B" },
     { code: "6A-MORNA", className: "6A" },
+    { code: "7A-MORNA", className: "7A" },
   ];
   for (const { code, className } of classCodes) {
     const codeHash = await bcrypt.hash(code, 12);
@@ -88,6 +89,7 @@ export async function seedDemoData() {
     { id: CAROLINE_ID, firstName: "Caroline", lastName: "Demo", yearGroup: "Y5", className: "5B", avatarValue: "🐬" },
     { id: ELENA_N_ID, firstName: "Elena", lastName: "Navarro", yearGroup: "Y6", className: "6A", avatarValue: "🐱" },
     { id: PABLO_ID, firstName: "Pablo", lastName: "Garcia", yearGroup: "Y6", className: "6A", avatarValue: "🐻" },
+    { id: "c1a55007-0000-4000-8000-00000000007a", firstName: "Lucia", lastName: "Demo", yearGroup: "Y7", className: "7A", avatarValue: "🦉", pinHash: PUPIL_PIN_HASH },
     { id: "db41e263-6ac6-4997-a8d2-b20e1214ae2a", firstName: "Adrian", lastName: "Serrano", yearGroup: "Y4", className: "4A", avatarValue: "🦈" },
     { id: "2827d369-3ccf-40c4-9b21-d38fd7daaa92", firstName: "Alejandro", lastName: "Ramos", yearGroup: "Y4", className: "4A", avatarValue: "🐺" },
     { id: "342fa065-89f3-4b20-8d21-f86ff5d21223", firstName: "Alexander", lastName: "Kelly", yearGroup: "Y6", className: "6A", avatarValue: "🦜" },
