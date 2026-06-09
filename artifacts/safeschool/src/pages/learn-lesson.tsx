@@ -1,11 +1,18 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useRoute, Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { ArrowLeft, Clock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  PartyPopper,
+} from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { parseLessonSlides } from "@/lib/lessonSlides";
+import { LessonSlideView } from "@/components/lessons/LessonSlideView";
 
 type QuizQuestion = {
   id: string;
@@ -48,7 +55,9 @@ type Progress = {
   quizScore: number | null;
 };
 
-type Answers = Record<string, "A" | "B" | "C" | "D">;
+type OptionKey = "A" | "B" | "C" | "D";
+type Answers = Record<string, OptionKey>;
+type CheckResult = { correct: boolean; correctOption: OptionKey };
 
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem("safeschool_token");
@@ -70,9 +79,6 @@ export default function LearnLessonPage() {
   const queryClient = useQueryClient();
   const startedRef = useRef(false);
 
-  const [answers, setAnswers] = useState<Answers>({});
-  const [result, setResult] = useState<QuizResult | null>(null);
-
   const isPupil = user?.role === "pupil";
 
   const { data: lesson, isLoading, isError } = useQuery<LessonDetail>({
@@ -81,6 +87,20 @@ export default function LearnLessonPage() {
     enabled: !!id && isPupil,
   });
 
+  const slides = useMemo(() => (lesson ? parseLessonSlides(lesson.body) : []), [lesson]);
+  const quiz = lesson?.quiz ?? [];
+
+  // Linear step model: [slides...] → [quiz questions...] → results.
+  // step in [0, slides.length)                      → a slide
+  // step in [slides.length, slides.length+quiz)     → a quiz question
+  // step === slides.length + quiz.length            → results / completion
+  const totalSteps = slides.length + quiz.length + 1;
+  const [step, setStep] = useState(0);
+
+  const [answers, setAnswers] = useState<Answers>({});
+  const [checked, setChecked] = useState<Record<string, CheckResult>>({});
+  const [result, setResult] = useState<QuizResult | null>(null);
+
   // Fire /start once on mount (idempotent server-side).
   useEffect(() => {
     if (!isPupil || !id || startedRef.current) return;
@@ -88,7 +108,6 @@ export default function LearnLessonPage() {
     fetch(`/api/lessons/${id}/start`, { method: "POST", headers: authHeaders() })
       .then((res) => {
         if (!res.ok) {
-          // fetch resolves on HTTP 4xx/5xx — re-allow retry on next mount.
           startedRef.current = false;
           return;
         }
@@ -98,6 +117,21 @@ export default function LearnLessonPage() {
         startedRef.current = false;
       });
   }, [id, isPupil, queryClient]);
+
+  const checkMutation = useMutation({
+    mutationFn: async (vars: { quizId: string; answer: OptionKey }): Promise<CheckResult> => {
+      const res = await fetch(`/api/lessons/${id}/quiz/check`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify(vars),
+      });
+      if (!res.ok) throw new Error(`Check failed (${res.status})`);
+      return res.json();
+    },
+    onSuccess: (r, vars) => {
+      setChecked((c) => ({ ...c, [vars.quizId]: r }));
+    },
+  });
 
   const quizMutation = useMutation({
     mutationFn: async (a: Answers): Promise<QuizResult> => {
@@ -130,12 +164,43 @@ export default function LearnLessonPage() {
     },
   });
 
+  const goBack = useCallback(() => setStep((s) => Math.max(0, s - 1)), []);
+  const goNext = useCallback(() => setStep((s) => Math.min(totalSteps - 1, s + 1)), [totalSteps]);
+
+  // When entering the results step, submit all answers once to persist the
+  // authoritative score (existing endpoint + audit). Per-question feedback was
+  // already shown live via /quiz/check.
+  const onResults = step === slides.length + quiz.length;
+  useEffect(() => {
+    if (!lesson) return;
+    if (onResults && quiz.length > 0 && !result && !quizMutation.isPending) {
+      quizMutation.mutate(answers);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onResults, lesson]);
+
+  // Keyboard navigation for slides (left/right). Disabled on quiz/results steps
+  // so arrow keys don't skip an unanswered question.
+  const onSlide = step < slides.length;
+  useEffect(() => {
+    if (!onSlide) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goNext();
+      else if (e.key === "ArrowLeft") goBack();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onSlide, goNext, goBack]);
+
   if (!isPupil) {
     return (
       <div className="p-12 text-center">
         <h1 className="text-2xl font-bold mb-2">{t("detail.accessDeniedTitle")}</h1>
         <p className="text-muted-foreground">{t("detail.accessDeniedBody")}</p>
-        <Link href="/learn" className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm font-semibold">
+        <Link
+          href="/learn"
+          className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm font-semibold"
+        >
           <ArrowLeft className="h-4 w-4" />
           {t("detail.backToLearn")}
         </Link>
@@ -155,7 +220,10 @@ export default function LearnLessonPage() {
     return (
       <div className="rounded-2xl border border-border p-8 text-center">
         <p className="text-muted-foreground">{t("detail.loadError")}</p>
-        <Link href="/learn" className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm font-semibold">
+        <Link
+          href="/learn"
+          className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm font-semibold"
+        >
           <ArrowLeft className="h-4 w-4" />
           {t("detail.backToLearn")}
         </Link>
@@ -163,12 +231,14 @@ export default function LearnLessonPage() {
     );
   }
 
-  const allAnswered = lesson.quiz.length > 0 && lesson.quiz.every((q) => answers[q.id]);
-  const hasQuiz = lesson.quiz.length > 0;
+  const slide = onSlide ? slides[step] : null;
+  const quizIndex = step - slides.length;
+  const onQuiz = quizIndex >= 0 && quizIndex < quiz.length;
+  const currentQ = onQuiz ? quiz[quizIndex] : null;
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-      <div>
+      <div className="flex items-center justify-between gap-3">
         <Link
           href="/learn"
           className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition"
@@ -177,129 +247,228 @@ export default function LearnLessonPage() {
           <ArrowLeft className="h-4 w-4" />
           {t("detail.backToLearn")}
         </Link>
+        <span
+          className="text-sm font-semibold text-muted-foreground tabular-nums"
+          data-testid="step-counter"
+        >
+          {Math.min(step + 1, totalSteps)} / {totalSteps}
+        </span>
       </div>
 
-      <header className="space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{lesson.title}</h1>
-        <p className="text-lg text-muted-foreground leading-relaxed">{lesson.hook}</p>
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4" />
-          {t("pupil.minutes", { count: lesson.durationMinutes })}
-        </div>
+      {/* Progress bar */}
+      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full bg-violet-500 transition-all"
+          style={{ width: `${((step + 1) / totalSteps) * 100}%` }}
+        />
+      </div>
+
+      <header className="space-y-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{lesson.title}</h1>
       </header>
 
-      <article className="prose prose-stone dark:prose-invert max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{lesson.body}</ReactMarkdown>
-      </article>
+      {/* SLIDE STEP */}
+      {slide && (
+        <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 min-h-[14rem]" data-testid="lesson-slide">
+          <LessonSlideView slide={slide} />
+        </section>
+      )}
 
-      {hasQuiz && (
-        <section className="rounded-2xl border border-border bg-card p-6 space-y-6" data-testid="lesson-quiz">
-          <h2 className="text-2xl font-bold tracking-tight">{t("detail.quizTitle")}</h2>
+      {/* QUIZ STEP — one question at a time with immediate feedback */}
+      {currentQ && (
+        <QuizStep
+          key={currentQ.id}
+          q={currentQ}
+          index={quizIndex}
+          total={quiz.length}
+          selected={answers[currentQ.id] ?? null}
+          check={checked[currentQ.id] ?? null}
+          pending={checkMutation.isPending}
+          onSelect={(k) =>
+            setAnswers((a) => ({ ...a, [currentQ.id]: k }))
+          }
+          onCheck={() => {
+            const a = answers[currentQ.id];
+            if (a) checkMutation.mutate({ quizId: currentQ.id, answer: a });
+          }}
+          t={t}
+        />
+      )}
 
-          {lesson.quiz.map((q, qi) => {
-            const perQ = result?.perQuestion.find((p) => p.quizId === q.id);
-            const opts: { key: "A" | "B" | "C" | "D"; label: string }[] = [
-              { key: "A", label: q.optionA },
-              { key: "B", label: q.optionB },
-              { key: "C", label: q.optionC },
-              { key: "D", label: q.optionD },
-            ];
-            return (
-              <fieldset key={q.id} className="space-y-3 border-0 p-0 m-0">
-                <legend className="font-semibold leading-snug">
-                  <span className="text-muted-foreground mr-2">{qi + 1}.</span>
-                  {q.question}
-                </legend>
-                <div className="grid gap-2">
-                  {opts.map((o) => {
-                    const selected = answers[q.id] === o.key;
-                    const disabled = !!result;
-                    return (
-                      <label
-                        key={o.key}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition ${
-                          selected
-                            ? "border-violet-400 bg-violet-50 dark:bg-violet-950/30"
-                            : "border-border hover:border-foreground/40"
-                        } ${disabled ? "cursor-default" : ""}`}
-                      >
-                        <input
-                          type="radio"
-                          name={q.id}
-                          value={o.key}
-                          checked={selected}
-                          disabled={disabled}
-                          onChange={() => setAnswers((a) => ({ ...a, [q.id]: o.key }))}
-                          className="h-4 w-4"
-                          data-testid={`quiz-${q.id}-${o.key}`}
-                        />
-                        <span className="text-sm">{o.label}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-                {perQ && (
-                  <div
-                    className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-full ${
-                      perQ.correct
-                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
-                        : "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
-                    }`}
-                  >
-                    {perQ.correct ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
-                    {perQ.correct ? t("detail.correct") : t("detail.incorrect")}
-                  </div>
-                )}
-              </fieldset>
-            );
-          })}
-
-          {!result ? (
-            <button
-              onClick={() => quizMutation.mutate(answers)}
-              disabled={!allAnswered || quizMutation.isPending}
-              data-testid="quiz-submit"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {quizMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {t("detail.submitQuiz")}
-            </button>
-          ) : (
-            <div className="space-y-4">
-              <div className="rounded-xl bg-gradient-to-br from-violet-500/15 to-fuchsia-400/10 border border-border p-5" data-testid="quiz-result">
+      {/* RESULTS / COMPLETION STEP */}
+      {onResults && (
+        <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-5 text-center" data-testid="lesson-results">
+          <PartyPopper className="mx-auto h-10 w-10 text-violet-500" />
+          <h2 className="text-2xl font-bold tracking-tight">{t("detail.plenaryTitle")}</h2>
+          {quiz.length > 0 ? (
+            quizMutation.isPending || !result ? (
+              <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+            ) : (
+              <div
+                className="rounded-xl bg-gradient-to-br from-violet-500/15 to-fuchsia-400/10 border border-border p-5"
+                data-testid="quiz-result"
+              >
                 <p className="text-sm text-muted-foreground">{t("detail.yourScore")}</p>
-                <p className="text-3xl font-bold">
+                <p className="text-4xl font-bold">
                   {result.score}%{" "}
                   <span className="text-base font-medium text-muted-foreground">
                     {t("detail.outOf", { correct: result.correct, total: result.total })}
                   </span>
                 </p>
               </div>
-              <button
-                onClick={() => completeMutation.mutate()}
-                disabled={completeMutation.isPending}
-                data-testid="lesson-complete"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition disabled:opacity-50"
-              >
-                {completeMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                {t("detail.markComplete")}
-              </button>
-            </div>
+            )
+          ) : (
+            <p className="text-muted-foreground">{t("detail.noQuizDone")}</p>
           )}
+          <button
+            onClick={() => completeMutation.mutate()}
+            disabled={completeMutation.isPending || (quiz.length > 0 && !result)}
+            data-testid="lesson-complete"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition disabled:opacity-50"
+          >
+            {completeMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            {t("detail.markComplete")}
+          </button>
         </section>
       )}
 
-      {!hasQuiz && (
-        <button
-          onClick={() => completeMutation.mutate()}
-          disabled={completeMutation.isPending}
-          data-testid="lesson-complete"
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition disabled:opacity-50"
-        >
-          {completeMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-          {t("detail.markComplete")}
-        </button>
+      {/* NAV CONTROLS */}
+      {!onResults && (
+        <div className="flex items-center justify-between gap-3">
+          <button
+            onClick={goBack}
+            disabled={step === 0}
+            data-testid="step-back"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border text-sm font-semibold transition disabled:opacity-40 hover:border-foreground/40"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t("detail.back")}
+          </button>
+
+          {onSlide ? (
+            <button
+              onClick={goNext}
+              data-testid="step-next"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold transition"
+            >
+              {t("detail.next")}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          ) : (
+            // On a quiz step: advancing is only allowed once the question is
+            // checked (immediate-feedback gate).
+            <button
+              onClick={goNext}
+              disabled={!currentQ || !checked[currentQ.id]}
+              data-testid="quiz-next"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold transition disabled:opacity-40"
+            >
+              {quizIndex === quiz.length - 1 ? t("detail.seeResults") : t("detail.nextQuestion")}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       )}
     </div>
+  );
+}
+
+function QuizStep({
+  q,
+  index,
+  total,
+  selected,
+  check,
+  pending,
+  onSelect,
+  onCheck,
+  t,
+}: {
+  q: QuizQuestion;
+  index: number;
+  total: number;
+  selected: OptionKey | null;
+  check: CheckResult | null;
+  pending: boolean;
+  onSelect: (k: OptionKey) => void;
+  onCheck: () => void;
+  t: (k: string, o?: Record<string, unknown>) => string;
+}) {
+  const opts: { key: OptionKey; label: string }[] = [
+    { key: "A", label: q.optionA },
+    { key: "B", label: q.optionB },
+    { key: "C", label: q.optionC },
+    { key: "D", label: q.optionD },
+  ];
+  const locked = !!check;
+
+  return (
+    <section className="rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-5" data-testid="lesson-quiz">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-bold uppercase tracking-wide text-violet-600 dark:text-violet-300">
+          {t("detail.quizProgress", { current: index + 1, total })}
+        </span>
+      </div>
+      <h2 className="text-xl font-bold leading-snug">{q.question}</h2>
+
+      <div className="grid gap-2.5">
+        {opts.map((o) => {
+          const isSelected = selected === o.key;
+          const isCorrect = check?.correctOption === o.key;
+          const isWrongPick = locked && isSelected && !check?.correct;
+          let cls = "border-border hover:border-foreground/40";
+          if (locked) {
+            if (isCorrect) cls = "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30";
+            else if (isWrongPick) cls = "border-rose-400 bg-rose-50 dark:bg-rose-950/30";
+            else cls = "border-border opacity-60";
+          } else if (isSelected) {
+            cls = "border-violet-400 bg-violet-50 dark:bg-violet-950/30";
+          }
+          return (
+            <button
+              key={o.key}
+              type="button"
+              disabled={locked}
+              onClick={() => onSelect(o.key)}
+              data-testid={`quiz-option-${o.key}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition ${cls} ${
+                locked ? "cursor-default" : "cursor-pointer"
+              }`}
+            >
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current text-xs font-bold">
+                {o.key}
+              </span>
+              <span className="text-sm flex-1">{o.label}</span>
+              {locked && isCorrect && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
+              {locked && isWrongPick && <XCircle className="h-5 w-5 text-rose-600" />}
+            </button>
+          );
+        })}
+      </div>
+
+      {!locked ? (
+        <button
+          onClick={onCheck}
+          disabled={!selected || pending}
+          data-testid="quiz-check"
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {pending && <Loader2 className="h-4 w-4 animate-spin" />}
+          {t("detail.checkAnswer")}
+        </button>
+      ) : (
+        <div
+          data-testid="quiz-feedback"
+          className={`inline-flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-xl ${
+            check?.correct
+              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+              : "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
+          }`}
+        >
+          {check?.correct ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+          {check?.correct ? t("detail.correct") : t("detail.incorrect")}
+        </div>
+      )}
+    </section>
   );
 }

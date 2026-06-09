@@ -26,6 +26,8 @@ import Settings from "@/pages/settings";
 import MyClass from "@/pages/my-class";
 import LearnPage from "@/pages/learn";
 import LearnLessonPage from "@/pages/learn-lesson";
+import StaffLessons from "@/pages/learn-staff";
+import LearnPresentPage from "@/pages/learn-present";
 import MessagesPage from "@/pages/messages";
 import CaseloadPage from "@/pages/caseload";
 import BehaviourPage from "@/pages/behaviour";
@@ -131,6 +133,22 @@ function Router() {
       </Route>
       <Route path="/learn/:id">
         {() => <ProtectedRoute component={LearnLessonPage} />}
+      </Route>
+      <Route path="/lessons/present/:id">
+        {() => (
+          <ProtectedRoute
+            component={LearnPresentPage}
+            allowedRoles={["teacher", "head_of_year", "support_staff", "senco", "coordinator", "head_teacher"]}
+          />
+        )}
+      </Route>
+      <Route path="/lessons">
+        {() => (
+          <ProtectedRoute
+            component={StaffLessons}
+            allowedRoles={["teacher", "head_of_year", "support_staff", "senco", "coordinator", "head_teacher"]}
+          />
+        )}
       </Route>
       <Route path="/education">
         {() => <ProtectedRoute component={LearnPage} />}

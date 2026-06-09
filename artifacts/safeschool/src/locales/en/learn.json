@@ -31,6 +31,36 @@
     "incorrect": "Not quite",
     "loadError": "Couldn't load this lesson.",
     "accessDeniedTitle": "Pupil lessons",
-    "accessDeniedBody": "PSHE lessons are for pupils. Use the staff Learn area instead."
+    "accessDeniedBody": "PSHE lessons are for pupils. Use the staff Learn area instead.",
+    "back": "Back",
+    "next": "Next",
+    "nextQuestion": "Next question",
+    "seeResults": "See results",
+    "checkAnswer": "Check answer",
+    "quizProgress": "Question {{current}} of {{total}}",
+    "plenaryTitle": "Lesson finished",
+    "noQuizDone": "You've worked through this lesson.",
+    "noQuiz": "This lesson has no quiz."
+  },
+  "slide": {
+    "objectivesLabel": "Learning objectives",
+    "activityLabel": "Activity",
+    "reflectionLabel": "Reflection"
+  },
+  "staff": {
+    "heroTitle": "Lessons",
+    "heroSubtitle": "Browse the PSHE curriculum and present any lesson to your class.",
+    "present": "Present",
+    "lessonCount": "{{count}} lessons",
+    "loadError": "Couldn't load lessons. Please try again in a moment.",
+    "emptyTitle": "No lessons yet",
+    "emptyBody": "Lessons will appear here once they're published.",
+    "accessDeniedTitle": "Staff lessons",
+    "accessDeniedBody": "This area is for staff presenting lessons.",
+    "exitPresent": "Exit",
+    "revealAnswer": "Reveal answer",
+    "answerIs": "Correct answer: {{option}}",
+    "endTitle": "End of lesson",
+    "endBody": "Thanks for teaching this lesson. Press Exit to return to the lesson list."
   }
 }

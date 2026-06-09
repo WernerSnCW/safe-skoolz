@@ -363,4 +363,94 @@ describe("PSHE lessons API", () => {
       (await fetch(`${baseUrl}/api/lessons/${globalLessonId}/start`, { method: "POST", headers: h })).status
     ).toBe(404);
   });
+
+  // Task 12 — staff Present mode + pupil per-question feedback.
+
+  it("GET /api/lessons/staff returns the whole catalogue (every key stage) for staff, 403 for pupils", async () => {
+    // A teacher in this school sees global KS3 + school KS3 + school KS2 — no
+    // year-group filtering. Staff have no progress join, so no `progress` key.
+    const res = await fetch(`${baseUrl}/api/lessons/staff`, {
+      headers: { authorization: `Bearer ${tokenForRole(pupilA, "teacher")}` },
+    });
+    expect(res.status).toBe(200);
+    const list = (await res.json()) as Array<{ id: string; keyStage: string }>;
+    const ids = new Set(list.map((l) => l.id));
+    expect(ids.has(globalLessonId)).toBe(true);
+    expect(ids.has(ks3LessonId)).toBe(true);
+    expect(ids.has(ks2LessonId)).toBe(true);
+    expect(list.find((l) => l.id === ks2LessonId)).not.toHaveProperty("progress");
+
+    // Pupils must never reach the staff catalogue.
+    const pupilRes = await fetch(`${baseUrl}/api/lessons/staff`, {
+      headers: { authorization: `Bearer ${tokenFor(pupilA)}` },
+    });
+    expect(pupilRes.status).toBe(403);
+  });
+
+  it("GET /api/lessons/staff/:id includes correctOption (reveal control); pupils get 403", async () => {
+    const res = await fetch(`${baseUrl}/api/lessons/staff/${ks3LessonId}`, {
+      headers: { authorization: `Bearer ${tokenForRole(pupilA, "head_teacher")}` },
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { quiz: Array<Record<string, unknown>> };
+    expect(body.quiz.length).toBe(3);
+    for (const q of body.quiz) {
+      expect(q).toHaveProperty("correctOption");
+      expect(["A", "B", "C", "D"]).toContain(q.correctOption);
+    }
+
+    const pupilRes = await fetch(`${baseUrl}/api/lessons/staff/${ks3LessonId}`, {
+      headers: { authorization: `Bearer ${tokenFor(pupilA)}` },
+    });
+    expect(pupilRes.status).toBe(403);
+  });
+
+  it("POST /api/lessons/:id/quiz/check validates one answer without persisting", async () => {
+    const jsonH = {
+      authorization: `Bearer ${tokenFor(pupilB)}`,
+      "content-type": "application/json",
+    };
+
+    // Correct answer for Q1 is A.
+    const ok = await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/quiz/check`, {
+      method: "POST",
+      headers: jsonH,
+      body: JSON.stringify({ quizId: quizId1, answer: "A" }),
+    });
+    expect(ok.status).toBe(200);
+    expect(await ok.json()).toEqual({ correct: true, correctOption: "A" });
+
+    const wrong = await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/quiz/check`, {
+      method: "POST",
+      headers: jsonH,
+      body: JSON.stringify({ quizId: quizId1, answer: "B" }),
+    });
+    expect(wrong.status).toBe(200);
+    expect(await wrong.json()).toEqual({ correct: false, correctOption: "A" });
+
+    // Checking must NOT create a progress row for pupil B (only final /quiz does).
+    const row = await pool.query(
+      `SELECT 1 FROM lesson_progress WHERE user_id = $1 AND lesson_id = $2`,
+      [pupilB, ks3LessonId]
+    );
+    expect(row.rowCount).toBe(0);
+  });
+
+  it("POST /api/lessons/:id/quiz/check is pupil-only and key-stage fail-closed", async () => {
+    // Non-pupil role → 403.
+    const staff = await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/quiz/check`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${tokenForRole(pupilA, "teacher")}`, "content-type": "application/json" },
+      body: JSON.stringify({ quizId: quizId1, answer: "A" }),
+    });
+    expect(staff.status).toBe(403);
+
+    // Pupil outside the lesson's key stage (Y4 on KS3) → 404, no key leak.
+    const ks = await fetch(`${baseUrl}/api/lessons/${ks3LessonId}/quiz/check`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${tokenFor(pupilC)}`, "content-type": "application/json" },
+      body: JSON.stringify({ quizId: quizId1, answer: "A" }),
+    });
+    expect(ks.status).toBe(404);
+  });
 });

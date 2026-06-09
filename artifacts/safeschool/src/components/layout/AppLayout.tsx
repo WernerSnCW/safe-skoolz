@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { 
   ShieldCheck, Home, AlertTriangle, FileText, Shield,
-  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText
+  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText, Presentation
 } from "lucide-react";
 import { useListNotifications } from "@workspace/api-client-react";
 import { useMessageNotifications, useMessageNotificationEngine } from "@/hooks/useMessageNotifications";
@@ -109,6 +109,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
         { name: t("incidents"), href: "/incidents", icon: FileText },
         { name: t("alerts"), href: "/alerts", icon: Activity },
+        { name: t("lessons"), href: "/lessons", icon: Presentation },
         { name: t("learn"), href: "/learn", icon: BookOpen },
         { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
         { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
@@ -125,6 +126,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: t("behaviour"), href: "/behaviour", icon: Gauge },
         { name: t("myPupils"), href: "/class", icon: Users },
         { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
+        { name: t("lessons"), href: "/lessons", icon: Presentation },
         { name: t("learn"), href: "/learn", icon: BookOpen },
         { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
         { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
@@ -145,6 +147,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
         { name: t("protocols"), href: "/protocols", icon: Shield },
         { name: t("alerts"), href: "/alerts", icon: Activity },
+        { name: t("lessons"), href: "/lessons", icon: Presentation },
         { name: t("learn"), href: "/learn", icon: BookOpen },
         { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
         { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
@@ -184,6 +187,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         ? [{ name: t("admin"), href: "/admin", icon: ShieldCheck }]
         : []),
       { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
+      { name: t("lessons"), href: "/lessons", icon: Presentation },
       { name: t("learn"), href: "/learn", icon: BookOpen },
       { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
       { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },

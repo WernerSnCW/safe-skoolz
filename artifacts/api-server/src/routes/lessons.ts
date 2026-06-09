@@ -29,6 +29,19 @@ export function yearGroupToKeyStage(yearGroup: string | null | undefined): strin
   return null;
 }
 
+// Staff roles that may browse and present lessons. Staff have no year group,
+// so they browse the whole catalogue by key stage and are trusted with the
+// quiz answer key (the reveal control in Present mode). Pupils are NEVER in
+// this list — their endpoints stay role-locked to "pupil" and answer-stripped.
+const STAFF_ROLES = [
+  "teacher",
+  "head_of_year",
+  "support_staff",
+  "senco",
+  "coordinator",
+  "head_teacher",
+] as const;
+
 async function getUserKeyStage(userId: string): Promise<{ keyStage: string | null; yearGroup: string | null }> {
   const [row] = await db
     .select({ yearGroup: usersTable.yearGroup })
@@ -65,6 +78,92 @@ router.get(
       );
 
     res.json(rows);
+  }
+);
+
+// GET /api/lessons/staff
+// Staff catalogue browse. Staff have no year group, so this returns the whole
+// active catalogue (global lessons + this school's own lessons) across every
+// key stage; the frontend groups by key stage / strand. No progress join —
+// staff don't have pupil progress. Registered BEFORE /lessons/:id so "staff"
+// is not captured as an id.
+router.get(
+  "/lessons/staff",
+  authMiddleware,
+  requireRole(...STAFF_ROLES),
+  async (req: Request, res: Response): Promise<void> => {
+    const user = (req as any).user as JwtPayload;
+
+    const lessons = await db
+      .select({
+        id: lessonsTable.id,
+        schoolId: lessonsTable.schoolId,
+        keyStage: lessonsTable.keyStage,
+        strand: lessonsTable.strand,
+        topic: lessonsTable.topic,
+        title: lessonsTable.title,
+        hook: lessonsTable.hook,
+        durationMinutes: lessonsTable.durationMinutes,
+        sortOrder: lessonsTable.sortOrder,
+      })
+      .from(lessonsTable)
+      .where(
+        and(
+          eq(lessonsTable.active, true),
+          or(isNull(lessonsTable.schoolId), eq(lessonsTable.schoolId, user.schoolId))
+        )
+      )
+      .orderBy(asc(lessonsTable.keyStage), asc(lessonsTable.sortOrder), asc(lessonsTable.title));
+
+    res.json(lessons);
+  }
+);
+
+// GET /api/lessons/staff/:id
+// Staff lesson detail for Present mode. Unlike the pupil endpoint this is NOT
+// key-stage gated (staff browse the whole catalogue) and the quiz rows KEEP
+// correct_option so the teacher's "reveal answer" control works. Pupils can
+// never reach this — it is locked to STAFF_ROLES.
+router.get(
+  "/lessons/staff/:id",
+  authMiddleware,
+  requireRole(...STAFF_ROLES),
+  async (req: Request, res: Response): Promise<void> => {
+    const user = (req as any).user as JwtPayload;
+    const lessonId = String(req.params.id);
+
+    const [lesson] = await db
+      .select()
+      .from(lessonsTable)
+      .where(
+        and(
+          eq(lessonsTable.id, lessonId),
+          eq(lessonsTable.active, true),
+          or(isNull(lessonsTable.schoolId), eq(lessonsTable.schoolId, user.schoolId))
+        )
+      );
+
+    if (!lesson) {
+      res.status(404).json({ error: "Lesson not found" });
+      return;
+    }
+
+    const quiz = await db
+      .select({
+        id: lessonQuizzesTable.id,
+        question: lessonQuizzesTable.question,
+        optionA: lessonQuizzesTable.optionA,
+        optionB: lessonQuizzesTable.optionB,
+        optionC: lessonQuizzesTable.optionC,
+        optionD: lessonQuizzesTable.optionD,
+        correctOption: lessonQuizzesTable.correctOption,
+        sortOrder: lessonQuizzesTable.sortOrder,
+      })
+      .from(lessonQuizzesTable)
+      .where(eq(lessonQuizzesTable.lessonId, lessonId))
+      .orderBy(asc(lessonQuizzesTable.sortOrder));
+
+    res.json({ ...lesson, quiz });
   }
 );
 
@@ -347,6 +446,68 @@ router.post(
     });
 
     res.status(200).json({ score, correct, total, perQuestion });
+  }
+);
+
+// POST /api/lessons/:id/quiz/check
+// Body: { quizId, answer: "A"|"B"|"C"|"D" }
+// Returns: { correct, correctOption } for ONE question. Used by the pupil
+// step-through to give immediate retrieval-practice feedback as they go,
+// WITHOUT persisting a score or writing audit — the authoritative score is
+// still computed and saved by the final POST /quiz submission. Because the
+// pupil has already committed an answer to get here, returning correctOption
+// (to highlight the right choice) does not leak the key ahead of an attempt.
+router.post(
+  "/lessons/:id/quiz/check",
+  authMiddleware,
+  requireRole("pupil"),
+  async (req: Request, res: Response): Promise<void> => {
+    const user = (req as any).user as JwtPayload;
+    const lessonId = String(req.params.id);
+    const quizId = String(req.body?.quizId ?? "");
+    const answer = String(req.body?.answer ?? "");
+
+    if (!quizId || !answer) {
+      res.status(400).json({ error: "quizId and answer are required" });
+      return;
+    }
+
+    const { keyStage } = await getUserKeyStage(user.userId);
+
+    const [lesson] = await db
+      .select({ id: lessonsTable.id, keyStage: lessonsTable.keyStage })
+      .from(lessonsTable)
+      .where(
+        and(
+          eq(lessonsTable.id, lessonId),
+          eq(lessonsTable.active, true),
+          or(isNull(lessonsTable.schoolId), eq(lessonsTable.schoolId, user.schoolId))
+        )
+      );
+
+    if (!lesson) {
+      res.status(404).json({ error: "Lesson not found" });
+      return;
+    }
+
+    // Fail closed: pupil's key stage must match the lesson's.
+    if (!keyStage || lesson.keyStage !== keyStage) {
+      res.status(404).json({ error: "Lesson not found" });
+      return;
+    }
+
+    const [q] = await db
+      .select({ id: lessonQuizzesTable.id, correctOption: lessonQuizzesTable.correctOption })
+      .from(lessonQuizzesTable)
+      .where(and(eq(lessonQuizzesTable.id, quizId), eq(lessonQuizzesTable.lessonId, lessonId)));
+
+    if (!q) {
+      res.status(404).json({ error: "Question not found" });
+      return;
+    }
+
+    const correct = answer.toUpperCase() === q.correctOption.toUpperCase();
+    res.status(200).json({ correct, correctOption: q.correctOption });
   }
 );
 
