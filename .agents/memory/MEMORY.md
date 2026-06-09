@@ -2,3 +2,4 @@
 - [Drizzle push rename trap](drizzle-push-rename-trap.md) — drizzle-kit push hangs on a TTY rename prompt when a new table looks like an orphan in the live DB; pipes don't answer it. Inspect and drop the orphan.
 - [Curriculum placeholders leak](curriculum-placeholders.md) — CURRICULUM_YEAR7.md [PLACEHOLDER:] markers aren't only in teacher sections; some sit in pupil slides and render to pupils. Assert 0 before shipping any seed.
 - [Demo pupil key stage](demo-pupil-keystage.md) — demo-login pupil "Bob" is Y4 but lessons are KS3-only, so pupil lesson e2e sees an empty list; swap Bob to Y7 (revert) to test.
+- [KS2/KS4 curriculum not authored](ks2-ks4-curriculum-status.md) — only KS3/Year7 lesson content exists; KS2/KS4 is post-pilot backlog and must not be fabricated. Seeding is blocked on approved content.
