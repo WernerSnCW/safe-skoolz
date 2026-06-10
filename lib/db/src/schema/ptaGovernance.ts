@@ -38,6 +38,17 @@ export const PTA_PROPOSAL_CATEGORIES = ["school_engagement", "internal", "spendi
 export const PTA_BALLOT_STATUSES = ["open", "closed"] as const;
 export const PTA_DEFAULT_BALLOT_OPTIONS = ["For", "Against", "Abstain"] as const;
 
+// Communications. PTA announcements with audience targeting — segment by who
+// they're for. Transparency publishing + targeted messaging (Part B §19).
+export const PTA_ANNOUNCEMENT_AUDIENCES = [
+  "all_parents",
+  "all_members",
+  "officers",
+  "executive_board",
+  "senior_group",
+  "general_membership",
+] as const;
+
 export const ptaMembersTable = pgTable("pta_members", {
   id: uuid("id").defaultRandom().primaryKey(),
   schoolId: uuid("school_id").references(() => schoolsTable.id).notNull(),
@@ -138,6 +149,20 @@ export const ptaProxiesTable = pgTable("pta_proxies", {
 export type PtaMember = typeof ptaMembersTable.$inferSelect;
 export type PtaOfficer = typeof ptaOfficersTable.$inferSelect;
 export type PtaProposal = typeof ptaProposalsTable.$inferSelect;
+export const ptaAnnouncementsTable = pgTable("pta_announcements", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  schoolId: uuid("school_id").references(() => schoolsTable.id).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  body: text("body").notNull(),
+  audience: varchar("audience", { length: 30 }).notNull().default("all_members"),
+  pinned: boolean("pinned").notNull().default(false),
+  createdById: uuid("created_by_id").references(() => usersTable.id).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("idx_pta_announcements_school").on(t.schoolId),
+]);
+
 export type PtaBallot = typeof ptaBallotsTable.$inferSelect;
 export type PtaVote = typeof ptaVotesTable.$inferSelect;
 export type PtaProxy = typeof ptaProxiesTable.$inferSelect;
+export type PtaAnnouncement = typeof ptaAnnouncementsTable.$inferSelect;

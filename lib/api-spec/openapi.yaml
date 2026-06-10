@@ -603,6 +603,73 @@ paths:
               schema:
                 $ref: "#/components/schemas/PtaDashboard"
 
+  /pta/announcements:
+    get:
+      operationId: listPtaAnnouncements
+      tags: [pta]
+      summary: PTA announcements (published log)
+      responses:
+        "200":
+          description: Announcements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        title: { type: string }
+                        body: { type: string }
+                        audience: { type: string }
+                        pinned: { type: boolean }
+                        createdAt: { type: string }
+                        author: { type: string }
+    post:
+      operationId: postPtaAnnouncement
+      tags: [pta]
+      summary: Publish a PTA announcement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                body: { type: string }
+                audience: { type: string }
+                pinned: { type: boolean }
+              required: [title, body]
+      responses:
+        "201":
+          description: Published
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcement: { type: object }
+  /pta/announcements/{id}:
+    delete:
+      operationId: deletePtaAnnouncement
+      tags: [pta]
+      summary: Delete a PTA announcement
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
   /pta/ballots:
     get:
       operationId: listPtaBallots

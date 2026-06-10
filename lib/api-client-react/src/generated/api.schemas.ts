@@ -581,6 +581,37 @@ export type ListNotificationsParams = {
   limit?: number;
 };
 
+export type ListPtaAnnouncements200AnnouncementsItem = {
+  id?: string;
+  title?: string;
+  body?: string;
+  audience?: string;
+  pinned?: boolean;
+  createdAt?: string;
+  author?: string;
+};
+
+export type ListPtaAnnouncements200 = {
+  announcements?: ListPtaAnnouncements200AnnouncementsItem[];
+};
+
+export type PostPtaAnnouncementBody = {
+  title: string;
+  body: string;
+  audience?: string;
+  pinned?: boolean;
+};
+
+export type PostPtaAnnouncement201Announcement = { [key: string]: unknown };
+
+export type PostPtaAnnouncement201 = {
+  announcement?: PostPtaAnnouncement201Announcement;
+};
+
+export type DeletePtaAnnouncement200 = {
+  ok?: boolean;
+};
+
 export type ListPtaBallots200BallotsItemTally = { [key: string]: number };
 
 export type ListPtaBallots200BallotsItem = {

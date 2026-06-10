@@ -9,12 +9,14 @@ import {
   ptaBallotsTable,
   ptaVotesTable,
   ptaProxiesTable,
+  ptaAnnouncementsTable,
   usersTable,
   PTA_TIERS,
   PTA_MEMBER_STATUSES,
   PTA_OFFICER_ROLES,
   PTA_DECISION_OUTCOMES,
   PTA_PROPOSAL_CATEGORIES,
+  PTA_ANNOUNCEMENT_AUDIENCES,
 } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
@@ -535,6 +537,61 @@ router.delete("/pta/proxies", authMiddleware, MANAGE, async (req, res): Promise<
   if (!grantor) { res.status(403).json({ error: "Only PTA members can manage a proxy" }); return; }
   await db.delete(ptaProxiesTable).where(and(eq(ptaProxiesTable.schoolId, u.schoolId), eq(ptaProxiesTable.grantorMemberId, grantor.id)));
   await writeAudit({ schoolId: u.schoolId, eventType: "pta_proxy_revoked", actor: u, targetType: "pta_proxy", targetId: grantor.id, details: {}, req });
+  res.json({ ok: true });
+});
+
+// --- Communications (announcements) ----------------------------------------
+
+// GET /pta/announcements — the published announcement log (pinned first, newest first).
+router.get("/pta/announcements", authMiddleware, VIEW, async (req, res): Promise<void> => {
+  const u = user(req);
+  const rows = await db
+    .select({
+      id: ptaAnnouncementsTable.id,
+      title: ptaAnnouncementsTable.title,
+      body: ptaAnnouncementsTable.body,
+      audience: ptaAnnouncementsTable.audience,
+      pinned: ptaAnnouncementsTable.pinned,
+      createdAt: ptaAnnouncementsTable.createdAt,
+      authorFirst: usersTable.firstName,
+      authorLast: usersTable.lastName,
+    })
+    .from(ptaAnnouncementsTable)
+    .innerJoin(usersTable, eq(usersTable.id, ptaAnnouncementsTable.createdById))
+    .where(eq(ptaAnnouncementsTable.schoolId, u.schoolId))
+    .orderBy(desc(ptaAnnouncementsTable.pinned), desc(ptaAnnouncementsTable.createdAt));
+
+  res.json({
+    announcements: rows.map((a) => ({
+      id: a.id, title: a.title, body: a.body, audience: a.audience, pinned: a.pinned,
+      createdAt: a.createdAt, author: `${a.authorFirst} ${a.authorLast}`.trim(),
+    })),
+  });
+});
+
+// POST /pta/announcements — publish. Body: { title, body, audience?, pinned? }
+router.post("/pta/announcements", authMiddleware, MANAGE, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { title, body, audience = "all_members", pinned = false } = req.body ?? {};
+  if (!title || typeof title !== "string" || !title.trim()) { res.status(400).json({ error: "title is required" }); return; }
+  if (!body || typeof body !== "string" || !body.trim()) { res.status(400).json({ error: "body is required" }); return; }
+  if (!PTA_ANNOUNCEMENT_AUDIENCES.includes(audience)) { res.status(400).json({ error: `audience must be one of: ${PTA_ANNOUNCEMENT_AUDIENCES.join(", ")}` }); return; }
+
+  const [announcement] = await db.insert(ptaAnnouncementsTable)
+    .values({ schoolId: u.schoolId, title: title.trim(), body: body.trim(), audience, pinned: !!pinned, createdById: u.userId }).returning();
+  await writeAudit({ schoolId: u.schoolId, eventType: "pta_announcement_posted", actor: u, targetType: "pta_announcement", targetId: announcement.id, details: { title: title.trim(), audience }, req });
+  res.status(201).json({ announcement });
+});
+
+// DELETE /pta/announcements/:id — remove an announcement.
+router.delete("/pta/announcements/:id", authMiddleware, MANAGE, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const existing = await db.select({ id: ptaAnnouncementsTable.id }).from(ptaAnnouncementsTable)
+    .where(and(eq(ptaAnnouncementsTable.id, id), eq(ptaAnnouncementsTable.schoolId, u.schoolId))).limit(1);
+  if (!existing.length) { res.status(404).json({ error: "Announcement not found" }); return; }
+  await db.delete(ptaAnnouncementsTable).where(eq(ptaAnnouncementsTable.id, id));
+  await writeAudit({ schoolId: u.schoolId, eventType: "pta_announcement_deleted", actor: u, targetType: "pta_announcement", targetId: id, details: {}, req });
   res.json({ ok: true });
 });
 

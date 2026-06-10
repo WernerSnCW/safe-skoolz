@@ -1038,6 +1038,46 @@ export const GetPtaDashboardResponse = zod.object({
 });
 
 /**
+ * @summary PTA announcements (published log)
+ */
+export const ListPtaAnnouncementsResponse = zod.object({
+  announcements: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        title: zod.string().optional(),
+        body: zod.string().optional(),
+        audience: zod.string().optional(),
+        pinned: zod.boolean().optional(),
+        createdAt: zod.string().optional(),
+        author: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Publish a PTA announcement
+ */
+export const PostPtaAnnouncementBody = zod.object({
+  title: zod.string(),
+  body: zod.string(),
+  audience: zod.string().optional(),
+  pinned: zod.boolean().optional(),
+});
+
+/**
+ * @summary Delete a PTA announcement
+ */
+export const DeletePtaAnnouncementParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const DeletePtaAnnouncementResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
  * @summary Ballots with live tally and quorum status
  */
 export const ListPtaBallotsResponse = zod.object({
