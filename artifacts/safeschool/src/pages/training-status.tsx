@@ -195,7 +195,7 @@ export default function TrainingStatusPage() {
                         <td key={m} className="text-center px-2 py-3">
                           {completionMap[m] ? (
                             <span className="inline-flex flex-col items-center">
-                              <CheckCircle2 size={16} className="text-green-500" />
+                              <CheckCircle2 size={16} className="text-success" />
                               <span className="text-xs text-muted-foreground mt-0.5">{formatDate(completionMap[m])}</span>
                             </span>
                           ) : (

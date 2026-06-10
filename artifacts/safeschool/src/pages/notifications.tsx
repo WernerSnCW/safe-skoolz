@@ -181,8 +181,8 @@ function BroadcastPanel() {
             >
               <div className="mt-4 space-y-3 border-t border-border/50 pt-4">
                 {sent && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/30">
-                    <CheckCircle2 size={16} className="text-green-500" />
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-success/10 border border-success/30">
+                    <CheckCircle2 size={16} className="text-success" />
                     <p className="text-sm font-medium">Sent to {sent.count} {sent.count === 1 ? "person" : "people"}.</p>
                   </div>
                 )}

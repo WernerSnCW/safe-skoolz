@@ -53,7 +53,7 @@ export default function ResetPassword() {
         <Card className="w-full max-w-md">
           <CardContent className="p-8 space-y-4">
             <h1 className="text-xl font-semibold">Reset password</h1>
-            <p className="text-sm text-red-600">Missing reset token.</p>
+            <p className="text-sm text-destructive">Missing reset token.</p>
             <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
               Request a new link
             </Link>
@@ -73,7 +73,7 @@ export default function ResetPassword() {
           </div>
 
           {done ? (
-            <p className="text-sm text-green-700">
+            <p className="text-sm text-success">
               Password updated. Redirecting to sign in…
             </p>
           ) : (
@@ -89,7 +89,7 @@ export default function ResetPassword() {
                 <Label htmlFor="pw2">Confirm new password</Label>
                 <Input id="pw2" type="password" required value={pw2} onChange={(e) => setPw2(e.target.value)} />
               </div>
-              {err && <p className="text-sm text-red-600">{err}</p>}
+              {err && <p className="text-sm text-destructive">{err}</p>}
               <Button type="submit" disabled={submitting} className="w-full">
                 {submitting ? "Saving…" : "Update password"}
               </Button>
