@@ -52,7 +52,7 @@
         "benefit": "Tu voz importa. También puedes ver los resultados: datos reales sobre lo seguro que se siente tu cole."
       },
       {
-        "title": "Cómo usar safeskoolz",
+        "title": "Cómo usar vibez",
         "description": "Las guías paso a paso explican cada función: cómo reportar un incidente, cómo usar tu diario, cómo funcionan los mensajes, cómo enviar una alerta de ayuda urgente y cómo funciona el sistema de comportamiento. Cada guía tiene pasos numerados que puedes seguir.",
         "benefit": "Si alguna vez no sabes cómo funciona algo, aquí está la respuesta."
       },
@@ -68,8 +68,8 @@
       },
       {
         "title": "Tu avatar y ajustes",
-        "description": "Elige tu avatar de animal en la cuadrícula: perro, gato, conejo, oso, zorro, búho, pingüino, león, panda, unicornio y más. Tu animal aparecerá junto a tu nombre en todo safeskoolz. Puedes cambiarlo cuando quieras.",
-        "benefit": "Tu avatar es tu identidad en safeskoolz: elige el que sientas como tuyo."
+        "description": "Elige tu avatar de animal en la cuadrícula: perro, gato, conejo, oso, zorro, búho, pingüino, león, panda, unicornio y más. Tu animal aparecerá junto a tu nombre en todo vibez. Puedes cambiarlo cuando quieras.",
+        "benefit": "Tu avatar es tu identidad en vibez: elige el que sientas como tuyo."
       }
     ],
     "parent": [
@@ -109,7 +109,7 @@
         "benefit": "Tu voz impulsa mejoras reales. Ves las puntuaciones, las brechas y los planes de acción que se ponen en marcha."
       },
       {
-        "title": "Cómo usar safeskoolz",
+        "title": "Cómo usar vibez",
         "description": "Guías paso a paso para cada función: ver incidentes, consultar puntos y niveles de comportamiento, escribir al personal y reportar preocupaciones. Cada guía tiene pasos numerados que puedes seguir.",
         "benefit": "Nunca te sentirás perdido/a: todo está explicado aquí."
       },
@@ -312,7 +312,7 @@
         "benefit": "Datos anonimizados para llevar a las reuniones de patronato. Ve las puntuaciones, las brechas y lo que se está haciendo."
       },
       {
-        "title": "Cómo usar safeskoolz",
+        "title": "Cómo usar vibez",
         "description": "Guías paso a paso para cada función del PTA: navegar por el panel, escribir al coordinador, revisar la política, acceder a la memoria anual, usar el espacio de codiseño y entender la biblioteca de recursos.",
         "benefit": "Ponte al día rápidamente. Cada función del PTA explicada paso a paso."
       },

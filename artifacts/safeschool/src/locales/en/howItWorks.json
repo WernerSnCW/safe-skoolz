@@ -1,6 +1,6 @@
 {
   "backToLogin": "Back to login",
-  "pageTitle": "How safeskoolz works",
+  "pageTitle": "How vibez works",
   "pageSubtitle": "Follow Sofia's story through the actual platform — see every screen, every alert, every action that protects a child.",
   "clickTimelineHint": "Click the timeline below to explore each week",
   "stagesProgress": "{{current}} of {{total}} stages",
@@ -9,13 +9,13 @@
   "seeNext": "See what happens next",
   "storyComplete": "Story complete",
   "ctaTitle": "Every school has stories like Sofia's.",
-  "ctaSubtitle": "The difference is whether anyone connects the dots in time. safeskoolz makes the invisible visible.",
+  "ctaSubtitle": "The difference is whether anyone connects the dots in time. With vibez, the invisible becomes visible.",
   "tryDemo": "Try the demo",
   "footerDisclaimer": "All names are fictional. Scenarios are based on real patterns seen in schools across Europe.",
   "poweredBy": "Powered by",
   "interactiveDemoTag": "INTERACTIVE DEMO",
   "rolesTitle": "What each role can do",
-  "rolesSubtitle": "Sofia's story shows pattern detection. But safeskoolz is used every day by pupils, parents, teachers, and coordinators for much more.",
+  "rolesSubtitle": "Sofia's story shows pattern detection. But vibez is used every day by pupils, parents, teachers, and coordinators for much more.",
   "chooseRoleHint": "Choose a role, then explore their features",
   "featuresClickHint": "{{count}} features — click to explore",
   "featuresCount": "{{count}} features",
@@ -127,9 +127,9 @@
     },
     "pattern": {
       "week": "Week 3",
-      "title": "safeskoolz connects the dots",
+      "title": "How vibez connects the dots",
       "subtitle": "No single teacher saw the full picture. The system did.",
-      "narrative": "Four incidents logged by three different staff members and one anonymous pupil. No individual saw more than one event. But safeskoolz links them all: same victim, escalating severity, group forming around a ringleader, and a mood that's falling off a cliff.",
+      "narrative": "Four incidents logged by three different staff members and one anonymous pupil. No individual saw more than one event. But vibez links them all: same victim, escalating severity, group forming around a ringleader, and a mood that's falling off a cliff.",
       "screens": [
         {
           "role": "System",
@@ -216,7 +216,7 @@
           "role": "Mrs Chen (coordinator)",
           "page": "Protocol Tracker",
           "title": "Each child gets a proportionate response",
-          "description": "The Convivèxit protocol requires different actions for ringleaders vs recruited participants. safeskoolz tracks each task and deadline.",
+          "description": "The Convivèxit protocol requires different actions for ringleaders vs recruited participants. With vibez, every task and deadline is tracked.",
           "mockup": [
             "Marcus: Formal parent meeting • Behaviour contract • Daily check-in with Head of Year",
             "Tyler: Restorative conversation with Sofia (with consent) • Mentoring sessions",
@@ -326,7 +326,7 @@
         {
           "page": "Safe Messaging",
           "title": "Message your safe adult",
-          "description": "If you've been assigned a safe adult, you can message them directly through safeskoolz. Private, secure, available any time.",
+          "description": "If you've been assigned a safe adult, you can message them directly through vibez. Private, secure, available any time.",
           "mockup": [
             "Your safe adult is: Ms Rivera. You can message her any time.",
             "\"Can I talk to you at break? Something happened again.\""
