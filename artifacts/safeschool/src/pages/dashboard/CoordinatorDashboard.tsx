@@ -659,8 +659,8 @@ function AnnualReportManager() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const STATUS_STYLES: Record<string, { icon: any; label: string; color: string; bg: string }> = {
-    draft: { icon: Clock, label: t("draft"), color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50" },
-    approved: { icon: CheckCircle2, label: t("approvedStatus"), color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900/50" },
+    draft: { icon: Clock, label: t("draft"), color: "text-warning", bg: "bg-warning/10 border-warning/30" },
+    approved: { icon: CheckCircle2, label: t("approvedStatus"), color: "text-success", bg: "bg-success/10 border-success/30" },
   };
 
   if (isLoading) {

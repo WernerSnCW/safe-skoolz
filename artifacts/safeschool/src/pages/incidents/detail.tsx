@@ -11,14 +11,14 @@ import { ArrowLeft, MapPin, Calendar, User, ShieldAlert, CheckCircle, Clock, Ale
 const STAFF_ROLES = ["teacher", "head_of_year", "coordinator", "head_teacher", "senco", "support_staff"];
 
 const EMOTIONAL_LABELS: Record<string, { label: string; emoji: string; color: string }> = {
-  happy: { label: "Happy", emoji: "😊", color: "text-green-600" },
-  okay: { label: "Okay", emoji: "🙂", color: "text-blue-600" },
-  sad: { label: "Sad", emoji: "😢", color: "text-blue-500" },
-  scared: { label: "Scared", emoji: "😨", color: "text-amber-600" },
-  angry: { label: "Angry", emoji: "😠", color: "text-red-500" },
-  confused: { label: "Confused", emoji: "😕", color: "text-purple-500" },
-  worried: { label: "Worried", emoji: "😟", color: "text-amber-500" },
-  hurt: { label: "Hurt", emoji: "💔", color: "text-red-600" },
+  happy: { label: "Happy", emoji: "😊", color: "text-success" },
+  okay: { label: "Okay", emoji: "🙂", color: "text-info" },
+  sad: { label: "Sad", emoji: "😢", color: "text-info" },
+  scared: { label: "Scared", emoji: "😨", color: "text-warning" },
+  angry: { label: "Angry", emoji: "😠", color: "text-destructive" },
+  confused: { label: "Confused", emoji: "😕", color: "text-cat-4" },
+  worried: { label: "Worried", emoji: "😟", color: "text-warning" },
+  hurt: { label: "Hurt", emoji: "💔", color: "text-destructive" },
 };
 
 export default function IncidentDetail() {
@@ -751,8 +751,8 @@ export default function IncidentDetail() {
                     <p className="font-bold text-sm text-muted-foreground">{t("common:person", { number: i + 1 })}</p>
                     {desc.roleInIncident && (
                       <span className={`px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
-                        desc.roleInIncident === "victim" ? "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" :
-                        desc.roleInIncident === "perpetrator" ? "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" :
+                        desc.roleInIncident === "victim" ? "bg-info/15 text-info" :
+                        desc.roleInIncident === "perpetrator" ? "bg-destructive/15 text-destructive" :
                         "bg-gray-100 text-gray-700"
                       }`}>
                         {desc.roleInIncident === "perpetrator" ? "involved" : desc.roleInIncident}
@@ -822,13 +822,13 @@ export default function IncidentDetail() {
 function ParentIncidentReport({ inc }: { inc: any }) {
   const { t } = useTranslation("incidents");
   const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-    submitted: { label: t("common:submitted"), color: "text-blue-700", bg: "bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800", icon: FileText },
-    open: { label: t("beingLookedInto"), color: "text-amber-700", bg: "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800", icon: AlertTriangle },
+    submitted: { label: t("common:submitted"), color: "text-info", bg: "bg-info/10 border-info/30", icon: FileText },
+    open: { label: t("beingLookedInto"), color: "text-warning", bg: "bg-warning/10 border-warning/30", icon: AlertTriangle },
     under_review: { label: t("common:underReview"), color: "text-primary", bg: "bg-primary/5 border-primary/20", icon: Clock },
-    investigating: { label: t("beingInvestigated"), color: "text-purple-700", bg: "bg-purple-50 border-purple-200 dark:bg-purple-950/30 dark:border-purple-800", icon: Shield },
-    escalated: { label: t("escalatedExtraSupport"), color: "text-red-700", bg: "bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800", icon: ShieldAlert },
-    resolved: { label: t("common:resolved"), color: "text-green-700", bg: "bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800", icon: CheckCircle },
-    closed: { label: t("common:closed"), color: "text-gray-600", bg: "bg-gray-50 border-gray-200 dark:bg-gray-800/50 dark:border-gray-700", icon: CheckCircle },
+    investigating: { label: t("beingInvestigated"), color: "text-cat-4", bg: "bg-cat-4/10 border-cat-4/30", icon: Shield },
+    escalated: { label: t("escalatedExtraSupport"), color: "text-destructive", bg: "bg-destructive/10 border-destructive/30", icon: ShieldAlert },
+    resolved: { label: t("common:resolved"), color: "text-success", bg: "bg-success/10 border-success/30", icon: CheckCircle },
+    closed: { label: t("common:closed"), color: "text-gray-600", bg: "bg-gray-50 border-gray-200", icon: CheckCircle },
   };
   const status = statusConfig[inc.status] || statusConfig.open;
   const StatusIcon = status.icon;

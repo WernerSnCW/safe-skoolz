@@ -12,13 +12,13 @@ import { formatDate } from "@/lib/utils";
 const STAFF_ROLES = ["teacher", "head_of_year", "support_staff", "senco", "coordinator", "head_teacher"];
 
 const CATEGORIES = [
-  { id: "general", label: "General", icon: Megaphone, color: "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" },
-  { id: "safeguarding", label: "Safeguarding", icon: Shield, color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" },
-  { id: "wellbeing", label: "Wellbeing", icon: Heart, color: "bg-pink-100 text-pink-700 dark:bg-pink-950/30 dark:text-pink-400" },
-  { id: "curriculum", label: "Curriculum", icon: BookOpen, color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" },
-  { id: "event", label: "Event", icon: Calendar, color: "bg-purple-100 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400" },
-  { id: "policy", label: "Policy", icon: Tag, color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" },
-  { id: "heads_up", label: "Heads Up", icon: Eye, color: "bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400" },
+  { id: "general", label: "General", icon: Megaphone, color: "bg-cat-1/15 text-cat-1" },
+  { id: "safeguarding", label: "Safeguarding", icon: Shield, color: "bg-destructive/15 text-destructive" },
+  { id: "wellbeing", label: "Wellbeing", icon: Heart, color: "bg-cat-6/15 text-cat-6" },
+  { id: "curriculum", label: "Curriculum", icon: BookOpen, color: "bg-cat-3/15 text-cat-3" },
+  { id: "event", label: "Event", icon: Calendar, color: "bg-cat-4/15 text-cat-4" },
+  { id: "policy", label: "Policy", icon: Tag, color: "bg-cat-5/15 text-cat-5" },
+  { id: "heads_up", label: "Heads Up", icon: Eye, color: "bg-cat-7/15 text-cat-7" },
 ];
 
 const AUDIENCES = [

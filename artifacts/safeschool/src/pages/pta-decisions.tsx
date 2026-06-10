@@ -21,9 +21,9 @@ const OUTCOMES = [
   { value: "deferred", label: "Deferred" },
 ];
 const STATUS_STYLE: Record<string, string> = {
-  open: "bg-amber-100 text-amber-700",
-  carried: "bg-green-100 text-green-700",
-  rejected: "bg-red-100 text-red-700",
+  open: "bg-warning/15 text-warning",
+  carried: "bg-success/15 text-success",
+  rejected: "bg-destructive/15 text-destructive",
   deferred: "bg-slate-200 text-slate-600",
   withdrawn: "bg-slate-100 text-slate-500",
 };
