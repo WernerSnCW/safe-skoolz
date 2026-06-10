@@ -67,7 +67,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     correct: "accident",
     explanation: "This was an accident. Sam didn't mean to and said sorry. Everyone bumps into people sometimes — it's not unkind or bullying.",
     level: "Not bullying",
-    levelColor: "text-green-600",
+    levelColor: "text-success",
   },
   {
     scenario: "A group of children laugh at your drawing in art class and call it rubbish, but it only happens once.",
@@ -79,7 +79,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     correct: "unkind",
     explanation: "This is unkind. It would hurt your feelings and it wasn't nice — but if it only happens once, it's an unkind moment rather than bullying. If it keeps happening, it could become bullying.",
     level: "Unkind — but not bullying yet",
-    levelColor: "text-amber-600",
+    levelColor: "text-warning",
   },
   {
     scenario: "Every day at lunch, the same person takes your seat on purpose and their friends block you from sitting down. It's been going on for two weeks.",
@@ -91,7 +91,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     correct: "bullying",
     explanation: "This is bullying. It's deliberate, it keeps happening, and a group is involved. Being purposely excluded every day is a pattern of bullying behaviour — you should tell a trusted adult.",
     level: "Bullying",
-    levelColor: "text-red-600",
+    levelColor: "text-destructive",
   },
   {
     scenario: "Your friend doesn't want to play the game you chose at break time. They want to play something else.",
@@ -103,7 +103,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     correct: "accident",
     explanation: "This is totally normal! Friends don't always agree on everything. Disagreeing about what to play is just part of friendship — not bullying.",
     level: "Normal friendship",
-    levelColor: "text-green-600",
+    levelColor: "text-success",
   },
   {
     scenario: "Someone in your class keeps sending you mean messages on a group chat, calling you names. When you ask them to stop, they create a new group without you and share screenshots making fun of you.",
@@ -115,7 +115,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     correct: "bullying",
     explanation: "This is cyberbullying. Repeated name-calling, excluding you, and sharing embarrassing things online is serious. Screenshot the messages and tell a trusted adult straight away.",
     level: "Cyberbullying",
-    levelColor: "text-red-600",
+    levelColor: "text-destructive",
   },
   {
     scenario: "A classmate says something rude to you because they're having a really bad day. The next day they come and apologise.",
@@ -127,7 +127,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     correct: "unkind",
     explanation: "This was unkind, and it's okay to feel hurt by it. But they recognised it was wrong and apologised. Everyone has bad days — what matters is that they took responsibility.",
     level: "Unkind but resolved",
-    levelColor: "text-amber-600",
+    levelColor: "text-warning",
   },
   {
     scenario: "An older pupil keeps pushing you in the corridor, takes your snack at break, and tells you not to say anything or 'it'll be worse'. This happens several times a week.",
@@ -139,7 +139,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     correct: "bullying",
     explanation: "This is serious bullying with physical intimidation and threats. The person is using their size/age to scare you. You must tell a trusted adult — threats like 'don't tell anyone' are a sign you definitely should tell someone.",
     level: "Serious bullying — tell an adult now",
-    levelColor: "text-red-600",
+    levelColor: "text-destructive",
   },
 ];
 
@@ -226,8 +226,8 @@ function BullyingQuiz() {
             const isCorrect = opt.value === q.correct;
             let borderClass = "border-border hover:border-primary/50 hover:bg-primary/5";
             if (answered) {
-              if (isCorrect) borderClass = "border-green-400 bg-green-50 dark:bg-green-950/30";
-              else if (isSelected && !isCorrect) borderClass = "border-red-300 bg-red-50 dark:bg-red-950/30";
+              if (isCorrect) borderClass = "border-success/50 bg-success/10";
+              else if (isSelected && !isCorrect) borderClass = "border-destructive/40 bg-destructive/10";
               else borderClass = "border-border opacity-60";
             }
             return (
@@ -240,8 +240,8 @@ function BullyingQuiz() {
               >
                 <span className="text-lg">{opt.emoji}</span>
                 <span className="text-sm font-medium">{opt.label}</span>
-                {answered && isCorrect && <CheckCircle2 size={16} className="ml-auto text-green-600" />}
-                {answered && isSelected && !isCorrect && <AlertTriangle size={16} className="ml-auto text-red-500" />}
+                {answered && isCorrect && <CheckCircle2 size={16} className="ml-auto text-success" />}
+                {answered && isSelected && !isCorrect && <AlertTriangle size={16} className="ml-auto text-destructive" />}
               </button>
             );
           })}
@@ -254,7 +254,7 @@ function BullyingQuiz() {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-3"
             >
-              <div className={`rounded-xl p-4 ${selected === q.correct ? "bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800" : "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800"}`}>
+              <div className={`rounded-xl p-4 ${selected === q.correct ? "bg-success/10 border border-success/30" : "bg-warning/10 border border-warning/30"}`}>
                 <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${q.levelColor}`}>
                   {q.level}
                 </p>
@@ -334,8 +334,8 @@ function PupilContent() {
           <p className="font-bold mt-3">Step 3 — A plan is made</p>
           <p>For serious situations, the school follows official rules called <strong>protocols</strong>. These are legal rules that the school must follow:</p>
           <div className="space-y-2 mt-2">
-            <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-950/20 dark:border-blue-800">
-              <p className="font-bold text-blue-700 dark:text-blue-400 text-xs uppercase tracking-wider mb-1">Convivèxit — Anti-Bullying Protocol</p>
+            <div className="p-3 rounded-lg bg-info/10 border border-info/30">
+              <p className="font-bold text-info text-xs uppercase tracking-wider mb-1">Convivèxit — Anti-Bullying Protocol</p>
               <p className="text-sm">Used when someone is being bullied. The school investigates, talks to everyone involved, tries to fix the problem, and checks on you afterwards to make sure it stopped.</p>
             </div>
             <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 dark:bg-purple-950/20 dark:border-purple-800">
@@ -516,35 +516,35 @@ function PupilContent() {
           <p className="font-bold mt-3">What can you do right now?</p>
           <div className="space-y-3 mt-2">
             <div className="flex gap-3 items-start">
-              <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
+              <span className="bg-success text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
               <div>
                 <p className="font-bold">Stop the behaviour</p>
                 <p className="text-muted-foreground">Even if your friends keep doing it, you can choose to stop. That's your decision and it matters more than you think.</p>
               </div>
             </div>
             <div className="flex gap-3 items-start">
-              <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
+              <span className="bg-success text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
               <div>
                 <p className="font-bold">Say sorry — and mean it</p>
                 <p className="text-muted-foreground">A real apology isn't "sorry, but..." or "sorry you felt that way." It sounds like: <em>"I'm sorry I did that. It wasn't okay, and I won't do it again."</em> You don't need to make excuses. A genuine sorry is one of the most powerful things one person can say to another.</p>
               </div>
             </div>
             <div className="flex gap-3 items-start">
-              <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
+              <span className="bg-success text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
               <div>
                 <p className="font-bold">Try to understand how they felt</p>
                 <p className="text-muted-foreground">Think about a time when someone made you feel small, scared, or left out. That's how the other person felt because of what you did. This isn't meant to make you feel terrible — it's meant to help you understand why it matters.</p>
               </div>
             </div>
             <div className="flex gap-3 items-start">
-              <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">4</span>
+              <span className="bg-success text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">4</span>
               <div>
                 <p className="font-bold">Talk to someone about what's going on with YOU</p>
                 <p className="text-muted-foreground">If something is making you act this way — stress, anger, problems at home, feeling like you don't fit in — you deserve help with that too. Talk to a teacher, school counsellor, or parent. They won't just punish you. Good adults want to understand and help.</p>
               </div>
             </div>
             <div className="flex gap-3 items-start">
-              <span className="bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">5</span>
+              <span className="bg-success text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">5</span>
               <div>
                 <p className="font-bold">Make a different choice tomorrow</p>
                 <p className="text-muted-foreground">You can't change what you did yesterday. But you can choose what you do tomorrow. Even small things count — being kind to the person you were mean to, including someone who's sitting alone, or refusing to join in when others are being cruel.</p>
@@ -623,16 +623,16 @@ function StaffContent() {
             <li>Changes in eating or sleeping patterns</li>
             <li>Becoming aggressive or disruptive (sometimes victims act out)</li>
           </ul>
-          <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 mt-2 dark:bg-amber-950/20 dark:border-amber-800">
-            <p className="font-bold text-amber-700 dark:text-amber-400">Trust your instinct. If something feels wrong, record it and report it. It's better to raise a concern that turns out to be nothing than to miss something serious.</p>
+          <div className="p-3 rounded-lg bg-warning/10 border border-warning/30 mt-2">
+            <p className="font-bold text-warning">Trust your instinct. If something feels wrong, record it and report it. It's better to raise a concern that turns out to be nothing than to miss something serious.</p>
           </div>
         </AccordionItem>
 
         <AccordionItem title="How to respond when a child discloses" icon={MessageCircle}>
           <div className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg bg-green-50 border border-green-200 dark:bg-green-950/20 dark:border-green-800">
-                <p className="font-bold text-green-700 dark:text-green-400 text-xs uppercase tracking-wider mb-2">Do</p>
+              <div className="p-3 rounded-lg bg-success/10 border border-success/30">
+                <p className="font-bold text-success text-xs uppercase tracking-wider mb-2">Do</p>
                 <ul className="list-disc pl-4 space-y-1 text-sm">
                   <li>Listen calmly and take them seriously</li>
                   <li>Reassure them: "You did the right thing telling me"</li>
@@ -642,8 +642,8 @@ function StaffContent() {
                   <li>Report to the Safeguarding Coordinator immediately</li>
                 </ul>
               </div>
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-800">
-                <p className="font-bold text-red-700 dark:text-red-400 text-xs uppercase tracking-wider mb-2">Don't</p>
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30">
+                <p className="font-bold text-destructive text-xs uppercase tracking-wider mb-2">Don't</p>
                 <ul className="list-disc pl-4 space-y-1 text-sm">
                   <li>Promise confidentiality — you may need to share the information</li>
                   <li>Ask leading questions or investigate yourself</li>
@@ -717,8 +717,8 @@ function StaffContent() {
 
           <p className="font-bold mt-3">Evidence-based response framework</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <div className="p-3 rounded-lg bg-green-50 border border-green-200 dark:bg-green-950/20 dark:border-green-800">
-              <p className="font-bold text-green-700 dark:text-green-400 text-xs uppercase tracking-wider mb-2">Effective approaches</p>
+            <div className="p-3 rounded-lg bg-success/10 border border-success/30">
+              <p className="font-bold text-success text-xs uppercase tracking-wider mb-2">Effective approaches</p>
               <ul className="list-disc pl-4 space-y-1 text-sm">
                 <li><strong>Name the behaviour, not the child</strong> — "What you did was bullying" not "You are a bully." Labels become identities</li>
                 <li><strong>Explore root causes</strong> — ask "What's going on for you?" before asking "Why did you do it?"</li>
@@ -730,8 +730,8 @@ function StaffContent() {
                 <li><strong>Systematic follow-up</strong> — regular check-ins to reinforce prosocial behaviour (not just monitoring for further incidents)</li>
               </ul>
             </div>
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-800">
-              <p className="font-bold text-red-700 dark:text-red-400 text-xs uppercase tracking-wider mb-2">Avoid</p>
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30">
+              <p className="font-bold text-destructive text-xs uppercase tracking-wider mb-2">Avoid</p>
               <ul className="list-disc pl-4 space-y-1 text-sm">
                 <li><strong>Labelling a child as "a bully"</strong> — this becomes their identity and reduces motivation to change</li>
                 <li><strong>Public humiliation or shaming</strong> — shaming increases aggression, not empathy</li>
@@ -753,8 +753,8 @@ function StaffContent() {
             <li>Restorative measures where appropriate — mediation, repair of harm, apology (only if the victim agrees and the child shows genuine commitment)</li>
           </ul>
 
-          <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 mt-3 dark:bg-amber-950/20 dark:border-amber-800">
-            <p className="font-bold text-amber-700 dark:text-amber-400">A child who is hurting others is often a child who is hurting inside. Your job is to address both — protect the victim and help the child who bullied. These are not competing goals.</p>
+          <div className="p-3 rounded-lg bg-warning/10 border border-warning/30 mt-3">
+            <p className="font-bold text-warning">A child who is hurting others is often a child who is hurting inside. Your job is to address both — protect the victim and help the child who bullied. These are not competing goals.</p>
           </div>
         </AccordionItem>
 
@@ -849,8 +849,8 @@ function ParentContent() {
           <p>Depending on the nature of the concern, one of three legally mandated protocols is activated:</p>
 
           <div className="space-y-3 mt-2">
-            <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/20 dark:border-blue-800">
-              <p className="font-bold text-blue-700 dark:text-blue-400 mb-2">Convivèxit — Anti-Bullying Protocol</p>
+            <div className="p-4 rounded-xl bg-info/10 border border-info/30">
+              <p className="font-bold text-info mb-2">Convivèxit — Anti-Bullying Protocol</p>
               <p className="text-sm mb-2">Required by Balearic Islands education law for all suspected bullying cases. This protocol has five phases:</p>
               <ol className="list-decimal pl-5 space-y-1 text-sm">
                 <li><strong>Detection</strong> — the concern is identified and formally recorded</li>
