@@ -69,9 +69,9 @@ function ParentReportCard({ inc }: { inc: any }) {
   };
 
   const PARENT_TIER_LABELS: Record<number, { label: string; color: string }> = {
-    1: { label: t("lowLevel"), color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" },
-    2: { label: t("moderate"), color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" },
-    3: { label: t("serious"), color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" },
+    1: { label: t("lowLevel"), color: "bg-scale-5/15 text-scale-5" },
+    2: { label: t("moderate"), color: "bg-scale-3/15 text-scale-3" },
+    3: { label: t("serious"), color: "bg-scale-1/15 text-scale-1" },
   };
 
   const emotion = inc.emotionalState ? PARENT_EMOTION_LABELS[inc.emotionalState] : null;

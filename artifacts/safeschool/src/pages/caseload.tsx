@@ -15,18 +15,18 @@ import {
 
 const RATING_LABEL_KEYS: Record<number, string> = { 1: "struggling", 2: "someConcerns", 3: "gettingThere", 4: "good", 5: "excellent" };
 const FEELING_ICON_DEFS = [
-  { value: 1, icon: Frown, labelKey: "veryUnhappy", color: "text-red-500" },
-  { value: 2, icon: Frown, labelKey: "unhappy", color: "text-orange-500" },
-  { value: 3, icon: Meh, labelKey: "ok", color: "text-yellow-500" },
-  { value: 4, icon: Smile, labelKey: "happyFeeling", color: "text-lime-500" },
-  { value: 5, icon: Smile, labelKey: "veryHappy", color: "text-green-500" },
+  { value: 1, icon: Frown, labelKey: "veryUnhappy", color: "text-scale-1" },
+  { value: 2, icon: Frown, labelKey: "unhappy", color: "text-scale-2" },
+  { value: 3, icon: Meh, labelKey: "ok", color: "text-scale-3" },
+  { value: 4, icon: Smile, labelKey: "happyFeeling", color: "text-scale-4" },
+  { value: 5, icon: Smile, labelKey: "veryHappy", color: "text-scale-5" },
 ];
 const ATTITUDE_ICON_DEFS = [
-  { value: 1, icon: ThumbsDown, labelKey: "veryNegative", color: "text-red-500" },
-  { value: 2, icon: ThumbsDown, labelKey: "negative", color: "text-orange-500" },
-  { value: 3, icon: Minus, labelKey: "neutral", color: "text-yellow-500" },
-  { value: 4, icon: ThumbsUp, labelKey: "positive", color: "text-lime-500" },
-  { value: 5, icon: ThumbsUp, labelKey: "veryPositive", color: "text-green-500" },
+  { value: 1, icon: ThumbsDown, labelKey: "veryNegative", color: "text-scale-1" },
+  { value: 2, icon: ThumbsDown, labelKey: "negative", color: "text-scale-2" },
+  { value: 3, icon: Minus, labelKey: "neutral", color: "text-scale-3" },
+  { value: 4, icon: ThumbsUp, labelKey: "positive", color: "text-scale-4" },
+  { value: 5, icon: ThumbsUp, labelKey: "veryPositive", color: "text-scale-5" },
 ];
 
 function useLocalizedIcons() {

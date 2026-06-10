@@ -66,14 +66,14 @@ export default function ProtocolDetail() {
   };
   const prot = ((detail as any).protocol || detail) as ProtocolFull;
   const rlStyle = prot.riskLevel ? {
-    bg: prot.riskLevel === "low" ? "bg-green-100 dark:bg-green-950/30" :
-        prot.riskLevel === "medium" ? "bg-amber-100 dark:bg-amber-950/30" :
-        prot.riskLevel === "high" ? "bg-orange-100 dark:bg-orange-950/30" :
-        prot.riskLevel === "critical" ? "bg-red-100 dark:bg-red-950/30" : "",
-    text: prot.riskLevel === "low" ? "text-green-700 dark:text-green-400" :
-          prot.riskLevel === "medium" ? "text-amber-700 dark:text-amber-400" :
-          prot.riskLevel === "high" ? "text-orange-700 dark:text-orange-400" :
-          prot.riskLevel === "critical" ? "text-red-700 dark:text-red-400" : "",
+    bg: prot.riskLevel === "low" ? "bg-scale-5/15" :
+        prot.riskLevel === "medium" ? "bg-scale-3/15" :
+        prot.riskLevel === "high" ? "bg-scale-2/15" :
+        prot.riskLevel === "critical" ? "bg-scale-1/15" : "",
+    text: prot.riskLevel === "low" ? "text-scale-5" :
+          prot.riskLevel === "medium" ? "text-scale-3" :
+          prot.riskLevel === "high" ? "text-scale-2" :
+          prot.riskLevel === "critical" ? "text-scale-1" : "",
     label: t(prot.riskLevel),
   } : null;
 

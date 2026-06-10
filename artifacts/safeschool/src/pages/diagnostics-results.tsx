@@ -293,10 +293,10 @@ export default function DiagnosticsResults() {
               <CardContent className="space-y-4">
                 {priorities.map((p: any) => {
                   const urgencyStyles: Record<string, { bg: string; text: string; badge: string; label: string }> = {
-                    critical: { bg: "bg-red-50 dark:bg-red-950/20", text: "text-red-800 dark:text-red-300", badge: "bg-red-500 text-white", label: "Critical" },
-                    high: { bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-800 dark:text-amber-300", badge: "bg-amber-500 text-white", label: "High Priority" },
-                    moderate: { bg: "bg-blue-50 dark:bg-blue-950/20", text: "text-blue-800 dark:text-blue-300", badge: "bg-blue-500 text-white", label: "Moderate" },
-                    monitor: { bg: "bg-green-50 dark:bg-green-950/20", text: "text-green-800 dark:text-green-300", badge: "bg-green-600 text-white", label: "Strength" },
+                    critical: { bg: "bg-scale-1/10", text: "text-foreground", badge: "bg-scale-1 text-scale-1-foreground", label: "Critical" },
+                    high: { bg: "bg-scale-3/10", text: "text-foreground", badge: "bg-scale-3 text-scale-3-foreground", label: "High Priority" },
+                    moderate: { bg: "bg-info/10", text: "text-foreground", badge: "bg-info text-info-foreground", label: "Moderate" },
+                    monitor: { bg: "bg-scale-5/10", text: "text-foreground", badge: "bg-scale-5 text-scale-5-foreground", label: "Strength" },
                   };
                   const style = urgencyStyles[p.urgency] || urgencyStyles.moderate;
                   return (

@@ -86,10 +86,10 @@ export default function NewProtocol() {
   ];
 
   const RISK_LEVELS = [
-    { value: "low", label: t("low"), color: "bg-green-100 text-green-700 border-green-300", desc: t("lowDesc") },
-    { value: "medium", label: t("medium"), color: "bg-amber-100 text-amber-700 border-amber-300", desc: t("mediumDesc") },
-    { value: "high", label: t("high"), color: "bg-orange-100 text-orange-700 border-orange-300", desc: t("highDesc") },
-    { value: "critical", label: t("critical"), color: "bg-red-100 text-red-700 border-red-300", desc: t("criticalDesc") },
+    { value: "low", label: t("low"), color: "bg-scale-5/15 text-scale-5 border-scale-5/30", desc: t("lowDesc") },
+    { value: "medium", label: t("medium"), color: "bg-scale-3/15 text-scale-3 border-scale-3/30", desc: t("mediumDesc") },
+    { value: "high", label: t("high"), color: "bg-scale-2/15 text-scale-2 border-scale-2/30", desc: t("highDesc") },
+    { value: "critical", label: t("critical"), color: "bg-scale-1/15 text-scale-1 border-scale-1/30", desc: t("criticalDesc") },
   ];
 
   const RISK_FACTORS = [
