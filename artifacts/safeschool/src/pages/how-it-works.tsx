@@ -519,9 +519,9 @@ const ROLES: RoleProfile[] = [
     id: "pupil",
     role: "Pupils",
     icon: Heart,
-    color: "text-teal-600",
-    bgColor: "bg-teal-50 dark:bg-teal-950/20",
-    borderColor: "border-teal-200 dark:border-teal-800",
+    color: "text-role-pupil",
+    bgColor: "bg-role-pupil/10",
+    borderColor: "border-role-pupil/30",
     tagline: "A safe, private space to speak up \u2014 even anonymously",
     features: [
       {
@@ -572,9 +572,9 @@ const ROLES: RoleProfile[] = [
     id: "parent",
     role: "Parents",
     icon: Users,
-    color: "text-amber-600",
-    bgColor: "bg-amber-50 dark:bg-amber-950/20",
-    borderColor: "border-amber-200 dark:border-amber-800",
+    color: "text-role-parent",
+    bgColor: "bg-role-parent/10",
+    borderColor: "border-role-parent/30",
     tagline: "Know what the school is doing \u2014 and raise concerns yourself",
     features: [
       {
@@ -635,9 +635,9 @@ const ROLES: RoleProfile[] = [
     id: "teacher",
     role: "Teachers & Staff",
     icon: GraduationCap,
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
-    borderColor: "border-indigo-200 dark:border-indigo-800",
+    color: "text-role-staff",
+    bgColor: "bg-role-staff/10",
+    borderColor: "border-role-staff/30",
     tagline: "Log incidents in 60 seconds. Get guided through the right process.",
     features: [
       {
@@ -702,9 +702,9 @@ const ROLES: RoleProfile[] = [
     id: "coordinator",
     role: "Coordinators & Head Teachers",
     icon: Shield,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50 dark:bg-purple-950/20",
-    borderColor: "border-purple-200 dark:border-purple-800",
+    color: "text-role-leadership",
+    bgColor: "bg-role-leadership/10",
+    borderColor: "border-role-leadership/30",
     tagline: "See everything. Respond proportionately. Evidence every decision.",
     features: [
       {
@@ -956,9 +956,9 @@ const REPORT_AUDIENCES: ReportAudience[] = [
     id: "pta",
     role: "PTA & Governors",
     icon: Users,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50 dark:bg-purple-950/20",
-    borderColor: "border-purple-200 dark:border-purple-800",
+    color: "text-role-pta",
+    bgColor: "bg-role-pta/10",
+    borderColor: "border-role-pta/30",
     description: "Anonymised data that shows whether the school is getting safer. No child names, no incident details \u2014 just trends, patterns, and outcomes.",
     reports: [
       {
@@ -1000,9 +1000,9 @@ const REPORT_AUDIENCES: ReportAudience[] = [
     id: "staff",
     role: "Staff & Coordinators",
     icon: GraduationCap,
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
-    borderColor: "border-indigo-200 dark:border-indigo-800",
+    color: "text-role-staff",
+    bgColor: "bg-role-staff/10",
+    borderColor: "border-role-staff/30",
     description: "Operational reporting that helps staff see what\u2019s working and where to focus. Live data, not end-of-term surprises.",
     reports: [
       {
@@ -1045,9 +1045,9 @@ const REPORT_AUDIENCES: ReportAudience[] = [
     id: "parents",
     role: "Parents & Families",
     icon: Heart,
-    color: "text-amber-600",
-    bgColor: "bg-amber-50 dark:bg-amber-950/20",
-    borderColor: "border-amber-200 dark:border-amber-800",
+    color: "text-role-parent",
+    bgColor: "bg-role-parent/10",
+    borderColor: "border-role-parent/30",
     description: "Parents see what matters to their child and their school \u2014 not a data dump, but clear answers to \"is my child safe?\" and \"what is the school doing?\"",
     reports: [
       {
