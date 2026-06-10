@@ -41,7 +41,7 @@ export default function LearnPage() {
           }`}
         >
           <GraduationCap size={18} />
-          Using safeskoolz
+          Using vibez
         </button>
       </div>
 

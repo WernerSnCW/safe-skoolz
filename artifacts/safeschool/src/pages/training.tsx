@@ -161,8 +161,8 @@ function QuickStart({ role }: { role: string }) {
     return (
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <CardContent className="p-6 space-y-3">
-          <h2 className="text-xl font-display font-bold">Welcome to safeskoolz</h2>
-          <p className="text-muted-foreground">safeskoolz is here to help you if something isn't right at school. Here are the main things you can do:</p>
+          <h2 className="text-xl font-display font-bold">Welcome to vibez</h2>
+          <p className="text-muted-foreground">If something isn't right at school, vibez is here to help. Here are the main things you can do:</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
             <div className="bg-white dark:bg-gray-900 rounded-xl border border-border p-4 text-center space-y-2">
               <div className="w-12 h-12 mx-auto rounded-full bg-red-100 dark:bg-red-950/50 flex items-center justify-center"><AlertTriangle size={20} className="text-red-600" /></div>
@@ -190,7 +190,7 @@ function QuickStart({ role }: { role: string }) {
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <CardContent className="p-6 space-y-3">
           <h2 className="text-xl font-display font-bold">Getting started as a parent</h2>
-          <p className="text-muted-foreground">safeskoolz keeps you informed about your child's wellbeing at school. Here's what you can do:</p>
+          <p className="text-muted-foreground">Stay informed about your child's wellbeing at school with vibez. Here's what you can do:</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-4">
             {[
               { icon: Eye, label: "View incidents", desc: "See reports involving your child", color: "bg-blue-100 dark:bg-blue-950/50 text-blue-600" },
@@ -214,7 +214,7 @@ function QuickStart({ role }: { role: string }) {
     <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
       <CardContent className="p-6 space-y-3">
         <h2 className="text-xl font-display font-bold">Staff training guide</h2>
-        <p className="text-muted-foreground">This guide covers every feature you'll use in safeskoolz. Work through each section to learn how to log incidents, manage pupil accounts, respond to alerts, and use the protocol system.</p>
+        <p className="text-muted-foreground">This guide covers every feature you'll use in vibez. Work through each section to learn how to log incidents, manage pupil accounts, respond to alerts, and use the protocol system.</p>
         <div className="flex items-center gap-2 text-sm text-primary font-bold mt-2">
           <CheckCircle2 size={16} />
           Estimated training time: 30–45 minutes
@@ -290,7 +290,7 @@ function ParentGuides() {
     <div className="space-y-3">
       <GuideSection title="Logging in" icon={Key} color="bg-amber-100 dark:bg-amber-950/50 text-amber-600">
         <div className="space-y-3">
-          <Step number={1} title="Go to the safeskoolz login page">Click "I'm a Parent" tab at the top.</Step>
+          <Step number={1} title="Go to the vibez login page">Click "I'm a Parent" tab at the top.</Step>
           <Step number={2} title="Select your name or enter credentials">If you see your name in the dropdown, select it. Otherwise, enter your email and password manually.</Step>
           <Step number={3} title="Sign in">You'll see your dashboard with your child's information.</Step>
         </div>
@@ -473,15 +473,15 @@ function CaseStudies() {
         </div>
         <div>
           <h2 className="text-lg font-display font-bold">Case Studies</h2>
-          <p className="text-xs text-muted-foreground">Real-world scenarios showing how safeskoolz supports safeguarding</p>
+          <p className="text-xs text-muted-foreground">Real-world scenarios showing how vibez supports safeguarding</p>
         </div>
       </div>
 
       <GuideSection title='Luna (Year 3) — Early detection through diary and pattern alerts' icon={Eye} color="bg-pink-100 dark:bg-pink-950/50 text-pink-600">
         <div className="space-y-3 text-muted-foreground">
-          <p>Luna, in Year 3, has started sitting alone at lunch. Over two weeks she writes in her safeskoolz diary that some children tell her she can't play with them and laugh when she comes near. She doesn't feel brave enough to say this out loud.</p>
+          <p>Luna, in Year 3, has started sitting alone at lunch. Over two weeks she writes in her vibez diary that some children tell her she can't play with them and laugh when she comes near. She doesn't feel brave enough to say this out loud.</p>
           <p>The diary safeguarding scanner notices repeated entries about feeling "left out" and "sad at lunch" and quietly creates a pattern alert for the safeguarding coordinator, without showing Luna's diary pages.</p>
-          <p>At the same time, three low-severity incident reports are logged by different staff about minor playground fall-outs involving the same group. safeskoolz links these patterns. The coordinator arranges to observe lunchtime, speaks with Luna's class teacher, and holds a small restorative meeting with the pupils involved.</p>
+          <p>At the same time, three low-severity incident reports are logged by different staff about minor playground fall-outs involving the same group. These patterns are linked by vibez. The coordinator arranges to observe lunchtime, speaks with Luna's class teacher, and holds a small restorative meeting with the pupils involved.</p>
           <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
             <p className="font-bold text-green-700 dark:text-green-400 text-sm">Outcome: Within a month, new incidents drop and Luna's diagnostic survey response changes from "Sometimes" to "Always" when asked if she feels safe at school.</p>
           </div>
@@ -491,7 +491,7 @@ function CaseStudies() {
       <GuideSection title='Mr. Diego (Year 4 teacher) — Early intervention with behaviour data' icon={Activity} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600">
         <div className="space-y-3 text-muted-foreground">
           <p>Mr. Diego teaches Year 4. Using the My Class view, he spots that one pupil, Sam, has several low-level reports about shouting at others during football, alongside a recent drop in kindness points.</p>
-          <p>Instead of waiting for a serious incident, Mr. Diego logs a behaviour conversation, awards points when Sam plays fairly, and messages the SENCO through safeskoolz to ask whether there might be underlying needs.</p>
+          <p>Instead of waiting for a serious incident, Mr. Diego logs a behaviour conversation, awards points when Sam plays fairly, and messages the SENCO through vibez to ask whether there might be underlying needs.</p>
           <p>Over the term, behaviour points for "Teamwork" increase, and no new bullying-type incidents are recorded for Sam.</p>
           <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
             <p className="font-bold text-green-700 dark:text-green-400 text-sm">Outcome: The DSL uses this as evidence of early intervention when reviewing safeguarding practice with leadership.</p>
@@ -502,7 +502,7 @@ function CaseStudies() {
       <GuideSection title="DSL & PTA — Data-driven safeguarding improvement" icon={Users} color="bg-violet-100 dark:bg-violet-950/50 text-violet-600">
         <div className="space-y-3 text-muted-foreground">
           <p>Diagnostic survey results show that while most children say they "always" feel safe, only just over half know which adults to talk to if they are worried. Parents rate "communication about incidents" lower than other areas.</p>
-          <p>The safeguarding coordinator shares the safeskoolz dashboard with the PTA through the PTA portal. Together, they design a simple communication plan: termly safeguarding newsletters, a "Meet the Trusted Adults" wall, and a parent workshop on how pupils can report worries using safeskoolz.</p>
+          <p>The safeguarding coordinator shares the vibez dashboard with the PTA through the PTA portal. Together, they design a simple communication plan: termly safeguarding newsletters, a "Meet the Trusted Adults" wall, and a parent workshop on how pupils can report worries using vibez.</p>
           <p>At the next survey cycle, pupil knowledge of trusted adults and parent confidence scores both rise, and the AI action-plan generator records these actions as completed, updating baselines and targets for the following year.</p>
           <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
             <p className="font-bold text-green-700 dark:text-green-400 text-sm">Outcome: Genuine PTA–school partnership drives measurable improvement in safeguarding culture.</p>
@@ -555,11 +555,11 @@ export default function TrainingPage() {
         <div className="w-16 h-16 mx-auto bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-4">
           <GraduationCap size={32} />
         </div>
-        <h1 className="text-3xl font-display font-bold">How to use safeskoolz</h1>
+        <h1 className="text-3xl font-display font-bold">How to use vibez</h1>
         <p className="text-muted-foreground mt-2">
-          {isPupil && "A simple guide to help you use safeskoolz"}
-          {isParent && "Everything you need to know about using safeskoolz as a parent"}
-          {isStaff && "Step-by-step training guide for all safeskoolz features"}
+          {isPupil && "A simple guide to help you use vibez"}
+          {isParent && "Everything you need to know about using vibez as a parent"}
+          {isStaff && "Step-by-step training guide for all vibez features"}
         </p>
         <div className="mt-4">
           <StartDemoButton />

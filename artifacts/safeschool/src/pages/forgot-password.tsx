@@ -49,7 +49,7 @@ export default function ForgotPassword() {
           ) : (
             <form onSubmit={onSubmit} className="space-y-4">
               <p className="text-sm text-slate-600">
-                Enter the email address on your Safeskoolz account. We'll send a link to reset
+                Enter the email address on your vibez account. We'll send a link to reset
                 your password.
               </p>
               <div>

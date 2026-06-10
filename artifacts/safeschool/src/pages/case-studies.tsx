@@ -410,7 +410,7 @@ const CASE_STUDIES: CaseStudy[] = [
     narrative: [
       "Several girls in Year 9 report feeling uncomfortable in the corridor between lessons. They describe boys making comments about their bodies, rating them out of 10, and sharing edited photos.",
       "Each individual comment is dismissed as 'banter' by the boys and initially by some staff. No single incident reaches the threshold for formal action.",
-      "Over six weeks, safeskoolz logs 23 separate low-level incidents involving the same group of boys and multiple girl victims. Pattern analysis flags a 'misogynistic behaviour cluster'.",
+      "Over six weeks, vibez logs 23 separate low-level incidents involving the same group of boys and multiple girl victims. Pattern analysis flags a 'misogynistic behaviour cluster'.",
       "The system cross-references diary entries: three girls have written about dreading school, two have stopped participating in PE, and one has asked to change her route between classes.",
       "Under Spain's LOPIVI framework and the school's Machista Violence protocol, this pattern constitutes gender-based harassment requiring institutional action — not just individual sanctions.",
     ],
@@ -499,7 +499,7 @@ export default function CaseStudiesPage() {
       <div>
         <h1 className="text-3xl font-display font-bold mb-2">Case Studies</h1>
         <p className="text-muted-foreground text-lg max-w-3xl">
-          Real patterns that safeskoolz detects and the interventions they enable.
+          Real patterns that vibez detects and the interventions they enable.
           Each case study shows what was happening, what the data surfaced, and what the school did differently.
         </p>
         {role === "pupil" && (
@@ -514,7 +514,7 @@ export default function CaseStudiesPage() {
           <div className="mt-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
             <p className="text-sm font-medium flex items-center gap-2">
               <Eye size={16} className="text-primary" />
-              These case studies show how safeskoolz helps the school spot patterns early and respond before things escalate.
+              These case studies show how vibez helps the school spot patterns early and respond before things escalate.
             </p>
           </div>
         )}
@@ -589,7 +589,7 @@ export default function CaseStudiesPage() {
                       <div>
                         <h3 className="font-bold text-lg flex items-center gap-2 mb-3">
                           <Shield size={18} className={cs.color} />
-                          What safeskoolz surfaced
+                          What vibez surfaced
                         </h3>
                         <div className="grid gap-3 sm:grid-cols-2">
                           {cs.whatSafeskoolzShows.map((item, i) => (
@@ -622,7 +622,7 @@ export default function CaseStudiesPage() {
                             <Megaphone size={18} className="text-purple-600" />
                             What parents receive
                           </h3>
-                          <p className="text-xs text-muted-foreground mb-3">Example communications that safeskoolz generates for this scenario.</p>
+                          <p className="text-xs text-muted-foreground mb-3">Example communications that vibez generates for this scenario.</p>
                           <div className="space-y-3">
                             {cs.whatParentsReceive.map((item, i) => {
                               const typeConfig = {
@@ -647,7 +647,7 @@ export default function CaseStudiesPage() {
 
                       {(role !== "pupil") && (
                         <div>
-                          <h3 className="font-bold text-sm text-muted-foreground mb-3">Explore in safeskoolz</h3>
+                          <h3 className="font-bold text-sm text-muted-foreground mb-3">Explore in vibez</h3>
                           <div className="flex flex-wrap gap-2">
                             {cs.linkedFeatures.map((f, i) => (
                               <Link key={i} href={f.href}>

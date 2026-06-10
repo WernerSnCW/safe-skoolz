@@ -243,7 +243,7 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
     const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(`
-        <html><head><title>PIN Slips - safeskoolz</title>
+        <html><head><title>PIN Slips - vibez</title>
         <style>
           body { font-family: Arial, sans-serif; padding: 20px; }
           h1 { font-size: 18px; margin-bottom: 10px; }
@@ -253,13 +253,13 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
           .note { font-size: 10px; color: #666; margin-top: 4px; }
           @media print { .no-print { display: none; } }
         </style></head><body>
-        <h1>safeskoolz Login PINs</h1>
+        <h1>vibez Login PINs</h1>
         <p class="no-print" style="font-size:12px;color:#666;">Print this page and cut along the dashed lines. Give each pupil their slip privately.</p>
         ${generatedPins.map(p => `
           <div class="slip">
             <div class="name">${p.firstName} ${p.lastName} ${p.className ? `(${p.className})` : ""}</div>
             <div class="pin">${p.newPin}</div>
-            <div class="note">This is your secret PIN for safeskoolz. Do not share it with anyone.</div>
+            <div class="note">This is your secret PIN for vibez. Do not share it with anyone.</div>
           </div>
         `).join("")}
         </body></html>

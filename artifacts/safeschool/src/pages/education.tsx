@@ -400,7 +400,7 @@ function PupilContent() {
               <span className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
               <div>
                 <p className="font-bold">Tell a trusted adult</p>
-                <p className="text-muted-foreground">Talk to a teacher, parent, school counsellor, or any grown-up you trust. You can also use safeskoolz to report it — even anonymously.</p>
+                <p className="text-muted-foreground">Talk to a teacher, parent, school counsellor, or any grown-up you trust. You can also use vibez to report it — even anonymously.</p>
               </div>
             </div>
             <div className="flex gap-3 items-start">
@@ -440,7 +440,7 @@ function PupilContent() {
             <li><strong>Don't join in</strong> — even laughing can make the person being bullied feel worse</li>
             <li><strong>Tell an adult</strong> — this isn't "snitching" or "telling tales", it's looking out for someone</li>
             <li><strong>Be kind afterwards</strong> — check on the person. Ask if they're okay. Include them.</li>
-            <li><strong>Use safeskoolz</strong> — you can report what you saw, even if it didn't happen to you</li>
+            <li><strong>Use vibez</strong> — you can report what you saw, even if it didn't happen to you</li>
           </ul>
           <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mt-2">
             <p className="font-bold text-primary">Being a good friend means speaking up when something isn't right.</p>
@@ -590,7 +590,7 @@ function PupilContent() {
           <p className="mt-2">These things can make you feel angry, tired, or like you can't concentrate. They can also make you lash out at school without meaning to.</p>
           <p className="mt-2"><strong>You don't have to carry this alone.</strong> Talking to a teacher, counsellor, or another adult you trust is not betraying your family — it's getting help for everyone, including yourself.</p>
           <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mt-2">
-            <p className="font-bold text-primary">You can use safeskoolz to tell someone what's going on — you don't even have to say it out loud.</p>
+            <p className="font-bold text-primary">You can use vibez to tell someone what's going on — you don't even have to say it out loud.</p>
           </div>
         </AccordionItem>
       </div>
@@ -661,7 +661,7 @@ function StaffContent() {
           <p>The Convivèxit 2024 protocol applies to all forms of peer-on-peer bullying. Key steps:</p>
           <ol className="list-decimal pl-5 space-y-2">
             <li><strong>Immediate action:</strong> Separate the children involved and ensure safety</li>
-            <li><strong>Record:</strong> Log the incident on safeskoolz with full details</li>
+            <li><strong>Record:</strong> Log the incident on vibez with full details</li>
             <li><strong>Notify:</strong> Inform the Safeguarding Coordinator same day</li>
             <li><strong>Risk assessment:</strong> Complete the structured risk assessment (low/medium/high/critical) with risk and protective factors</li>
             <li><strong>Formal protocol:</strong> If escalation is needed, open a formal protocol linking to the incident</li>
@@ -758,7 +758,7 @@ function StaffContent() {
           </div>
         </AccordionItem>
 
-        <AccordionItem title="Using safeskoolz effectively" icon={BookOpen}>
+        <AccordionItem title="Using vibez effectively" icon={BookOpen}>
           <ul className="list-disc pl-5 space-y-1">
             <li><strong>Report promptly:</strong> Log incidents the same day they are observed or disclosed</li>
             <li><strong>Be specific:</strong> Use exact words the child used, note times, locations, and witnesses</li>
@@ -799,7 +799,7 @@ function ParentContent() {
         <p className="font-bold mt-3">Right to be heard</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>You have the right to contribute your perspective during any investigation or protocol process</li>
-          <li>You have the right to raise concerns directly — through safeskoolz, by contacting your child's teacher, or by requesting a meeting with the Safeguarding Coordinator</li>
+          <li>You have the right to raise concerns directly — through vibez, by contacting your child's teacher, or by requesting a meeting with the Safeguarding Coordinator</li>
           <li>You have the right to formally disagree with the school's handling of a situation and to have your objection recorded</li>
           <li>You have the right to contact the PTA or school governance body if you feel concerns are not being addressed</li>
         </ul>
@@ -816,7 +816,7 @@ function ParentContent() {
         <p className="font-bold mt-3">Right to consent</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>The school must request your consent before sharing incident details with classroom teachers beyond the Safeguarding Coordinator</li>
-          <li>You can approve or decline consent requests through safeskoolz — your decision is recorded and audited</li>
+          <li>You can approve or decline consent requests through vibez — your decision is recorded and audited</li>
           <li>You have the right to withdraw consent at any time</li>
         </ul>
 
@@ -828,7 +828,7 @@ function ParentContent() {
         </ul>
 
         <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-200 mt-3 dark:bg-indigo-950/20 dark:border-indigo-800">
-          <p className="font-bold text-indigo-700 dark:text-indigo-400">If you feel your rights are not being respected, you can raise a formal concern through safeskoolz, contact the PTA, or speak directly to the school's Safeguarding Coordinator. Every concern is logged and must receive a response.</p>
+          <p className="font-bold text-indigo-700 dark:text-indigo-400">If you feel your rights are not being respected, you can raise a formal concern through vibez, contact the PTA, or speak directly to the school's Safeguarding Coordinator. Every concern is logged and must receive a response.</p>
         </div>
       </AccordionItem>
 
@@ -839,7 +839,7 @@ function ParentContent() {
           <p className="font-bold mt-3">Initial response</p>
           <p>When a concern is reported — whether by you, your child, a teacher, or another pupil — the school follows a structured process:</p>
           <ol className="list-decimal pl-5 space-y-1">
-            <li>The concern is logged formally in safeskoolz with date, time, people involved, and a description</li>
+            <li>The concern is logged formally in vibez with date, time, people involved, and a description</li>
             <li>An <strong>escalation tier</strong> is assigned automatically based on the type and severity of the concern</li>
             <li>The Safeguarding Coordinator is notified immediately for medium and serious concerns</li>
             <li>You will be contacted if your child is involved — either as the child who was hurt, a witness, or the child whose behaviour is being investigated</li>
@@ -898,7 +898,7 @@ function ParentContent() {
           </ul>
 
           <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mt-3">
-            <p className="font-bold text-primary">All protocol activity is tracked in safeskoolz. You can view incident updates, consent requests, and communications through your parent dashboard. If you have questions at any stage, message the Safeguarding Coordinator directly through the platform.</p>
+            <p className="font-bold text-primary">All protocol activity is tracked in vibez. You can view incident updates, consent requests, and communications through your parent dashboard. If you have questions at any stage, message the Safeguarding Coordinator directly through the platform.</p>
           </div>
         </AccordionItem>
 
@@ -952,7 +952,7 @@ function ParentContent() {
         <AccordionItem title="What to do if your child is being bullied" icon={Shield}>
           <ol className="list-decimal pl-5 space-y-2">
             <li><strong>Reassure your child</strong> — tell them it's not their fault and that you will help sort it out together</li>
-            <li><strong>Contact the school</strong> — speak to your child's class teacher or the Safeguarding Coordinator. You can also use safeskoolz to submit a formal concern</li>
+            <li><strong>Contact the school</strong> — speak to your child's class teacher or the Safeguarding Coordinator. You can also use vibez to submit a formal concern</li>
             <li><strong>Keep records</strong> — note dates, times, what happened, and who was involved. Save screenshots of any online bullying</li>
             <li><strong>Agree a plan with the school</strong> — the school will follow the appropriate protocol (Convivèxit, LOPIVI, or Machista Violence) and keep you informed</li>
             <li><strong>Monitor and follow up</strong> — check in with your child regularly and contact the school again if the situation doesn't improve</li>
@@ -1015,9 +1015,9 @@ function ParentContent() {
           </div>
         </AccordionItem>
 
-        <AccordionItem title="How safeskoolz keeps you informed" icon={BookOpen}>
+        <AccordionItem title="How vibez keeps you informed" icon={BookOpen}>
           <ul className="list-disc pl-5 space-y-1">
-            <li>You can log into safeskoolz with your parent account to view your children's reported incidents</li>
+            <li>You can log into vibez with your parent account to view your children's reported incidents</li>
             <li>You will receive notifications when your child is involved in an incident</li>
             <li>You can submit concerns directly through the Report Incident form</li>
             <li>The school will contact you separately for formal protocol discussions</li>

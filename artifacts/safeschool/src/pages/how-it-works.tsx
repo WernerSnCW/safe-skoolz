@@ -164,13 +164,13 @@ const STEPS: StoryStep[] = [
   {
     id: "pattern",
     week: "Week 3",
-    title: "safeskoolz connects the dots",
+    title: "How vibez connects the dots",
     subtitle: "No single teacher saw the full picture. The system did.",
     color: "text-red-600",
     bgColor: "bg-red-50 dark:bg-red-950/20",
     borderColor: "border-red-200 dark:border-red-800",
     icon: AlertTriangle,
-    narrative: "Four incidents logged by three different staff members and one anonymous pupil. No individual saw more than one event. But safeskoolz links them all: same victim, escalating severity, group forming around a ringleader, and a mood that's falling off a cliff.",
+    narrative: "Four incidents logged by three different staff members and one anonymous pupil. No individual saw more than one event. But vibez links them all: same victim, escalating severity, group forming around a ringleader, and a mood that's falling off a cliff.",
     screens: [
       {
         role: "System",
@@ -288,7 +288,7 @@ const STEPS: StoryStep[] = [
         page: "Protocol Tracker",
         pageIcon: ClipboardCheck,
         title: "Each child gets a proportionate response",
-        description: "The Convivèxit protocol requires different actions for ringleaders vs recruited participants. safeskoolz tracks each task and deadline.",
+        description: "The Convivèxit protocol requires different actions for ringleaders vs recruited participants. Each task and deadline is tracked by vibez.",
         mockupElements: [
           { type: "badge", content: "Marcus: Formal parent meeting \u2022 Behaviour contract \u2022 Daily check-in with Head of Year", color: "red" },
           { type: "badge", content: "Tyler: Restorative conversation with Sofia (with consent) \u2022 Mentoring sessions", color: "amber" },
@@ -551,7 +551,7 @@ const ROLES: RoleProfile[] = [
         page: "Safe Messaging",
         icon: MessageSquare,
         title: "Message your safe adult",
-        description: "If you\u2019ve been assigned a safe adult, you can message them directly through safeskoolz. Private, secure, available any time.",
+        description: "If you\u2019ve been assigned a safe adult, you can message them directly through vibez. Private, secure, available any time.",
         mockup: [
           { type: "notification", content: "Your safe adult is: Ms Rivera. You can message her any time.", color: "teal" },
           { type: "form", content: "\"Can I talk to you at break? Something happened again.\"" },
@@ -802,7 +802,7 @@ function RoleFeaturesSection() {
           </div>
           <h2 className="text-3xl font-display font-bold mb-2">What each role can do</h2>
           <p className="text-muted-foreground max-w-xl mx-auto mb-4">
-            Sofia's story shows pattern detection. But safeskoolz is used every day by pupils, parents, teachers, and coordinators for much more.
+            Sofia's story shows pattern detection. But vibez is used every day by pupils, parents, teachers, and coordinators for much more.
           </p>
           <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
             <motion.div animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}>
@@ -1295,7 +1295,7 @@ export default function HowItWorksPage() {
               <ShieldCheck size={40} className="text-white" />
             </div>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-display font-bold mb-3">How safeskoolz works</h1>
+          <h1 className="text-4xl sm:text-5xl font-display font-bold mb-3">How vibez works</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
             Follow Sofia's story through the actual platform &mdash; see every screen, every alert, every action that protects a child.
           </p>
@@ -1490,7 +1490,7 @@ export default function HowItWorksPage() {
           <div className="p-8 rounded-2xl bg-card border border-border shadow-sm">
             <h2 className="text-2xl font-bold mb-2">Every school has stories like Sofia's.</h2>
             <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-              The difference is whether anyone connects the dots in time. safeskoolz makes the invisible visible.
+              The difference is whether anyone connects the dots in time. With vibez, the invisible becomes visible.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/login">

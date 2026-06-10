@@ -73,7 +73,7 @@ export default function AdminPage() {
             onClick={handleViewAsPupil}
             disabled={viewAsLoading}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-primary/30 text-primary hover:bg-primary/10 transition-colors disabled:opacity-60"
-            aria-label="View safeskoolz as a pupil"
+            aria-label="View vibez as a pupil"
           >
             {viewAsLoading ? (
               <>
