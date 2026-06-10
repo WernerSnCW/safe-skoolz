@@ -420,7 +420,7 @@ export default function Login() {
             setDemoLoading(null);
           }
         }}
-        className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-600 text-white text-xs sm:text-sm font-bold shadow-md hover:bg-teal-700 transition-colors z-20 disabled:opacity-60"
+        className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-white text-xs sm:text-sm font-bold shadow-md hover:bg-primary/90 transition-colors z-20 disabled:opacity-60"
       >
         <ShieldCheck size={14} />
         Admin

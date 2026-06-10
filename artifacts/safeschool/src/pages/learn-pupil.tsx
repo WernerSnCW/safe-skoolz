@@ -31,9 +31,9 @@ type StrandTab = "all" | StrandKey;
 
 const STRAND_ACCENT: Record<StrandKey, { tab: string; card: string; chip: string }> = {
   me_and_my_wellbeing: {
-    tab: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
-    card: "from-emerald-400/15 to-teal-400/5",
-    chip: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300",
+    tab: "bg-success/10 text-success border-success/30",
+    card: "from-success/15 to-success/5",
+    chip: "bg-success/10 text-success",
   },
   me_and_others: {
     tab: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
@@ -63,7 +63,7 @@ const STATUS_STYLE: Record<"notStarted" | "inProgress" | "completed", { chip: st
     Icon: CircleDot,
   },
   completed: {
-    chip: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300",
+    chip: "bg-success/10 text-success",
     Icon: CheckCircle2,
   },
 };
