@@ -15,6 +15,11 @@ import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
 import HomePage from "@/pages/home";
 import SchoolsPage from "@/pages/schools";
+import ParentsPage from "@/pages/parents";
+import PtasPage from "@/pages/ptas";
+import CoalitionsPage from "@/pages/coalitions";
+import ResourcesPage from "@/pages/resources";
+import AboutPage from "@/pages/about";
 import Dashboard from "@/pages/dashboard";
 import ReportIncident from "@/pages/report-incident";
 import IncidentsList from "@/pages/incidents";
@@ -120,6 +125,11 @@ function Router() {
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/how-it-works" component={HowItWorksPage} />
       <Route path="/schools" component={SchoolsPage} />
+      <Route path="/parents" component={ParentsPage} />
+      <Route path="/ptas" component={PtasPage} />
+      <Route path="/coalitions" component={CoalitionsPage} />
+      <Route path="/resources" component={ResourcesPage} />
+      <Route path="/about" component={AboutPage} />
       <Route path="/">
         {() => <HomeRoute />}
       </Route>
