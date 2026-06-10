@@ -13,6 +13,7 @@ import Login from "@/pages/login";
 import AdminLogin from "@/pages/admin-login";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
+import HomePage from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import ReportIncident from "@/pages/report-incident";
 import IncidentsList from "@/pages/incidents";
@@ -95,6 +96,20 @@ function ProtectedRoute({
   );
 }
 
+// Smart root: anonymous visitors get the public SchoolVBE marketing homepage
+// (which is prerendered to static HTML for SEO); authenticated users get the
+// platform dashboard. use-auth reports isLoading=false immediately when there's
+// no token, so the anon render is synchronous and matches the prerendered
+// markup — no spinner flash. When a token is present, ProtectedRoute handles
+// the loading/auth/redirect flow exactly as before.
+function HomeRoute() {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (!isAuthenticated && !isLoading) {
+    return <HomePage />;
+  }
+  return <ProtectedRoute component={Dashboard} />;
+}
+
 function Router() {
   return (
     <Switch>
@@ -104,7 +119,7 @@ function Router() {
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/how-it-works" component={HowItWorksPage} />
       <Route path="/">
-        {() => <ProtectedRoute component={Dashboard} />}
+        {() => <HomeRoute />}
       </Route>
       <Route path="/report">
         {() => <ProtectedRoute component={ReportIncident} />}
