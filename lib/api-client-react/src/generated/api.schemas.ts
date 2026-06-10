@@ -581,6 +581,227 @@ export type ListNotificationsParams = {
   limit?: number;
 };
 
+export type ListPtaBallots200BallotsItemTally = { [key: string]: number };
+
+export type ListPtaBallots200BallotsItem = {
+  id?: string;
+  question?: string;
+  description?: string | null;
+  options?: string[];
+  status?: string;
+  quorum?: number | null;
+  closesAt?: string | null;
+  createdAt?: string;
+  tally?: ListPtaBallots200BallotsItemTally;
+  totalVotes?: number;
+  quorumMet?: boolean | null;
+  myVote?: string | null;
+};
+
+export type ListPtaBallots200 = {
+  rosterActive?: number;
+  isMember?: boolean;
+  ballots?: ListPtaBallots200BallotsItem[];
+};
+
+export type OpenPtaBallotBody = {
+  question: string;
+  description?: string;
+  options?: string[];
+  quorum?: number;
+  closesAt?: string;
+  proposalId?: string;
+};
+
+export type OpenPtaBallot201Ballot = { [key: string]: unknown };
+
+export type OpenPtaBallot201 = {
+  ballot?: OpenPtaBallot201Ballot;
+};
+
+export type ClosePtaBallot200Ballot = { [key: string]: unknown };
+
+export type ClosePtaBallot200 = {
+  ballot?: ClosePtaBallot200Ballot;
+};
+
+export type CastPtaVoteBody = {
+  choice: string;
+  memberId?: string;
+};
+
+export type CastPtaVote201Vote = { [key: string]: unknown };
+
+export type CastPtaVote201 = {
+  vote?: CastPtaVote201Vote;
+};
+
+export type ListPtaProxies200ProxiesItem = {
+  id?: string;
+  grantorMemberId?: string;
+  holderMemberId?: string;
+  grantor?: string;
+  holder?: string;
+};
+
+export type ListPtaProxies200 = {
+  myMemberId?: string | null;
+  proxies?: ListPtaProxies200ProxiesItem[];
+};
+
+export type SetPtaProxyBody = {
+  holderMemberId: string;
+};
+
+export type SetPtaProxy201Proxy = { [key: string]: unknown };
+
+export type SetPtaProxy201 = {
+  proxy?: SetPtaProxy201Proxy;
+};
+
+export type RevokePtaProxy200 = {
+  ok?: boolean;
+};
+
+export type ListPtaProposals200ProposalsItem = {
+  id?: string;
+  title?: string;
+  detail?: string;
+  category?: string;
+  status?: string;
+  decisionDueAt?: string | null;
+  decisionRationale?: string | null;
+  decidedAt?: string | null;
+  createdAt?: string;
+  raisedBy?: string;
+  decidedBy?: string | null;
+  overdue?: boolean;
+};
+
+export type ListPtaProposals200 = {
+  proposals?: ListPtaProposals200ProposalsItem[];
+};
+
+export type RaisePtaProposalBody = {
+  title: string;
+  detail: string;
+  category?: string;
+  decisionDueAt?: string;
+};
+
+export type RaisePtaProposal201Proposal = { [key: string]: unknown };
+
+export type RaisePtaProposal201 = {
+  proposal?: RaisePtaProposal201Proposal;
+};
+
+export type DecidePtaProposalBody = {
+  outcome: string;
+  rationale?: string;
+};
+
+export type DecidePtaProposal200Proposal = { [key: string]: unknown };
+
+export type DecidePtaProposal200 = {
+  proposal?: DecidePtaProposal200Proposal;
+};
+
+export type WithdrawPtaProposal200Proposal = { [key: string]: unknown };
+
+export type WithdrawPtaProposal200 = {
+  proposal?: WithdrawPtaProposal200Proposal;
+};
+
+export type ListPtaMembers200MembersItemOfficesItem = {
+  role?: string;
+  domain?: string | null;
+};
+
+export type ListPtaMembers200MembersItem = {
+  id?: string;
+  userId?: string;
+  name?: string;
+  email?: string;
+  tier?: string;
+  status?: string;
+  joinedAt?: string;
+  offices?: ListPtaMembers200MembersItemOfficesItem[];
+};
+
+export type ListPtaMembers200 = {
+  members?: ListPtaMembers200MembersItem[];
+};
+
+export type AddPtaMemberBody = {
+  userId: string;
+  tier?: string;
+  status?: string;
+};
+
+export type AddPtaMember201Member = { [key: string]: unknown };
+
+export type AddPtaMember201 = {
+  member?: AddPtaMember201Member;
+};
+
+export type ListPtaMemberCandidates200CandidatesItem = {
+  id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+};
+
+export type ListPtaMemberCandidates200 = {
+  candidates?: ListPtaMemberCandidates200CandidatesItem[];
+};
+
+export type UpdatePtaMemberBody = {
+  tier?: string;
+  status?: string;
+};
+
+export type UpdatePtaMember200Member = { [key: string]: unknown };
+
+export type UpdatePtaMember200 = {
+  member?: UpdatePtaMember200Member;
+};
+
+export type RemovePtaMember200 = {
+  ok?: boolean;
+};
+
+export type ListPtaOfficers200OfficersItem = {
+  id?: string;
+  memberId?: string;
+  name?: string;
+  role?: string;
+  domain?: string | null;
+  termStartAt?: string;
+  active?: boolean;
+};
+
+export type ListPtaOfficers200 = {
+  officers?: ListPtaOfficers200OfficersItem[];
+};
+
+export type AppointPtaOfficerBody = {
+  memberId: string;
+  role: string;
+  domain?: string;
+};
+
+export type AppointPtaOfficer201Officer = { [key: string]: unknown };
+
+export type AppointPtaOfficer201 = {
+  officer?: AppointPtaOfficer201Officer;
+};
+
+export type EndPtaOfficer200Officer = { [key: string]: unknown };
+
+export type EndPtaOfficer200 = {
+  officer?: EndPtaOfficer200Officer;
+};
+
 export type ListPtaMessages200 = {
   data?: PtaMessage[];
 };

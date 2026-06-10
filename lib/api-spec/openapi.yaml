@@ -603,6 +603,449 @@ paths:
               schema:
                 $ref: "#/components/schemas/PtaDashboard"
 
+  /pta/ballots:
+    get:
+      operationId: listPtaBallots
+      tags: [pta]
+      summary: Ballots with live tally and quorum status
+      responses:
+        "200":
+          description: Ballots
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rosterActive: { type: number }
+                  isMember: { type: boolean }
+                  ballots:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        question: { type: string }
+                        description: { type: string, nullable: true }
+                        options: { type: array, items: { type: string } }
+                        status: { type: string }
+                        quorum: { type: number, nullable: true }
+                        closesAt: { type: string, nullable: true }
+                        createdAt: { type: string }
+                        tally: { type: object, additionalProperties: { type: number } }
+                        totalVotes: { type: number }
+                        quorumMet: { type: boolean, nullable: true }
+                        myVote: { type: string, nullable: true }
+    post:
+      operationId: openPtaBallot
+      tags: [pta]
+      summary: Open a ballot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question: { type: string }
+                description: { type: string }
+                options: { type: array, items: { type: string } }
+                quorum: { type: number }
+                closesAt: { type: string }
+                proposalId: { type: string }
+              required: [question]
+      responses:
+        "201":
+          description: Opened
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ballot: { type: object }
+  /pta/ballots/{id}/close:
+    post:
+      operationId: closePtaBallot
+      tags: [pta]
+      summary: Close a ballot
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Closed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ballot: { type: object }
+  /pta/ballots/{id}/vote:
+    post:
+      operationId: castPtaVote
+      tags: [pta]
+      summary: Cast a vote (self or by proxy)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                choice: { type: string }
+                memberId: { type: string }
+              required: [choice]
+      responses:
+        "201":
+          description: Vote cast
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vote: { type: object }
+  /pta/proxies:
+    get:
+      operationId: listPtaProxies
+      tags: [pta]
+      summary: Standing proxies (grantor to holder)
+      responses:
+        "200":
+          description: Proxies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  myMemberId: { type: string, nullable: true }
+                  proxies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        grantorMemberId: { type: string }
+                        holderMemberId: { type: string }
+                        grantor: { type: string }
+                        holder: { type: string }
+    post:
+      operationId: setPtaProxy
+      tags: [pta]
+      summary: Set my standing proxy holder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                holderMemberId: { type: string }
+              required: [holderMemberId]
+      responses:
+        "201":
+          description: Proxy set
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proxy: { type: object }
+    delete:
+      operationId: revokePtaProxy
+      tags: [pta]
+      summary: Revoke my standing proxy
+      responses:
+        "200":
+          description: Revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
+  /pta/proposals:
+    get:
+      operationId: listPtaProposals
+      tags: [pta]
+      summary: The PTA decision log
+      responses:
+        "200":
+          description: Proposals list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proposals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        title: { type: string }
+                        detail: { type: string }
+                        category: { type: string }
+                        status: { type: string }
+                        decisionDueAt: { type: string, nullable: true }
+                        decisionRationale: { type: string, nullable: true }
+                        decidedAt: { type: string, nullable: true }
+                        createdAt: { type: string }
+                        raisedBy: { type: string }
+                        decidedBy: { type: string, nullable: true }
+                        overdue: { type: boolean }
+    post:
+      operationId: raisePtaProposal
+      tags: [pta]
+      summary: Raise a proposal for decision
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                detail: { type: string }
+                category: { type: string }
+                decisionDueAt: { type: string }
+              required: [title, detail]
+      responses:
+        "201":
+          description: Raised
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proposal: { type: object }
+  /pta/proposals/{id}/decide:
+    post:
+      operationId: decidePtaProposal
+      tags: [pta]
+      summary: Record an explicit decision on a proposal
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outcome: { type: string }
+                rationale: { type: string }
+              required: [outcome]
+      responses:
+        "200":
+          description: Decided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proposal: { type: object }
+  /pta/proposals/{id}/withdraw:
+    post:
+      operationId: withdrawPtaProposal
+      tags: [pta]
+      summary: Withdraw an open proposal
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Withdrawn
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proposal: { type: object }
+
+  /pta/members:
+    get:
+      operationId: listPtaMembers
+      tags: [pta]
+      summary: List PTA members with their active officer roles
+      responses:
+        "200":
+          description: Members list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        userId: { type: string }
+                        name: { type: string }
+                        email: { type: string }
+                        tier: { type: string }
+                        status: { type: string }
+                        joinedAt: { type: string }
+                        offices:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              role: { type: string }
+                              domain: { type: string, nullable: true }
+    post:
+      operationId: addPtaMember
+      tags: [pta]
+      summary: Add a PTA member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: { type: string }
+                tier: { type: string }
+                status: { type: string }
+              required: [userId]
+      responses:
+        "201":
+          description: Member created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member: { type: object }
+  /pta/members/candidates:
+    get:
+      operationId: listPtaMemberCandidates
+      tags: [pta]
+      summary: School users (parents/PTA) not yet members
+      responses:
+        "200":
+          description: Candidate users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candidates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                        email: { type: string }
+                        role: { type: string }
+  /pta/members/{id}:
+    patch:
+      operationId: updatePtaMember
+      tags: [pta]
+      summary: Update a PTA member's tier or status
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tier: { type: string }
+                status: { type: string }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member: { type: object }
+    delete:
+      operationId: removePtaMember
+      tags: [pta]
+      summary: Remove a PTA member (and end their officer appointments)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+  /pta/officers:
+    get:
+      operationId: listPtaOfficers
+      tags: [pta]
+      summary: List active PTA officers
+      responses:
+        "200":
+          description: Officers list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  officers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        memberId: { type: string }
+                        name: { type: string }
+                        role: { type: string }
+                        domain: { type: string, nullable: true }
+                        termStartAt: { type: string }
+                        active: { type: boolean }
+    post:
+      operationId: appointPtaOfficer
+      tags: [pta]
+      summary: Appoint a PTA officer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                memberId: { type: string }
+                role: { type: string }
+                domain: { type: string }
+              required: [memberId, role]
+      responses:
+        "201":
+          description: Appointed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  officer: { type: object }
+  /pta/officers/{id}/end:
+    post:
+      operationId: endPtaOfficer
+      tags: [pta]
+      summary: End a PTA officer appointment
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Ended
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  officer: { type: object }
+
   /pta/messages:
     get:
       operationId: listPtaMessages

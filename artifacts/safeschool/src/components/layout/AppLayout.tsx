@@ -159,6 +159,9 @@ export function AppLayout({ children }: AppLayoutProps) {
     if (user.role === "pta") {
       return [
         { name: t("ptaDashboard"), href: "/pta", icon: Home },
+        { name: "Members & Officers", href: "/pta/governance", icon: ShieldCheck },
+        { name: "Decision Log", href: "/pta/decisions", icon: ScrollText },
+        { name: "Voting", href: "/pta/voting", icon: ClipboardList },
         { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
         { name: t("learn"), href: "/learn", icon: BookOpen },
         { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },

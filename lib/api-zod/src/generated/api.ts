@@ -1038,6 +1038,278 @@ export const GetPtaDashboardResponse = zod.object({
 });
 
 /**
+ * @summary Ballots with live tally and quorum status
+ */
+export const ListPtaBallotsResponse = zod.object({
+  rosterActive: zod.number().optional(),
+  isMember: zod.boolean().optional(),
+  ballots: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        question: zod.string().optional(),
+        description: zod.string().nullish(),
+        options: zod.array(zod.string()).optional(),
+        status: zod.string().optional(),
+        quorum: zod.number().nullish(),
+        closesAt: zod.string().nullish(),
+        createdAt: zod.string().optional(),
+        tally: zod.record(zod.string(), zod.number()).optional(),
+        totalVotes: zod.number().optional(),
+        quorumMet: zod.boolean().nullish(),
+        myVote: zod.string().nullish(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Open a ballot
+ */
+export const OpenPtaBallotBody = zod.object({
+  question: zod.string(),
+  description: zod.string().optional(),
+  options: zod.array(zod.string()).optional(),
+  quorum: zod.number().optional(),
+  closesAt: zod.string().optional(),
+  proposalId: zod.string().optional(),
+});
+
+/**
+ * @summary Close a ballot
+ */
+export const ClosePtaBallotParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ClosePtaBallotResponse = zod.object({
+  ballot: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Cast a vote (self or by proxy)
+ */
+export const CastPtaVoteParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const CastPtaVoteBody = zod.object({
+  choice: zod.string(),
+  memberId: zod.string().optional(),
+});
+
+/**
+ * @summary Standing proxies (grantor to holder)
+ */
+export const ListPtaProxiesResponse = zod.object({
+  myMemberId: zod.string().nullish(),
+  proxies: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        grantorMemberId: zod.string().optional(),
+        holderMemberId: zod.string().optional(),
+        grantor: zod.string().optional(),
+        holder: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Set my standing proxy holder
+ */
+export const SetPtaProxyBody = zod.object({
+  holderMemberId: zod.string(),
+});
+
+/**
+ * @summary Revoke my standing proxy
+ */
+export const RevokePtaProxyResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary The PTA decision log
+ */
+export const ListPtaProposalsResponse = zod.object({
+  proposals: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        title: zod.string().optional(),
+        detail: zod.string().optional(),
+        category: zod.string().optional(),
+        status: zod.string().optional(),
+        decisionDueAt: zod.string().nullish(),
+        decisionRationale: zod.string().nullish(),
+        decidedAt: zod.string().nullish(),
+        createdAt: zod.string().optional(),
+        raisedBy: zod.string().optional(),
+        decidedBy: zod.string().nullish(),
+        overdue: zod.boolean().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Raise a proposal for decision
+ */
+export const RaisePtaProposalBody = zod.object({
+  title: zod.string(),
+  detail: zod.string(),
+  category: zod.string().optional(),
+  decisionDueAt: zod.string().optional(),
+});
+
+/**
+ * @summary Record an explicit decision on a proposal
+ */
+export const DecidePtaProposalParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const DecidePtaProposalBody = zod.object({
+  outcome: zod.string(),
+  rationale: zod.string().optional(),
+});
+
+export const DecidePtaProposalResponse = zod.object({
+  proposal: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Withdraw an open proposal
+ */
+export const WithdrawPtaProposalParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const WithdrawPtaProposalResponse = zod.object({
+  proposal: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary List PTA members with their active officer roles
+ */
+export const ListPtaMembersResponse = zod.object({
+  members: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        userId: zod.string().optional(),
+        name: zod.string().optional(),
+        email: zod.string().optional(),
+        tier: zod.string().optional(),
+        status: zod.string().optional(),
+        joinedAt: zod.string().optional(),
+        offices: zod
+          .array(
+            zod.object({
+              role: zod.string().optional(),
+              domain: zod.string().nullish(),
+            }),
+          )
+          .optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Add a PTA member
+ */
+export const AddPtaMemberBody = zod.object({
+  userId: zod.string(),
+  tier: zod.string().optional(),
+  status: zod.string().optional(),
+});
+
+/**
+ * @summary School users (parents/PTA) not yet members
+ */
+export const ListPtaMemberCandidatesResponse = zod.object({
+  candidates: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        name: zod.string().optional(),
+        email: zod.string().optional(),
+        role: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Update a PTA member's tier or status
+ */
+export const UpdatePtaMemberParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdatePtaMemberBody = zod.object({
+  tier: zod.string().optional(),
+  status: zod.string().optional(),
+});
+
+export const UpdatePtaMemberResponse = zod.object({
+  member: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Remove a PTA member (and end their officer appointments)
+ */
+export const RemovePtaMemberParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const RemovePtaMemberResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary List active PTA officers
+ */
+export const ListPtaOfficersResponse = zod.object({
+  officers: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        memberId: zod.string().optional(),
+        name: zod.string().optional(),
+        role: zod.string().optional(),
+        domain: zod.string().nullish(),
+        termStartAt: zod.string().optional(),
+        active: zod.boolean().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Appoint a PTA officer
+ */
+export const AppointPtaOfficerBody = zod.object({
+  memberId: zod.string(),
+  role: zod.string(),
+  domain: zod.string().optional(),
+});
+
+/**
+ * @summary End a PTA officer appointment
+ */
+export const EndPtaOfficerParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const EndPtaOfficerResponse = zod.object({
+  officer: zod.object({}).passthrough().optional(),
+});
+
+/**
  * @summary List PTA-coordinator channel messages
  */
 export const ListPtaMessagesResponse = zod.object({
