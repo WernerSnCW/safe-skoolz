@@ -64,10 +64,11 @@ Keep it lightweight (text lockup; no new logo asset required). Define it once as
 - Fix the stale teal **dark-mode `--ring`** in `src/index.css` (currently `173 80% 46%`) → the blue ring value used in `:root` (`217 90% 52%`-equivalent for dark).
 - Fix the misleading `/* Calming Teal & Soft Blue Palette */` comment to reflect the vibez blue system.
 - **Add a `--success` token** (light + dark) in `index.css` `@theme`/`:root`/`.dark`, plus the `--color-success` / `--color-success-foreground` mappings. Rationale: there is a `--warning` token but no `--success`, so existing green/emerald classes are doing "positive/success" duty. They must map to `--success`, **not** to the blue brand, or positive states would turn blue.
-- Migrate the ~73 hardcoded `teal*` / `emerald*` Tailwind colour classes in user-visible components to semantic tokens:
-  - brand teal → `primary` / `secondary` / `accent`,
-  - success/positive green → the new `success` token.
-  Lead with the memory-flagged offenders (admin role pill, login role panels). Each swap is verified visually (some greens are genuinely "success," not brand — classify before swapping).
+- Migrate the hardcoded `teal*` / `emerald*` Tailwind colour classes in user-visible components to semantic tokens, **classified by intent** (the inventory is 58 occurrences across 13 files):
+  - **success/positive green** (`emerald*` in `learn-pupil`, `learn-present`, `learn-lesson` — correct-answer / lesson-complete states) → the new `success` token. This is the bulk.
+  - **brand teal** (e.g. the `login.tsx` badge `bg-teal-700/600`, ~line 422) → `primary`.
+  - **DEFERRED to Step 2:** the `login.tsx` **role-tab accent palette** (teal/indigo/amber/purple for the four role panels, ~lines 520–578) is a deliberate four-hue UI scheme, not brand drift. Deciding that scheme is login/shell UX work — out of Step 1. Tracked, not forgotten.
+  Each swap is verified visually (classify before swapping — don't force success greens onto the blue brand).
 
 ### 4. Retain "Powered by Cloudworkz"
 
@@ -79,7 +80,7 @@ Confirmed intentional. Keep the existing `poweredByCloudworkz` footer credit; en
 
 1. **No user-visible** `safeskoolz` / `Safeskoolz` / `SafeSchool` string anywhere in the running app, in **all 4 languages**. Verify: grep of JSX text + `src/locales/**/*.json` *values*, plus an in-browser spot-check of login, training, forgot-password, mobile header, and the demo tour.
 2. The **"vibez by SchoolVBE" lockup** appears consistently in the desktop sidebar, mobile header, and login.
-3. **Palette single-sourced:** no `teal*`/`emerald*` colour classes remain in user-visible components; dark-mode `--ring` is blue; `--success` token exists and is used for positive states (success states still render green, not blue).
+3. **Palette single-sourced:** the new `--success` token exists and all `emerald*` success states use it (success still renders green, not blue); the brand-teal badge uses `primary`; dark-mode `--ring` is blue; the "Calming Teal" comment is corrected. The login role-tab accent palette is the **only** remaining hardcoded colour set, intentionally deferred to Step 2 (verify nothing else `teal*`/`emerald*` remains).
 4. **"Powered by Cloudworkz"** still present.
 5. **No regressions:** production build is clean; the unified server still serves `/`, `/schools`, `/parents`, `/ptas`, `/coalitions`, `/resources`, `/about` (prerendered) and `/api/*`; login works; **no session breakage** (storage keys untouched — an already-logged-in user stays logged in across the change).
 
