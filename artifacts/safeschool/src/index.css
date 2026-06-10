@@ -2,6 +2,14 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* vibez brand display face (Kenyan Coffee) — used for the wordmark only. */
+@font-face {
+  font-family: 'Kenyan Coffee';
+  src: url('/fonts/kenyan-coffee.woff2') format('woff2');
+  font-weight: normal; font-style: normal; font-display: swap;
+}
+.font-brand { font-family: 'Kenyan Coffee', 'Bebas Neue', sans-serif; font-style: italic; }
+
 @theme inline {
   /* Phase 1 ticket 4: KS3 visual language.
      Body is Inter (loaded via index.html, modern + neutral, reads year-7 not
@@ -38,7 +46,7 @@
 
 :root {
   /* Calming Teal & Soft Blue Palette */
-  --background: 0 0% 100%;        /* White */
+  --background: 222 100% 97%;     /* vibez canvas #F0F5FF */
   --foreground: 222 47% 11%;      /* Slate 900 */
   
   --card: 0 0% 100%;              /* White */
@@ -47,17 +55,17 @@
   --popover: 0 0% 100%;
   --popover-foreground: 222 47% 11%;
   
-  --primary: 173 80% 36%;         /* Teal 600 - Calming but authoritative */
+  --primary: 217 90% 52%;         /* vibez blue #126AF9 */
   --primary-foreground: 210 40% 98%;
-  
-  --secondary: 199 89% 48%;       /* Sky 500 - Friendly */
+
+  --secondary: 217 96% 62%;       /* vibez blue (light) #4080FB — gradient pair */
   --secondary-foreground: 210 40% 98%;
-  
-  --muted: 210 40% 96%;           /* Slate 100 */
+
+  --muted: 214 40% 96%;           /* Slate 100 (cool) */
   --muted-foreground: 215 16% 47%;/* Slate 500 */
-  
-  --accent: 173 80% 96%;          /* Teal 50 */
-  --accent-foreground: 173 80% 36%;
+
+  --accent: 220 100% 95%;         /* vibez blue tint #E6EFFF */
+  --accent-foreground: 217 90% 45%;
   
   --destructive: 348 83% 47%;     /* Rose 500 */
   --destructive-foreground: 210 40% 98%;
@@ -65,9 +73,9 @@
   --warning: 38 92% 50%;          /* Orange 500 */
   --warning-foreground: 210 40% 98%;
   
-  --border: 214 32% 91%;          /* Slate 200 */
-  --input: 214 32% 91%;
-  --ring: 173 80% 36%;
+  --border: 214 40% 90%;          /* cool slate 200 */
+  --input: 214 40% 90%;
+  --ring: 217 90% 52%;
   
   --radius: 1rem;                 /* 16px base — KS3 visual pass (ticket 4). radius-2xl derives to 24px for hero cards. */
 }
@@ -82,10 +90,10 @@
   --popover: 217 33% 17%;
   --popover-foreground: 210 40% 98%;
   
-  --primary: 173 80% 46%;         /* Teal 500 */
+  --primary: 217 92% 62%;         /* vibez blue (dark mode) */
   --primary-foreground: 222 47% 11%;
-  
-  --secondary: 199 89% 58%;       /* Sky 400 */
+
+  --secondary: 217 96% 70%;       /* vibez blue light (dark mode) */
   --secondary-foreground: 222 47% 11%;
   
   --muted: 217 33% 22%;           /* Slate 700 */

@@ -19,19 +19,31 @@ import type {
 import type {
   AcknowledgePtaPolicy201,
   AcknowledgePtaPolicyBody,
+  AddPtaMember201,
+  AddPtaMemberBody,
+  AppointPtaOfficer201,
+  AppointPtaOfficerBody,
   ApprovePtaReport200,
   ApprovePtaReportBody,
   AssessIncidentBody,
   AvatarResponse,
+  CastPtaVote201,
+  CastPtaVoteBody,
   ChildDashboard,
+  ClosePtaBallot200,
   CoordinatorDashboard,
   CreateIncidentBody,
   CreateProtocolBody,
+  DecidePtaProposal200,
+  DecidePtaProposalBody,
+  DeletePtaAnnouncement200,
+  EndPtaOfficer200,
   ErrorResponse,
   FlagPtaPolicy201,
   FlagPtaPolicyBody,
   GeneratePtaReport201,
   GetLatestPtaReport200,
+  GetPtaAnnouncementFeed200,
   GetPtaResources200,
   HealthStatus,
   Incident,
@@ -39,15 +51,26 @@ import type {
   ListIncidentsParams,
   ListNotificationsParams,
   ListProtocolsParams,
+  ListPtaAnnouncements200,
+  ListPtaBallots200,
   ListPtaConcerns200,
+  ListPtaMemberCandidates200,
+  ListPtaMembers200,
   ListPtaMessages200,
+  ListPtaOfficers200,
+  ListPtaProposals200,
+  ListPtaProxies200,
   LoginResponse,
   Notification,
+  OpenPtaBallot201,
+  OpenPtaBallotBody,
   PaginatedAlerts,
   PaginatedIncidents,
   PaginatedNotifications,
   PaginatedProtocols,
   PatternAlert,
+  PostPtaAnnouncement201,
+  PostPtaAnnouncementBody,
   Protocol,
   ProtocolDetail,
   PtaCodesignData,
@@ -58,8 +81,14 @@ import type {
   PupilLoginBody,
   PupilStartBody,
   PupilStartResponse,
+  RaisePtaProposal201,
+  RaisePtaProposalBody,
+  RemovePtaMember200,
+  RevokePtaProxy200,
   School,
   SendPtaMessageBody,
+  SetPtaProxy201,
+  SetPtaProxyBody,
   StaffLoginBody,
   SubmitPtaCodesignResponse201,
   SubmitPtaCodesignResponseBody,
@@ -68,7 +97,10 @@ import type {
   UpdateAvatarBody,
   UpdateIncidentStatusBody,
   UpdateProtocolBody,
+  UpdatePtaMember200,
+  UpdatePtaMemberBody,
   User,
+  WithdrawPtaProposal200,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -2216,6 +2248,1895 @@ export function useGetPtaDashboard<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Announcements visible to the current user (parent feed)
+ */
+export const getGetPtaAnnouncementFeedUrl = () => {
+  return `/api/pta/announcements/feed`;
+};
+
+export const getPtaAnnouncementFeed = async (
+  options?: RequestInit,
+): Promise<GetPtaAnnouncementFeed200> => {
+  return customFetch<GetPtaAnnouncementFeed200>(
+    getGetPtaAnnouncementFeedUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetPtaAnnouncementFeedQueryKey = () => {
+  return [`/api/pta/announcements/feed`] as const;
+};
+
+export const getGetPtaAnnouncementFeedQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPtaAnnouncementFeedQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPtaAnnouncementFeed>>
+  > = ({ signal }) => getPtaAnnouncementFeed({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPtaAnnouncementFeedQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPtaAnnouncementFeed>>
+>;
+export type GetPtaAnnouncementFeedQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Announcements visible to the current user (parent feed)
+ */
+
+export function useGetPtaAnnouncementFeed<
+  TData = Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPtaAnnouncementFeedQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary PTA announcements (published log)
+ */
+export const getListPtaAnnouncementsUrl = () => {
+  return `/api/pta/announcements`;
+};
+
+export const listPtaAnnouncements = async (
+  options?: RequestInit,
+): Promise<ListPtaAnnouncements200> => {
+  return customFetch<ListPtaAnnouncements200>(getListPtaAnnouncementsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListPtaAnnouncementsQueryKey = () => {
+  return [`/api/pta/announcements`] as const;
+};
+
+export const getListPtaAnnouncementsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listPtaAnnouncements>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaAnnouncements>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListPtaAnnouncementsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listPtaAnnouncements>>
+  > = ({ signal }) => listPtaAnnouncements({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaAnnouncements>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListPtaAnnouncementsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listPtaAnnouncements>>
+>;
+export type ListPtaAnnouncementsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary PTA announcements (published log)
+ */
+
+export function useListPtaAnnouncements<
+  TData = Awaited<ReturnType<typeof listPtaAnnouncements>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaAnnouncements>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListPtaAnnouncementsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Publish a PTA announcement
+ */
+export const getPostPtaAnnouncementUrl = () => {
+  return `/api/pta/announcements`;
+};
+
+export const postPtaAnnouncement = async (
+  postPtaAnnouncementBody: PostPtaAnnouncementBody,
+  options?: RequestInit,
+): Promise<PostPtaAnnouncement201> => {
+  return customFetch<PostPtaAnnouncement201>(getPostPtaAnnouncementUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(postPtaAnnouncementBody),
+  });
+};
+
+export const getPostPtaAnnouncementMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postPtaAnnouncement>>,
+    TError,
+    { data: BodyType<PostPtaAnnouncementBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postPtaAnnouncement>>,
+  TError,
+  { data: BodyType<PostPtaAnnouncementBody> },
+  TContext
+> => {
+  const mutationKey = ["postPtaAnnouncement"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postPtaAnnouncement>>,
+    { data: BodyType<PostPtaAnnouncementBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postPtaAnnouncement(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostPtaAnnouncementMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postPtaAnnouncement>>
+>;
+export type PostPtaAnnouncementMutationBody = BodyType<PostPtaAnnouncementBody>;
+export type PostPtaAnnouncementMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Publish a PTA announcement
+ */
+export const usePostPtaAnnouncement = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postPtaAnnouncement>>,
+    TError,
+    { data: BodyType<PostPtaAnnouncementBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof postPtaAnnouncement>>,
+  TError,
+  { data: BodyType<PostPtaAnnouncementBody> },
+  TContext
+> => {
+  return useMutation(getPostPtaAnnouncementMutationOptions(options));
+};
+
+/**
+ * @summary Delete a PTA announcement
+ */
+export const getDeletePtaAnnouncementUrl = (id: string) => {
+  return `/api/pta/announcements/${id}`;
+};
+
+export const deletePtaAnnouncement = async (
+  id: string,
+  options?: RequestInit,
+): Promise<DeletePtaAnnouncement200> => {
+  return customFetch<DeletePtaAnnouncement200>(
+    getDeletePtaAnnouncementUrl(id),
+    {
+      ...options,
+      method: "DELETE",
+    },
+  );
+};
+
+export const getDeletePtaAnnouncementMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deletePtaAnnouncement>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deletePtaAnnouncement>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deletePtaAnnouncement"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deletePtaAnnouncement>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deletePtaAnnouncement(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeletePtaAnnouncementMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deletePtaAnnouncement>>
+>;
+
+export type DeletePtaAnnouncementMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a PTA announcement
+ */
+export const useDeletePtaAnnouncement = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deletePtaAnnouncement>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deletePtaAnnouncement>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeletePtaAnnouncementMutationOptions(options));
+};
+
+/**
+ * @summary Ballots with live tally and quorum status
+ */
+export const getListPtaBallotsUrl = () => {
+  return `/api/pta/ballots`;
+};
+
+export const listPtaBallots = async (
+  options?: RequestInit,
+): Promise<ListPtaBallots200> => {
+  return customFetch<ListPtaBallots200>(getListPtaBallotsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListPtaBallotsQueryKey = () => {
+  return [`/api/pta/ballots`] as const;
+};
+
+export const getListPtaBallotsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listPtaBallots>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaBallots>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListPtaBallotsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listPtaBallots>>> = ({
+    signal,
+  }) => listPtaBallots({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaBallots>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListPtaBallotsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listPtaBallots>>
+>;
+export type ListPtaBallotsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Ballots with live tally and quorum status
+ */
+
+export function useListPtaBallots<
+  TData = Awaited<ReturnType<typeof listPtaBallots>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaBallots>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListPtaBallotsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Open a ballot
+ */
+export const getOpenPtaBallotUrl = () => {
+  return `/api/pta/ballots`;
+};
+
+export const openPtaBallot = async (
+  openPtaBallotBody: OpenPtaBallotBody,
+  options?: RequestInit,
+): Promise<OpenPtaBallot201> => {
+  return customFetch<OpenPtaBallot201>(getOpenPtaBallotUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(openPtaBallotBody),
+  });
+};
+
+export const getOpenPtaBallotMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof openPtaBallot>>,
+    TError,
+    { data: BodyType<OpenPtaBallotBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof openPtaBallot>>,
+  TError,
+  { data: BodyType<OpenPtaBallotBody> },
+  TContext
+> => {
+  const mutationKey = ["openPtaBallot"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof openPtaBallot>>,
+    { data: BodyType<OpenPtaBallotBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return openPtaBallot(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type OpenPtaBallotMutationResult = NonNullable<
+  Awaited<ReturnType<typeof openPtaBallot>>
+>;
+export type OpenPtaBallotMutationBody = BodyType<OpenPtaBallotBody>;
+export type OpenPtaBallotMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Open a ballot
+ */
+export const useOpenPtaBallot = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof openPtaBallot>>,
+    TError,
+    { data: BodyType<OpenPtaBallotBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof openPtaBallot>>,
+  TError,
+  { data: BodyType<OpenPtaBallotBody> },
+  TContext
+> => {
+  return useMutation(getOpenPtaBallotMutationOptions(options));
+};
+
+/**
+ * @summary Close a ballot
+ */
+export const getClosePtaBallotUrl = (id: string) => {
+  return `/api/pta/ballots/${id}/close`;
+};
+
+export const closePtaBallot = async (
+  id: string,
+  options?: RequestInit,
+): Promise<ClosePtaBallot200> => {
+  return customFetch<ClosePtaBallot200>(getClosePtaBallotUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getClosePtaBallotMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof closePtaBallot>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof closePtaBallot>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["closePtaBallot"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof closePtaBallot>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return closePtaBallot(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ClosePtaBallotMutationResult = NonNullable<
+  Awaited<ReturnType<typeof closePtaBallot>>
+>;
+
+export type ClosePtaBallotMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Close a ballot
+ */
+export const useClosePtaBallot = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof closePtaBallot>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof closePtaBallot>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getClosePtaBallotMutationOptions(options));
+};
+
+/**
+ * @summary Cast a vote (self or by proxy)
+ */
+export const getCastPtaVoteUrl = (id: string) => {
+  return `/api/pta/ballots/${id}/vote`;
+};
+
+export const castPtaVote = async (
+  id: string,
+  castPtaVoteBody: CastPtaVoteBody,
+  options?: RequestInit,
+): Promise<CastPtaVote201> => {
+  return customFetch<CastPtaVote201>(getCastPtaVoteUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(castPtaVoteBody),
+  });
+};
+
+export const getCastPtaVoteMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof castPtaVote>>,
+    TError,
+    { id: string; data: BodyType<CastPtaVoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof castPtaVote>>,
+  TError,
+  { id: string; data: BodyType<CastPtaVoteBody> },
+  TContext
+> => {
+  const mutationKey = ["castPtaVote"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof castPtaVote>>,
+    { id: string; data: BodyType<CastPtaVoteBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return castPtaVote(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CastPtaVoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof castPtaVote>>
+>;
+export type CastPtaVoteMutationBody = BodyType<CastPtaVoteBody>;
+export type CastPtaVoteMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Cast a vote (self or by proxy)
+ */
+export const useCastPtaVote = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof castPtaVote>>,
+    TError,
+    { id: string; data: BodyType<CastPtaVoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof castPtaVote>>,
+  TError,
+  { id: string; data: BodyType<CastPtaVoteBody> },
+  TContext
+> => {
+  return useMutation(getCastPtaVoteMutationOptions(options));
+};
+
+/**
+ * @summary Standing proxies (grantor to holder)
+ */
+export const getListPtaProxiesUrl = () => {
+  return `/api/pta/proxies`;
+};
+
+export const listPtaProxies = async (
+  options?: RequestInit,
+): Promise<ListPtaProxies200> => {
+  return customFetch<ListPtaProxies200>(getListPtaProxiesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListPtaProxiesQueryKey = () => {
+  return [`/api/pta/proxies`] as const;
+};
+
+export const getListPtaProxiesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listPtaProxies>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaProxies>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListPtaProxiesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listPtaProxies>>> = ({
+    signal,
+  }) => listPtaProxies({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaProxies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListPtaProxiesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listPtaProxies>>
+>;
+export type ListPtaProxiesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Standing proxies (grantor to holder)
+ */
+
+export function useListPtaProxies<
+  TData = Awaited<ReturnType<typeof listPtaProxies>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaProxies>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListPtaProxiesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Set my standing proxy holder
+ */
+export const getSetPtaProxyUrl = () => {
+  return `/api/pta/proxies`;
+};
+
+export const setPtaProxy = async (
+  setPtaProxyBody: SetPtaProxyBody,
+  options?: RequestInit,
+): Promise<SetPtaProxy201> => {
+  return customFetch<SetPtaProxy201>(getSetPtaProxyUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(setPtaProxyBody),
+  });
+};
+
+export const getSetPtaProxyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setPtaProxy>>,
+    TError,
+    { data: BodyType<SetPtaProxyBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof setPtaProxy>>,
+  TError,
+  { data: BodyType<SetPtaProxyBody> },
+  TContext
+> => {
+  const mutationKey = ["setPtaProxy"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof setPtaProxy>>,
+    { data: BodyType<SetPtaProxyBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return setPtaProxy(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SetPtaProxyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof setPtaProxy>>
+>;
+export type SetPtaProxyMutationBody = BodyType<SetPtaProxyBody>;
+export type SetPtaProxyMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Set my standing proxy holder
+ */
+export const useSetPtaProxy = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setPtaProxy>>,
+    TError,
+    { data: BodyType<SetPtaProxyBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof setPtaProxy>>,
+  TError,
+  { data: BodyType<SetPtaProxyBody> },
+  TContext
+> => {
+  return useMutation(getSetPtaProxyMutationOptions(options));
+};
+
+/**
+ * @summary Revoke my standing proxy
+ */
+export const getRevokePtaProxyUrl = () => {
+  return `/api/pta/proxies`;
+};
+
+export const revokePtaProxy = async (
+  options?: RequestInit,
+): Promise<RevokePtaProxy200> => {
+  return customFetch<RevokePtaProxy200>(getRevokePtaProxyUrl(), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getRevokePtaProxyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof revokePtaProxy>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof revokePtaProxy>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["revokePtaProxy"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof revokePtaProxy>>,
+    void
+  > = () => {
+    return revokePtaProxy(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RevokePtaProxyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof revokePtaProxy>>
+>;
+
+export type RevokePtaProxyMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Revoke my standing proxy
+ */
+export const useRevokePtaProxy = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof revokePtaProxy>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof revokePtaProxy>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getRevokePtaProxyMutationOptions(options));
+};
+
+/**
+ * @summary The PTA decision log
+ */
+export const getListPtaProposalsUrl = () => {
+  return `/api/pta/proposals`;
+};
+
+export const listPtaProposals = async (
+  options?: RequestInit,
+): Promise<ListPtaProposals200> => {
+  return customFetch<ListPtaProposals200>(getListPtaProposalsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListPtaProposalsQueryKey = () => {
+  return [`/api/pta/proposals`] as const;
+};
+
+export const getListPtaProposalsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listPtaProposals>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaProposals>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListPtaProposalsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listPtaProposals>>
+  > = ({ signal }) => listPtaProposals({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaProposals>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListPtaProposalsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listPtaProposals>>
+>;
+export type ListPtaProposalsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary The PTA decision log
+ */
+
+export function useListPtaProposals<
+  TData = Awaited<ReturnType<typeof listPtaProposals>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaProposals>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListPtaProposalsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Raise a proposal for decision
+ */
+export const getRaisePtaProposalUrl = () => {
+  return `/api/pta/proposals`;
+};
+
+export const raisePtaProposal = async (
+  raisePtaProposalBody: RaisePtaProposalBody,
+  options?: RequestInit,
+): Promise<RaisePtaProposal201> => {
+  return customFetch<RaisePtaProposal201>(getRaisePtaProposalUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(raisePtaProposalBody),
+  });
+};
+
+export const getRaisePtaProposalMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof raisePtaProposal>>,
+    TError,
+    { data: BodyType<RaisePtaProposalBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof raisePtaProposal>>,
+  TError,
+  { data: BodyType<RaisePtaProposalBody> },
+  TContext
+> => {
+  const mutationKey = ["raisePtaProposal"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof raisePtaProposal>>,
+    { data: BodyType<RaisePtaProposalBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return raisePtaProposal(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RaisePtaProposalMutationResult = NonNullable<
+  Awaited<ReturnType<typeof raisePtaProposal>>
+>;
+export type RaisePtaProposalMutationBody = BodyType<RaisePtaProposalBody>;
+export type RaisePtaProposalMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Raise a proposal for decision
+ */
+export const useRaisePtaProposal = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof raisePtaProposal>>,
+    TError,
+    { data: BodyType<RaisePtaProposalBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof raisePtaProposal>>,
+  TError,
+  { data: BodyType<RaisePtaProposalBody> },
+  TContext
+> => {
+  return useMutation(getRaisePtaProposalMutationOptions(options));
+};
+
+/**
+ * @summary Record an explicit decision on a proposal
+ */
+export const getDecidePtaProposalUrl = (id: string) => {
+  return `/api/pta/proposals/${id}/decide`;
+};
+
+export const decidePtaProposal = async (
+  id: string,
+  decidePtaProposalBody: DecidePtaProposalBody,
+  options?: RequestInit,
+): Promise<DecidePtaProposal200> => {
+  return customFetch<DecidePtaProposal200>(getDecidePtaProposalUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(decidePtaProposalBody),
+  });
+};
+
+export const getDecidePtaProposalMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof decidePtaProposal>>,
+    TError,
+    { id: string; data: BodyType<DecidePtaProposalBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof decidePtaProposal>>,
+  TError,
+  { id: string; data: BodyType<DecidePtaProposalBody> },
+  TContext
+> => {
+  const mutationKey = ["decidePtaProposal"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof decidePtaProposal>>,
+    { id: string; data: BodyType<DecidePtaProposalBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return decidePtaProposal(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DecidePtaProposalMutationResult = NonNullable<
+  Awaited<ReturnType<typeof decidePtaProposal>>
+>;
+export type DecidePtaProposalMutationBody = BodyType<DecidePtaProposalBody>;
+export type DecidePtaProposalMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Record an explicit decision on a proposal
+ */
+export const useDecidePtaProposal = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof decidePtaProposal>>,
+    TError,
+    { id: string; data: BodyType<DecidePtaProposalBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof decidePtaProposal>>,
+  TError,
+  { id: string; data: BodyType<DecidePtaProposalBody> },
+  TContext
+> => {
+  return useMutation(getDecidePtaProposalMutationOptions(options));
+};
+
+/**
+ * @summary Withdraw an open proposal
+ */
+export const getWithdrawPtaProposalUrl = (id: string) => {
+  return `/api/pta/proposals/${id}/withdraw`;
+};
+
+export const withdrawPtaProposal = async (
+  id: string,
+  options?: RequestInit,
+): Promise<WithdrawPtaProposal200> => {
+  return customFetch<WithdrawPtaProposal200>(getWithdrawPtaProposalUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getWithdrawPtaProposalMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof withdrawPtaProposal>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof withdrawPtaProposal>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["withdrawPtaProposal"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof withdrawPtaProposal>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return withdrawPtaProposal(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type WithdrawPtaProposalMutationResult = NonNullable<
+  Awaited<ReturnType<typeof withdrawPtaProposal>>
+>;
+
+export type WithdrawPtaProposalMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Withdraw an open proposal
+ */
+export const useWithdrawPtaProposal = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof withdrawPtaProposal>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof withdrawPtaProposal>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getWithdrawPtaProposalMutationOptions(options));
+};
+
+/**
+ * @summary List PTA members with their active officer roles
+ */
+export const getListPtaMembersUrl = () => {
+  return `/api/pta/members`;
+};
+
+export const listPtaMembers = async (
+  options?: RequestInit,
+): Promise<ListPtaMembers200> => {
+  return customFetch<ListPtaMembers200>(getListPtaMembersUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListPtaMembersQueryKey = () => {
+  return [`/api/pta/members`] as const;
+};
+
+export const getListPtaMembersQueryOptions = <
+  TData = Awaited<ReturnType<typeof listPtaMembers>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaMembers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListPtaMembersQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listPtaMembers>>> = ({
+    signal,
+  }) => listPtaMembers({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaMembers>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListPtaMembersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listPtaMembers>>
+>;
+export type ListPtaMembersQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List PTA members with their active officer roles
+ */
+
+export function useListPtaMembers<
+  TData = Awaited<ReturnType<typeof listPtaMembers>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaMembers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListPtaMembersQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Add a PTA member
+ */
+export const getAddPtaMemberUrl = () => {
+  return `/api/pta/members`;
+};
+
+export const addPtaMember = async (
+  addPtaMemberBody: AddPtaMemberBody,
+  options?: RequestInit,
+): Promise<AddPtaMember201> => {
+  return customFetch<AddPtaMember201>(getAddPtaMemberUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(addPtaMemberBody),
+  });
+};
+
+export const getAddPtaMemberMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof addPtaMember>>,
+    TError,
+    { data: BodyType<AddPtaMemberBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof addPtaMember>>,
+  TError,
+  { data: BodyType<AddPtaMemberBody> },
+  TContext
+> => {
+  const mutationKey = ["addPtaMember"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof addPtaMember>>,
+    { data: BodyType<AddPtaMemberBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return addPtaMember(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AddPtaMemberMutationResult = NonNullable<
+  Awaited<ReturnType<typeof addPtaMember>>
+>;
+export type AddPtaMemberMutationBody = BodyType<AddPtaMemberBody>;
+export type AddPtaMemberMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Add a PTA member
+ */
+export const useAddPtaMember = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof addPtaMember>>,
+    TError,
+    { data: BodyType<AddPtaMemberBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof addPtaMember>>,
+  TError,
+  { data: BodyType<AddPtaMemberBody> },
+  TContext
+> => {
+  return useMutation(getAddPtaMemberMutationOptions(options));
+};
+
+/**
+ * @summary School users (parents/PTA) not yet members
+ */
+export const getListPtaMemberCandidatesUrl = () => {
+  return `/api/pta/members/candidates`;
+};
+
+export const listPtaMemberCandidates = async (
+  options?: RequestInit,
+): Promise<ListPtaMemberCandidates200> => {
+  return customFetch<ListPtaMemberCandidates200>(
+    getListPtaMemberCandidatesUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListPtaMemberCandidatesQueryKey = () => {
+  return [`/api/pta/members/candidates`] as const;
+};
+
+export const getListPtaMemberCandidatesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listPtaMemberCandidates>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaMemberCandidates>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListPtaMemberCandidatesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listPtaMemberCandidates>>
+  > = ({ signal }) => listPtaMemberCandidates({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaMemberCandidates>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListPtaMemberCandidatesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listPtaMemberCandidates>>
+>;
+export type ListPtaMemberCandidatesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary School users (parents/PTA) not yet members
+ */
+
+export function useListPtaMemberCandidates<
+  TData = Awaited<ReturnType<typeof listPtaMemberCandidates>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaMemberCandidates>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListPtaMemberCandidatesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update a PTA member's tier or status
+ */
+export const getUpdatePtaMemberUrl = (id: string) => {
+  return `/api/pta/members/${id}`;
+};
+
+export const updatePtaMember = async (
+  id: string,
+  updatePtaMemberBody: UpdatePtaMemberBody,
+  options?: RequestInit,
+): Promise<UpdatePtaMember200> => {
+  return customFetch<UpdatePtaMember200>(getUpdatePtaMemberUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updatePtaMemberBody),
+  });
+};
+
+export const getUpdatePtaMemberMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updatePtaMember>>,
+    TError,
+    { id: string; data: BodyType<UpdatePtaMemberBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updatePtaMember>>,
+  TError,
+  { id: string; data: BodyType<UpdatePtaMemberBody> },
+  TContext
+> => {
+  const mutationKey = ["updatePtaMember"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updatePtaMember>>,
+    { id: string; data: BodyType<UpdatePtaMemberBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updatePtaMember(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdatePtaMemberMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updatePtaMember>>
+>;
+export type UpdatePtaMemberMutationBody = BodyType<UpdatePtaMemberBody>;
+export type UpdatePtaMemberMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a PTA member's tier or status
+ */
+export const useUpdatePtaMember = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updatePtaMember>>,
+    TError,
+    { id: string; data: BodyType<UpdatePtaMemberBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updatePtaMember>>,
+  TError,
+  { id: string; data: BodyType<UpdatePtaMemberBody> },
+  TContext
+> => {
+  return useMutation(getUpdatePtaMemberMutationOptions(options));
+};
+
+/**
+ * @summary Remove a PTA member (and end their officer appointments)
+ */
+export const getRemovePtaMemberUrl = (id: string) => {
+  return `/api/pta/members/${id}`;
+};
+
+export const removePtaMember = async (
+  id: string,
+  options?: RequestInit,
+): Promise<RemovePtaMember200> => {
+  return customFetch<RemovePtaMember200>(getRemovePtaMemberUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getRemovePtaMemberMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof removePtaMember>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof removePtaMember>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["removePtaMember"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof removePtaMember>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return removePtaMember(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RemovePtaMemberMutationResult = NonNullable<
+  Awaited<ReturnType<typeof removePtaMember>>
+>;
+
+export type RemovePtaMemberMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Remove a PTA member (and end their officer appointments)
+ */
+export const useRemovePtaMember = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof removePtaMember>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof removePtaMember>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getRemovePtaMemberMutationOptions(options));
+};
+
+/**
+ * @summary List active PTA officers
+ */
+export const getListPtaOfficersUrl = () => {
+  return `/api/pta/officers`;
+};
+
+export const listPtaOfficers = async (
+  options?: RequestInit,
+): Promise<ListPtaOfficers200> => {
+  return customFetch<ListPtaOfficers200>(getListPtaOfficersUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListPtaOfficersQueryKey = () => {
+  return [`/api/pta/officers`] as const;
+};
+
+export const getListPtaOfficersQueryOptions = <
+  TData = Awaited<ReturnType<typeof listPtaOfficers>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaOfficers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListPtaOfficersQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listPtaOfficers>>> = ({
+    signal,
+  }) => listPtaOfficers({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaOfficers>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListPtaOfficersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listPtaOfficers>>
+>;
+export type ListPtaOfficersQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List active PTA officers
+ */
+
+export function useListPtaOfficers<
+  TData = Awaited<ReturnType<typeof listPtaOfficers>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaOfficers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListPtaOfficersQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Appoint a PTA officer
+ */
+export const getAppointPtaOfficerUrl = () => {
+  return `/api/pta/officers`;
+};
+
+export const appointPtaOfficer = async (
+  appointPtaOfficerBody: AppointPtaOfficerBody,
+  options?: RequestInit,
+): Promise<AppointPtaOfficer201> => {
+  return customFetch<AppointPtaOfficer201>(getAppointPtaOfficerUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(appointPtaOfficerBody),
+  });
+};
+
+export const getAppointPtaOfficerMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appointPtaOfficer>>,
+    TError,
+    { data: BodyType<AppointPtaOfficerBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof appointPtaOfficer>>,
+  TError,
+  { data: BodyType<AppointPtaOfficerBody> },
+  TContext
+> => {
+  const mutationKey = ["appointPtaOfficer"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof appointPtaOfficer>>,
+    { data: BodyType<AppointPtaOfficerBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return appointPtaOfficer(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AppointPtaOfficerMutationResult = NonNullable<
+  Awaited<ReturnType<typeof appointPtaOfficer>>
+>;
+export type AppointPtaOfficerMutationBody = BodyType<AppointPtaOfficerBody>;
+export type AppointPtaOfficerMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Appoint a PTA officer
+ */
+export const useAppointPtaOfficer = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof appointPtaOfficer>>,
+    TError,
+    { data: BodyType<AppointPtaOfficerBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof appointPtaOfficer>>,
+  TError,
+  { data: BodyType<AppointPtaOfficerBody> },
+  TContext
+> => {
+  return useMutation(getAppointPtaOfficerMutationOptions(options));
+};
+
+/**
+ * @summary End a PTA officer appointment
+ */
+export const getEndPtaOfficerUrl = (id: string) => {
+  return `/api/pta/officers/${id}/end`;
+};
+
+export const endPtaOfficer = async (
+  id: string,
+  options?: RequestInit,
+): Promise<EndPtaOfficer200> => {
+  return customFetch<EndPtaOfficer200>(getEndPtaOfficerUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getEndPtaOfficerMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof endPtaOfficer>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof endPtaOfficer>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["endPtaOfficer"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof endPtaOfficer>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return endPtaOfficer(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type EndPtaOfficerMutationResult = NonNullable<
+  Awaited<ReturnType<typeof endPtaOfficer>>
+>;
+
+export type EndPtaOfficerMutationError = ErrorType<unknown>;
+
+/**
+ * @summary End a PTA officer appointment
+ */
+export const useEndPtaOfficer = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof endPtaOfficer>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof endPtaOfficer>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getEndPtaOfficerMutationOptions(options));
+};
 
 /**
  * @summary List PTA-coordinator channel messages

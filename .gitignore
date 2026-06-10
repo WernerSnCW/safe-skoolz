@@ -47,3 +47,7 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Local dev (added during migration)
+.env
+*.replit-bak

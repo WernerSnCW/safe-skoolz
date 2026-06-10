@@ -439,7 +439,7 @@ export default function Login() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-secondary shadow-xl shadow-primary/20 mb-6 text-white transform -rotate-3 hover:rotate-0 transition-transform duration-300">
             <ShieldCheck size={40} strokeWidth={2.5} />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">safeskoolz</h1>
+          <h1 className="font-brand text-5xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">vibez</h1>
           <p className="mt-3 text-muted-foreground text-lg">{t("tagline")}</p>
         </motion.div>
 
