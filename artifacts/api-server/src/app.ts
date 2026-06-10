@@ -2,6 +2,8 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import path from "path";
+import { existsSync } from "fs";
 import router from "./routes";
 import { PgRateLimitStore } from "./lib/rateLimitStore";
 
@@ -97,6 +99,42 @@ app.use("/api/auth/demo-login", authLimiter);
 app.use("/api/newsletter", newsletterLimiter);
 
 app.use("/api", router);
+
+// --- Unified app: serve the built front end (production only) --------------
+// One Node process serves BOTH the API (under /api, above) and the built
+// safeschool SPA. In development this block is skipped — Vite serves the front
+// end on :5173 and proxies /api here, so responsibilities stay split. The guard
+// is process.env.NODE_ENV === "production", which esbuild inlines to a literal
+// in the production bundle (build.ts defines it), so dev (tsx) never mounts it.
+if (process.env.NODE_ENV === "production") {
+  // The bundle runs from artifacts/api-server/dist/index.cjs, so __dirname is
+  // artifacts/api-server/dist; the SPA build output lives at
+  // artifacts/safeschool/dist/public. __dirname is the native CJS global in the
+  // esbuild bundle (correct here); this block never runs under dev/tsx (ESM),
+  // so the import.meta-vs-__dirname distinction doesn't matter there.
+  const spaDir = path.resolve(__dirname, "../../safeschool/dist/public");
+  const indexHtml = path.join(spaDir, "index.html");
+
+  if (existsSync(indexHtml)) {
+    // Static assets first (hashed JS/CSS, fonts, images) — served from disk.
+    app.use(express.static(spaDir));
+    // SPA fallback: any non-API GET/HEAD that didn't match a static file gets
+    // index.html so wouter can resolve the route client-side. /api is excluded
+    // so an unmatched API path still falls through to the error handler /
+    // 404 as before, rather than returning HTML to an API caller.
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      if (req.method !== "GET" && req.method !== "HEAD") return next();
+      if (req.path === "/api" || req.path.startsWith("/api/")) return next();
+      res.sendFile(indexHtml);
+    });
+    console.log(`[boot] Serving front end from ${spaDir}`);
+  } else {
+    console.warn(
+      `[boot] NODE_ENV=production but no SPA build at ${spaDir}; front end not served. ` +
+        "Build it with: PORT=1 BASE_PATH=/ pnpm --filter @workspace/safeschool build",
+    );
+  }
+}
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error("Unhandled error:", err);
