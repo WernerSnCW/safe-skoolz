@@ -76,7 +76,7 @@ export default function SchoolsPage() {
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">For Schools</p>
           <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Values-based education for British international schools.
+            Our mission is to support schools in adopting values-based education.
           </h1>
           <p className="mt-6 max-w-3xl text-lg text-muted-foreground">
             VBE is not a curriculum change — it is a cultural framework that builds your school's

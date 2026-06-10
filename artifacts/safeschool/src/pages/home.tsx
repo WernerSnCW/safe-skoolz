@@ -2,14 +2,7 @@ import { Link } from "wouter";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  School,
-  Users,
-  Vote,
-  HeartHandshake,
-  ArrowRight,
-  Sparkles,
-} from "lucide-react";
+import { School, Users, Vote, HeartHandshake, ArrowRight } from "lucide-react";
 
 // SchoolVBE marketing homepage — the Phase 2 proof page. Copy is reused
 // verbatim from the live static site (main.schoolvbe.pages.dev). Presentational
@@ -74,11 +67,10 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 sm:py-32">
-          <span className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-accent-foreground">
-            <Sparkles className="h-4 w-4" />
-            Everything here is free
-          </span>
-          <h1 className="mt-6 font-display text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+            New School Vibez, Old School Values
+          </p>
+          <h1 className="mt-4 font-display text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
             Better schools start with better communities.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">

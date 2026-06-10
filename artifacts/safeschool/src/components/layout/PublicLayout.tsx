@@ -70,9 +70,11 @@ export function PublicLayout({ children }: { children: ReactNode }) {
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-1">
               <span className="font-display text-lg font-bold text-primary">SchoolVBE</span>
-              <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-                Better schools start with better communities. Free tools for values-led school
-                communities.
+              <p className="mt-2 text-sm font-semibold text-foreground">
+                New School Vibez, Old School Values
+              </p>
+              <p className="mt-2 max-w-xs text-sm text-muted-foreground">
+                Free tools for values-led school communities.
               </p>
             </div>
             {FOOTER.map((col) => (
