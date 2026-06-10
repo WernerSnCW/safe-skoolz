@@ -1,0 +1,65 @@
+# SafeSkoolz — Full Codebase Comprehension Prompt
+**Paste this as your opening message in a new Replit session.**
+
+---
+
+Before we write a single line of code, I need you to read and fully understand this entire codebase. Not a summary. Not an overview. Total comprehension.
+
+Read every file. Understand every function. Know every schema field. Trace every data flow. By the end of this exercise you should be able to answer any question about how this platform works without looking at the code again.
+
+**One rule: never summarise, never truncate, never write "etc." or "and others" or "similar to above". If something exists in the codebase, name it explicitly.**
+
+Work through the following. Do not stop until all sections are complete.
+
+---
+
+**1. PLATFORM IDENTITY**
+What is this platform? What problem does it solve? Who uses it? Read the README, any docs folder, any CLAUDE.md or context files, and the core domain models to answer this — not from comments alone but from what the code actually does.
+
+**2. FULL STACK**
+Every technology in use: language versions, framework versions, every dependency in every package.json across the monorepo. Deployment config. Build pipeline. Test setup. Nothing omitted.
+
+**3. MONOREPO STRUCTURE**
+Every workspace package. Every shared library. What each one is, what it owns, how they depend on each other. Draw the dependency graph.
+
+**4. DATABASE — COMPLETE SCHEMA**
+Every table. Every column in every table: name, type, nullable, default, constraints, indexes. Every foreign key relationship. Every trigger. Every enum. The full entity-relationship map. Do not skip a single column.
+
+**5. USER ROLES & PERMISSIONS — EXHAUSTIVE**
+Every role that exists in the system (exact string values from the code). Every permission each role has. Every route, action, and resource each role can and cannot access. How multi-tenancy works (schools). How parent-child relationships are stored and enforced. How session/token auth works end to end.
+
+**6. EVERY API ROUTE**
+Every single endpoint in the API. For each: HTTP method, full path (with mount prefix), handler function name and file location, roles permitted, and a precise description of what it does — what it reads, what it writes, what side effects it triggers (emails, notifications, audit entries, escalations). 130+ endpoints — list all of them.
+
+**7. EVERY FUNCTION IN BUSINESS LOGIC**
+Every function in `lib/`, `routes/`, `middleware/`, and any shared utilities. For each: name, file + line, parameters with types, return value, what it actually does (specific, not vague), and what calls it. Flag anything that looks dead, broken, or incomplete.
+
+**8. EVERY FRONTEND PAGE & COMPONENT**
+Every page in the React app: its route path, who can access it, what data it loads, what actions it exposes, what it renders. Every significant component: its props, its behaviour, which pages use it. The full client-side route tree. Every TanStack Query key and what it fetches.
+
+**9. DASHBOARDS & REPORTING — COMPLETE**
+For every dashboard (coordinator, analytics, teacher-analytics, parent, pupil/child, school-overview, PTA): the exact API endpoint(s) powering it, every data point returned, the DB queries behind it, and what the UI renders. Every export endpoint: what it exports, in what format, who can trigger it.
+
+**10. INCIDENT & SAFEGUARDING SYSTEM — COMPLETE**
+Every incident status. Every valid status transition and what triggers it. Every escalation tier and its trigger conditions. The full escalation logic including referral body selection. The protocol system — structure, assignment, completion tracking. Pattern detection — what it looks for and how. The audit log — every event type, immutability mechanism, retention policy. SENCO caseload — full structure.
+
+**11. LESSON / PSHE SYSTEM**
+The full lesson data model (lessons, quizzes, progress tables). How key-stage gating works. The yearGroupToKeyStage mapping. What content exists for which key stages. The teacher Present mode. The pupil step-through quiz flow.
+
+**12. ALL OTHER FEATURES**
+Diary + AI safeguarding scan. Messaging system. Behaviour points. Diagnostics surveys. PTA portal. Notifications. Training completions. DSAR export. Data retention. Newsletter. Teacher posts. Referral bodies. Annex templates. Case tasks. Admin. — for each: full description of what it does, what schema it uses, what routes serve it.
+
+**13. EXTERNAL INTEGRATIONS**
+Every external service called (Resend, OpenAI, any others). For each: what it does, where in the code it's called, auth mechanism, what happens when it fails.
+
+**14. KNOWN GAPS & IN-FLIGHT WORK**
+Any TODO, FIXME, stub, placeholder, or partially implemented feature. Any tasks referenced in comments. Features that exist in the schema or routes but have no UI. Features referenced in UI but with no API backing.
+
+**15. THINGS THAT WOULD BREAK FIRST**
+Based on your full read: what are the 5–10 most fragile parts of this codebase? Not theoretical — specific functions, edge cases, or missing guards that would cause real failures under real usage.
+
+---
+
+When you are done, output a structured MASTER REFERENCE doc covering all 15 sections. This becomes the working context for the rest of our session. Do not start any implementation work until this is complete.
+
+If your output gets cut off at any point, I will reply "continue" and you must resume exactly where you stopped — do not restart, do not re-summarise completed sections.

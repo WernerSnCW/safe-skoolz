@@ -1,0 +1,63 @@
+# SafeSchool / vibez — Full Extraction + VBE-Expansion Readiness Prompt
+**Paste this as the opening message in a fresh Replit (or Claude Code) session pointed at the SafeSchool/vibez codebase.**
+
+Goal: produce a single **MASTER REFERENCE** document that (a) captures the entire current app exhaustively, and (b) assesses readiness for an expansion into a full Values-Based Education (VBE) platform — specifically PTA organisation, voting, and communications. This document becomes the build spec for rebuilding and extending the app in another environment, so it must be complete enough to rebuild from without the original code.
+
+**Rules:** Never summarise, never truncate, never write "etc." / "and others" / "similar to above". If it exists in the codebase, name it explicitly. If output is cut off, I will reply "continue" and you resume exactly where you stopped — do not restart or re-summarise completed sections. Do not write any new code until the document is complete.
+
+---
+
+## PART A — CURRENT STATE (exhaustive)
+
+**1. PLATFORM IDENTITY** — What it is, the problem it solves, who uses it. From what the code actually does, not just comments/README.
+
+**2. FULL STACK** — Every language/framework/dependency version across the monorepo. Deployment config, build pipeline, env vars/secrets, test setup. Hosting (Replit specifics, DB host, object storage).
+
+**3. MONOREPO STRUCTURE** — Every workspace package and shared library: what it owns, how they depend on each other. Dependency graph.
+
+**4. DATABASE — COMPLETE SCHEMA** — Every table, every column (name, type, nullable, default, constraints, indexes), every FK, trigger, enum. Full ER map. Skip nothing. Note row counts / seed data where relevant.
+
+**5. ROLES & PERMISSIONS** — Every role (exact string values). Every permission, route, action, and resource each role can/can't access. Multi-tenancy (schools) model. Parent–child relationship storage/enforcement. Auth/session/token flow end to end.
+
+**6. EVERY API ROUTE** — All ~130+ endpoints. For each: method, full path (with mount prefix), handler name + file, roles permitted, precise behaviour (reads/writes/side-effects: emails, notifications, audit entries, escalations).
+
+**7. BUSINESS LOGIC FUNCTIONS** — Every function in lib/routes/middleware/shared: name, file+line, params+types, return, what it does, callers. Flag dead/broken/incomplete.
+
+**8. FRONTEND PAGES & COMPONENTS** — Every page (route, access, data loaded, actions, render). Every significant component (props, behaviour, users). Full client route tree. Every TanStack Query key and what it fetches.
+
+**9. DASHBOARDS & REPORTING** — For each dashboard (coordinator, analytics, teacher-analytics, parent, pupil, school-overview, PTA): powering endpoint(s), every data point, the DB queries, what the UI renders. Every export endpoint: what/format/who.
+
+**10. INCIDENT & SAFEGUARDING** — Every status + valid transition + trigger. Every escalation tier + conditions + referral-body selection. Protocol system (structure, assignment, completion). Pattern detection. Audit log (event types, immutability mechanism, retention). SENCO caseload structure.
+
+**11. LESSON / PSHE** — Full data model (lessons, quizzes, progress). Key-stage gating, yearGroupToKeyStage mapping, what content exists per key stage. Teacher Present mode. Pupil step-through flow.
+
+**12. ALL OTHER FEATURES** — For each, full description + schema + routes: diary + AI safeguarding scan; messaging; behaviour points; **diagnostics surveys**; **PTA portal (current state — describe in full detail, see Part B)**; notifications; training completions; DSAR export; data retention; newsletter; teacher posts; referral bodies; annex templates; case tasks; admin.
+
+**13. EXTERNAL INTEGRATIONS** — Every external service (Resend, OpenAI, others): what it does, where called, auth, failure behaviour.
+
+**14. KNOWN GAPS & IN-FLIGHT WORK** — Every TODO/FIXME/stub/placeholder. Schema or routes with no UI. UI with no API backing.
+
+**15. FRAGILITY** — The 5–10 most fragile parts (specific functions/edge cases/missing guards that would fail under real usage).
+
+---
+
+## PART B — VBE-EXPANSION READINESS (the reason for this extraction)
+
+We are extending this into a full VBE platform. SchoolVBE (a separate free marketing/community site) funnels schools here; this app is the **paid** product. For each capability below, report **three things**: (i) what already exists in the code/schema, (ii) what is partially built, (iii) what is entirely missing — with the specific tables/routes/components involved.
+
+**16. PTA PORTAL — DEEP DIVE (current)** — Everything the existing PTA portal does today: its tables, routes, roles (the `pta` role's full capability), pages, and any membership/officer concepts already present. Be exhaustive — this is the area we are expanding most.
+
+**17. PTA ORGANISATION (target)** — Readiness for: officer roles & domains; three-tier structure (Executive Board / Senior Group / General Membership); membership records and onboarding; decision log; committees/working groups; meeting (AGM) records. Map each against what exists.
+
+**18. PTA VOTING (target)** — Readiness for: motions/proposals; ballots (sync + async/email); proxy voting; quorum tracking; results recording; the "no proposal left without a decision" / "silence is not acceptance" audit pattern. What in the current notification/audit infra could power this?
+
+**19. PTA COMMUNICATIONS (target)** — Readiness for: announcements/newsletters (note current newsletter + teacher-posts features), targeted messaging to membership segments, comment/consultation periods, transparency publishing (what's shared, to whom). Reuse vs build-new for each.
+
+**20. VBE FRAMEWORK ALIGNMENT (target)** — How the app could express the VBE model end to end: values definition + behaviours; the 10-day rollout workflow; the readiness diagnostic; community surveys as a first-class free tool; mapping incidents/behaviour-points to the school's defined values. What exists that maps to this; what's new.
+
+**21. FREE vs PAID BOUNDARY** — Commercial model: everything on the SchoolVBE site (resources, diagnostic, surveys, support) is FREE; this app (vibez) is the only paid product. Identify anything currently in this app that should instead be free/standalone (e.g. the diagnostics survey tool, if it could be lifted out as a free community survey), and anything free that should drive conversion to paid.
+
+---
+
+## OUTPUT
+A single structured MASTER REFERENCE covering sections 1–21, detailed enough to rebuild and extend the app in a different environment. End with a one-page "rebuild order" recommendation: which slices to build first if reconstructing from scratch.

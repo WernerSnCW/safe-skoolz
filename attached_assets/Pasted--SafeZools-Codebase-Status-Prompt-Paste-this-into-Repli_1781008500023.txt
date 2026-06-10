@@ -1,0 +1,172 @@
+# SafeZools — Codebase Status Prompt
+**Paste this into Replit AI / Agent at the start of a new session**
+
+---
+
+You are about to work on the **SafeZools** codebase. Before writing a single line of code, I need you to conduct a complete status audit of this repo so you have full working context. Do not assume anything. Read the actual files.
+
+Work through the following passes in order. After each pass, summarise your findings in a structured block before moving to the next. At the end, produce a single consolidated STATUS REPORT.
+
+---
+
+## PASS 1 — Stack & Framework
+
+Identify and state precisely:
+- Language(s) and runtime versions (Node, Python, etc.)
+- Framework(s) in use (Express, Next.js, FastAPI, etc.) and version
+- Package manager (npm, yarn, pnpm, pip) and lockfile present (yes/no)
+- Build tool / bundler if any (Vite, Webpack, esbuild, etc.)
+- Test framework if any
+- Environment: is this a monorepo, single app, or multi-service? State directory structure top-level.
+- Deployment target: Replit-native, Cloudflare Workers, serverless, container, static, other
+
+Read: `package.json` or `requirements.txt` or equivalent, `replit.nix` or `.replit`, any `Dockerfile` or `wrangler.toml`.
+
+---
+
+## PASS 2 — Architecture & File Structure
+
+Walk the full directory tree (2–3 levels deep). For each significant directory:
+- State what it contains (routes, components, utils, models, etc.)
+- Flag any directory you cannot classify
+
+Then identify:
+- Entry point (main file the app starts from)
+- Where routing is defined
+- Where business logic lives (separate from routes, or co-located?)
+- Data layer location (DB calls, ORM, raw queries, mock data, etc.)
+- Config/environment handling (`.env`, config files, secrets)
+- Any static assets or public folder
+
+---
+
+## PASS 3 — All Routes / Endpoints
+
+List every route or page in the application. For each:
+- Method (GET/POST/PUT/DELETE/page route)
+- Path
+- Handler function name
+- What it does in one sentence
+- Any auth/middleware it passes through
+
+If this is a frontend app (React, Vue, etc.), list every page/view component and its route path instead.
+
+---
+
+## PASS 4 — All Functions & Handlers
+
+Read every function defined in the codebase. For each function:
+- Name
+- File location
+- Parameters (types if typed, names if not)
+- Return value / side effects
+- What it actually does (one sentence — be precise, not vague)
+
+Group by file. Flag any function that appears dead (never called) or that has a TODO/FIXME comment.
+
+---
+
+## PASS 5 — Data Models & Schema
+
+Identify all data structures the app works with:
+- Database schema (tables, collections, fields, types) — read migration files or ORM model definitions
+- If no DB: any in-memory data structures, JSON shapes, or mock data objects that represent the domain model
+- Any external API response shapes that are consumed and mapped internally
+- Validation schemas (Zod, Joi, Pydantic, etc.)
+
+State: what is the core domain entity this app is built around? (e.g. "a User with a Wellbeing Score", "a School with Survey Responses", etc.)
+
+---
+
+## PASS 6 — External Integrations & API Surface
+
+List every external service, API, or MCP connector the app calls:
+- Service name
+- What it's used for
+- Where in the code the call is made (file + function)
+- Auth mechanism (API key, OAuth, Bearer token — don't show values, just confirm they're present in env)
+- Any webhooks the app exposes
+
+Also list any APIs this app itself exposes for external consumption.
+
+---
+
+## PASS 7 — Content Layer
+
+If the app has user-facing content (copy, labels, messages, emails):
+- Where is content defined? (hardcoded, CMS, i18n files, constants file)
+- List any email templates and what triggers them
+- List any notification or message copy
+- Note any content that appears incomplete, placeholder, or TODO
+
+---
+
+## PASS 8 — State of Build
+
+Assess the current completeness of the codebase:
+- Does it run? (check for syntax errors, missing imports, broken references)
+- What features appear fully implemented?
+- What features appear partially implemented (stub, TODO, commented out)?
+- What features are referenced in comments or config but not yet built?
+- Are there any known errors in the code (console.error calls, error handlers that reveal expected failure modes)?
+- What is the last meaningful commit / change based on file modification dates?
+
+---
+
+## PASS 9 — Karpathy Verification Pass
+
+Re-read the 5 most complex or critical functions in the codebase. For each:
+- Does it do what its name says?
+- Are there any off-by-one errors, unhandled edge cases, or silent failures (swallowed errors, missing null checks)?
+- Does it have any hardcoded values that should be config?
+- Would a new developer reading it understand what it does without comments?
+
+Flag any function that fails these checks as **NEEDS REVIEW**.
+
+---
+
+## CONSOLIDATED STATUS REPORT
+
+After completing all 9 passes, produce a single document structured as:
+
+```
+SAFEZOOLS CODEBASE STATUS — [date]
+
+STACK: [one line]
+ENTRY POINT: [file:line]
+LAST MEANINGFUL CHANGE: [file + approximate date]
+
+ARCHITECTURE SUMMARY:
+[3–5 sentences describing the app's structure]
+
+CORE DOMAIN:
+[One sentence: what problem this app solves and for whom]
+
+ROUTES (N total):
+[table: method | path | handler | status]
+
+FUNCTIONS (N total):
+[list grouped by file]
+
+DATA MODEL:
+[key entities and their fields]
+
+EXTERNAL INTEGRATIONS:
+[list]
+
+FEATURE COMPLETENESS:
+- Done: [list]
+- Partial: [list]
+- Not started: [list]
+
+NEEDS REVIEW (Karpathy flags):
+[list of functions with issue description]
+
+OPEN TODOs / FIXMEs:
+[list with file:line]
+
+RECOMMENDED FIRST ACTIONS:
+[ordered list of 3–5 things to do before adding any new features]
+```
+
+Do not start building anything until this report is complete and I have confirmed the next task.
