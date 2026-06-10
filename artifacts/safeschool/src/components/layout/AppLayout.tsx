@@ -210,8 +210,8 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="bg-gradient-to-br from-primary to-secondary p-2 rounded-xl text-primary-foreground shadow-lg shadow-primary/20">
             <ShieldCheck size={24} strokeWidth={2.5} />
           </div>
-          <span className="font-display font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-            safeskoolz
+          <span className="font-brand text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+            vibez
           </span>
         </div>
 
