@@ -14,6 +14,7 @@ import AdminLogin from "@/pages/admin-login";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
 import HomePage from "@/pages/home";
+import SchoolsPage from "@/pages/schools";
 import Dashboard from "@/pages/dashboard";
 import ReportIncident from "@/pages/report-incident";
 import IncidentsList from "@/pages/incidents";
@@ -118,6 +119,7 @@ function Router() {
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/how-it-works" component={HowItWorksPage} />
+      <Route path="/schools" component={SchoolsPage} />
       <Route path="/">
         {() => <HomeRoute />}
       </Route>

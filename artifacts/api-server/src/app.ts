@@ -117,14 +117,24 @@ if (process.env.NODE_ENV === "production") {
 
   if (existsSync(indexHtml)) {
     // Static assets first (hashed JS/CSS, fonts, images) — served from disk.
-    app.use(express.static(spaDir));
-    // SPA fallback: any non-API GET/HEAD that didn't match a static file gets
-    // index.html so wouter can resolve the route client-side. /api is excluded
-    // so an unmatched API path still falls through to the error handler /
-    // 404 as before, rather than returning HTML to an API caller.
+    // redirect:false so "/schools" isn't 301'd to "/schools/"; the fallback
+    // below serves that route's prerendered file directly for a clean URL.
+    app.use(express.static(spaDir, { redirect: false }));
+    // Front-end fallback for non-API GET/HEAD requests. /api is excluded so an
+    // unmatched API path still falls through to the error handler / 404 as
+    // before, rather than returning HTML to an API caller.
     app.use((req: Request, res: Response, next: NextFunction) => {
       if (req.method !== "GET" && req.method !== "HEAD") return next();
       if (req.path === "/api" || req.path.startsWith("/api/")) return next();
+      // Prefer a prerendered marketing route (dist/public/<path>/index.html)
+      // when one exists, so crawlers and direct loads get that route's static
+      // HTML instead of the homepage shell. path.join collapses any "..", and
+      // the prefix guard rejects anything that escapes spaDir (traversal).
+      const prerendered = path.join(spaDir, req.path, "index.html");
+      if (prerendered.startsWith(spaDir + path.sep) && existsSync(prerendered)) {
+        return res.sendFile(prerendered);
+      }
+      // Otherwise the SPA shell (homepage prerender) — wouter routes client-side.
       res.sendFile(indexHtml);
     });
     console.log(`[boot] Serving front end from ${spaDir}`);
