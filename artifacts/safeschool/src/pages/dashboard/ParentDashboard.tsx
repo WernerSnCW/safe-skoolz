@@ -17,7 +17,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line
 } from "recharts";
 
-const CHART_COLORS_PARENT = ["#0d9488", "#6366f1", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#10b981"];
+const CHART_COLORS_PARENT = ["hsl(var(--chart-1))","hsl(var(--chart-2))","hsl(var(--chart-3))","hsl(var(--chart-4))","hsl(var(--chart-5))","hsl(var(--chart-6))","hsl(var(--chart-7))"];
 
 function ParentReportCard({ inc }: { inc: any }) {
   const { t } = useTranslation("dashboard");
@@ -771,7 +771,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                     return `${months[parseInt(mo) - 1]} ${y}`;
                   }}
                 />
-                <Line type="monotone" dataKey="count" stroke="#0d9488" strokeWidth={2} dot={{ r: 4 }} name={t("totalReports")} />
+                <Line type="monotone" dataKey="count" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 4 }} name={t("totalReports")} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -793,7 +793,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                   <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
                   <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={100} />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name={t("totalReports")} />
+                  <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[0, 6, 6, 0]} name={t("totalReports")} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -899,7 +899,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                                 return `${months[parseInt(mo) - 1]} ${y}`;
                               }}
                             />
-                            <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={{ r: 3 }} name={t("totalReports")} />
+                            <Line type="monotone" dataKey="count" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={{ r: 3 }} name={t("totalReports")} />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
@@ -917,7 +917,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                               <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                               <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={90} />
                               <Tooltip />
-                              <Bar dataKey="count" fill="#6366f1" radius={[0, 6, 6, 0]} name={t("totalReports")} />
+                              <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={[0, 6, 6, 0]} name={t("totalReports")} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -934,7 +934,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                               <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                               <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={90} />
                               <Tooltip />
-                              <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name={t("totalReports")} />
+                              <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[0, 6, 6, 0]} name={t("totalReports")} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>

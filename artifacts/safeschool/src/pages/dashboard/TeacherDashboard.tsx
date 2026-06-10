@@ -175,7 +175,7 @@ export default function TeacherDashboard({ user }: { user: any }) {
                       <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                       <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={95} />
                       <Tooltip />
-                      <Bar dataKey="count" fill="#ef4444" radius={[0, 6, 6, 0]} name={t("incidents")} />
+                      <Bar dataKey="count" fill="hsl(var(--chart-4))" radius={[0, 6, 6, 0]} name={t("incidents")} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -197,7 +197,7 @@ export default function TeacherDashboard({ user }: { user: any }) {
                       <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                       <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={95} />
                       <Tooltip />
-                      <Bar dataKey="count" fill="#6366f1" radius={[0, 6, 6, 0]} name={t("incidents")} />
+                      <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={[0, 6, 6, 0]} name={t("incidents")} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -234,7 +234,7 @@ export default function TeacherDashboard({ user }: { user: any }) {
                         return `${months[parseInt(mo) - 1]} ${y}`;
                       }}
                     />
-                    <Line type="monotone" dataKey="count" stroke="#0d9488" strokeWidth={2} dot={{ r: 3 }} name={t("incidents")} />
+                    <Line type="monotone" dataKey="count" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} name={t("incidents")} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>

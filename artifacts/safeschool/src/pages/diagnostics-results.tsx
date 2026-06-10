@@ -16,9 +16,9 @@ import {
 } from "recharts";
 
 const GROUP_COLORS: Record<string, string> = {
-  pupil: "#0d9488",
-  staff: "#6366f1",
-  parent: "#f59e0b",
+  pupil: "hsl(var(--role-pupil))",
+  staff: "hsl(var(--role-staff))",
+  parent: "hsl(var(--role-parent))",
 };
 
 const GROUP_LABELS: Record<string, string> = {
@@ -653,11 +653,11 @@ function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
   }
 
   const CATEGORY_COLORS: Record<string, string> = {
-    "Awareness & Prevalence": "#3b82f6",
-    "Trust & Reporting": "#0d9488",
-    "Culture & Wellbeing": "#22c55e",
-    "Safeguarding Knowledge": "#8b5cf6",
-    "System Readiness": "#f59e0b",
+    "Awareness & Prevalence": "hsl(var(--cat-1))",
+    "Trust & Reporting": "hsl(var(--cat-2))",
+    "Culture & Wellbeing": "hsl(var(--cat-3))",
+    "Safeguarding Knowledge": "hsl(var(--cat-4))",
+    "System Readiness": "hsl(var(--cat-5))",
   };
 
   return (
@@ -751,9 +751,9 @@ function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
                     <XAxis dataKey="category" tick={{ fontSize: 11 }} />
                     <YAxis domain={[0, 5]} tick={{ fontSize: 11 }} />
                     <Tooltip />
-                    <Bar dataKey="pupil" name="Pupils" fill="#0d9488" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="staff" name="Staff" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="parent" name="Parents" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="pupil" name="Pupils" fill={GROUP_COLORS.pupil} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="staff" name="Staff" fill={GROUP_COLORS.staff} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="parent" name="Parents" fill={GROUP_COLORS.parent} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
                 <div className="flex justify-center gap-6 mt-3">

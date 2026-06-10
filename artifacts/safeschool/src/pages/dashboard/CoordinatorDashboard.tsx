@@ -16,7 +16,7 @@ import {
   PieChart, Pie, Cell, Legend, LineChart, Line
 } from "recharts";
 
-const CHART_COLORS = ["#14b8a6", "#6366f1", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#ec4899", "#3b82f6", "#f97316", "#06b6d4"];
+const CHART_COLORS = ["hsl(var(--chart-1))","hsl(var(--chart-2))","hsl(var(--chart-3))","hsl(var(--chart-4))","hsl(var(--chart-5))","hsl(var(--chart-6))","hsl(var(--chart-7))","hsl(var(--chart-8))","hsl(var(--chart-9))","hsl(var(--chart-10))"];
 
 export default function CoordinatorDashboardView() {
   const { t } = useTranslation("dashboard");
@@ -381,7 +381,7 @@ export default function CoordinatorDashboardView() {
                         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
                         <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
-                        <Bar dataKey="count" fill="#14b8a6" radius={[0, 6, 6, 0]} name={t("incidents")} />
+                        <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[0, 6, 6, 0]} name={t("incidents")} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -433,7 +433,7 @@ export default function CoordinatorDashboardView() {
                         <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                         <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))" }} />
-                        <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={{ r: 4, fill: "#6366f1" }} name={t("incidents")} />
+                        <Line type="monotone" dataKey="count" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--chart-2))" }} name={t("incidents")} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -486,7 +486,7 @@ export default function CoordinatorDashboardView() {
                       <Tooltip />
                       <Bar dataKey="count" name={t("incidents")}>
                         {escalationData.map((_: any, i: number) => (
-                          <Cell key={i} fill={["#22c55e", "#f59e0b", "#ef4444"][i] || "#6366f1"} />
+                          <Cell key={i} fill={["hsl(var(--scale-5))","hsl(var(--scale-3))","hsl(var(--scale-1))"][i] || "hsl(var(--chart-1))"} />
                         ))}
                       </Bar>
                     </BarChart>
@@ -510,7 +510,7 @@ export default function CoordinatorDashboardView() {
                       <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
                       <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
                       <Tooltip />
-                      <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name={t("incidents")} />
+                      <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[0, 6, 6, 0]} name={t("incidents")} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
