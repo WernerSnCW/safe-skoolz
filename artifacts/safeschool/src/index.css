@@ -31,6 +31,8 @@
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-warning: hsl(var(--warning));
   --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
@@ -45,7 +47,7 @@
 }
 
 :root {
-  /* Calming Teal & Soft Blue Palette */
+  /* vibez blue palette (single source of truth) */
   --background: 222 100% 97%;     /* vibez canvas #F0F5FF */
   --foreground: 222 47% 11%;      /* Slate 900 */
   
@@ -72,7 +74,10 @@
 
   --warning: 38 92% 50%;          /* Orange 500 */
   --warning-foreground: 210 40% 98%;
-  
+
+  --success: 152 69% 40%;          /* emerald 600 — positive/success state */
+  --success-foreground: 222 47% 11%;   /* dark slate — 6.1:1 on the success green */
+
   --border: 214 40% 90%;          /* cool slate 200 */
   --input: 214 40% 90%;
   --ring: 217 90% 52%;
@@ -107,10 +112,13 @@
 
   --warning: 38 92% 60%;
   --warning-foreground: 222 47% 11%;
-  
+
+  --success: 152 60% 50%;          /* emerald (dark mode) */
+  --success-foreground: 222 47% 11%;
+
   --border: 217 33% 22%;
   --input: 217 33% 22%;
-  --ring: 173 80% 46%;
+  --ring: 217 92% 62%;             /* vibez blue (dark mode) — matches --primary */
 }
 
 @layer base {
