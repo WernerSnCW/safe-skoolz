@@ -581,6 +581,20 @@ export type ListNotificationsParams = {
   limit?: number;
 };
 
+export type GetPtaAnnouncementFeed200AnnouncementsItem = {
+  id?: string;
+  title?: string;
+  body?: string;
+  audience?: string;
+  pinned?: boolean;
+  createdAt?: string;
+  author?: string;
+};
+
+export type GetPtaAnnouncementFeed200 = {
+  announcements?: GetPtaAnnouncementFeed200AnnouncementsItem[];
+};
+
 export type ListPtaAnnouncements200AnnouncementsItem = {
   id?: string;
   title?: string;

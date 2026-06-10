@@ -36,6 +36,7 @@ import PtaGovernance from "@/pages/pta-governance";
 import PtaDecisions from "@/pages/pta-decisions";
 import PtaVoting from "@/pages/pta-voting";
 import PtaAnnouncements from "@/pages/pta-announcements";
+import PtaUpdates from "@/pages/pta-updates";
 import Diagnostics from "@/pages/diagnostics";
 import DiagnosticsResults from "@/pages/diagnostics-results";
 import DiaryPage from "@/pages/diary";
@@ -183,6 +184,9 @@ function Router() {
       </Route>
       <Route path="/pta/announcements">
         {() => <ProtectedRoute component={PtaAnnouncements} />}
+      </Route>
+      <Route path="/pta-updates">
+        {() => <ProtectedRoute component={PtaUpdates} />}
       </Route>
       <Route path="/diagnostics/:id/results">
         {() => <ProtectedRoute component={DiagnosticsResults} />}

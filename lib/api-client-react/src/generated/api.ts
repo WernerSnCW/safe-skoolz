@@ -43,6 +43,7 @@ import type {
   FlagPtaPolicyBody,
   GeneratePtaReport201,
   GetLatestPtaReport200,
+  GetPtaAnnouncementFeed200,
   GetPtaResources200,
   HealthStatus,
   Incident,
@@ -2240,6 +2241,85 @@ export function useGetPtaDashboard<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetPtaDashboardQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Announcements visible to the current user (parent feed)
+ */
+export const getGetPtaAnnouncementFeedUrl = () => {
+  return `/api/pta/announcements/feed`;
+};
+
+export const getPtaAnnouncementFeed = async (
+  options?: RequestInit,
+): Promise<GetPtaAnnouncementFeed200> => {
+  return customFetch<GetPtaAnnouncementFeed200>(
+    getGetPtaAnnouncementFeedUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetPtaAnnouncementFeedQueryKey = () => {
+  return [`/api/pta/announcements/feed`] as const;
+};
+
+export const getGetPtaAnnouncementFeedQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPtaAnnouncementFeedQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPtaAnnouncementFeed>>
+  > = ({ signal }) => getPtaAnnouncementFeed({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPtaAnnouncementFeedQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPtaAnnouncementFeed>>
+>;
+export type GetPtaAnnouncementFeedQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Announcements visible to the current user (parent feed)
+ */
+
+export function useGetPtaAnnouncementFeed<
+  TData = Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaAnnouncementFeed>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPtaAnnouncementFeedQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

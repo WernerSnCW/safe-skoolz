@@ -603,6 +603,32 @@ paths:
               schema:
                 $ref: "#/components/schemas/PtaDashboard"
 
+  /pta/announcements/feed:
+    get:
+      operationId: getPtaAnnouncementFeed
+      tags: [pta]
+      summary: Announcements visible to the current user (parent feed)
+      responses:
+        "200":
+          description: Feed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        title: { type: string }
+                        body: { type: string }
+                        audience: { type: string }
+                        pinned: { type: boolean }
+                        createdAt: { type: string }
+                        author: { type: string }
+
   /pta/announcements:
     get:
       operationId: listPtaAnnouncements

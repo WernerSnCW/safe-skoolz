@@ -583,6 +583,39 @@ router.post("/pta/announcements", authMiddleware, MANAGE, async (req, res): Prom
   res.status(201).json({ announcement });
 });
 
+// GET /pta/announcements/feed — read-only feed for the current user (parents
+// included). Visibility: 'all_parents' always; plus 'all_members' + their tier
+// (+ 'officers' if they hold an active office) when they're on the roster.
+router.get("/pta/announcements/feed", authMiddleware, requireRole("parent", "pta", "coordinator", "head_teacher"), async (req, res): Promise<void> => {
+  const u = user(req);
+  const audiences = new Set<string>(["all_parents"]);
+  const mem = await db.select({ id: ptaMembersTable.id, tier: ptaMembersTable.tier }).from(ptaMembersTable)
+    .where(and(eq(ptaMembersTable.schoolId, u.schoolId), eq(ptaMembersTable.userId, u.userId))).limit(1);
+  if (mem.length) {
+    audiences.add("all_members");
+    audiences.add(mem[0].tier);
+    const off = await db.select({ id: ptaOfficersTable.id }).from(ptaOfficersTable)
+      .where(and(eq(ptaOfficersTable.schoolId, u.schoolId), eq(ptaOfficersTable.memberId, mem[0].id), eq(ptaOfficersTable.active, true))).limit(1);
+    if (off.length) audiences.add("officers");
+  }
+  const rows = await db
+    .select({
+      id: ptaAnnouncementsTable.id, title: ptaAnnouncementsTable.title, body: ptaAnnouncementsTable.body,
+      audience: ptaAnnouncementsTable.audience, pinned: ptaAnnouncementsTable.pinned, createdAt: ptaAnnouncementsTable.createdAt,
+      authorFirst: usersTable.firstName, authorLast: usersTable.lastName,
+    })
+    .from(ptaAnnouncementsTable)
+    .innerJoin(usersTable, eq(usersTable.id, ptaAnnouncementsTable.createdById))
+    .where(and(eq(ptaAnnouncementsTable.schoolId, u.schoolId), inArray(ptaAnnouncementsTable.audience, [...audiences])))
+    .orderBy(desc(ptaAnnouncementsTable.pinned), desc(ptaAnnouncementsTable.createdAt));
+  res.json({
+    announcements: rows.map((a) => ({
+      id: a.id, title: a.title, body: a.body, audience: a.audience, pinned: a.pinned,
+      createdAt: a.createdAt, author: `${a.authorFirst} ${a.authorLast}`.trim(),
+    })),
+  });
+});
+
 // DELETE /pta/announcements/:id — remove an announcement.
 router.delete("/pta/announcements/:id", authMiddleware, MANAGE, async (req, res): Promise<void> => {
   const u = user(req);

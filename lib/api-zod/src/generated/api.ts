@@ -1038,6 +1038,25 @@ export const GetPtaDashboardResponse = zod.object({
 });
 
 /**
+ * @summary Announcements visible to the current user (parent feed)
+ */
+export const GetPtaAnnouncementFeedResponse = zod.object({
+  announcements: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        title: zod.string().optional(),
+        body: zod.string().optional(),
+        audience: zod.string().optional(),
+        pinned: zod.boolean().optional(),
+        createdAt: zod.string().optional(),
+        author: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
  * @summary PTA announcements (published log)
  */
 export const ListPtaAnnouncementsResponse = zod.object({

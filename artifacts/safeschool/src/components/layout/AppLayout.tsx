@@ -90,6 +90,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         { name: t("incidents"), href: "/incidents", icon: FileText },
         { name: t("behaviour"), href: "/behaviour", icon: Gauge },
         { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
+        { name: "PTA Updates", href: "/pta-updates", icon: Megaphone },
         { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
         { name: t("learn"), href: "/learn", icon: BookOpen },
         { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },

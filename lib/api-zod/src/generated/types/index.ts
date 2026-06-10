@@ -41,6 +41,8 @@ export * from "./flagPtaPolicy201";
 export * from "./flagPtaPolicyBody";
 export * from "./generatePtaReport201";
 export * from "./getLatestPtaReport200";
+export * from "./getPtaAnnouncementFeed200";
+export * from "./getPtaAnnouncementFeed200AnnouncementsItem";
 export * from "./getPtaResources200";
 export * from "./healthStatus";
 export * from "./incident";
