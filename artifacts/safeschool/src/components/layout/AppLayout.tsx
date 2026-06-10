@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { BrandLockup } from "@/components/brand/BrandLockup";
 import { 
   ShieldCheck, Home, AlertTriangle, FileText, Shield,
   Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText, Presentation
@@ -210,9 +211,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="bg-gradient-to-br from-primary to-secondary p-2 rounded-xl text-primary-foreground shadow-lg shadow-primary/20">
             <ShieldCheck size={24} strokeWidth={2.5} />
           </div>
-          <span className="font-brand text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-            vibez
-          </span>
+          <BrandLockup size="md" />
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
@@ -273,7 +272,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <header className="md:hidden glass-panel sticky top-0 z-30 px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ShieldCheck className="text-primary" size={24} />
-          <span className="font-display font-bold text-lg">safeskoolz</span>
+          <BrandLockup size="sm" />
         </div>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
