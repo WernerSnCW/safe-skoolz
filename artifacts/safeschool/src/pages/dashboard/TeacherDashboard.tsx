@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useListIncidents } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
+import { PageHeader } from "@/components/layout/PageHeader";
 import {
   AlertTriangle, FileText, TrendingUp, Users,
   BarChart3, MapPin, ArrowRight
@@ -78,12 +79,11 @@ export default function TeacherDashboard({ user }: { user: any }) {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-display font-bold">{t("welcomeBack", { name: user.firstName })}</h1>
-        <p className="text-muted-foreground mt-1">
-          {isHoY ? t("headOfYearFor", { group: scopeLabel }) : t("classTeacherFor", { group: scopeLabel })} — {t("pupilsInYourCare", { count: totalPupils })}
-        </p>
-      </div>
+      <PageHeader
+        eyebrow={isHoY ? "Head of year" : "Class teacher"}
+        title={t("welcomeBack", { name: user.firstName })}
+        subtitle={`${isHoY ? t("headOfYearFor", { group: scopeLabel }) : t("classTeacherFor", { group: scopeLabel })} — ${t("pupilsInYourCare", { count: totalPupils })}`}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link href="/report">
