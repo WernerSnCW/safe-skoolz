@@ -1026,3 +1026,22 @@ export type ConvertVoice200 = {
   voice?: ConvertVoice200Voice;
   converted?: ConvertVoice200Converted;
 };
+
+export type GetVoicePublic200 = {
+  id?: string;
+  name?: string;
+  mission?: string;
+  status?: string;
+  startedBy?: string;
+  backerCount?: number;
+};
+
+export type SupportVoiceBody = {
+  name: string;
+  email: string;
+};
+
+export type SupportVoice201 = {
+  ok?: boolean;
+  alreadyBacking?: boolean;
+};

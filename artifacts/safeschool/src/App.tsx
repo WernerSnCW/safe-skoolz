@@ -23,6 +23,7 @@ import PupilsPage from "@/pages/pupils";
 import DiagnosticPage from "@/pages/diagnostic";
 import LearningPage from "@/pages/learning";
 import SafeguardingPage from "@/pages/safeguarding";
+import VoicePublicPage from "@/pages/voice-public";
 import ResourcesPage from "@/pages/resources";
 import AboutPage from "@/pages/about";
 import ParentsJoinPta from "@/pages/parents-join-pta";
@@ -147,6 +148,7 @@ function Router() {
       <Route path="/diagnostic" component={DiagnosticPage} />
       <Route path="/learning" component={LearningPage} />
       <Route path="/safeguarding" component={SafeguardingPage} />
+      <Route path="/v/:id">{(params) => <VoicePublicPage id={params.id} />}</Route>
       {/* Ported public deep guide pages (specific routes BEFORE the catch-all). */}
       <Route path="/schools/10-day-rollout" component={Schools10DayRollout} />
       <Route path="/schools/case-study" component={SchoolsCaseStudy} />

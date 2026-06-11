@@ -51,5 +51,21 @@ export const voiceMembersTable = pgTable("voice_members", {
   unique("uq_voice_members_voice_user").on(t.voiceId, t.userId),
 ]);
 
+// Public supporters — parents who back a VOICE from the shareable public page
+// without (yet) having an account. Name + email only; lighter than a full
+// voice_member. Counts toward the VOICE's backing. Can be upgraded to a real
+// member/user later. Unique per (voice, email).
+export const voiceSupportersTable = pgTable("voice_supporters", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  voiceId: uuid("voice_id").references(() => voiceGroupsTable.id).notNull(),
+  name: varchar("name", { length: 160 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("idx_voice_supporters_voice").on(t.voiceId),
+  unique("uq_voice_supporters_voice_email").on(t.voiceId, t.email),
+]);
+
 export type VoiceGroup = typeof voiceGroupsTable.$inferSelect;
 export type VoiceMember = typeof voiceMembersTable.$inferSelect;
+export type VoiceSupporter = typeof voiceSupportersTable.$inferSelect;

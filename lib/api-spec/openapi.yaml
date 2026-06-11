@@ -1632,6 +1632,54 @@ paths:
                       backers: { type: integer }
                       added: { type: integer }
                       alreadyMembers: { type: integer }
+  /voice/{id}/public:
+    get:
+      operationId: getVoicePublic
+      tags: [voice]
+      summary: Public VOICE detail for the shareable page (no auth)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Public VOICE
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  name: { type: string }
+                  mission: { type: string }
+                  status: { type: string }
+                  startedBy: { type: string }
+                  backerCount: { type: integer }
+  /voice/{id}/support:
+    post:
+      operationId: supportVoice
+      tags: [voice]
+      summary: Add my voice — anonymous public support (no auth)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string }
+              required: [name, email]
+      responses:
+        "201":
+          description: Supported
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  alreadyBacking: { type: boolean }
 
 components:
   schemas:

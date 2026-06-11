@@ -4,6 +4,7 @@ import {
   db,
   voiceGroupsTable,
   voiceMembersTable,
+  voiceSupportersTable,
   ptaMembersTable,
   usersTable,
 } from "@workspace/db";
@@ -263,6 +264,71 @@ router.post("/voice/:id/convert", authMiddleware, CONVERT, async (req, res): Pro
 
   await writeAudit({ schoolId: u.schoolId, eventType: "voice_converted", actor: u, targetType: "voice_group", targetId: id, details: { backers: backers.length, added, alreadyMembers: backers.length - added }, req });
   res.json({ voice, converted: { backers: backers.length, added, alreadyMembers: backers.length - added } });
+});
+
+// --- Public (no auth) — the shareable VOICE page ---------------------------
+// The VOICE id is the capability (unguessable uuid); these endpoints are how a
+// VOICE link forwarded into a WhatsApp group works without a login wall.
+
+// GET /voice/:id/public — what a cold visitor sees. Name, mission, who started
+// it, status, and total backing (members + supporters). No auth, no school scope.
+router.get("/voice/:id/public", async (req, res): Promise<void> => {
+  const { id } = req.params;
+  const rows = await db
+    .select({
+      id: voiceGroupsTable.id,
+      name: voiceGroupsTable.name,
+      mission: voiceGroupsTable.mission,
+      status: voiceGroupsTable.status,
+      createdByFirst: usersTable.firstName,
+      createdByLast: usersTable.lastName,
+    })
+    .from(voiceGroupsTable)
+    .innerJoin(usersTable, eq(usersTable.id, voiceGroupsTable.createdById))
+    .where(eq(voiceGroupsTable.id, id))
+    .limit(1);
+  if (!rows.length) { res.status(404).json({ error: "VOICE not found" }); return; }
+  const g = rows[0];
+
+  const [memberCount] = await db.select({ n: sql<number>`count(*)::int` })
+    .from(voiceMembersTable).where(eq(voiceMembersTable.voiceId, id));
+  const [supporterCount] = await db.select({ n: sql<number>`count(*)::int` })
+    .from(voiceSupportersTable).where(eq(voiceSupportersTable.voiceId, id));
+
+  res.json({
+    id: g.id,
+    name: g.name,
+    mission: g.mission,
+    status: g.status,
+    startedBy: `${g.createdByFirst} ${g.createdByLast}`.trim(),
+    backerCount: (memberCount?.n ?? 0) + (supporterCount?.n ?? 0),
+  });
+});
+
+// POST /voice/:id/support — "Add my voice" from the public page. Body: { name, email }.
+// Records an anonymous supporter (no account). Idempotent per (voice, email).
+router.post("/voice/:id/support", async (req, res): Promise<void> => {
+  const { id } = req.params;
+  const { name, email } = req.body ?? {};
+
+  if (!name || typeof name !== "string" || !name.trim()) { res.status(400).json({ error: "Please add your name" }); return; }
+  if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { res.status(400).json({ error: "Please add a valid email" }); return; }
+
+  const voice = await db.select({ id: voiceGroupsTable.id, schoolId: voiceGroupsTable.schoolId, status: voiceGroupsTable.status })
+    .from(voiceGroupsTable).where(eq(voiceGroupsTable.id, id)).limit(1);
+  if (!voice.length) { res.status(404).json({ error: "VOICE not found" }); return; }
+  if (voice[0].status !== "advocating") { res.status(409).json({ error: "This VOICE is no longer gathering support" }); return; }
+
+  const cleanEmail = email.trim().toLowerCase();
+  const dupe = await db.select({ id: voiceSupportersTable.id }).from(voiceSupportersTable)
+    .where(and(eq(voiceSupportersTable.voiceId, id), eq(voiceSupportersTable.email, cleanEmail))).limit(1);
+  if (dupe.length) { res.json({ ok: true, alreadyBacking: true }); return; }
+
+  await db.insert(voiceSupportersTable).values({ voiceId: id, name: name.trim(), email: cleanEmail });
+
+  // School-scoped audit (the VOICE belongs to a school even though the backer is anon).
+  await writeAudit({ schoolId: voice[0].schoolId, eventType: "voice_supported", targetType: "voice_group", targetId: id, details: { via: "public" }, req });
+  res.status(201).json({ ok: true });
 });
 
 export default router;

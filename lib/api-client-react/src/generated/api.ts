@@ -51,6 +51,7 @@ import type {
   GetPtaAnnouncementFeed200,
   GetPtaResources200,
   GetVoice200,
+  GetVoicePublic200,
   HealthStatus,
   Incident,
   JoinVoice201,
@@ -103,6 +104,8 @@ import type {
   SubmitPtaCodesignResponse201,
   SubmitPtaCodesignResponseBody,
   SubmitPtaConcernBody,
+  SupportVoice201,
+  SupportVoiceBody,
   UpdateAlertBody,
   UpdateAvatarBody,
   UpdateIncidentStatusBody,
@@ -5938,4 +5941,178 @@ export const useConvertVoice = <
   TContext
 > => {
   return useMutation(getConvertVoiceMutationOptions(options));
+};
+
+/**
+ * @summary Public VOICE detail for the shareable page (no auth)
+ */
+export const getGetVoicePublicUrl = (id: string) => {
+  return `/api/voice/${id}/public`;
+};
+
+export const getVoicePublic = async (
+  id: string,
+  options?: RequestInit,
+): Promise<GetVoicePublic200> => {
+  return customFetch<GetVoicePublic200>(getGetVoicePublicUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetVoicePublicQueryKey = (id: string) => {
+  return [`/api/voice/${id}/public`] as const;
+};
+
+export const getGetVoicePublicQueryOptions = <
+  TData = Awaited<ReturnType<typeof getVoicePublic>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVoicePublic>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetVoicePublicQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVoicePublic>>> = ({
+    signal,
+  }) => getVoicePublic(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getVoicePublic>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetVoicePublicQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getVoicePublic>>
+>;
+export type GetVoicePublicQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Public VOICE detail for the shareable page (no auth)
+ */
+
+export function useGetVoicePublic<
+  TData = Awaited<ReturnType<typeof getVoicePublic>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVoicePublic>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetVoicePublicQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Add my voice — anonymous public support (no auth)
+ */
+export const getSupportVoiceUrl = (id: string) => {
+  return `/api/voice/${id}/support`;
+};
+
+export const supportVoice = async (
+  id: string,
+  supportVoiceBody: SupportVoiceBody,
+  options?: RequestInit,
+): Promise<SupportVoice201> => {
+  return customFetch<SupportVoice201>(getSupportVoiceUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(supportVoiceBody),
+  });
+};
+
+export const getSupportVoiceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof supportVoice>>,
+    TError,
+    { id: string; data: BodyType<SupportVoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof supportVoice>>,
+  TError,
+  { id: string; data: BodyType<SupportVoiceBody> },
+  TContext
+> => {
+  const mutationKey = ["supportVoice"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof supportVoice>>,
+    { id: string; data: BodyType<SupportVoiceBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return supportVoice(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SupportVoiceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof supportVoice>>
+>;
+export type SupportVoiceMutationBody = BodyType<SupportVoiceBody>;
+export type SupportVoiceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Add my voice — anonymous public support (no auth)
+ */
+export const useSupportVoice = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof supportVoice>>,
+    TError,
+    { id: string; data: BodyType<SupportVoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof supportVoice>>,
+  TError,
+  { id: string; data: BodyType<SupportVoiceBody> },
+  TContext
+> => {
+  return useMutation(getSupportVoiceMutationOptions(options));
 };

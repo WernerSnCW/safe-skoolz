@@ -1711,3 +1711,31 @@ export const ConvertVoiceResponse = zod.object({
     })
     .optional(),
 });
+
+/**
+ * @summary Public VOICE detail for the shareable page (no auth)
+ */
+export const GetVoicePublicParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetVoicePublicResponse = zod.object({
+  id: zod.string().optional(),
+  name: zod.string().optional(),
+  mission: zod.string().optional(),
+  status: zod.string().optional(),
+  startedBy: zod.string().optional(),
+  backerCount: zod.number().optional(),
+});
+
+/**
+ * @summary Add my voice — anonymous public support (no auth)
+ */
+export const SupportVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const SupportVoiceBody = zod.object({
+  name: zod.string(),
+  email: zod.string(),
+});

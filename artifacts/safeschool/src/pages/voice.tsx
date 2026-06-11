@@ -8,7 +8,7 @@ import {
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
-import { Megaphone, Users, Plus, Check, Crown, CheckCircle2, ArrowRightLeft } from "lucide-react";
+import { Megaphone, Users, Plus, Check, Crown, CheckCircle2, ArrowRightLeft, Share2 } from "lucide-react";
 
 // Roles that can fold a VOICE into the PTA once the school adopts VBE.
 const CONVERT_ROLES = ["pta", "coordinator", "head_teacher"];
@@ -139,6 +139,15 @@ export default function VoicePage() {
                     </div>
                   </div>
                   <div className="shrink-0 flex flex-col items-end gap-2">
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(`Back our VOICE "${v.name}" — parents asking the school to adopt VBE: ${typeof window !== "undefined" ? window.location.origin : ""}/v/${v.id}`)}`}
+                      target="_blank"
+                      rel="noopener"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                      title="Share this VOICE on WhatsApp"
+                    >
+                      <Share2 className="w-3.5 h-3.5" /> Share
+                    </a>
                     {v.myRole === "founder" ? (
                       <span className="inline-flex items-center gap-1 text-sm text-muted-foreground"><Check className="w-4 h-4 text-primary" /> Yours</span>
                     ) : v.myRole ? (
