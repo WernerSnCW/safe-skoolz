@@ -30,10 +30,18 @@ async function main() {
       lastName: "King",
       email: chairEmail,
       membershipStatus: "approved",
+    // as any: drizzle insert type lags the new columns (membershipStatus / instrument jsonb)
     } as any).returning();
     console.log("[seed-morna] created chair account (no password — use the reset-password flow to set one)");
   } else {
     console.log("[seed-morna] chair account exists");
+  }
+
+  if (chair.schoolId !== school.id) {
+    throw new Error(
+      `Chair account ${chairEmail} exists but belongs to school ${chair.schoolId}, not Morna (${school.id}). ` +
+      `Pass a different email or manually reassign the account.`,
+    );
   }
 
   const [existingSurvey] = await db.select().from(diagnosticSurveysTable)
@@ -46,6 +54,7 @@ async function main() {
       createdBy: chair.id,
       publicSlug: "morna",
       instrument: MORNA_INSTRUMENT,
+    // as any: drizzle insert type lags the new columns (membershipStatus / instrument jsonb)
     } as any);
     console.log("[seed-morna] created community survey /d/morna");
   } else {
