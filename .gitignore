@@ -51,3 +51,4 @@ Thumbs.db
 # Local dev (added during migration)
 .env
 *.replit-bak
+.superpowers/
