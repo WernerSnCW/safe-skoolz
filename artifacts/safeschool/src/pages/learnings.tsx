@@ -79,9 +79,9 @@ function ComposeForm({ onClose }: { onClose: () => void }) {
 
   if (sent) {
     return (
-      <Card className="border-green-200 dark:border-green-900/50">
+      <Card className="border-success/30">
         <CardContent className="p-8 text-center">
-          <CheckCircle2 size={48} className="mx-auto text-green-500 mb-4" />
+          <CheckCircle2 size={48} className="mx-auto text-success mb-4" />
           <h3 className="text-xl font-bold mb-2">Shared successfully!</h3>
           <p className="text-muted-foreground text-sm mb-4">
             Your post is now visible to {getAudienceLabel(audience).toLowerCase()}.

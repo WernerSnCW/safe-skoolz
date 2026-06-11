@@ -175,10 +175,10 @@ export default function ProtocolDetail() {
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               {prot.externalReferralRequired && (
-                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
-                  <p className="text-sm font-bold text-amber-700 dark:text-amber-400">{t("externalReferralRequired")}</p>
+                <div className="p-3 rounded-xl bg-warning/10 border border-warning/30">
+                  <p className="text-sm font-bold text-warning">{t("externalReferralRequired")}</p>
                   {prot.externalReferralBody && (
-                    <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">{prot.externalReferralBody}</p>
+                    <p className="text-xs text-warning mt-1">{prot.externalReferralBody}</p>
                   )}
                 </div>
               )}
@@ -236,7 +236,7 @@ export default function ProtocolDetail() {
                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">{t("riskFactors")}</h4>
                 <div className="flex flex-wrap gap-2">
                   {prot.riskFactors.map((rf: string, i: number) => (
-                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 border border-orange-200 text-orange-700 text-sm font-medium dark:bg-orange-950/20 dark:border-orange-800 dark:text-orange-400">
+                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning/10 border border-warning/30 text-warning text-sm font-medium">
                       <AlertTriangle size={12} />
                       {rf}
                     </span>
@@ -250,7 +250,7 @@ export default function ProtocolDetail() {
                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">{t("protectiveFactors")}</h4>
                 <div className="flex flex-wrap gap-2">
                   {prot.protectiveFactors.map((pf: string, i: number) => (
-                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm font-medium dark:bg-green-950/20 dark:border-green-800 dark:text-green-400">
+                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-success/10 border border-success/30 text-success text-sm font-medium">
                       <CheckCircle size={12} />
                       {pf}
                     </span>
