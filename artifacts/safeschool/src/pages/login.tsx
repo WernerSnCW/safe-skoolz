@@ -33,7 +33,7 @@ export default function Login() {
   const [_, setLocation] = useLocation();
   const { setToken } = useAuth();
   const { t } = useTranslation("login");
-  const [activeTab, setActiveTab] = useState<"pupil" | "staff" | "parent" | "pta">("pupil");
+  const [activeTab, setActiveTab] = useState<"pupil" | "staff" | "parent" | "pta">("parent");
   const staffLogin = useStaffLogin();
   const parentLogin = useParentLogin();
   const { data: schools } = useListSchools();
@@ -41,7 +41,9 @@ export default function Login() {
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [selectedStaffEmail, setSelectedStaffEmail] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Demo build: pre-fill the universal demo password so feedback-givers can just
+  // pick a name and click Log in. (All non-pupil demo accounts use this.)
+  const [password, setPassword] = useState("password123");
   const [error, setError] = useState("");
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [demoEnabled, setDemoEnabled] = useState(false);
@@ -191,12 +193,25 @@ export default function Login() {
     loadAccounts();
   }, [selectedSchoolId]);
 
+  // Demo build: auto-select the first account for the active tab so the form is
+  // ready to submit with no typing — frictionless access for feedback.
+  useEffect(() => {
+    const list =
+      activeTab === "parent" ? loginAccounts.parent
+      : activeTab === "pta" ? loginAccounts.pta
+      : activeTab === "staff" ? loginAccounts.staff
+      : [];
+    if (list.length && !list.some((a) => a.email === selectedStaffEmail)) {
+      setSelectedStaffEmail(list[0].email);
+    }
+  }, [activeTab, loginAccounts]);
+
   const [pupilStep, setPupilStep] = useState<PupilLoginStep>("school");
-  const [accessCode, setAccessCode] = useState("");
+  const [accessCode, setAccessCode] = useState("6A-RIVER");
   const [loginSessionToken, setLoginSessionToken] = useState("");
   const [profiles, setProfiles] = useState<PupilProfile[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<PupilProfile | null>(null);
-  const [pin, setPin] = useState("");
+  const [pin, setPin] = useState("1234");
   const [pupilLoading, setPupilLoading] = useState(false);
 
   useEffect(() => {

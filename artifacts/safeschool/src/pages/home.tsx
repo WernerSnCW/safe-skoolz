@@ -78,9 +78,15 @@ export default function HomePage() {
             values-led school community.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link href="/schools" className={cn(buttonVariants({ size: "lg" }))}>
-              Get the VBE Adoption Pack
+            <Link href="/login" className={cn(buttonVariants({ size: "lg" }))}>
+              Try vibez
               <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <Link
+              href="/schools"
+              className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+            >
+              Get the VBE Adoption Pack
             </Link>
             <Link
               href="/how-it-works"

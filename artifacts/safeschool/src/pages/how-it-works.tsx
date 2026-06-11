@@ -1075,7 +1075,7 @@ const REPORT_AUDIENCES: ReportAudience[] = [
         icon: Shield,
         frequency: "Termly",
         mockup: [
-          { type: "notification", content: "Morna International College \u2014 Term 2 Safeguarding Update", color: "blue" },
+          { type: "notification", content: "Riverside School \u2014 Term 2 Safeguarding Update", color: "blue" },
           { type: "chart", content: "Incidents this term: 47 (down 18%) \u2022 Resolved: 94% \u2022 Avg resolution: 8 days" },
           { type: "badge", content: "Climate survey: 89% of pupils completed. Key finding: reporting trust needs improvement.", color: "amber" },
           { type: "badge", content: "Action taken: New safe adult ambassador programme launched. Lunchtime supervision increased.", color: "green" },

@@ -229,7 +229,7 @@ function PupilGuides() {
     <div className="space-y-3">
       <GuideSection title="How to log in" icon={Key} color="bg-warning/10 text-warning">
         <div className="space-y-3">
-          <Step number={1} title="Select your school">Pick "Morna" from the school dropdown.</Step>
+          <Step number={1} title="Select your school">Pick "Riverside School" from the school dropdown.</Step>
           <Step number={2} title="Find your name">Click "My Name" and look for your name in the list. You'll see your animal avatar next to it.</Step>
           <Step number={3} title="Enter your secret PIN">Type in the 4-digit PIN your teacher gave you. Keep it secret — don't share it with anyone.</Step>
           <Step number={4} title="Press Sign In">You're in! You'll see your dashboard with quick actions.</Step>
