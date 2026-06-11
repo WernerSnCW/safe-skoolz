@@ -339,5 +339,158 @@
         "benefit": "Aprende a tu propio ritmo."
       }
     ]
+  },
+  "journeyButton": "Sigue el viaje VBE",
+  "journey": {
+    "parent": [
+      {
+        "title": "Empieza contigo",
+        "description": "Este es tu inicio como familia: registrarse es gratis y lleva un minuto. Aquí ves el mundo de tu hijo: lecciones, bienestar, mensajes y todo lo que el colegio comparte contigo. Pero vibez también es donde las familias cambian colegios — y ese viaje empieza a un clic.",
+        "benefit": "Basta una familia con una petición clara para empezar."
+      },
+      {
+        "title": "Crea una VOICE",
+        "description": "Una VOICE es un colectivo de familias con una misión: pedir al colegio que adopte la Educación Basada en Valores. Ponle nombre y misión — tú eres quien la funda. Sin comités, sin reuniones, sin pedir permiso.",
+        "benefit": "La preocupación dispersa se convierte en una petición clara y respetuosa."
+      },
+      {
+        "title": "Construye tu coalición",
+        "description": "Cada VOICE tiene una página pública pensada para compartir. Pulsa Compartir y deja el enlace en el grupo de WhatsApp de la clase: las familias añaden su nombre y correo para respaldar la misión, sin iniciar sesión. Mira cómo el contador de apoyos se convierte en tu mandato.",
+        "benefit": "Diez apoyos son una conversación. Cincuenta, un mandato."
+      },
+      {
+        "title": "Demuéstralo con datos",
+        "description": "Respalda la petición con evidencia. Los diagnósticos miden cómo se siente realmente la comunidad — bienestar, pertenencia, valores — para que la conversación con el colegio empiece desde datos, no anécdotas.",
+        "benefit": "Los colegios se mueven con evidencia. Llévala contigo."
+      },
+      {
+        "title": "Prepara lo que el colegio necesita",
+        "description": "Todo lo que el colegio necesita para decir sí ya está preparado: el Pack de Adopción VBE, informes para el equipo directivo, materiales docentes y guías de despliegue — todo gratis en el Centro de Recursos. No les pides inventar nada; les entregas un plan.",
+        "benefit": "Haz que el sí sea la respuesta fácil."
+      },
+      {
+        "title": "El AMPA lo lleva adelante",
+        "description": "Cuando el colegio adopta, tu VOICE se integra en el AMPA: fundadores y apoyos se convierten en miembros. El AMPA celebra votaciones abiertas, registra decisiones y publica anuncios que puedes seguir desde aquí.",
+        "benefit": "Tu petición se convierte en una voz organizada y permanente."
+      },
+      {
+        "title": "El colegio lo vive",
+        "description": "Aquí aterriza el viaje: lecciones basadas en valores que el alumnado realmente cursa, diarios de bienestar, un comportamiento que refleja los valores y herramientas de protección por debajo. De la voz de una familia a un colegio que vive sus valores: ese es el viaje completo.",
+        "benefit": "Un cambio que llega a cada aula y a cada niño."
+      }
+    ],
+    "coordinator": [
+      {
+        "title": "Llega la petición",
+        "description": "Estás en el asiento del colegio. Cuando las familias organizan una VOICE, la petición llega aquí: visible, respetuosa y respaldada con nombres. Este recorrido sigue lo que pasa cuando un colegio dice sí.",
+        "benefit": "La energía de las familias llega organizada, no dispersa."
+      },
+      {
+        "title": "Mira el mandato",
+        "description": "Cada VOICE muestra su misión y sus apoyos — familias y simpatizantes públicos que firmaron con su nombre. No reaccionas a una queja; respondes a una petición organizada y constructiva.",
+        "benefit": "Sabes exactamente quién pide y para qué."
+      },
+      {
+        "title": "Mide antes de moverte",
+        "description": "Ejecuta los diagnósticos para ver dónde está realmente la comunidad — bienestar, pertenencia, valores. Adopta VBE desde la evidencia y tendrás una línea base para demostrar el progreso después.",
+        "benefit": "Una línea base hoy es la prueba del progreso mañana."
+      },
+      {
+        "title": "Prepara el despliegue",
+        "description": "El Centro de Recursos contiene el Pack de Adopción VBE completo: informes directivos, materiales docentes, cartas a familias y un plan de 10 días. Gratis, listo y ya escrito.",
+        "benefit": "Adoptar es recoger un plan, no inventar un proyecto."
+      },
+      {
+        "title": "Llévalo a las aulas",
+        "description": "El centro de aprendizaje ofrece lecciones PSHE basadas en valores que el profesorado presenta directamente — con cuestionarios y progreso por alumno. Tu piloto de 1º de ESO está en marcha aquí mismo.",
+        "benefit": "Valores enseñados como conducta observable, lección a lección."
+      },
+      {
+        "title": "Dale dientes a la cultura",
+        "description": "Una cultura de valores sigue necesitando protección. Informes, alertas de patrones, protocolos formales y tareas de caso — todo conectado, todo registrado. Mira cómo los informes se vuelven patrones y los patrones, protocolos.",
+        "benefit": "Nada se escapa; todo es auditable."
+      },
+      {
+        "title": "Sostenlo",
+        "description": "De vuelta en tu panel, todo el colegio es una sola imagen: informes, alertas, protocolos, comportamiento, bienestar. Eso es VBE operativo — adoptado con evidencia, enseñado en las aulas, protegido por procesos.",
+        "benefit": "Una pantalla te dice que la cultura se sostiene."
+      }
+    ],
+    "teacher": [
+      {
+        "title": "Tu punto de partida",
+        "description": "Tu inicio destaca lo que el profesorado de verdad necesita: registrar algo rápido y enseñar los valores. Este recorrido sigue el despliegue VBE desde tu asiento.",
+        "benefit": "Menos gestión, más enseñanza."
+      },
+      {
+        "title": "Imparte las lecciones",
+        "description": "Lecciones PSHE basadas en valores, listas para presentar — ganchos, diapositivas, cuestionarios. Elige la siguiente para tu clase y preséntala en la pizarra.",
+        "benefit": "Una lección completa en la mano, cero preparación."
+      },
+      {
+        "title": "Conoce a tu clase",
+        "description": "Todo el alumnado en un solo lugar — señales de bienestar, comportamiento, incidentes en los que aparecen. El niño completo, no solo lo último que pasó.",
+        "benefit": "Detecta a los callados antes de que desaparezcan."
+      },
+      {
+        "title": "El comportamiento como feedback",
+        "description": "Los puntos reflejan los valores del colegio, con niveles que activan la conversación adecuada en el momento adecuado — y las familias ven la misma imagen que tú.",
+        "benefit": "Coherente, transparente y nunca una sorpresa."
+      },
+      {
+        "title": "Cuando algo ocurre",
+        "description": "Registra un incidente en unos sesenta segundos. Llega a las personas adecuadas, se une a cualquier patrón existente, y listo.",
+        "benefit": "Sesenta segundos y está en las manos correctas."
+      }
+    ],
+    "pupil": [
+      {
+        "title": "Tu espacio",
+        "description": "Esto es tuyo: cómo te sientes, qué aprendes y una forma de alzar la voz si algo va mal. El recorrido te lo enseña.",
+        "benefit": "El cole, pero que de verdad escucha."
+      },
+      {
+        "title": "Tus lecciones",
+        "description": "Lecciones sobre cosas reales — el sueño, los amigos, internet, el dinero — con cuestionarios rápidos. Tu progreso se guarda solo.",
+        "benefit": "Cosas que de verdad vas a usar."
+      },
+      {
+        "title": "Tu diario",
+        "description": "Apunta cómo fue el día. Es privado: solo tú y los adultos que cuidan de ti — y les ayuda a notar cuando algo no va bien.",
+        "benefit": "Un sitio donde dejar el día."
+      },
+      {
+        "title": "Alza la voz",
+        "description": "Si algo va mal — para ti o para otra persona — dilo aquí. Puedes mantenerte en el anonimato y una persona real lo revisará.",
+        "benefit": "Decir algo aquí siempre es seguro."
+      }
+    ],
+    "pta": [
+      {
+        "title": "El asiento del AMPA",
+        "description": "Cuando una VOICE gana y el colegio adopta, el AMPA lleva el cambio. Este es el hogar operativo: miembros, decisiones, votaciones y anuncios en un solo lugar.",
+        "benefit": "Un AMPA organizado se gana la confianza del colegio."
+      },
+      {
+        "title": "De VOICE a membresía",
+        "description": "Las VOICE convertidas integran a sus apoyos directamente en el AMPA — fundadores al grupo senior, miembros a la membresía general. La energía que ganó la petición no se evapora; se suma.",
+        "benefit": "El impulso se convierte en membresía."
+      },
+      {
+        "title": "Organiza el cambio",
+        "description": "Las iniciativas convierten la misión en proyectos con responsables y fechas objetivo — cada una vinculada a la VOICE de la que nació.",
+        "benefit": "De 'alguien debería' a 'alguien lo está haciendo'."
+      },
+      {
+        "title": "Decide en abierto",
+        "description": "Votaciones formales con quórum, delegaciones y un voto por miembro. Las decisiones se toman, se registran y resisten el escrutinio.",
+        "benefit": "El silencio no es aceptación — los votos son votos."
+      },
+      {
+        "title": "Mantén a las familias al tanto",
+        "description": "Los anuncios llegan exactamente a quien deben — todas las familias, miembros u oficiales. El círculo que empezó con el enlace de una familia sigue abierto.",
+        "benefit": "Nadie pregunta '¿qué pasó con aquello?' dos veces."
+      }
+    ]
   }
 }

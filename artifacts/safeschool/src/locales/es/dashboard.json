@@ -64,7 +64,7 @@
   "somethingHappened": "Algo pasó y estoy molesto/a",
   "worriedAboutFriend": "Estoy preocupado/a por un amigo/a",
   "someoneHurtingMe": "Alguien me está haciendo daño",
-  "justLettingYouKnow": "Solo quiero informar",
+  "justLettingYouKnow": "Solo informo",
   "needHelpSoon": "Necesito ayuda pronto",
   "needHelpNow": "Necesito ayuda ahora",
   "iNeedHelpNow": "¡Necesito ayuda AHORA!",
@@ -83,7 +83,6 @@
   "yourTutor": "Tu tutor/a",
   "quickPhrases": "Frases rápidas",
   "myMessages": "Mis mensajes",
-  "justLettingYouKnow": "Solo informo",
   "classTeacherFor": "Tutor/a de {{group}}",
   "headOfYearFor": "Jefe/a de año de {{group}}",
   "recentIncidents": "Incidentes recientes",
@@ -103,5 +102,7 @@
   "safeguardingConcern": "Preocupación de protección",
   "welfare": "Bienestar",
   "adminTileTitle": "Resumen de cumplimiento",
-  "adminTileDescription": "Políticas, permisos, marcos y responsable de datos"
+  "adminTileDescription": "Políticas, permisos, marcos y responsable de datos",
+  "followJourney": "Sigue el viaje VBE",
+  "journeyDesc": "De la voz de una familia a un colegio que vive sus valores"
 }

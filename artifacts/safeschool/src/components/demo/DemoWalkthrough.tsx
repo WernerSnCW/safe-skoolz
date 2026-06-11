@@ -16,11 +16,16 @@ interface DemoStep {
   position?: "center" | "sidebar" | "top";
 }
 
+type TourKind = "features" | "journey";
+
 interface DemoContextType {
   isActive: boolean;
+  tourKind: TourKind;
   currentStep: number;
   totalSteps: number;
   startDemo: () => void;
+  startJourney: () => void;
+  hasJourney: boolean;
   stopDemo: () => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -29,9 +34,12 @@ interface DemoContextType {
 
 const DemoContext = createContext<DemoContextType>({
   isActive: false,
+  tourKind: "features",
   currentStep: 0,
   totalSteps: 0,
   startDemo: () => {},
+  startJourney: () => {},
+  hasJourney: false,
   stopDemo: () => {},
   nextStep: () => {},
   prevStep: () => {},
@@ -44,6 +52,9 @@ interface RawStep {
   page: string;
   navKey?: string;
   navKeyHeadOfYear?: string;
+  // Literal sidebar label to highlight (for nav items that aren't in the nav
+  // i18n namespace, e.g. "Parent VOICE").
+  navLabel?: string;
 }
 
 const STEPS: Record<string, RawStep[]> = {
@@ -124,6 +135,51 @@ const STEPS: Record<string, RawStep[]> = {
   ],
 };
 
+// The end-to-end VBE journey — sign up → create a VOICE → build a coalition →
+// diagnostics → prepare the pack → roll out to school, teachers, and pupils —
+// told from each role's seat using real, seeded screens. Roles without a
+// journey variant (senco, default) only get the features tour.
+const JOURNEY: Partial<Record<keyof typeof STEPS, RawStep[]>> = {
+  parent: [
+    { page: "/" },
+    { page: "/voice", navLabel: "Parent VOICE" },
+    { page: "/voice", navLabel: "Parent VOICE" },
+    { page: "/diagnostics", navKey: "diagnostic" },
+    { page: "/resources-hub" },
+    { page: "/pta-updates" },
+    { page: "/education", navKey: "learn" },
+  ],
+  coordinator: [
+    { page: "/" },
+    { page: "/voice", navLabel: "Parent VOICE" },
+    { page: "/diagnostics", navKey: "diagnostic" },
+    { page: "/resources-hub" },
+    { page: "/education", navKey: "learn" },
+    { page: "/incidents", navKey: "incidents" },
+    { page: "/" },
+  ],
+  teacher: [
+    { page: "/" },
+    { page: "/education", navKey: "learn" },
+    { page: "/class", navKey: "myClass", navKeyHeadOfYear: "myYearGroup" },
+    { page: "/behaviour", navKey: "behaviour" },
+    { page: "/report", navKey: "logIncident" },
+  ],
+  pupil: [
+    { page: "/" },
+    { page: "/education", navKey: "learn" },
+    { page: "/diary", navKey: "myDiary" },
+    { page: "/report", navKey: "reportIncident" },
+  ],
+  pta: [
+    { page: "/pta", navKey: "ptaDashboard" },
+    { page: "/voice", navLabel: "Parent VOICE" },
+    { page: "/pta/initiatives" },
+    { page: "/pta/voting" },
+    { page: "/pta/announcements" },
+  ],
+};
+
 function roleGroup(role: string): keyof typeof STEPS {
   if (role === "pupil") return "pupil";
   if (role === "parent") return "parent";
@@ -134,18 +190,19 @@ function roleGroup(role: string): keyof typeof STEPS {
   return "default";
 }
 
-function buildSteps(role: string, t: TFunction): DemoStep[] {
+function buildSteps(role: string, t: TFunction, kind: TourKind): DemoStep[] {
   const group = roleGroup(role);
-  const rawSteps = STEPS[group];
+  const rawSteps = kind === "journey" ? JOURNEY[group] ?? [] : STEPS[group];
+  const keyRoot = kind === "journey" ? "journey" : "steps";
   return rawSteps.map((raw, i) => {
     const useHoy = group === "teacher" && role === "head_of_year" && raw.navKeyHeadOfYear;
     const navKey = useHoy ? raw.navKeyHeadOfYear : raw.navKey;
     return {
       page: raw.page,
-      navHighlight: navKey ? (t(navKey, { ns: "nav" }) as string) : undefined,
-      title: t(`steps.${group}.${i}.title`, { ns: "tour" }) as string,
-      description: t(`steps.${group}.${i}.description`, { ns: "tour" }) as string,
-      benefit: t(`steps.${group}.${i}.benefit`, { ns: "tour" }) as string,
+      navHighlight: raw.navLabel ?? (navKey ? (t(navKey, { ns: "nav" }) as string) : undefined),
+      title: t(`${keyRoot}.${group}.${i}.title`, { ns: "tour" }) as string,
+      description: t(`${keyRoot}.${group}.${i}.description`, { ns: "tour" }) as string,
+      benefit: t(`${keyRoot}.${group}.${i}.benefit`, { ns: "tour" }) as string,
     };
   });
 }
@@ -155,20 +212,31 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
   const { t, i18n } = useTranslation(["tour", "nav"]);
   const [, setLocation] = useLocation();
   const [isActive, setIsActive] = useState(false);
+  const [tourKind, setTourKind] = useState<TourKind>("features");
   const [currentStep, setCurrentStep] = useState(0);
   const steps = useMemo(
-    () => (user ? buildSteps(user.role, t) : []),
+    () => (user ? buildSteps(user.role, t, tourKind) : []),
     // re-resolve when language changes too
-    [user, t, i18n.language],
+    [user, t, i18n.language, tourKind],
+  );
+  const hasJourney = useMemo(
+    () => (user ? (JOURNEY[roleGroup(user.role)] ?? []).length > 0 : false),
+    [user],
   );
 
-  const startDemo = useCallback(() => {
-    setCurrentStep(0);
-    setIsActive(true);
-    if (steps.length > 0) {
-      setLocation(steps[0].page);
-    }
-  }, [steps, setLocation]);
+  const startTour = useCallback(
+    (kind: TourKind) => {
+      const first = user ? buildSteps(user.role, t, kind)[0] : undefined;
+      setTourKind(kind);
+      setCurrentStep(0);
+      setIsActive(true);
+      if (first) setLocation(first.page);
+    },
+    [user, t, setLocation],
+  );
+
+  const startDemo = useCallback(() => startTour("features"), [startTour]);
+  const startJourney = useCallback(() => startTour("journey"), [startTour]);
 
   const stopDemo = useCallback(() => {
     setIsActive(false);
@@ -227,9 +295,12 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     <DemoContext.Provider
       value={{
         isActive,
+        tourKind,
         currentStep,
         totalSteps: steps.length,
         startDemo,
+        startJourney,
+        hasJourney,
         stopDemo,
         nextStep,
         prevStep,
@@ -359,6 +430,25 @@ export function DemoOverlay() {
         </div>
       </motion.div>
     </>
+  );
+}
+
+export function StartJourneyButton({ className }: { className?: string }) {
+  const { startJourney, hasJourney } = useDemo();
+  const { user } = useAuth();
+  const { t } = useTranslation("tour");
+  if (!user || !hasJourney) return null;
+
+  return (
+    <Button
+      onClick={startJourney}
+      size="lg"
+      variant="outline"
+      className={`gap-2 ${className || ""}`}
+    >
+      <Play size={18} />
+      {t("journeyButton", { defaultValue: "Follow the VBE journey" }) as string}
+    </Button>
   );
 }
 

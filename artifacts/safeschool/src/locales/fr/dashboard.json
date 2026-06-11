@@ -93,5 +93,7 @@
   "safeguardingConcern": "Préoccupation de protection",
   "welfare": "Bien-être",
   "adminTileTitle": "Vue d'ensemble de la conformité",
-  "adminTileDescription": "Politiques, permissions, cadres et responsable de traitement"
+  "adminTileDescription": "Politiques, permissions, cadres et responsable de traitement",
+  "followJourney": "Suivez le parcours VBE",
+  "journeyDesc": "De la voix d'un parent à une école qui vit ses valeurs"
 }

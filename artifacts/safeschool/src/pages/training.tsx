@@ -7,7 +7,7 @@ import {
   ChevronRight, CheckCircle2, Monitor, BookOpen, Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { StartDemoButton } from "@/components/demo/DemoWalkthrough";
+import { StartDemoButton, StartJourneyButton } from "@/components/demo/DemoWalkthrough";
 
 const MODULE_IDS = [
   "loggingIncident",
@@ -561,8 +561,9 @@ export default function TrainingPage() {
           {isParent && "Everything you need to know about using vibez as a parent"}
           {isStaff && "Step-by-step training guide for all vibez features"}
         </p>
-        <div className="mt-4">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
           <StartDemoButton />
+          <StartJourneyButton />
         </div>
       </div>
 

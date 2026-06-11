@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui-polished";
-import { Play } from "lucide-react";
+import { Play, Route } from "lucide-react";
 import { useDemo } from "@/components/demo/DemoWalkthrough";
 import PupilDashboard from "./dashboard/PupilDashboard";
 import CoordinatorDashboardView from "./dashboard/CoordinatorDashboard";
@@ -23,21 +23,41 @@ function PtaDashboardRedirect() {
 
 function DemoTourBanner() {
   const { t } = useTranslation("dashboard");
-  const { startDemo, isActive } = useDemo();
+  const { startDemo, startJourney, hasJourney, isActive } = useDemo();
   if (isActive) return null;
   return (
-    <button
-      onClick={startDemo}
-      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/5 border border-primary/20 hover:bg-primary/10 hover:border-primary/30 transition-all group mb-6"
-    >
-      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
-        <Play size={16} className="fill-primary/20 group-hover:fill-white/20" />
-      </div>
-      <div className="text-left flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground">{t("takeGuidedTour")}</p>
-        <p className="text-xs text-muted-foreground">{t("guidedTourDesc")}</p>
-      </div>
-    </button>
+    <div className="flex flex-col sm:flex-row gap-2 mb-6">
+      <button
+        onClick={startDemo}
+        className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/5 border border-primary/20 hover:bg-primary/10 hover:border-primary/30 transition-all group"
+      >
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+          <Play size={16} className="fill-primary/20 group-hover:fill-white/20" />
+        </div>
+        <div className="text-left flex-1 min-w-0">
+          <p className="text-sm font-semibold text-foreground">{t("takeGuidedTour")}</p>
+          <p className="text-xs text-muted-foreground">{t("guidedTourDesc")}</p>
+        </div>
+      </button>
+      {hasJourney && (
+        <button
+          onClick={startJourney}
+          className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/5 border border-primary/20 hover:bg-primary/10 hover:border-primary/30 transition-all group"
+        >
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+            <Route size={16} />
+          </div>
+          <div className="text-left flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">
+              {t("followJourney", { defaultValue: "Follow the VBE journey" })}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t("journeyDesc", { defaultValue: "From one parent's voice to a whole school living its values" })}
+            </p>
+          </div>
+        </button>
+      )}
+    </div>
   );
 }
 
