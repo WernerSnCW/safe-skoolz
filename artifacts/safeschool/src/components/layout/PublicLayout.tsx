@@ -29,8 +29,11 @@ const FOOTER: { heading: string; links: { label: string; href: string }[] }[] = 
     ],
   },
   {
-    heading: "Resources",
+    heading: "Tools & resources",
     links: [
+      { label: "VBE readiness diagnostic", href: "/diagnostic" },
+      { label: "The learning centre", href: "/learning" },
+      { label: "Safeguarding & reporting", href: "/safeguarding" },
       { label: "Free resources", href: "/resources" },
       { label: "Illustrative case study", href: "/schools/case-study" },
       { label: "About", href: "/about" },
@@ -59,9 +62,17 @@ export function PublicLayout({ children }: { children: ReactNode }) {
               </Link>
             ))}
           </nav>
-          <Link href="/login" className={cn(buttonVariants({ size: "sm" }))}>
-            Log in
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline"
+            >
+              Log in
+            </Link>
+            <Link href="/login" className={cn(buttonVariants({ size: "sm" }))}>
+              Try vibez
+            </Link>
+          </div>
         </div>
       </header>
 

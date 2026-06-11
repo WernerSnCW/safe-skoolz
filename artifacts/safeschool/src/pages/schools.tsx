@@ -40,7 +40,7 @@ const TRACK: {
     icon: ClipboardCheck,
     title: "Is VBE Right for Your School?",
     body: "A short, structured diagnostic that maps your community against VBE readiness indicators.",
-    href: "/diagnostics",
+    href: "/diagnostic",
   },
   {
     icon: CalendarDays,
@@ -92,7 +92,7 @@ export default function SchoolsPage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
-              href="/diagnostics"
+              href="/diagnostic"
               className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
             >
               Run the diagnostic first

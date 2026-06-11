@@ -27,7 +27,7 @@ const STEPS: {
     lead: "See where your community stands.",
     body: "Before you commit to anything, run the free readiness diagnostic. Pupils, staff and parents each answer role-appropriate questions, and you get a clear report on how ready your community is for values-based education.",
     does: "vibez runs the survey, protects anonymity, and turns the responses into a readiness picture you can act on.",
-    cta: { label: "Run the diagnostic", href: "/diagnostics" },
+    cta: { label: "Run the diagnostic", href: "/diagnostic" },
   },
   {
     n: 2,
@@ -45,7 +45,7 @@ const STEPS: {
     lead: "Values lived every day — not a poster on the wall.",
     body: "Your values run through PSHE and lessons, through how behaviour is recognised and addressed, and through the everyday life of the school. The framework becomes the shared language pupils, staff and parents actually use.",
     does: "vibez carries your values into ready-to-teach lessons, behaviour tracking, and the tools staff use day to day.",
-    cta: { label: "See the learning tools", href: "/lessons" },
+    cta: { label: "See the learning tools", href: "/learning" },
   },
   {
     n: 4,
