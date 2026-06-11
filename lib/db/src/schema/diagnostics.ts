@@ -9,6 +9,7 @@ export const diagnosticSurveysTable = pgTable("diagnostic_surveys", {
   // Public community diagnostics (spec §4.2): when publicSlug is set the survey
   // is reachable without auth at /d/:slug. instrument holds the question set as
   // data; releasedAt is the exec's release switch (results invisible until set).
+  // instrument shape: Array<{key, section, text, type: "scale"|"text", options?: string[], optional?: boolean}>
   publicSlug: varchar("public_slug", { length: 60 }).unique(),
   instrument: jsonb("instrument"),
   releasedAt: timestamp("released_at", { withTimezone: true }),
@@ -61,17 +62,19 @@ export const diagnosticSubmissionsTable = pgTable("diagnostic_submissions", {
   id: uuid("id").defaultRandom().primaryKey(),
   surveyId: uuid("survey_id").notNull().references(() => diagnosticSurveysTable.id),
   email: varchar("email", { length: 255 }).notNull(),
-  emailHash: varchar("email_hash", { length: 64 }).notNull(),
+  emailHash: varchar("email_hash", { length: 64 }).notNull(), // SHA-256 hex of the normalised (lowercased, trimmed) email
   name: varchar("name", { length: 150 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index("idx_diag_submissions_survey").on(t.surveyId),
-  unique("uq_diag_submissions_survey_email").on(t.surveyId, t.emailHash),
+  index("idx_diagnostic_submissions_survey").on(t.surveyId),
+  unique("uq_diagnostic_submissions_survey_email").on(t.surveyId, t.emailHash),
 ]);
 
 // Answers — UNLINKABLE BY DESIGN (spec §4.2): no FK to the submission. The
 // random responseId exists only here and on the meta row, grouping one
 // respondent's answers for aggregation without ever touching their identity.
+// WARNING: do not add a FK from responseId to diagnostic_submissions — it
+// would defeat the unlinkability guarantee and is a privacy regression.
 export const diagnosticAnswersTable = pgTable("diagnostic_answers", {
   id: uuid("id").defaultRandom().primaryKey(),
   surveyId: uuid("survey_id").notNull().references(() => diagnosticSurveysTable.id),
@@ -81,8 +84,8 @@ export const diagnosticAnswersTable = pgTable("diagnostic_answers", {
   freeText: text("free_text"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index("idx_diag_answers_survey_q").on(t.surveyId, t.questionKey),
-  index("idx_diag_answers_response").on(t.surveyId, t.responseId),
+  index("idx_diagnostic_answers_survey_q").on(t.surveyId, t.questionKey),
+  index("idx_diagnostic_answers_response").on(t.surveyId, t.responseId),
 ]);
 
 // Optional demographics per anonymous response (year-group segmentation).
@@ -92,8 +95,9 @@ export const diagnosticResponseMetaTable = pgTable("diagnostic_response_meta", {
   responseId: uuid("response_id").notNull().unique(),
   yearGroup: varchar("year_group", { length: 20 }),
   classOrTeacher: varchar("class_or_teacher", { length: 80 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index("idx_diag_meta_survey_year").on(t.surveyId, t.yearGroup),
+  index("idx_diagnostic_response_meta_survey_year").on(t.surveyId, t.yearGroup),
 ]);
 
 export type DiagnosticSubmission = typeof diagnosticSubmissionsTable.$inferSelect;
