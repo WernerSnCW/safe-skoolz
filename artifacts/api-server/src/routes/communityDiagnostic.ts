@@ -42,6 +42,7 @@ router.get("/d/:slug", async (req, res): Promise<void> => {
   });
 });
 
+// POST /d/:slug/submit — email-gated, rate-limited, stores answers unlinkably (spec §4.2).
 const submitLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 20,
