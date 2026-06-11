@@ -55,6 +55,7 @@ import AuditPage from "@/pages/audit";
 import AdminPage from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 import ResourceCentre from "@/pages/resource-centre";
+import HowVbeWorks from "@/pages/how-vbe-works";
 
 const queryClient = new QueryClient();
 
@@ -124,7 +125,8 @@ function Router() {
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
-      <Route path="/how-it-works" component={HowItWorksPage} />
+      <Route path="/how-it-works/safeguarding" component={HowItWorksPage} />
+      <Route path="/how-it-works" component={HowVbeWorks} />
       <Route path="/schools" component={SchoolsPage} />
       <Route path="/parents" component={ParentsPage} />
       <Route path="/ptas" component={PtasPage} />

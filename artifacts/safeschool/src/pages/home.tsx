@@ -86,7 +86,7 @@ export default function HomePage() {
               href="/how-it-works"
               className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
             >
-              See vibez in action
+              See how it works
             </Link>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function HomePage() {
               href="/how-it-works"
               className="inline-flex items-center rounded-xl border-2 border-primary-foreground/40 px-7 py-3 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/10"
             >
-              See vibez in action
+              See how it works
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </div>
