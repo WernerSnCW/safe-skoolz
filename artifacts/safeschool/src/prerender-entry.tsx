@@ -8,6 +8,11 @@ import PtasPage from "@/pages/ptas";
 import CoalitionsPage from "@/pages/coalitions";
 import ResourcesPage from "@/pages/resources";
 import AboutPage from "@/pages/about";
+import ParentsJoinPta from "@/pages/parents-join-pta";
+import PtasOperatingPack from "@/pages/ptas-operating-pack";
+import PtasSchoolEngagement from "@/pages/ptas-school-engagement";
+import Schools10DayRollout from "@/pages/schools-10-day-rollout";
+import SchoolsCaseStudy from "@/pages/schools-case-study";
 
 // SSR entry for the build-time prerender step (driven by ../prerender.mjs via
 // Vite's ssrLoadModule). Each public marketing route renders to static HTML so
@@ -22,6 +27,11 @@ export const PUBLIC_ROUTES: string[] = [
   "/coalitions",
   "/resources",
   "/about",
+  "/schools/10-day-rollout",
+  "/schools/case-study",
+  "/parents/join-pta",
+  "/ptas/operating-pack",
+  "/ptas/school-engagement",
 ];
 
 const ROUTE_COMPONENTS: Record<string, ComponentType> = {
@@ -32,6 +42,11 @@ const ROUTE_COMPONENTS: Record<string, ComponentType> = {
   "/coalitions": CoalitionsPage,
   "/resources": ResourcesPage,
   "/about": AboutPage,
+  "/schools/10-day-rollout": Schools10DayRollout,
+  "/schools/case-study": SchoolsCaseStudy,
+  "/parents/join-pta": ParentsJoinPta,
+  "/ptas/operating-pack": PtasOperatingPack,
+  "/ptas/school-engagement": PtasSchoolEngagement,
 };
 
 export function renderRoute(route: string): string {

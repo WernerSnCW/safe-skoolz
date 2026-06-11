@@ -20,6 +20,11 @@ import PtasPage from "@/pages/ptas";
 import CoalitionsPage from "@/pages/coalitions";
 import ResourcesPage from "@/pages/resources";
 import AboutPage from "@/pages/about";
+import ParentsJoinPta from "@/pages/parents-join-pta";
+import PtasOperatingPack from "@/pages/ptas-operating-pack";
+import PtasSchoolEngagement from "@/pages/ptas-school-engagement";
+import Schools10DayRollout from "@/pages/schools-10-day-rollout";
+import SchoolsCaseStudy from "@/pages/schools-case-study";
 import Dashboard from "@/pages/dashboard";
 import ReportIncident from "@/pages/report-incident";
 import IncidentsList from "@/pages/incidents";
@@ -132,9 +137,15 @@ function Router() {
       <Route path="/parents" component={ParentsPage} />
       <Route path="/ptas" component={PtasPage} />
       <Route path="/coalitions" component={CoalitionsPage} />
-      {/* Safety net: public deep guides aren't ported yet — fall back to the
-          section page instead of a hard 404. Add specific routes ABOVE these
-          when the real deep pages land. */}
+      {/* Ported public deep guide pages (specific routes BEFORE the catch-all). */}
+      <Route path="/schools/10-day-rollout" component={Schools10DayRollout} />
+      <Route path="/schools/case-study" component={SchoolsCaseStudy} />
+      <Route path="/parents/join-pta" component={ParentsJoinPta} />
+      <Route path="/ptas/operating-pack" component={PtasOperatingPack} />
+      <Route path="/ptas/school-engagement" component={PtasSchoolEngagement} />
+      {/* Safety net: remaining public deep guides aren't ported yet — fall back
+          to the section page instead of a hard 404. Add specific routes ABOVE
+          these when the real deep pages land. */}
       <Route path="/schools/:slug">{() => <Redirect to="/schools" />}</Route>
       <Route path="/parents/:slug">{() => <Redirect to="/parents" />}</Route>
       <Route path="/ptas/:slug">{() => <Redirect to="/ptas" />}</Route>
