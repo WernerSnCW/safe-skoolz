@@ -9,6 +9,7 @@
     "seed-compliance": "tsx ./src/seed-compliance.ts",
     "seed-demo": "tsx ./src/seed-demo.ts",
     "seed-demo-content": "tsx ./src/seed-demo-content.ts",
+    "seed-morna": "tsx ./src/seed-morna.ts",
     "seed-history": "tsx ./src/seed-history.ts",
     "seed-full": "tsx ./src/seed-full.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
