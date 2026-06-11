@@ -6,6 +6,10 @@ import { useGetCoordinatorDashboard } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-polished";
 import { Button } from "@/components/ui-polished";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
+import { useMessageNotifications } from "@/hooks/useMessageNotifications";
+import { MessageCircle } from "lucide-react";
 import {
   AlertTriangle, ShieldAlert, FileText, Activity,
   TrendingUp, BarChart3, PieChart as PieChartIcon, Eye,
@@ -25,6 +29,8 @@ export default function CoordinatorDashboardView() {
   const { user } = useAuth();
   const canManageReports = ["coordinator", "head_teacher"].includes(user?.role || "");
   const { data, isLoading } = useGetCoordinatorDashboard();
+  const { totalUnread: messageUnread } = useMessageNotifications();
+  const roleLabel = user?.role === "head_teacher" ? "Head teacher" : user?.role === "senco" ? "SENCO" : "Coordinator";
 
   const CATEGORY_LABELS: Record<string, string> = {
     bullying: t("categoryBullying"),
@@ -150,13 +156,36 @@ export default function CoordinatorDashboardView() {
   const topPerpetrators = analytics?.topPerpetrators || [];
   const escalationData = analytics?.byEscalationTier || [];
 
+  const digest: DigestItem[] = [];
+  if (messageUnread > 0) {
+    digest.push({
+      id: "messages", icon: MessageCircle, tone: "info",
+      title: t("newMessagesCount", { count: messageUnread, defaultValue: `${messageUnread} new messages` }),
+      href: "/messages", unread: true,
+    });
+  }
+  if ((analytics?.safeguardingCount || 0) > 0) {
+    digest.push({
+      id: "safeguarding", icon: AlertTriangle, tone: "destructive",
+      title: t("safeguardingNeedAttention", { count: analytics.safeguardingCount, defaultValue: `${analytics.safeguardingCount} safeguarding concerns` }),
+      detail: t("reviewIncidents", { defaultValue: "Review incidents" }),
+      href: "/incidents",
+    });
+  } else if ((data?.reportsThisMonth || 0) > 0) {
+    digest.push({
+      id: "reports", icon: FileText, tone: "info",
+      title: t("reportsThisMonthCount", { count: data.reportsThisMonth, defaultValue: `${data.reportsThisMonth} reports this month` }),
+      href: "/incidents",
+    });
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-display font-bold">{t("dashboard")}</h1>
-          <p className="text-muted-foreground mt-1">{t("safeguardingOverview")}</p>
-        </div>
+      <PageHeader
+        eyebrow={roleLabel}
+        title={t("welcomeBack", { name: user?.firstName, defaultValue: "Welcome back" })}
+        subtitle={t("safeguardingOverview")}
+        action={
         <div className="flex gap-1 bg-muted p-1 rounded-xl" role="tablist" aria-label="Dashboard view">
           <button
             role="tab"
@@ -188,7 +217,14 @@ export default function CoordinatorDashboardView() {
             </button>
           )}
         </div>
-      </div>
+        }
+      />
+
+      <WhatsNewBand
+        items={digest}
+        heading={t("sinceLastHere", { defaultValue: "Since you were last here" })}
+        emptyLabel={t("allCaughtUp", { defaultValue: "You're all caught up." })}
+      />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
