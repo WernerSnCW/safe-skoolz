@@ -1,4 +1,5 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -287,6 +288,19 @@ function Router() {
   );
 }
 
+// Reset scroll to the top on client-side route changes — SPA navigation keeps
+// the previous scroll position, so without this a click in the footer lands you
+// at the bottom of the next page. Anchor links (#…) are left alone.
+function ScrollToTop() {
+  const [location] = useLocation();
+  useEffect(() => {
+    if (typeof window !== "undefined" && !window.location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, [location]);
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -294,6 +308,7 @@ function App() {
         <AuthProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <DemoProvider>
+              <ScrollToTop />
               <Router />
               <DemoOverlay />
             </DemoProvider>

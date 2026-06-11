@@ -1,7 +1,8 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { Link } from "wouter";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Menu, X } from "lucide-react";
 
 // Public marketing shell (SchoolVBE — the free community funnel). Distinct from
 // the authed AppLayout: no sidebar, no auth dependency, SSR-safe (no window /
@@ -14,6 +15,15 @@ const NAV: { label: string; href: string }[] = [
   { label: "For parents", href: "/parents" },
   { label: "For PTAs", href: "/ptas" },
   { label: "For pupils", href: "/pupils" },
+];
+
+// Key tools surfaced in the mobile burger so phone visitors can reach them from
+// the top, not just the footer.
+const MOBILE_TOOLS: { label: string; href: string }[] = [
+  { label: "VBE readiness diagnostic", href: "/diagnostic" },
+  { label: "The learning centre", href: "/learning" },
+  { label: "Safeguarding & reporting", href: "/safeguarding" },
+  { label: "Free resources", href: "/resources" },
 ];
 
 const FOOTER: { heading: string; links: { label: string; href: string }[] }[] = [
@@ -46,6 +56,7 @@ const FOOTER: { heading: string; links: { label: string; href: string }[] }[] = 
 ];
 
 export function PublicLayout({ children }: { children: ReactNode }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
@@ -72,8 +83,58 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <Link href="/login" className={cn(buttonVariants({ size: "sm" }))}>
               Try vibez
             </Link>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((o) => !o)}
+              className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+            >
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
         </div>
+
+        {menuOpen && (
+          <div className="border-t border-border/60 bg-background md:hidden">
+            <nav className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
+              <div className="flex flex-col gap-1">
+                {NAV.map((n) => (
+                  <Link
+                    key={n.href}
+                    href={n.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-muted"
+                  >
+                    {n.label}
+                  </Link>
+                ))}
+              </div>
+              <p className="mb-1 mt-4 px-2 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+                Tools
+              </p>
+              <div className="flex flex-col gap-1">
+                {MOBILE_TOOLS.map((n) => (
+                  <Link
+                    key={n.href}
+                    href={n.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-md px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    {n.label}
+                  </Link>
+                ))}
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-md px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  Log in
+                </Link>
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main className="flex-1">{children}</main>
