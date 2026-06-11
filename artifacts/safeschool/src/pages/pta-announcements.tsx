@@ -49,7 +49,7 @@ export default function PtaAnnouncements() {
         </p>
       </header>
 
-      {err && <div className="rounded-md border border-red-300 bg-red-50 text-red-700 text-sm px-3 py-2">{err}</div>}
+      {err && <div className="rounded-md border border-destructive/30 bg-destructive/10 text-destructive text-sm px-3 py-2">{err}</div>}
 
       {/* Compose */}
       <Card>
@@ -93,7 +93,7 @@ export default function PtaAnnouncements() {
                   <p className="text-xs text-muted-foreground mt-2">{a.author} · {fmt(a.createdAt)}</p>
                 </div>
                 <Button size="sm" variant="ghost" onClick={() => run(() => del.mutateAsync({ id: a.id }))}>
-                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>
             </CardContent>

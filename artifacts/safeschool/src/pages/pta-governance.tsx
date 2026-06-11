@@ -77,7 +77,7 @@ export default function PtaGovernance() {
       </header>
 
       {err && (
-        <div className="rounded-md border border-red-300 bg-red-50 text-red-700 text-sm px-3 py-2">{err}</div>
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 text-destructive text-sm px-3 py-2">{err}</div>
       )}
 
       {/* Officers */}
@@ -205,7 +205,7 @@ export default function PtaGovernance() {
                                 <Crown className="w-3.5 h-3.5 mr-1" /> Appoint
                               </Button>
                               <Button size="sm" variant="ghost" onClick={() => run(() => removeMember.mutateAsync({ id: m.id }))}>
-                                <Trash2 className="w-4 h-4 text-red-500" />
+                                <Trash2 className="w-4 h-4 text-destructive" />
                               </Button>
                             </>
                           )}

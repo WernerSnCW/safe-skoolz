@@ -172,28 +172,28 @@ function PtaDashboardTab() {
           value={data.incidentsThisTerm ?? 0}
           subtitle={`${trend >= 0 ? "+" : ""}${trendPct}% ${t("vsLastTerm")}`}
           icon={AlertTriangle}
-          color={trend > 0 ? "text-amber-600" : "text-green-600"}
+          color={trend > 0 ? "text-warning" : "text-success"}
         />
         <KpiCard
           title={t("openProtocols")}
           value={data.protocols.open ?? 0}
           subtitle={`${data.protocols.closedThisTerm ?? 0} ${t("closedThisTerm")}`}
           icon={Shield}
-          color="text-blue-600"
+          color="text-info"
         />
         <KpiCard
           title={t("amberAlerts")}
           value={data.alerts.amber ?? 0}
           subtitle={`${data.alerts.resolvedThisTerm ?? 0} ${t("resolvedThisTerm")}`}
           icon={Activity}
-          color="text-amber-600"
+          color="text-warning"
         />
         <KpiCard
           title={t("redAlerts")}
           value={data.alerts.red ?? 0}
           subtitle={t("immediateResponse")}
           icon={AlertTriangle}
-          color="text-red-600"
+          color="text-destructive"
         />
       </div>
 
@@ -548,7 +548,7 @@ function PtaPolicyTab() {
           <ul className="space-y-2">
             {(policy.sections ?? []).map((s: string, i: number) => (
               <li key={i} className="flex items-start gap-2 text-sm">
-                <CheckCircle2 size={16} className="text-green-600 mt-0.5 shrink-0" />
+                <CheckCircle2 size={16} className="text-success mt-0.5 shrink-0" />
                 <span>{s}</span>
               </li>
             ))}
@@ -569,7 +569,7 @@ function PtaPolicyTab() {
           </div>
 
           {showFlagForm && (
-            <div className="mt-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+            <div className="mt-4 p-4 rounded-xl bg-warning/10 border border-warning/30">
               <p className="text-sm font-medium mb-2">{t("raiseDisagreement")}</p>
               <textarea
                 value={flagComment}
@@ -595,9 +595,9 @@ function PtaPolicyTab() {
               {acks.map((a: any) => (
                 <div key={a.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
                   {a.actionType === "acknowledge" ? (
-                    <CheckCircle2 size={16} className="text-green-600" />
+                    <CheckCircle2 size={16} className="text-success" />
                   ) : (
-                    <Flag size={16} className="text-amber-600" />
+                    <Flag size={16} className="text-warning" />
                   )}
                   <div className="flex-1">
                     <p className="text-sm font-medium">
@@ -654,7 +654,7 @@ function PtaReportTab() {
             <FileText size={18} /> {t("annualSafeguardingReport")} — {report.academicYear}
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            Status: <span className="font-medium text-green-600">{report.status}</span>
+            Status: <span className="font-medium text-success">{report.status}</span>
             {report.approvedAt && ` | Approved: ${new Date(report.approvedAt).toLocaleDateString()}`}
           </p>
         </CardHeader>

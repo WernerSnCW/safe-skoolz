@@ -61,7 +61,7 @@ export default function PtaVoting() {
         </p>
       </header>
 
-      {err && <div className="rounded-md border border-red-300 bg-red-50 text-red-700 text-sm px-3 py-2">{err}</div>}
+      {err && <div className="rounded-md border border-destructive/30 bg-destructive/10 text-destructive text-sm px-3 py-2">{err}</div>}
 
       {/* My proxy */}
       <Card>
@@ -134,9 +134,9 @@ export default function PtaVoting() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${open ? "bg-amber-100 text-amber-700" : "bg-slate-200 text-slate-600"}`}>{b.status}</span>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${open ? "bg-warning/15 text-warning" : "bg-slate-200 text-slate-600"}`}>{b.status}</span>
                       {b.quorum != null && (
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${b.quorumMet ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${b.quorumMet ? "bg-success/15 text-success" : "bg-slate-100 text-slate-500"}`}>
                           Quorum {b.totalVotes}/{b.quorum} {b.quorumMet ? "✓" : ""}
                         </span>
                       )}
@@ -169,7 +169,7 @@ export default function PtaVoting() {
                 {open && isMember && (
                   <div className="mt-3 border-t border-border pt-3 space-y-2">
                     {b.myVote ? (
-                      <p className="text-sm text-green-700 flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> You voted: <span className="font-medium">{b.myVote}</span></p>
+                      <p className="text-sm text-success flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> You voted: <span className="font-medium">{b.myVote}</span></p>
                     ) : (
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-mono uppercase tracking-wide text-muted-foreground">Cast your vote:</span>
