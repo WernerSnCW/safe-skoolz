@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -129,6 +129,13 @@ function Router() {
       <Route path="/parents" component={ParentsPage} />
       <Route path="/ptas" component={PtasPage} />
       <Route path="/coalitions" component={CoalitionsPage} />
+      {/* Safety net: public deep guides aren't ported yet — fall back to the
+          section page instead of a hard 404. Add specific routes ABOVE these
+          when the real deep pages land. */}
+      <Route path="/schools/:slug">{() => <Redirect to="/schools" />}</Route>
+      <Route path="/parents/:slug">{() => <Redirect to="/parents" />}</Route>
+      <Route path="/ptas/:slug">{() => <Redirect to="/ptas" />}</Route>
+      <Route path="/coalitions/:slug">{() => <Redirect to="/coalitions" />}</Route>
       <Route path="/resources" component={ResourcesPage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/">
