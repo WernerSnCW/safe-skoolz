@@ -207,10 +207,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 glass-panel fixed h-full z-20 border-r border-border/50">
-        <div className="p-6 flex items-center gap-3 border-b border-border/50">
-          <div className="bg-gradient-to-br from-primary to-secondary p-2 rounded-xl text-primary-foreground shadow-lg shadow-primary/20">
-            <ShieldCheck size={24} strokeWidth={2.5} />
-          </div>
+        <div className="p-6 flex items-center border-b border-border/50">
           <BrandLockup size="md" />
         </div>
 
@@ -270,10 +267,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Mobile Header */}
       <header className="md:hidden glass-panel sticky top-0 z-30 px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="text-primary" size={24} />
-          <BrandLockup size="sm" />
-        </div>
+        <BrandLockup size="sm" />
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="p-2 text-foreground"
