@@ -30,7 +30,7 @@ A second framing matters on the diagnostic page itself: **this is the start of t
 ## 3. The funnel (seven stages, each a real screen)
 
 1. **The Classlist post** — one stable link, `<app-domain>/d/morna`. Never changes.
-2. **The public diagnostic page** (no login) — "How is Morna really doing?", run by the Morna PTA. Value framing up front: answers anonymised; results shared with every participant when released; *starting the record now means parents can track reported bullying and school responses over time*. Live counter: "47 Morna families have taken part." ~12–15 questions (Likert + one open question) drawn from the existing instruments.
+2. **The public diagnostic page** (no login) — "How is Morna really doing?", run by the Morna PTA. Value framing up front: answers anonymised; results shared with every participant when released; *starting the record now means parents can track reported bullying and school responses over time*. Live counter: "47 Morna families have taken part." ~12–18 questions (Likert + one open question) structured around the **six recurring patterns** (§4.5).
 3. **Submit — email-gated** — email required (one submission per email, hashed for dedupe), name optional, **year group and class/teacher optional** (enables results by year group). Counter ticks: "You're counted — #48." Answers and demographics are stored unlinked from identity.
 4. **Sign up to see the results** — emailed set-your-password link (reuses the password-reset token machinery); completing it verifies the email and creates the account. Promise: you'll see the results when the PTA releases them, and you'll be notified.
 5. **Admin approval → anonymity choice** — an exec member approves each member (real-parents-only). On approval the member chooses **named** or **anonymous to other parents**.
@@ -75,6 +75,21 @@ The loop: diagnostic → counted → signed up → approved → sees value → s
   - the **five-stage school process**: `schoolStage` (`none` / `idea` / `presented` / `accepted` / `rejected` / `planning` / `delivering` / `delivered`) with a stage-history log recording dates, written outcomes, and the **reason on rejection**; `responseDueAt` with **non-response recorded as a first-class state** and follow-ups tracked — "silence is not acceptance" as a tracked state, not a slogan.
 - The "prepare questions for the school" need is served by initiatives in the idea/presented stages plus the decision log — no separate entity in v1.
 
+### 4.5 The instrument: six recurring patterns
+
+The survey is anchored to the six recurring patterns from the community diagnosis (Values Working Paper / wellness hub) — so the released results map one-to-one onto the values proposal the PTA presents to the school:
+
+| # | Pattern | Survey measures |
+|---|---|---|
+| 01 | **Coordinated group conduct** — group harm with a less-visible ringleader; plausible deniability | Whether the child has experienced/witnessed group-based targeting; whether staff identified it |
+| 02 | **Sophisticated social exclusion** — signals, silences, social micro-behaviours rather than visible acts | Experienced/witnessed deliberate exclusion; whether it was recognised by adults |
+| 03 | **Status-based targeting** — wealth and possessions as vectors for harm | Experienced/witnessed status-based cruelty (money, clothes, possessions) |
+| 04 | **Age-inappropriate conduct** — behaviours imported from outside school | Exposure to age-inappropriate conduct; whether expectations feel clear |
+| 05 | **Bystander passivity** — witnessing harm and saying nothing | Whether the child has witnessed harm without intervening / felt unable to speak up |
+| 06 | **Isolation in a transient community** — arriving knowing no one; losing friends when families leave | Whether the child has been isolated; how arrival/inclusion is handled |
+
+Per pattern: 1–2 prevalence items (experienced / witnessed, frequency) plus a **school-response item** (was it reported? what happened?). Cross-cutting items: overall belonging, confidence in the school's response, **conflict-vs-bullying** (does the parent feel the school distinguishes a power-imbalanced, one-directional situation from an equal-power conflict — mis-treating bullying as conflict re-victimises the targeted child), and one open question. Final wording drafted from the existing instruments and reviewed by Tom before the link goes out (§8).
+
 ## 5. Deployment & environments
 
 - **Production**: always-on Node host + managed Postgres (candidate: Railway or Render + Neon; final pick in the implementation plan), stable domain, `RESEND_API_KEY` configured so signup/notification emails send. Seeded with **Morna only**: school row + slug, the five exec officers, the charter, the diagnostic instrument. Zero demo content.
@@ -100,7 +115,7 @@ M1 ships the shareable link early; M2–M3 land behind it while the first respon
 
 ## 8. Open items (for the implementation plan)
 
-- Final instrument wording — drafted from the Morna wellness hub + prevalence survey instruments; Tom reviews the question set before the link goes out.
+- Final instrument wording — drafted per §4.5 (six patterns + cross-cutting items) from the Morna wellness hub + prevalence survey instruments; Tom reviews the question set before the link goes out.
 - Host and domain choice (Railway vs Render vs Fly; which domain the link lives on).
 - Submission counter threshold display (counter is public from zero; no unlock threshold — release is exec-controlled).
 - Whether the charter acknowledgement requires all five officers or a quorum to activate the claim.
