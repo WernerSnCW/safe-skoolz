@@ -54,9 +54,9 @@ function ConversationList({ onSelect, selectedId }: { onSelect: (id: string) => 
               <span className="text-[10px] text-muted-foreground shrink-0">{formatDate(conv.lastMessageAt)}</span>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {conv.lastMessageType === "urgent_help" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400">{t("urgent")}</span>}
+              {conv.lastMessageType === "urgent_help" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-destructive/15 text-destructive">{t("urgent")}</span>}
               {conv.lastMessageType === "chat_request" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">{t("chatReq")}</span>}
-              {conv.lastMessagePriority === "important" && conv.lastMessageType === "message" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">{t("important")}</span>}
+              {conv.lastMessagePriority === "important" && conv.lastMessageType === "message" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-warning/15 text-warning">{t("important")}</span>}
               <p className="text-xs text-muted-foreground truncate">
                 {conv.lastMessageIsFromMe ? t("you") : ""}{conv.lastMessage}
               </p>
@@ -140,11 +140,11 @@ function ConversationThread({ contactId }: { contactId: string }) {
               m.isFromMe
                 ? "bg-primary text-primary-foreground rounded-br-md"
                 : m.type === "urgent_help"
-                  ? "bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-200 rounded-bl-md border border-red-200 dark:border-red-800"
+                  ? "bg-destructive/15 text-destructive rounded-bl-md border border-destructive/30"
                   : m.type === "chat_request"
-                    ? "bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-200 rounded-bl-md border border-blue-200 dark:border-blue-800"
+                    ? "bg-info/15 text-info rounded-bl-md border border-info/30"
                     : m.priority === "important"
-                      ? "bg-amber-50 dark:bg-amber-950/20 text-foreground rounded-bl-md border border-amber-200 dark:border-amber-800"
+                      ? "bg-warning/10 text-foreground rounded-bl-md border border-warning/30"
                       : "bg-muted text-foreground rounded-bl-md"
             }`}>
               {m.type === "urgent_help" && (
@@ -336,18 +336,18 @@ function ChildEmergencyAlerts() {
   };
 
   return (
-    <Card className="border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 mb-6">
-      <CardHeader className="border-b border-red-200/50 dark:border-red-800/50 bg-red-50 dark:bg-red-950/30 pb-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+    <Card className="border-destructive/30 bg-destructive/10 mb-6">
+      <CardHeader className="border-b border-destructive/30 bg-destructive/10 pb-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2 text-red-700 dark:text-red-400">
+          <CardTitle className="text-lg flex items-center gap-2 text-destructive">
             <ShieldAlert size={20} />
             {t("emergencyAlerts")} ({alerts.length})
           </CardTitle>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 dark:text-red-400">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
             {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </Button>
         </div>
-        <p className="text-sm text-red-600/80 dark:text-red-400/80 mt-1">
+        <p className="text-sm text-destructive/80 mt-1">
           {t("urgentHelpRequests")}
         </p>
       </CardHeader>
@@ -363,12 +363,12 @@ function ChildEmergencyAlerts() {
               {alerts.map((alert: any) => (
                 <div
                   key={alert.id}
-                  className="bg-white dark:bg-gray-900 border border-red-200/50 dark:border-red-800/30 rounded-xl p-4 space-y-2"
+                  className="bg-white dark:bg-gray-900 border border-destructive/30 rounded-xl p-4 space-y-2"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-red-100 dark:bg-red-950/50 rounded-full flex items-center justify-center">
-                        <Zap size={14} className="text-red-600 dark:text-red-400" />
+                      <div className="w-8 h-8 bg-destructive/15 rounded-full flex items-center justify-center">
+                        <Zap size={14} className="text-destructive" />
                       </div>
                       <div>
                         <p className="font-bold text-sm">{alert.childName}</p>
@@ -379,7 +379,7 @@ function ChildEmergencyAlerts() {
                     </div>
                     <span className="text-[10px] text-muted-foreground whitespace-nowrap">{formatDateTime(alert.createdAt)}</span>
                   </div>
-                  <p className="text-sm bg-red-50 dark:bg-red-950/20 rounded-lg p-3 text-red-800 dark:text-red-200 border border-red-100 dark:border-red-900/50">
+                  <p className="text-sm bg-destructive/10 rounded-lg p-3 text-destructive border border-destructive/30">
                     "{alert.body}"
                   </p>
                   {alert.location && (

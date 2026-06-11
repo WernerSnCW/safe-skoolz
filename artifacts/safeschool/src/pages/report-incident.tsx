@@ -675,15 +675,15 @@ export default function ReportIncident() {
 
         {guidance && (
           <>
-            <Card className={`border-2 ${guidance.severity === "critical" ? "border-red-300 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20" : "border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20"}`}>
+            <Card className={`border-2 ${guidance.severity === "critical" ? "border-destructive/40 bg-destructive/10" : "border-warning/40 bg-warning/10"}`}>
               <CardContent className="p-6">
                 <div className="flex items-start gap-3 mb-4">
-                  <div className={`p-2 rounded-xl ${guidance.severity === "critical" ? "bg-red-100 dark:bg-red-900/40 text-red-600" : "bg-amber-100 dark:bg-amber-900/40 text-amber-600"}`}>
+                  <div className={`p-2 rounded-xl ${guidance.severity === "critical" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
                     <AlertTriangle size={24} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${guidance.severity === "critical" ? "bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200" : "bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200"}`}>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${guidance.severity === "critical" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"}`}>
                         Tier {guidance.tier} &mdash; {guidance.severity === "critical" ? "CRITICAL" : "SERIOUS"}
                       </span>
                       <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
@@ -727,16 +727,16 @@ export default function ReportIncident() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-red-200 dark:border-red-900">
+            <Card className="border-2 border-destructive/30">
               <CardContent className="p-6">
-                <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-red-600 dark:text-red-400">
+                <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-destructive">
                   <AlertTriangle size={20} />
                   Do NOT
                 </h3>
                 <ul className="space-y-2">
                   {guidance.doNots.map((d: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-sm">
-                      <span className="text-red-500 mt-0.5 shrink-0">&times;</span>
+                      <span className="text-destructive mt-0.5 shrink-0">&times;</span>
                       <span>{d}</span>
                     </li>
                   ))}
@@ -770,8 +770,8 @@ export default function ReportIncident() {
                   </h4>
                   <p className="text-sm text-muted-foreground mb-3">{guidance.legalBasis}</p>
                   {guidance.externalReferral?.required && (
-                    <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
-                      <p className="text-xs font-bold text-red-700 dark:text-red-400">
+                    <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/30">
+                      <p className="text-xs font-bold text-destructive">
                         Mandatory external referral: {guidance.externalReferral.body}
                       </p>
                     </div>
