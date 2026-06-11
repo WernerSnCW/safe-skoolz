@@ -47,9 +47,9 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
   ];
 
   const PRIORITY_OPTIONS = [
-    { id: "normal", label: t("justLettingYouKnow"), color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400", icon: MessageCircle },
-    { id: "important", label: t("needHelpSoon"), color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400", icon: AlertTriangle },
-    { id: "urgent", label: t("needHelpNow"), color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400", icon: Zap },
+    { id: "normal", label: t("justLettingYouKnow"), color: "bg-success/15 text-success", icon: MessageCircle },
+    { id: "important", label: t("needHelpSoon"), color: "bg-warning/15 text-warning", icon: AlertTriangle },
+    { id: "urgent", label: t("needHelpNow"), color: "bg-destructive/15 text-destructive", icon: Zap },
   ];
 
   const { data: messages } = useQuery<any[]>({
@@ -153,9 +153,9 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
                   m.isFromMe
                     ? "bg-primary text-primary-foreground rounded-br-md"
                     : m.priority === "urgent" || m.type === "urgent_help"
-                      ? "bg-red-100 text-red-800 dark:bg-red-950/30 dark:text-red-200 rounded-bl-md border border-red-200 dark:border-red-800"
+                      ? "bg-destructive/15 text-destructive rounded-bl-md border border-destructive/30"
                       : m.priority === "important"
-                        ? "bg-amber-50 text-foreground dark:bg-amber-950/20 rounded-bl-md border border-amber-200 dark:border-amber-800"
+                        ? "bg-warning/10 text-foreground rounded-bl-md border border-warning/30"
                         : "bg-muted text-foreground rounded-bl-md"
                 }`}>
                   {!m.isFromMe && (m.priority === "urgent" || m.type === "urgent_help") && (
@@ -226,7 +226,7 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
                           type="button"
                           onClick={() => setLocation(loc.id)}
                           className={`px-1.5 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${
-                            location === loc.id ? "bg-red-100 border-red-300 text-red-700 dark:bg-red-950/30 dark:text-red-400" : "bg-background border-border text-muted-foreground hover:bg-muted"
+                            location === loc.id ? "bg-destructive/15 border-destructive/40 text-destructive" : "bg-background border-border text-muted-foreground hover:bg-muted"
                           }`}
                         >
                           {loc.label}
@@ -345,8 +345,8 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-background rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
-          <div className="w-20 h-20 bg-green-100 dark:bg-green-950/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 size={40} className="text-green-600" />
+          <div className="w-20 h-20 bg-success/15 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 size={40} className="text-success" />
           </div>
           <h3 className="text-2xl font-bold mb-2">{t("helpOnTheWay")}</h3>
           <p className="text-muted-foreground mb-6">
@@ -367,11 +367,11 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-red-100 dark:bg-red-950/30 rounded-full flex items-center justify-center">
-              <Zap size={24} className="text-red-600" />
+            <div className="w-12 h-12 bg-destructive/15 rounded-full flex items-center justify-center">
+              <Zap size={24} className="text-destructive" />
             </div>
             <div>
-              <p className="text-lg font-bold text-red-700 dark:text-red-400">{t("iNeedHelpNow")}</p>
+              <p className="text-lg font-bold text-destructive">{t("iNeedHelpNow")}</p>
               <p className="text-xs text-muted-foreground">{t("alertTeachersImmediately")}</p>
             </div>
           </div>
@@ -387,7 +387,7 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
                 type="button"
                 onClick={() => setLocation(loc.id)}
                 className={`px-2 py-2 rounded-lg text-xs font-bold transition-all border ${
-                  location === loc.id ? "bg-red-100 border-red-300 text-red-700 dark:bg-red-950/30 dark:text-red-400" : "bg-muted/30 border-border text-muted-foreground"
+                  location === loc.id ? "bg-destructive/15 border-destructive/40 text-destructive" : "bg-muted/30 border-border text-muted-foreground"
                 }`}
               >
                 {loc.label}
@@ -402,26 +402,26 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={2}
-            className="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm focus-visible:outline-none focus-visible:border-red-400 focus-visible:ring-4 focus-visible:ring-red-100 transition-all resize-none"
+            className="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm focus-visible:outline-none focus-visible:border-destructive focus-visible:ring-4 focus-visible:ring-destructive/20 transition-all resize-none"
             placeholder={t("tellUsWhatsHappening")}
           />
         </div>
 
         {sendError && (
-          <div className="mb-3 p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm font-medium">
+          <div className="mb-3 p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-sm font-medium">
             {t("alertCouldNotBeSent")}
           </div>
         )}
 
         {targets.length === 0 ? (
-          <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-sm font-medium text-center">
+          <div className="p-4 rounded-xl bg-warning/10 border border-warning/30 text-warning text-sm font-medium text-center">
             {t("noContactsAvailable")}
           </div>
         ) : (
           <Button
             onClick={() => sendMutation.mutate()}
             disabled={sendMutation.isPending}
-            className="w-full bg-red-600 hover:bg-red-700 text-white"
+            className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             size="lg"
           >
             {sendMutation.isPending ? t("sendingAlert") : t("sendUrgentAlert")}
@@ -469,9 +469,9 @@ function PupilMyMessages({ user, totalUnread }: { user: any; totalUnread: number
                     <span className="text-xs font-bold">
                       {m.isFromMe ? `You \u2192 ${m.recipientName}` : `${m.senderName} \u2192 You`}
                     </span>
-                    {m.priority === "urgent" && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400">URGENT</span>}
-                    {m.priority === "important" && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">IMPORTANT</span>}
-                    {m.type === "chat_request" && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">CHAT REQUEST</span>}
+                    {m.priority === "urgent" && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-destructive/15 text-destructive">URGENT</span>}
+                    {m.priority === "important" && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-warning/15 text-warning">IMPORTANT</span>}
+                    {m.type === "chat_request" && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-info/15 text-info">CHAT REQUEST</span>}
                   </div>
                   <p className="text-sm text-foreground mt-1 line-clamp-2">{m.body}</p>
                   <p className="text-xs text-muted-foreground mt-1">{formatDate(m.createdAt)}</p>
@@ -605,7 +605,7 @@ export default function PupilDashboard({ user }: { user: any }) {
                       {c.firstName?.charAt(0)}
                     </div>
                     {unread > 0 && (
-                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold ring-2 ring-background">
+                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold ring-2 ring-background">
                         {unread > 9 ? "9+" : unread}
                       </span>
                     )}
@@ -625,14 +625,14 @@ export default function PupilDashboard({ user }: { user: any }) {
       <button
         type="button"
         onClick={() => setShowUrgentHelp(true)}
-        className="w-full flex items-center justify-center gap-3 p-5 md:p-6 rounded-2xl bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 hover:border-red-400 hover:bg-red-100 dark:hover:bg-red-950/30 shadow-sm hover:shadow-md transition-all group"
+        className="w-full flex items-center justify-center gap-3 p-5 md:p-6 rounded-2xl bg-destructive/10 border-2 border-destructive/30 hover:border-destructive/50 hover:bg-destructive/15 shadow-sm hover:shadow-md transition-all group"
       >
-        <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-red-600/30 group-hover:scale-105 transition-transform">
+        <div className="w-12 h-12 bg-destructive rounded-2xl flex items-center justify-center text-destructive-foreground shadow-md shadow-destructive/30 group-hover:scale-105 transition-transform">
           <Zap size={24} />
         </div>
         <div className="text-left">
-          <p className="font-bold text-red-700 dark:text-red-400 text-lg">{t("dashboard:iNeedHelpNow")}</p>
-          <p className="text-sm text-red-600/70 dark:text-red-400/70 leading-relaxed">{t("dashboard:sendUrgentAlertToTeachers")}</p>
+          <p className="font-bold text-destructive text-lg">{t("dashboard:iNeedHelpNow")}</p>
+          <p className="text-sm text-destructive/70 leading-relaxed">{t("dashboard:sendUrgentAlertToTeachers")}</p>
         </div>
       </button>
 
@@ -643,7 +643,7 @@ export default function PupilDashboard({ user }: { user: any }) {
           unchanged. */}
       <Card className="rounded-2xl border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors">
         <CardContent className="p-4 md:p-5 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-warning/15 flex items-center justify-center text-warning shrink-0">
             <MessageSquareWarning size={20} aria-hidden="true" />
           </div>
           <div className="flex-1 min-w-0">
