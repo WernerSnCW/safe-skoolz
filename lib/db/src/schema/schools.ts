@@ -5,6 +5,9 @@ import { z } from "zod/v4";
 export const schoolsTable = pgTable("schools", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
+  // URL-safe identifier for public school pages (e.g. /d/morna). Nullable —
+  // only schools with public surfaces need one.
+  slug: varchar("slug", { length: 60 }).unique(),
   legalEntity: varchar("legal_entity", { length: 255 }),
   cif: varchar("cif", { length: 20 }),
   address: text("address"),
