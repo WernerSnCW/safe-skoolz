@@ -232,12 +232,12 @@ const CLUSTERS: Cluster[] = [
     docs: [
       {
         title: "Spain / Balearics: Regulatory Briefing — LOPIVI + Convivèxit",
-        body: "For British international schools operating under Spanish jurisdiction, specifically the Balearic Islands coexistence protocol (Decree 121/2010). School obligations, incident classification, mandatory referral timelines, statutory annex requirements.",
+        body: "For international schools operating under Spanish jurisdiction, specifically the Balearic Islands coexistence protocol (Decree 121/2010). School obligations, incident classification, mandatory referral timelines, statutory annex requirements.",
         status: { label: "SPAIN ONLY" },
       },
       {
         title: "UK: Regulatory Briefing — KCSiE",
-        body: "For British international schools using the UK framework as their safeguarding standard. DSL obligations, safer recruitment, online safety, and Part 1 staff guidance (current edition).",
+        body: "For international schools using the UK framework as their safeguarding standard. DSL obligations, safer recruitment, online safety, and Part 1 staff guidance (current edition).",
         status: { label: "UK ONLY" },
       },
       {

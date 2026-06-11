@@ -74,10 +74,11 @@ export default function AboutPage() {
       <section className="mx-auto max-w-4xl px-4 pb-16 sm:px-6">
         <h2 className="font-display text-2xl font-bold text-foreground">Who we serve</h2>
         <p className="mt-4 text-lg text-muted-foreground">
-          We work with the British international school world: schools, parents, and PTAs operating
-          in a context with its own distinct pressures — internationally mobile families,
-          affluence-related disengagement, overlapping regulatory frameworks, third-culture
-          children seeking belonging, and the reputation fragility of small expat communities.
+          We support schools, parents, and PTAs adopting values-based education — including the
+          international-school world, which carries its own distinct pressures: internationally
+          mobile families, affluence-related disengagement, overlapping regulatory frameworks,
+          third-culture children seeking belonging, and the reputation fragility of small expat
+          communities.
         </p>
         <p className="mt-4 text-lg text-muted-foreground">
           These dynamics are why a deliberate, shared, actionable set of values matters so much

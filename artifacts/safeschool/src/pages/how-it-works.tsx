@@ -1281,7 +1281,7 @@ export default function HowItWorksPage() {
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 relative">
         <Link
           href="/admin"
-          className="absolute top-8 right-4 sm:top-12 sm:right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-600 text-white text-xs sm:text-sm font-bold shadow-md hover:bg-teal-700 transition-colors z-10"
+          className="absolute top-8 right-4 sm:top-12 sm:right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md hover:bg-primary/90 transition-colors z-10"
         >
           <ShieldCheck size={14} />
           Admin
@@ -1290,14 +1290,12 @@ export default function HowItWorksPage() {
           <Link href="/login" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-6">
             <ArrowLeft size={14} /> Back to login
           </Link>
-          <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-br from-primary to-primary/80 p-4 rounded-2xl shadow-lg">
-              <ShieldCheck size={40} className="text-white" />
-            </div>
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-display font-bold mb-3">How vibez works</h1>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary mb-3">vibez in action · safeguarding</p>
+          <h1 className="text-4xl sm:text-5xl font-display font-bold mb-3">See the safeguarding side of vibez</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
-            Follow Sofia's story through the actual platform &mdash; see every screen, every alert, every action that protects a child.
+            vibez is the software behind values-based education &mdash; supporting schools, parents and PTAs.
+            This walkthrough follows one story to show how the <strong>safeguarding</strong> side connects the
+            dots that no single teacher could see alone.
           </p>
           <motion.div
             initial={{ opacity: 0, y: 5 }}

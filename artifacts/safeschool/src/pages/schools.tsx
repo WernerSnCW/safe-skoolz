@@ -32,8 +32,8 @@ const TRACK: {
   },
   {
     icon: Globe,
-    title: "VBE in British International Schools",
-    body: "The five dynamics that shape this world — and why values give third-culture children an anchor.",
+    title: "VBE in International Schools",
+    body: "The dynamics that shape internationally mobile communities — and why shared values give third-culture children an anchor.",
     href: "/schools/vbe-international",
   },
   {
