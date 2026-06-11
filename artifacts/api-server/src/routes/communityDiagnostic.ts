@@ -136,7 +136,7 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
     }
   });
 
-  // Conversion (spec funnel stage 4): invite the participant to create an
+  // Task 5: Conversion (spec funnel stage 4): invite the participant to create an
   // account so they can see the results when the exec releases them.
   // Fire-and-forget — a failed email never fails the submission.
   void (async () => {
