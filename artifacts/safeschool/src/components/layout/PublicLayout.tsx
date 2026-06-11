@@ -13,6 +13,7 @@ const NAV: { label: string; href: string }[] = [
   { label: "For schools", href: "/schools" },
   { label: "For parents", href: "/parents" },
   { label: "For PTAs", href: "/ptas" },
+  { label: "For pupils", href: "/pupils" },
 ];
 
 const FOOTER: { heading: string; links: { label: string; href: string }[] }[] = [
@@ -23,6 +24,7 @@ const FOOTER: { heading: string; links: { label: string; href: string }[] }[] = 
       { label: "For schools", href: "/schools" },
       { label: "For parents", href: "/parents" },
       { label: "For PTAs", href: "/ptas" },
+      { label: "For pupils", href: "/pupils" },
       { label: "Parent groups", href: "/coalitions" },
     ],
   },

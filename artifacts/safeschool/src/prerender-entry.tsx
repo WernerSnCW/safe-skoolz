@@ -6,6 +6,7 @@ import SchoolsPage from "@/pages/schools";
 import ParentsPage from "@/pages/parents";
 import PtasPage from "@/pages/ptas";
 import CoalitionsPage from "@/pages/coalitions";
+import PupilsPage from "@/pages/pupils";
 import ResourcesPage from "@/pages/resources";
 import AboutPage from "@/pages/about";
 import ParentsJoinPta from "@/pages/parents-join-pta";
@@ -25,6 +26,7 @@ export const PUBLIC_ROUTES: string[] = [
   "/parents",
   "/ptas",
   "/coalitions",
+  "/pupils",
   "/resources",
   "/about",
   "/schools/10-day-rollout",
@@ -40,6 +42,7 @@ const ROUTE_COMPONENTS: Record<string, ComponentType> = {
   "/parents": ParentsPage,
   "/ptas": PtasPage,
   "/coalitions": CoalitionsPage,
+  "/pupils": PupilsPage,
   "/resources": ResourcesPage,
   "/about": AboutPage,
   "/schools/10-day-rollout": Schools10DayRollout,

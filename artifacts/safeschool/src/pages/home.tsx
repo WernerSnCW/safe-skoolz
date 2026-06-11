@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { School, Users, Vote, HeartHandshake, ArrowRight } from "lucide-react";
+import { School, Users, Vote, HeartHandshake, ArrowRight, Heart } from "lucide-react";
 
 // SchoolVBE marketing homepage — the Phase 2 proof page. Copy is reused
 // verbatim from the live static site (main.schoolvbe.pages.dev). Presentational
@@ -114,6 +114,32 @@ export default function HomePage() {
               </Link>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Pupils — not a buyer door; the reason for all of it. Full-width band. */}
+      <section className="mx-auto max-w-6xl px-4 pb-8 sm:px-6">
+        <div className="flex flex-col items-start gap-6 rounded-2xl border border-border bg-accent/40 p-8 sm:flex-row sm:items-center">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Heart className="h-6 w-6" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-display text-xl font-bold text-foreground">
+              And at the heart of all of it: your pupils.
+            </h2>
+            <p className="mt-2 text-muted-foreground">
+              Values only matter if they reach the children living them. In vibez, pupils get a
+              wellbeing-first space of their own — check in on how they feel, a private diary,
+              values brought to life, and a safe way to speak up.
+            </p>
+          </div>
+          <Link
+            href="/pupils"
+            className="inline-flex shrink-0 items-center font-semibold text-primary hover:underline"
+          >
+            See what pupils experience
+            <ArrowRight className="ml-1.5 h-4 w-4" />
+          </Link>
         </div>
       </section>
 

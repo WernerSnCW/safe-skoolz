@@ -18,6 +18,7 @@ import SchoolsPage from "@/pages/schools";
 import ParentsPage from "@/pages/parents";
 import PtasPage from "@/pages/ptas";
 import CoalitionsPage from "@/pages/coalitions";
+import PupilsPage from "@/pages/pupils";
 import ResourcesPage from "@/pages/resources";
 import AboutPage from "@/pages/about";
 import ParentsJoinPta from "@/pages/parents-join-pta";
@@ -138,6 +139,7 @@ function Router() {
       <Route path="/parents" component={ParentsPage} />
       <Route path="/ptas" component={PtasPage} />
       <Route path="/coalitions" component={CoalitionsPage} />
+      <Route path="/pupils" component={PupilsPage} />
       {/* Ported public deep guide pages (specific routes BEFORE the catch-all). */}
       <Route path="/schools/10-day-rollout" component={Schools10DayRollout} />
       <Route path="/schools/case-study" component={SchoolsCaseStudy} />
