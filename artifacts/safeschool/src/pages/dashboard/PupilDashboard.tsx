@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
+import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
 import {
   AlertTriangle, HeartHandshake, ArrowRight, Users,
   MessageCircle, Send, Zap, X, ChevronDown, ChevronUp, CheckCircle2,
@@ -516,12 +517,27 @@ export default function PupilDashboard({ user }: { user: any }) {
     { value: 5, emoji: "\uD83E\uDD29", labelKey: "amazing" },
   ];
 
+  const digest: DigestItem[] = [];
+  if (totalUnread > 0) {
+    digest.push({
+      id: "messages", icon: MessageCircle, tone: "primary",
+      title: t("dashboard:newMessagesCount", { count: totalUnread, defaultValue: `${totalUnread} new messages` }),
+      href: "/messages", unread: true,
+    });
+  }
+
   return (
     <div className="space-y-6 md:space-y-10 max-w-4xl mx-auto">
       <div className="text-center md:text-left">
         <h1 className="text-3xl md:text-5xl font-display font-bold tracking-tight text-foreground">{t("dashboard:hi", { name: user.firstName })}</h1>
         <p className="mt-2 md:mt-3 text-lg md:text-xl text-muted-foreground/90 leading-relaxed">{t("dashboard:howAreYouFeeling")}</p>
       </div>
+
+      <WhatsNewBand
+        items={digest}
+        heading={t("dashboard:sinceLastHere", { defaultValue: "Since you were last here" })}
+        emptyLabel={t("dashboard:allCaughtUp", { defaultValue: "You're all caught up." })}
+      />
 
       {/* Wellbeing-led headline: mood + PSHE learning. */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 mt-6 md:mt-8">
