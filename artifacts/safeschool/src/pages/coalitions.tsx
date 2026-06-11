@@ -2,71 +2,42 @@ import { Link } from "wouter";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Users, UserPlus, Workflow, Package, BarChart3, Target } from "lucide-react";
+import { ArrowRight, Megaphone, Users, Vote, HeartHandshake, Eye, CheckCircle2 } from "lucide-react";
 
-// SchoolVBE "For Parent Groups" marketing page (Phase 3 content migration).
-// Copy reused verbatim from the live site (/coalitions/). Presentational +
-// SSR-safe so it prerenders; deeper /coalitions/* links are not yet built
-// (404 until ported later — same as the /schools track).
+// The canonical "What is a VOICE" explainer. A VOICE is a parent collective with
+// one mission: get the school to adopt VBE (and the PTA to operate openly). This
+// page is where a curious visitor — or someone who got a VOICE link forwarded on
+// WhatsApp — understands what it is and why it works. Unified on the term VOICE.
+// Presentational + SSR-safe (prerendered); app tokens; no framer enter-animation.
 
-const ACTIONS: {
-  icon: typeof Users;
-  title: string;
-  body: string;
-  cta: string;
-  href: string;
-}[] = [
+// A live VOICE to show the concept in action (the Riverside pilot).
+const LIVE_VOICE = "/v/91bedd3e-460d-4782-8fcc-478cf8e7a24e";
+
+const JOURNEY: { icon: typeof Users; step: string; title: string; body: string }[] = [
   {
     icon: Users,
-    title: "Start a group at my school",
-    body: "Bring together a few parents who share a constructive goal, privately, and build a single voice with the tools to make the case.",
-    cta: "Start a group",
-    href: "/coalitions/start-group",
+    step: "1",
+    title: "Gather",
+    body: "A few parents rally others behind one shared mission — privately, respectfully. Each parent who backs it adds weight. Scattered concern becomes one clear voice.",
   },
   {
-    icon: UserPlus,
-    title: "Join an existing group",
-    body: "Register your interest. If a group in your area is active, the organiser can choose to invite you in.",
-    cta: "Join a group",
-    href: "/coalitions/join-group",
+    icon: Megaphone,
+    step: "2",
+    title: "Ask",
+    body: "The VOICE makes one evidenced, constructive ask of the school and PTA — backed by numbers and a survey, not a list of grievances. Partners, not petitioners.",
+  },
+  {
+    icon: Vote,
+    step: "3",
+    title: "Adopt & become the PTA",
+    body: "When the school adopts VBE, your VOICE converts — its members fold into the PTA and start organising. The thing you asked for is already built.",
   },
 ];
 
-const RESOURCES: {
-  icon: typeof Workflow;
-  eyebrow: string;
-  title: string;
-  body: string;
-  href: string;
-}[] = [
-  {
-    icon: Workflow,
-    eyebrow: "The Model",
-    title: "How Parent Coalitions Work",
-    body: "The three-phase model — Form, Prepare, Present — and what success looks like.",
-    href: "/coalitions/how-it-works",
-  },
-  {
-    icon: Package,
-    eyebrow: "Free Pack",
-    title: "The Coalition Toolkit",
-    body: "Advocacy brief, presentation template, survey, talking points, and letter templates.",
-    href: "/coalitions/toolkit",
-  },
-  {
-    icon: BarChart3,
-    eyebrow: "Evidence",
-    title: "Running a Parent Survey",
-    body: "How informal prevalence data strengthens your case — and how to present it constructively.",
-    href: "/coalitions/survey",
-  },
-  {
-    icon: Target,
-    eyebrow: "Destination",
-    title: "Where this leads",
-    body: "When your school adopts VBE, the systems you've been asking for are already built.",
-    href: "/coalitions/how-it-works#destination",
-  },
+const WHY: { icon: typeof HeartHandshake; title: string; body: string }[] = [
+  { icon: Users, title: "One voice, not many", body: "A single concerned parent is easy to set aside. A coordinated group with one ask is how schools actually change." },
+  { icon: HeartHandshake, title: "Partners, not petitioners", body: "You arrive with a proposal and a record, through the right channels — constructive, never a campaign against the school." },
+  { icon: CheckCircle2, title: "A real say", body: "Updates on progress, a visible response from the school, and — on adoption — a place in how the PTA runs." },
 ];
 
 export default function CoalitionsPage() {
@@ -75,88 +46,98 @@ export default function CoalitionsPage() {
       {/* Hero */}
       <section className="border-b border-border/60 bg-accent/40">
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-            For Parent Groups
+          <p className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-primary">
+            <Megaphone className="h-4 w-4" /> Parents · VOICE
           </p>
           <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Concerned parents are more powerful together.
+            Be a voice for values at your school.
           </h1>
           <p className="mt-6 max-w-3xl text-lg text-muted-foreground">
-            A single parent raising concerns is one voice. A coalition of parents, aligned and
-            organised, with the right tools and a constructive ask, is how schools change.
+            A <strong>VOICE</strong> is a group of parents with one mission: to get the school to adopt
+            Values-Based Education — and the PTA to run in a way every family can take part in. You back
+            it, it builds weight, and the school hears one clear, respectful ask instead of scattered concern.
           </p>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Link href="/login" className={cn(buttonVariants({ size: "lg" }))}>
+              Start a VOICE
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <Link href={LIVE_VOICE} className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>
+              <Eye className="mr-2 h-4 w-4" /> See a live VOICE
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Action cards */}
+      {/* The journey */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid gap-6 md:grid-cols-2">
-          {ACTIONS.map((a) => (
-            <div
-              key={a.href}
-              className="flex flex-col rounded-2xl border border-border bg-card p-8 shadow-sm"
-            >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-                <a.icon className="h-5 w-5" />
+        <p className="mb-6 font-mono text-xs font-bold uppercase tracking-[0.13em] text-muted-foreground/70">
+          How a VOICE works
+        </p>
+        <div className="grid gap-6 md:grid-cols-3">
+          {JOURNEY.map((j) => (
+            <div key={j.step} className="flex flex-col rounded-2xl border border-border bg-card p-8 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <j.icon className="h-5 w-5" />
+                </div>
+                <span className="font-mono text-sm font-bold text-muted-foreground/60">{j.step}</span>
               </div>
-              <h2 className="mt-4 font-display text-xl font-bold text-foreground">{a.title}</h2>
-              <p className="mt-2 flex-1 text-muted-foreground">{a.body}</p>
-              <Link href={a.href} className={cn(buttonVariants({ size: "lg" }), "mt-6 self-start")}>
-                {a.cta}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+              <h2 className="mt-4 font-display text-xl font-bold text-foreground">{j.title}</h2>
+              <p className="mt-2 text-muted-foreground">{j.body}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* What a coalition is — and isn't */}
+      {/* What a VOICE is — and isn't */}
       <section className="mx-auto max-w-4xl px-4 pb-4 sm:px-6">
-        <h2 className="font-display text-2xl font-bold text-foreground">
-          What a coalition is — and isn't
-        </h2>
+        <h2 className="font-display text-2xl font-bold text-foreground">What a VOICE is — and isn't</h2>
         <p className="mt-4 text-lg text-muted-foreground">
-          A coalition is not a campaign against the school. It is a coordinated, constructive
-          advocacy group: a handful of parents at the same school, aligned on a specific ask — that
-          the school adopt values-based education — speaking with one evidenced voice through the
-          right channels.
-        </p>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Isolated concerned parents have limited leverage. An organised group, with a clear
-          proposal and the tools to back it, is a different proposition entirely.
+          A VOICE is not a campaign against the school. It's a coordinated, constructive advocacy group:
+          parents at the same school, aligned on a specific ask — that the school adopt values-based
+          education — speaking with one evidenced voice through the right channels.
         </p>
         <blockquote className="mt-8 rounded-2xl border-l-4 border-primary bg-card p-8 text-lg text-foreground">
-          <span className="font-semibold">
-            "Approach the school as partners, not petitioners."
-          </span>{" "}
-          The strongest coalitions arrive with a proposal and a record, not a list of grievances.
-          This track gives you both.
+          <span className="font-semibold">"Approach the school as partners, not petitioners."</span>{" "}
+          The strongest VOICEs arrive with a proposal and a record, not a list of grievances.
         </blockquote>
       </section>
 
-      {/* Resource cards */}
+      {/* Why it works */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {RESOURCES.map((r) => (
-            <Link
-              key={r.title}
-              href={r.href}
-              className="group flex flex-col rounded-2xl border border-border bg-card p-7 shadow-sm transition-shadow hover:shadow-md"
-            >
+        <div className="grid gap-6 md:grid-cols-3">
+          {WHY.map((w) => (
+            <div key={w.title} className="flex flex-col rounded-2xl border border-border bg-card p-7 shadow-sm">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-                <r.icon className="h-5 w-5" />
+                <w.icon className="h-5 w-5" />
               </div>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-primary">
-                {r.eyebrow}
-              </p>
-              <h3 className="mt-1 font-display text-lg font-bold text-foreground">{r.title}</h3>
-              <p className="mt-2 flex-1 text-sm text-muted-foreground">{r.body}</p>
-              <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
-                Read more
-                <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </span>
-            </Link>
+              <h3 className="mt-4 font-display text-lg font-bold text-foreground">{w.title}</h3>
+              <p className="mt-2 flex-1 text-sm text-muted-foreground">{w.body}</p>
+            </div>
           ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+        <div className="rounded-2xl bg-primary px-8 py-12 text-center text-primary-foreground sm:px-12">
+          <h2 className="font-display text-3xl font-bold sm:text-4xl">Ready to start, or back one?</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground/90">
+            Start a VOICE at your school, or see a live one and add your name.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link href="/login" className={cn(buttonVariants({ variant: "secondary" }), "font-semibold")}>
+              Start a VOICE
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Link>
+            <Link
+              href={LIVE_VOICE}
+              className={cn(buttonVariants({ variant: "outline" }), "border-primary-foreground/30 bg-transparent font-semibold text-primary-foreground hover:bg-primary-foreground/10")}
+            >
+              See a live VOICE
+            </Link>
+          </div>
         </div>
       </section>
     </PublicLayout>

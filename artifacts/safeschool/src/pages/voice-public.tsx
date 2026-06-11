@@ -103,7 +103,7 @@ export default function VoicePublicPage({ id }: { id: string }) {
             </div>
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              New here? <Link href="/parents" className="font-semibold text-primary hover:underline">What is a VOICE?</Link>
+              New here? <Link href="/coalitions" className="font-semibold text-primary hover:underline">What is a VOICE?</Link>
             </p>
           </>
         )}

@@ -39,9 +39,9 @@ const AUDIENCES: {
   },
   {
     icon: HeartHandshake,
-    heading: "Concerned parents are stronger together.",
-    body: "Form a private group, build a single voice, and give your school and PTA a constructive path to VBE adoption — with the tools to make it happen.",
-    cta: "Start or join a group",
+    heading: "Be a voice for values.",
+    body: "Join with other parents to form a VOICE — one clear, respectful ask that your school adopt VBE and your PTA open up. Scattered concern becomes real change.",
+    cta: "See how a VOICE works",
     href: "/coalitions",
   },
 ];
