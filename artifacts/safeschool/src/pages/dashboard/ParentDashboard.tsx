@@ -6,6 +6,8 @@ import { useListNotifications } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
+import { MissionActions } from "@/components/dashboard/MissionActions";
+import { Megaphone, Library } from "lucide-react";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import {
   AlertTriangle, Bell, FileText, Activity, TrendingUp, Users,
@@ -572,6 +574,15 @@ export default function ParentDashboard({ user }: { user: any }) {
         items={digest}
         heading={t("sinceLastHere", { defaultValue: "Since you were last here" })}
         emptyLabel={t("allCaughtUp", { defaultValue: "You're all caught up." })}
+      />
+
+      <MissionActions
+        actions={[
+          { label: "Raise a concern", sub: "Tell the school", icon: AlertTriangle, href: "/report" },
+          { label: "Message the school", sub: "Securely, any time", icon: MessageCircle, href: "/messages" },
+          { label: "PTA updates", sub: "Stay in the loop", icon: Megaphone, href: "/pta-updates" },
+          { label: "Resource Centre", sub: "Guides for parents", icon: Library, href: "/resources-hub" },
+        ]}
       />
 
       {pendingDisclosures.length > 0 && (

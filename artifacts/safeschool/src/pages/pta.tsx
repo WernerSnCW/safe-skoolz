@@ -21,7 +21,8 @@ import {
   Send, AlertTriangle, CheckCircle2, Flag, ChevronRight, Download,
   Users, Activity, Lightbulb, ArrowUpDown, Heart
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { MissionActions } from "@/components/dashboard/MissionActions";
+import { Vote as IconVote, ScrollText as IconDecision, Megaphone as IconAnnounce, ShieldCheck as IconMembers } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line
@@ -98,6 +99,17 @@ export default function PtaPortal() {
         </p>
       </div>
 
+      <div className="mb-6">
+        <MissionActions
+          actions={[
+            { label: "Open a vote", sub: "Put it to members", icon: IconVote, href: "/pta/voting" },
+            { label: "Log a decision", sub: "On the record", icon: IconDecision, href: "/pta/decisions" },
+            { label: "Post an announcement", sub: "Reach parents", icon: IconAnnounce, href: "/pta/announcements" },
+            { label: "Members & officers", sub: "Manage your roster", icon: IconMembers, href: "/pta/governance" },
+          ]}
+        />
+      </div>
+
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2" role="tablist" aria-label="PTA portal sections">
         {TAB_KEYS.map((tabId) => {
           const Icon = TAB_ICONS[tabId];
@@ -121,19 +133,14 @@ export default function PtaPortal() {
         })}
       </div>
 
-      <motion.div
-        key={activeTab}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-      >
+      <div>
         {activeTab === "dashboard" && <PtaDashboardTab />}
         {activeTab === "messages" && <PtaMessagesTab />}
         {activeTab === "policy" && <PtaPolicyTab />}
         {activeTab === "report" && <PtaReportTab />}
         {activeTab === "codesign" && <PtaCodesignTab />}
         {activeTab === "resources" && <PtaResourcesTab />}
-      </motion.div>
+      </div>
     </div>
   );
 }

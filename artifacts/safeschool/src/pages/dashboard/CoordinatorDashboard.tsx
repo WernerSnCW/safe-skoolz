@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-polish
 import { Button } from "@/components/ui-polished";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
+import { MissionActions } from "@/components/dashboard/MissionActions";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, ClipboardCheck, Presentation, Library } from "lucide-react";
 import {
   AlertTriangle, ShieldAlert, FileText, Activity,
   TrendingUp, BarChart3, PieChart as PieChartIcon, Eye,
@@ -224,6 +225,15 @@ export default function CoordinatorDashboardView() {
         items={digest}
         heading={t("sinceLastHere", { defaultValue: "Since you were last here" })}
         emptyLabel={t("allCaughtUp", { defaultValue: "You're all caught up." })}
+      />
+
+      <MissionActions
+        actions={[
+          { label: "Run a diagnostic", sub: "Check VBE readiness", icon: ClipboardCheck, href: "/diagnostics" },
+          { label: "Lessons & PSHE", sub: "Teach your values", icon: Presentation, href: "/lessons" },
+          { label: "Resource Centre", sub: "Packs, guides & tools", icon: Library, href: "/resources-hub" },
+          { label: "Log an incident", sub: "Safeguarding & wellbeing", icon: AlertTriangle, href: "/report" },
+        ]}
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
