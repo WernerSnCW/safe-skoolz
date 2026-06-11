@@ -2,6 +2,7 @@ import {
   ShieldCheck, Home, AlertTriangle, FileText, Shield, Bell, Settings,
   Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge,
   ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText, Presentation,
+  Library,
 } from "lucide-react";
 
 export type NavItem = { name: string; href: string; icon: any; badge?: number };
@@ -19,6 +20,7 @@ export function getNavSections(
   const { messageUnread, unreadCount } = counts;
   const home: NavItem = { name: t("dashboard"), href: "/", icon: Home };
   const footer: NavItem[] = [
+    { name: "Resource Centre", href: "/resources-hub", icon: Library },
     { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
     { name: t("settings"), href: "/settings", icon: Settings },
   ];

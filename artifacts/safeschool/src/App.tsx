@@ -54,6 +54,7 @@ import TrainingStatusPage from "@/pages/training-status";
 import AuditPage from "@/pages/audit";
 import AdminPage from "@/pages/admin";
 import NotFound from "@/pages/not-found";
+import ResourceCentre from "@/pages/resource-centre";
 
 const queryClient = new QueryClient();
 
@@ -223,6 +224,9 @@ function Router() {
       </Route>
       <Route path="/learnings">
         {() => <ProtectedRoute component={LearningsPage} />}
+      </Route>
+      <Route path="/resources-hub">
+        {() => <ProtectedRoute component={ResourceCentre} />}
       </Route>
       <Route path="/case-studies">
         {() => <ProtectedRoute component={CaseStudiesPage} />}
