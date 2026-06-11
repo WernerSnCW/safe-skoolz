@@ -393,7 +393,7 @@ export default function Login() {
   const profileSearch = useState("");
 
   return (
-    <div className="min-h-screen w-full flex bg-background relative overflow-hidden">
+    <div className="min-h-screen w-full grid md:grid-cols-2 bg-background relative">
       <button
         type="button"
         disabled={!!demoLoading}
@@ -425,26 +425,39 @@ export default function Login() {
         <ShieldCheck size={14} />
         Admin
       </button>
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-background"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/10 blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-secondary/10 blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+
+      {/* Brand-warmth panel (desktop) — carries the marketing language across the seam */}
+      <div
+        className="relative hidden md:flex flex-col justify-between p-10 text-white"
+        style={{ background: "linear-gradient(150deg,#0A4EC0,#126AF9 55%,#1EF4F4)" }}
+      >
+        <a href="/" target="_blank" rel="noopener" className="inline-flex w-fit items-center gap-1.5 text-sm font-bold text-white/90 hover:text-white transition-colors">
+          <ArrowLeft size={16} /> Back to SchoolVBE
+        </a>
+        <div>
+          <span className="font-brand text-6xl italic leading-none">vibez</span>
+          <span className="mt-1 block font-display text-xs font-medium uppercase tracking-wide text-white/80">by SchoolVBE</span>
+          <p className="mt-5 max-w-xs text-xl font-semibold">{t("tagline")}</p>
+          <p className="mt-3 max-w-sm text-sm text-white/85">The safeguarding, PSHE &amp; wellbeing platform for VBE schools.</p>
+        </div>
+        <p className="max-w-sm text-xs text-white/70">Everything on SchoolVBE is free. vibez is the platform schools deploy after adopting VBE.</p>
       </div>
 
-      <div className="w-full max-w-md mx-auto flex flex-col justify-center px-4 relative z-10">
+      {/* Form column */}
+      <div className="w-full max-w-md mx-auto flex flex-col justify-center px-4 py-10 relative z-10">
+        <a href="/" target="_blank" rel="noopener" className="md:hidden inline-flex w-fit items-center gap-1.5 text-sm font-bold text-primary mb-6">
+          <ArrowLeft size={16} /> Back to SchoolVBE
+        </a>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-8 md:hidden"
         >
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-secondary shadow-xl shadow-primary/20 mb-6 text-white transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-            <ShieldCheck size={40} strokeWidth={2.5} />
-          </div>
           <BrandLockup size="lg" className="items-center" />
           <p className="mt-3 text-muted-foreground text-lg">{t("tagline")}</p>
         </motion.div>
 
-        <Card className="shadow-2xl shadow-primary/5 border-border/50 bg-background/80 backdrop-blur-xl">
+        <Card className="border-border shadow-sm">
           <div className="flex items-center justify-center gap-1 px-4 pt-3 pb-1">
             {LANGUAGES.map((lang) => (
               <button
