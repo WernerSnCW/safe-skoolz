@@ -229,10 +229,10 @@ export default function CoordinatorDashboardView() {
 
       <MissionActions
         actions={[
-          { label: "Run a diagnostic", sub: "Check VBE readiness", icon: ClipboardCheck, href: "/diagnostics" },
-          { label: "Lessons & PSHE", sub: "Teach your values", icon: Presentation, href: "/lessons" },
-          { label: "Resource Centre", sub: "Packs, guides & tools", icon: Library, href: "/resources-hub" },
           { label: "Log an incident", sub: "Safeguarding & wellbeing", icon: AlertTriangle, href: "/report" },
+          { label: "Lessons & PSHE", sub: "Teach your values", icon: Presentation, href: "/lessons" },
+          { label: "Run a diagnostic", sub: "Check VBE readiness", icon: ClipboardCheck, href: "/diagnostics" },
+          { label: "Resource Centre", sub: "Packs, guides & tools", icon: Library, href: "/resources-hub" },
         ]}
       />
 

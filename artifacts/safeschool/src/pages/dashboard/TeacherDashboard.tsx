@@ -5,10 +5,12 @@ import { useListIncidents } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
+import { MissionActions } from "@/components/dashboard/MissionActions";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import {
   AlertTriangle, FileText, TrendingUp, Users,
-  BarChart3, MapPin, ArrowRight, MessageCircle
+  BarChart3, MapPin, ArrowRight, MessageCircle,
+  Presentation, BookOpen, Library
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import {
@@ -110,6 +112,15 @@ export default function TeacherDashboard({ user }: { user: any }) {
         items={digest}
         heading={t("sinceLastHere", { defaultValue: "Since you were last here" })}
         emptyLabel={t("allCaughtUp", { defaultValue: "You're all caught up." })}
+      />
+
+      <MissionActions
+        actions={[
+          { label: "Report an incident", sub: "Safeguarding & wellbeing", icon: AlertTriangle, href: "/report" },
+          { label: "Lessons & PSHE", sub: "Teach your values", icon: Presentation, href: "/lessons" },
+          { label: "Learning library", sub: "Guides & training", icon: BookOpen, href: "/learn" },
+          { label: "Resource Centre", sub: "Packs, guides & tools", icon: Library, href: "/resources-hub" },
+        ]}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
