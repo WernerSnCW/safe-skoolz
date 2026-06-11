@@ -302,7 +302,7 @@ export default function NewProtocol() {
                     key={rf}
                     className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
                       riskFactors.includes(rf)
-                        ? "border-orange-300 bg-orange-50 dark:bg-orange-950/20"
+                        ? "border-warning/40 bg-warning/10"
                         : "border-border hover:bg-muted/50"
                     }`}
                   >
@@ -326,7 +326,7 @@ export default function NewProtocol() {
                     key={pf}
                     className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
                       protectiveFactors.includes(pf)
-                        ? "border-green-300 bg-green-50 dark:bg-green-950/20"
+                        ? "border-success/40 bg-success/10"
                         : "border-border hover:bg-muted/50"
                     }`}
                   >
