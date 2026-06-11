@@ -4,9 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useListIncidents } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
+import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import {
   AlertTriangle, FileText, TrendingUp, Users,
-  BarChart3, MapPin, ArrowRight
+  BarChart3, MapPin, ArrowRight, MessageCircle
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import {
@@ -30,6 +32,8 @@ export default function TeacherDashboard({ user }: { user: any }) {
 
   const { data: incidentsData, isLoading: incidentsLoading, isError: incidentsError } = useListIncidents({ limit: 5 });
   const incidents = incidentsData?.data || [];
+
+  const { totalUnread: messageUnread } = useMessageNotifications();
 
   const { data: analyticsData } = useQuery<any>({
     queryKey: ["/api/dashboard/teacher-analytics"],
@@ -77,12 +81,35 @@ export default function TeacherDashboard({ user }: { user: any }) {
     );
   }
 
+  const digest: DigestItem[] = [];
+  if (messageUnread > 0) {
+    digest.push({
+      id: "messages", icon: MessageCircle, tone: "info",
+      title: t("newMessagesCount", { count: messageUnread, defaultValue: `${messageUnread} new messages` }),
+      href: "/messages", unread: true,
+    });
+  }
+  for (const inc of incidents.slice(0, 2)) {
+    digest.push({
+      id: `inc-${inc.id}`, icon: FileText,
+      tone: inc.escalationTier === 3 ? "destructive" : inc.escalationTier === 2 ? "warning" : "info",
+      title: `${t("incidents")}: ${(inc.category ?? "").split(",")[0]}`.trim(),
+      detail: inc.referenceNumber, href: `/incidents/${inc.id}`,
+    });
+  }
+
   return (
     <div className="space-y-8">
       <PageHeader
         eyebrow={isHoY ? "Head of year" : "Class teacher"}
         title={t("welcomeBack", { name: user.firstName })}
         subtitle={`${isHoY ? t("headOfYearFor", { group: scopeLabel }) : t("classTeacherFor", { group: scopeLabel })} — ${t("pupilsInYourCare", { count: totalPupils })}`}
+      />
+
+      <WhatsNewBand
+        items={digest}
+        heading={t("sinceLastHere", { defaultValue: "Since you were last here" })}
+        emptyLabel={t("allCaughtUp", { defaultValue: "You're all caught up." })}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
