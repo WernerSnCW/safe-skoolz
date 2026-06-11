@@ -117,15 +117,36 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Free statement band */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      {/* vibez software band — the option to see the software or log in */}
+      <section id="vibez" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="rounded-2xl bg-primary px-8 py-12 text-center text-primary-foreground sm:px-12">
-          <p className="mx-auto max-w-3xl text-lg sm:text-xl">
-            Everything here is free. Every resource, the readiness diagnostic, and the community
-            surveys — all free, no catch. The only paid product is{" "}
-            <span className="font-brand text-2xl">vibez</span>, the safeguarding, PSHE, and
-            school-wellbeing platform schools deploy once they adopt the VBE framework.
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-foreground/80">
+            The software
           </p>
+          <h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">
+            Meet <span className="font-brand text-4xl sm:text-5xl">vibez</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-3xl text-lg text-primary-foreground/90">
+            vibez is the free software that puts VBE into practice — one platform for{" "}
+            <strong>schools</strong> rolling out values-based education,{" "}
+            <strong>parents</strong> advocating for it, and <strong>PTAs</strong> operating well.
+            Everything on SchoolVBE stays free.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/login"
+              className="inline-flex items-center rounded-xl bg-primary-foreground px-7 py-3 text-base font-semibold text-primary shadow-sm transition-colors hover:bg-primary-foreground/90"
+            >
+              Log in to vibez
+            </Link>
+            <Link
+              href="/how-it-works"
+              className="inline-flex items-center rounded-xl border-2 border-primary-foreground/40 px-7 py-3 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/10"
+            >
+              See how it works
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
