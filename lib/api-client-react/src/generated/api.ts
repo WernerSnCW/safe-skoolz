@@ -34,6 +34,8 @@ import type {
   CoordinatorDashboard,
   CreateIncidentBody,
   CreateProtocolBody,
+  CreateVoice201,
+  CreateVoiceBody,
   DecidePtaProposal200,
   DecidePtaProposalBody,
   DeletePtaAnnouncement200,
@@ -45,8 +47,11 @@ import type {
   GetLatestPtaReport200,
   GetPtaAnnouncementFeed200,
   GetPtaResources200,
+  GetVoice200,
   HealthStatus,
   Incident,
+  JoinVoice201,
+  LeaveVoice200,
   ListAlertsParams,
   ListIncidentsParams,
   ListNotificationsParams,
@@ -60,6 +65,7 @@ import type {
   ListPtaOfficers200,
   ListPtaProposals200,
   ListPtaProxies200,
+  ListVoice200,
   LoginResponse,
   Notification,
   OpenPtaBallot201,
@@ -5189,3 +5195,409 @@ export function useGetPtaResources<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary List VOICE advocacy collectives for the school
+ */
+export const getListVoiceUrl = () => {
+  return `/api/voice`;
+};
+
+export const listVoice = async (
+  options?: RequestInit,
+): Promise<ListVoice200> => {
+  return customFetch<ListVoice200>(getListVoiceUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListVoiceQueryKey = () => {
+  return [`/api/voice`] as const;
+};
+
+export const getListVoiceQueryOptions = <
+  TData = Awaited<ReturnType<typeof listVoice>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof listVoice>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListVoiceQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listVoice>>> = ({
+    signal,
+  }) => listVoice({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listVoice>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListVoiceQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listVoice>>
+>;
+export type ListVoiceQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List VOICE advocacy collectives for the school
+ */
+
+export function useListVoice<
+  TData = Awaited<ReturnType<typeof listVoice>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof listVoice>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListVoiceQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a VOICE (creator becomes founder + first member)
+ */
+export const getCreateVoiceUrl = () => {
+  return `/api/voice`;
+};
+
+export const createVoice = async (
+  createVoiceBody: CreateVoiceBody,
+  options?: RequestInit,
+): Promise<CreateVoice201> => {
+  return customFetch<CreateVoice201>(getCreateVoiceUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createVoiceBody),
+  });
+};
+
+export const getCreateVoiceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createVoice>>,
+    TError,
+    { data: BodyType<CreateVoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createVoice>>,
+  TError,
+  { data: BodyType<CreateVoiceBody> },
+  TContext
+> => {
+  const mutationKey = ["createVoice"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createVoice>>,
+    { data: BodyType<CreateVoiceBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createVoice(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateVoiceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createVoice>>
+>;
+export type CreateVoiceMutationBody = BodyType<CreateVoiceBody>;
+export type CreateVoiceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a VOICE (creator becomes founder + first member)
+ */
+export const useCreateVoice = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createVoice>>,
+    TError,
+    { data: BodyType<CreateVoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createVoice>>,
+  TError,
+  { data: BodyType<CreateVoiceBody> },
+  TContext
+> => {
+  return useMutation(getCreateVoiceMutationOptions(options));
+};
+
+/**
+ * @summary VOICE detail with members
+ */
+export const getGetVoiceUrl = (id: string) => {
+  return `/api/voice/${id}`;
+};
+
+export const getVoice = async (
+  id: string,
+  options?: RequestInit,
+): Promise<GetVoice200> => {
+  return customFetch<GetVoice200>(getGetVoiceUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetVoiceQueryKey = (id: string) => {
+  return [`/api/voice/${id}`] as const;
+};
+
+export const getGetVoiceQueryOptions = <
+  TData = Awaited<ReturnType<typeof getVoice>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVoice>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetVoiceQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVoice>>> = ({
+    signal,
+  }) => getVoice(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof getVoice>>, TError, TData> & {
+    queryKey: QueryKey;
+  };
+};
+
+export type GetVoiceQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getVoice>>
+>;
+export type GetVoiceQueryError = ErrorType<unknown>;
+
+/**
+ * @summary VOICE detail with members
+ */
+
+export function useGetVoice<
+  TData = Awaited<ReturnType<typeof getVoice>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVoice>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetVoiceQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Back a VOICE (join as a member)
+ */
+export const getJoinVoiceUrl = (id: string) => {
+  return `/api/voice/${id}/join`;
+};
+
+export const joinVoice = async (
+  id: string,
+  options?: RequestInit,
+): Promise<JoinVoice201> => {
+  return customFetch<JoinVoice201>(getJoinVoiceUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getJoinVoiceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof joinVoice>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof joinVoice>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["joinVoice"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof joinVoice>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return joinVoice(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type JoinVoiceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof joinVoice>>
+>;
+
+export type JoinVoiceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Back a VOICE (join as a member)
+ */
+export const useJoinVoice = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof joinVoice>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof joinVoice>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getJoinVoiceMutationOptions(options));
+};
+
+/**
+ * @summary Withdraw backing from a VOICE
+ */
+export const getLeaveVoiceUrl = (id: string) => {
+  return `/api/voice/${id}/leave`;
+};
+
+export const leaveVoice = async (
+  id: string,
+  options?: RequestInit,
+): Promise<LeaveVoice200> => {
+  return customFetch<LeaveVoice200>(getLeaveVoiceUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getLeaveVoiceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof leaveVoice>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof leaveVoice>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["leaveVoice"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof leaveVoice>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return leaveVoice(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type LeaveVoiceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof leaveVoice>>
+>;
+
+export type LeaveVoiceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Withdraw backing from a VOICE
+ */
+export const useLeaveVoice = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof leaveVoice>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof leaveVoice>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getLeaveVoiceMutationOptions(options));
+};

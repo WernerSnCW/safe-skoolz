@@ -26,6 +26,7 @@ const COMMANDS: Command[] = [
   { group: "Do", label: "Open a PTA vote", icon: Vote, href: "/pta/voting", tag: "PTA" },
   { group: "Do", label: "Log a PTA decision", icon: ScrollText, href: "/pta/decisions", tag: "PTA" },
   { group: "Do", label: "Post a PTA announcement", icon: Megaphone, href: "/pta/announcements", tag: "PTA" },
+  { group: "Do", label: "Start or join a VOICE", icon: Megaphone, href: "/voice", tag: "Parent" },
   { group: "Do", label: "Raise a concern", icon: AlertTriangle, href: "/report", tag: "Parent" },
   { group: "Do", label: "Send a message", icon: MessageCircle, href: "/messages" },
   { group: "Go to", label: "Home", icon: Home, href: "/" },

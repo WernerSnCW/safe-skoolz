@@ -1559,3 +1559,84 @@ export const GetPtaResourcesResponse = zod.object({
     )
     .optional(),
 });
+
+/**
+ * @summary List VOICE advocacy collectives for the school
+ */
+export const ListVoiceResponse = zod.object({
+  voices: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        name: zod.string().optional(),
+        mission: zod.string().optional(),
+        status: zod.string().optional(),
+        createdAt: zod.string().optional(),
+        convertedAt: zod.string().nullish(),
+        createdBy: zod.string().optional(),
+        memberCount: zod.number().optional(),
+        myRole: zod.string().nullish(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Create a VOICE (creator becomes founder + first member)
+ */
+export const CreateVoiceBody = zod.object({
+  name: zod.string(),
+  mission: zod.string(),
+});
+
+/**
+ * @summary VOICE detail with members
+ */
+export const GetVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetVoiceResponse = zod.object({
+  voice: zod
+    .object({
+      id: zod.string().optional(),
+      name: zod.string().optional(),
+      mission: zod.string().optional(),
+      status: zod.string().optional(),
+      createdAt: zod.string().optional(),
+      convertedAt: zod.string().nullish(),
+      createdBy: zod.string().optional(),
+      memberCount: zod.number().optional(),
+      myRole: zod.string().nullish(),
+      members: zod
+        .array(
+          zod.object({
+            id: zod.string().optional(),
+            userId: zod.string().optional(),
+            role: zod.string().optional(),
+            joinedAt: zod.string().optional(),
+            name: zod.string().optional(),
+          }),
+        )
+        .optional(),
+    })
+    .optional(),
+});
+
+/**
+ * @summary Back a VOICE (join as a member)
+ */
+export const JoinVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
+ * @summary Withdraw backing from a VOICE
+ */
+export const LeaveVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const LeaveVoiceResponse = zod.object({
+  ok: zod.boolean().optional(),
+});

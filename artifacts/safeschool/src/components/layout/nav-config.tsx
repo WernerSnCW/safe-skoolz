@@ -2,7 +2,7 @@ import {
   ShieldCheck, Home, AlertTriangle, FileText, Shield, Bell, Settings,
   Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge,
   ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText, Presentation,
-  Library,
+  Library, Vote,
 } from "lucide-react";
 
 export type NavItem = { name: string; href: string; icon: any; badge?: number };
@@ -50,7 +50,10 @@ export function getNavSections(
   if (role === "parent") {
     return {
       sections: [
-        { label: null, items: [home] },
+        { label: null, items: [
+          home,
+          { name: "VOICE", href: "/voice", icon: Vote },
+        ]},
         { label: "Safeguarding", items: [
           { name: t("reportIncident"), href: "/report", icon: AlertTriangle },
           { name: t("incidents"), href: "/incidents", icon: FileText },

@@ -15,6 +15,7 @@ export * from "./sencoCaseload";
 export * from "./behaviourPoints";
 export * from "./pta";
 export * from "./ptaGovernance";
+export * from "./voice";
 export * from "./newsletter";
 export * from "./diagnostics";
 export * from "./diary";

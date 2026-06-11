@@ -905,3 +905,65 @@ export type SubmitPtaCodesignResponse201 = { [key: string]: unknown };
 export type GetPtaResources200 = {
   resources?: PtaResource[];
 };
+
+export type ListVoice200VoicesItem = {
+  id?: string;
+  name?: string;
+  mission?: string;
+  status?: string;
+  createdAt?: string;
+  convertedAt?: string | null;
+  createdBy?: string;
+  memberCount?: number;
+  myRole?: string | null;
+};
+
+export type ListVoice200 = {
+  voices?: ListVoice200VoicesItem[];
+};
+
+export type CreateVoiceBody = {
+  name: string;
+  mission: string;
+};
+
+export type CreateVoice201Voice = { [key: string]: unknown };
+
+export type CreateVoice201 = {
+  voice?: CreateVoice201Voice;
+};
+
+export type GetVoice200VoiceMembersItem = {
+  id?: string;
+  userId?: string;
+  role?: string;
+  joinedAt?: string;
+  name?: string;
+};
+
+export type GetVoice200Voice = {
+  id?: string;
+  name?: string;
+  mission?: string;
+  status?: string;
+  createdAt?: string;
+  convertedAt?: string | null;
+  createdBy?: string;
+  memberCount?: number;
+  myRole?: string | null;
+  members?: GetVoice200VoiceMembersItem[];
+};
+
+export type GetVoice200 = {
+  voice?: GetVoice200Voice;
+};
+
+export type JoinVoice201Member = { [key: string]: unknown };
+
+export type JoinVoice201 = {
+  member?: JoinVoice201Member;
+};
+
+export type LeaveVoice200 = {
+  ok?: boolean;
+};

@@ -17,6 +17,7 @@ import sencoRouter from "./senco";
 import behaviourRouter from "./behaviour";
 import ptaRouter from "./pta";
 import ptaGovernanceRouter from "./ptaGovernance";
+import voiceGroupsRouter from "./voiceGroups";
 import newsletterRouter from "./newsletter";
 import dataRetentionRouter from "./dataRetention";
 import diagnosticsRouter from "./diagnostics";
@@ -58,6 +59,8 @@ router.use(behaviourRouter);
 // /pta/* (anonymises names). Governance manages the adult member roster and must
 // keep names, so it resolves first and never hits the PII stripper.
 router.use(ptaGovernanceRouter);
+// VOICE collectives — own router, no PII stripping (adult parents, public ask).
+router.use(voiceGroupsRouter);
 router.use(ptaRouter);
 router.use(dataRetentionRouter);
 router.use(diagnosticsRouter);

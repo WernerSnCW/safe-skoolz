@@ -13,7 +13,7 @@ import {
   AlertTriangle, Bell, FileText, Activity, TrendingUp, Users,
   BarChart3, PieChart as PieChartIcon, MapPin, Clock, Calendar,
   UserCheck, ChevronDown, ChevronUp, Shield, Gauge, MessageCircle, Send,
-  CheckCircle2
+  CheckCircle2, Vote
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
@@ -578,6 +578,7 @@ export default function ParentDashboard({ user }: { user: any }) {
 
       <MissionActions
         actions={[
+          { label: "Start or join a VOICE", sub: "Advocate for VBE", icon: Vote, href: "/voice" },
           { label: "Raise a concern", sub: "Tell the school", icon: AlertTriangle, href: "/report" },
           { label: "Message the school", sub: "Securely, any time", icon: MessageCircle, href: "/messages" },
           { label: "PTA updates", sub: "Stay in the loop", icon: Megaphone, href: "/pta-updates" },

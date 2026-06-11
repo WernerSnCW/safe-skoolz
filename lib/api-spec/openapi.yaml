@@ -1408,6 +1408,126 @@ paths:
                     items:
                       $ref: "#/components/schemas/PtaResource"
 
+  /voice:
+    get:
+      operationId: listVoice
+      tags: [voice]
+      summary: List VOICE advocacy collectives for the school
+      responses:
+        "200":
+          description: VOICE list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  voices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                        mission: { type: string }
+                        status: { type: string }
+                        createdAt: { type: string }
+                        convertedAt: { type: string, nullable: true }
+                        createdBy: { type: string }
+                        memberCount: { type: integer }
+                        myRole: { type: string, nullable: true }
+    post:
+      operationId: createVoice
+      tags: [voice]
+      summary: Create a VOICE (creator becomes founder + first member)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                mission: { type: string }
+              required: [name, mission]
+      responses:
+        "201":
+          description: VOICE created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  voice: { type: object }
+  /voice/{id}:
+    get:
+      operationId: getVoice
+      tags: [voice]
+      summary: VOICE detail with members
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: VOICE detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  voice:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+                      mission: { type: string }
+                      status: { type: string }
+                      createdAt: { type: string }
+                      convertedAt: { type: string, nullable: true }
+                      createdBy: { type: string }
+                      memberCount: { type: integer }
+                      myRole: { type: string, nullable: true }
+                      members:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: string }
+                            userId: { type: string }
+                            role: { type: string }
+                            joinedAt: { type: string }
+                            name: { type: string }
+  /voice/{id}/join:
+    post:
+      operationId: joinVoice
+      tags: [voice]
+      summary: Back a VOICE (join as a member)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "201":
+          description: Joined
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member: { type: object }
+  /voice/{id}/leave:
+    post:
+      operationId: leaveVoice
+      tags: [voice]
+      summary: Withdraw backing from a VOICE
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Left
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
 components:
   schemas:
     HealthStatus:
