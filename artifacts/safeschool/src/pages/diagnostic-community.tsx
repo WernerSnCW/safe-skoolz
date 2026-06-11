@@ -63,9 +63,10 @@ export default function CommunityDiagnosticPage({ slug }: { slug: string }) {
       setDone({ count: r.count });
       window.scrollTo({ top: 0 });
     } catch (e: any) {
+      // The shared client throws ApiError: parsed body on .data, status on .status.
       setErr(
-        e?.response?.data?.error ??
-          (e?.response?.status === 409
+        e?.data?.error ??
+          (e?.status === 409
             ? "This email address has already taken part."
             : "Something went wrong — please try again."),
       );
