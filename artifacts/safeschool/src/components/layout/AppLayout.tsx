@@ -9,6 +9,7 @@ import { useListNotifications } from "@workspace/api-client-react";
 import { useMessageNotifications, useMessageNotificationEngine } from "@/hooks/useMessageNotifications";
 import { motion, AnimatePresence } from "framer-motion";
 import { getNavSections, flattenSections, type NavItem } from "@/components/layout/nav-config";
+import { GlobalLauncher } from "@/components/layout/GlobalLauncher";
 
 const MOBILE_PRIORITY_HREFS: Record<string, string[]> = {
   pupil: ["/", "/learn", "/diary", "/messages"],
@@ -100,7 +101,11 @@ export function AppLayout({ children }: AppLayoutProps) {
           <BrandLockup size="md" />
         </div>
 
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+        <div className="px-4 pt-4">
+          <GlobalLauncher />
+        </div>
+
+        <div className="flex-1 overflow-y-auto py-4 px-4 space-y-1">
           {sections.map((section, i) => (
             <div key={section.label ?? `s${i}`} className={cn(section.label && "pt-3")}>
               {section.label && (
