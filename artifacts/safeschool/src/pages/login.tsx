@@ -207,7 +207,7 @@ export default function Login() {
   }, [activeTab, loginAccounts]);
 
   const [pupilStep, setPupilStep] = useState<PupilLoginStep>("school");
-  const [accessCode, setAccessCode] = useState("6A-RIVER");
+  const [accessCode, setAccessCode] = useState("7A-RIVER");
   const [loginSessionToken, setLoginSessionToken] = useState("");
   const [profiles, setProfiles] = useState<PupilProfile[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<PupilProfile | null>(null);
