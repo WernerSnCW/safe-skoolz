@@ -71,20 +71,35 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
     res.status(400).json({ error: "A valid email address is required." });
     return;
   }
-  const instrument = (survey.instrument ?? []) as Array<{ key: string; type: string; optional?: boolean }>;
+  const instrument = (survey.instrument ?? []) as Array<{ key: string; type: string; options?: string[]; optional?: boolean }>;
   const validKeys = new Set(instrument.map((q) => q.key));
   if (!Array.isArray(answers) || answers.length === 0) {
     res.status(400).json({ error: "Answers are required." });
     return;
   }
+  // F3: reject duplicate questionKeys across the submitted answers array.
+  const seenKeys = new Set<string>();
   for (const a of answers) {
     if (!a || !validKeys.has(a.questionKey)) {
       res.status(400).json({ error: `Unknown question: ${a?.questionKey ?? "?"}` });
       return;
     }
+    if (seenKeys.has(a.questionKey)) {
+      res.status(400).json({ error: `Duplicate answer for question: ${a.questionKey}` });
+      return;
+    }
+    seenKeys.add(a.questionKey);
     if (a.answer != null && (!Number.isInteger(a.answer) || a.answer < 0 || a.answer > 10)) {
       res.status(400).json({ error: "Invalid answer value." });
       return;
+    }
+    // F3: clamp scale answers to the question's actual option count.
+    if (a.answer != null) {
+      const q = instrument.find((iq) => iq.key === a.questionKey);
+      if (q?.type === "scale" && q.options != null && a.answer >= q.options.length) {
+        res.status(400).json({ error: "Invalid answer value." });
+        return;
+      }
     }
     if (a.freeText != null && String(a.freeText).length > 4000) {
       res.status(400).json({ error: "Answer too long." });
@@ -129,6 +144,10 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
   // One transaction; the responseId never touches the submission row —
   // answers are unlinkable from the email by construction (spec §4.2).
   const responseId = crypto.randomUUID();
+  // Day-truncated on purpose: a precise timestamp would let answers be joined
+  // back to the email-bearing submission row by time correlation, breaking the
+  // "cannot be traced, even by us" promise. Day resolution keeps trend analytics.
+  const dayBucket = new Date(new Date().toISOString().slice(0, 10));
   try {
     await db.transaction(async (tx) => {
       await tx.insert(diagnosticSubmissionsTable).values({
@@ -144,6 +163,7 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
           questionKey: String(a.questionKey),
           answer: a.answer ?? null,
           freeText: a.freeText ? String(a.freeText).trim() : null,
+          createdAt: dayBucket,
         })),
       );
       if (yearGroup || classOrTeacher) {
@@ -152,6 +172,7 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
           responseId,
           yearGroup: yearGroup ? String(yearGroup).slice(0, 20) : null,
           classOrTeacher: classOrTeacher ? String(classOrTeacher).slice(0, 80) : null,
+          createdAt: dayBucket,
         });
       }
     });
@@ -197,9 +218,11 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
     if (!user.passwordHash) {
       const token = crypto.randomBytes(32).toString("hex");
       const tokenHash = await bcrypt.hash(token, 12);
+      const tokenLookup = crypto.createHash("sha256").update(token).digest("hex");
       await db.insert(passwordResetTokensTable).values({
         userId: user.id,
         tokenHash,
+        tokenLookup,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days — campaign pace, not security reset
       });
       const appUrl = process.env.APP_URL ?? "http://localhost:5000";

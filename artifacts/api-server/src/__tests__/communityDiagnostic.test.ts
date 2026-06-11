@@ -203,7 +203,7 @@ describe("signup invite on submission", () => {
     const r = await fetch(`${baseUrl}/api/d/cd-test/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, answers: [{ questionKey: "q_scale", answer: 2 }] }),
+      body: JSON.stringify({ email, answers: [{ questionKey: "q_scale", answer: 1 }] }),
     });
     expect(r.status).toBe(201);
     // allow the async invite to settle before counting
@@ -225,7 +225,7 @@ describe("signup invite on submission", () => {
     const r = await fetch(`${baseUrl}/api/d/cd-test/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, answers: [{ questionKey: "q_scale", answer: 3 }] }),
+      body: JSON.stringify({ email, answers: [{ questionKey: "q_scale", answer: 0 }] }),
     });
     expect(r.status).toBe(201);
 
@@ -240,5 +240,78 @@ describe("signup invite on submission", () => {
       tokenCount = res.rows[0].c;
     }
     expect(tokenCount).toBe(0);
+  });
+});
+
+// ── F3: validation hardening ──────────────────────────────────────────────────
+describe("F3 — answer validation hardening", () => {
+  const submit = (body: unknown) =>
+    fetch(`${baseUrl}/api/d/cd-test/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+  it("rejects duplicate question keys", async () => {
+    const r = await submit({
+      email: `f3-dup-${Date.now()}@example.com`,
+      answers: [
+        { questionKey: "q_scale", answer: 0 },
+        { questionKey: "q_scale", answer: 1 },
+      ],
+    });
+    expect(r.status).toBe(400);
+    const body = await r.json() as any;
+    expect(body.error).toMatch(/duplicate answer for question/i);
+  });
+
+  it("rejects out-of-range scale answers (answer >= options.length)", async () => {
+    // INSTRUMENT has q_scale with options: ["Never", "Often"] → length 2.
+    // Valid answers are 0 and 1. Answer 5 must be rejected.
+    const r = await submit({
+      email: `f3-range-${Date.now()}@example.com`,
+      answers: [{ questionKey: "q_scale", answer: 5 }],
+    });
+    expect(r.status).toBe(400);
+    const body = await r.json() as any;
+    expect(body.error).toMatch(/invalid answer value/i);
+  });
+});
+
+// ── F2: timestamp privacy ─────────────────────────────────────────────────────
+describe("F2 — answers/meta timestamps are day-truncated", () => {
+  it("stores created_at as the start of the current UTC day", async () => {
+    const email = `f2-ts-${Date.now()}@example.com`;
+    const r = await fetch(`${baseUrl}/api/d/cd-test/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        name: "F2 Tester",
+        yearGroup: "Y3",
+        classOrTeacher: "3A",
+        answers: [{ questionKey: "q_scale", answer: 1 }],
+      }),
+    });
+    expect(r.status).toBe(201);
+
+    const ans = await pool.query<{ created_at: Date }>(
+      `SELECT da.created_at FROM diagnostic_answers da
+       JOIN diagnostic_submissions ds ON ds.survey_id = da.survey_id
+       WHERE ds.email = $1 AND da.survey_id = $2
+       LIMIT 1`,
+      [email, surveyId],
+    );
+    expect(ans.rows).toHaveLength(1);
+    expect(ans.rows[0].created_at.toISOString()).toMatch(/T00:00:00\.000Z$/);
+
+    const meta = await pool.query<{ created_at: Date }>(
+      `SELECT drm.created_at FROM diagnostic_response_meta drm
+       WHERE drm.survey_id = $1
+       ORDER BY drm.created_at DESC LIMIT 1`,
+      [surveyId],
+    );
+    expect(meta.rows).toHaveLength(1);
+    expect(meta.rows[0].created_at.toISOString()).toMatch(/T00:00:00\.000Z$/);
   });
 });
