@@ -118,10 +118,10 @@ export function AppLayout({ children }: AppLayoutProps) {
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="p-4 border-t border-border/50">
-          <div className="space-y-1 mb-2">
+          {/* Secondary nav (Resource Centre, Notifications, Settings) + back-to-site
+              live INSIDE the scroll so a heavy footer can't squeeze the main nav
+              into a cramped, scrolled sliver. Only identity + sign-out stay pinned. */}
+          <div className="pt-3 mt-2 border-t border-border/50 space-y-1">
             {footer.map((item) => <NavRow key={item.name} item={item} location={location} />)}
             <a
               href="/"
@@ -133,6 +133,9 @@ export function AppLayout({ children }: AppLayoutProps) {
               SchoolVBE
             </a>
           </div>
+        </div>
+
+        <div className="p-4 border-t border-border/50">
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-card border border-border shadow-sm mb-2">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden">
               {user.avatarImageUrl ? (
