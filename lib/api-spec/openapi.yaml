@@ -1527,6 +1527,28 @@ paths:
                 type: object
                 properties:
                   ok: { type: boolean }
+  /voice/{id}/convert:
+    post:
+      operationId: convertVoice
+      tags: [voice]
+      summary: Convert a VOICE into PTA membership (school adopted VBE)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Converted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  voice: { type: object }
+                  converted:
+                    type: object
+                    properties:
+                      backers: { type: integer }
+                      added: { type: integer }
+                      alreadyMembers: { type: integer }
 
 components:
   schemas:

@@ -4,6 +4,7 @@ import {
   db,
   voiceGroupsTable,
   voiceMembersTable,
+  ptaMembersTable,
   usersTable,
 } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
@@ -27,6 +28,15 @@ const router: IRouter = Router();
 const ADVOCATE = requireRole("parent", "pta");
 // View the collectives: advocates + leadership oversight.
 const VIEW = requireRole("parent", "pta", "coordinator", "head_teacher");
+// Convert a VOICE into PTA membership: the PTA itself + school leadership.
+const CONVERT = requireRole("pta", "coordinator", "head_teacher");
+
+// On conversion, the founder takes on more responsibility (senior_group); the
+// rest fold in as general_membership. (Spec: founders → senior_group.)
+const TIER_FOR_ROLE: Record<string, string> = {
+  founder: "senior_group",
+  member: "general_membership",
+};
 
 function user(req: any): JwtPayload {
   return req.user as JwtPayload;
@@ -209,6 +219,50 @@ router.post("/voice/:id/leave", authMiddleware, ADVOCATE, async (req, res): Prom
 
   await writeAudit({ schoolId: u.schoolId, eventType: "voice_left", actor: u, targetType: "voice_group", targetId: id, details: {}, req });
   res.json({ ok: true });
+});
+
+// POST /voice/:id/convert — the school has adopted VBE: fold this VOICE into the
+// PTA. Each backer becomes a pta_member (founder → senior_group, members →
+// general_membership); anyone already on the PTA roster is left as-is. The VOICE
+// is marked converted. PTA / leadership only. Audited voice_converted.
+router.post("/voice/:id/convert", authMiddleware, CONVERT, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+
+  const groups = await db.select().from(voiceGroupsTable)
+    .where(and(eq(voiceGroupsTable.id, id), eq(voiceGroupsTable.schoolId, u.schoolId))).limit(1);
+  if (!groups.length) { res.status(404).json({ error: "VOICE not found" }); return; }
+  if (groups[0].status !== "advocating") { res.status(409).json({ error: "This VOICE has already been converted" }); return; }
+
+  const backers = await db.select({ userId: voiceMembersTable.userId, role: voiceMembersTable.role })
+    .from(voiceMembersTable).where(eq(voiceMembersTable.voiceId, id));
+
+  // Who's already on the PTA roster — don't duplicate or downgrade them.
+  const existing = await db.select({ userId: ptaMembersTable.userId }).from(ptaMembersTable)
+    .where(eq(ptaMembersTable.schoolId, u.schoolId));
+  const alreadyPta = new Set(existing.map((e) => e.userId));
+
+  const toAdd = backers
+    .filter((b) => !alreadyPta.has(b.userId))
+    .map((b) => ({
+      schoolId: u.schoolId,
+      userId: b.userId,
+      tier: TIER_FOR_ROLE[b.role] ?? "general_membership",
+      status: "active",
+    }));
+
+  let added = 0;
+  if (toAdd.length) {
+    const inserted = await db.insert(ptaMembersTable).values(toAdd).returning({ id: ptaMembersTable.id });
+    added = inserted.length;
+  }
+
+  const [voice] = await db.update(voiceGroupsTable)
+    .set({ status: "converted", convertedAt: sql`now()` })
+    .where(eq(voiceGroupsTable.id, id)).returning();
+
+  await writeAudit({ schoolId: u.schoolId, eventType: "voice_converted", actor: u, targetType: "voice_group", targetId: id, details: { backers: backers.length, added, alreadyMembers: backers.length - added }, req });
+  res.json({ voice, converted: { backers: backers.length, added, alreadyMembers: backers.length - added } });
 });
 
 export default router;

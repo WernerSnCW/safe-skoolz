@@ -967,3 +967,16 @@ export type JoinVoice201 = {
 export type LeaveVoice200 = {
   ok?: boolean;
 };
+
+export type ConvertVoice200Voice = { [key: string]: unknown };
+
+export type ConvertVoice200Converted = {
+  backers?: number;
+  added?: number;
+  alreadyMembers?: number;
+};
+
+export type ConvertVoice200 = {
+  voice?: ConvertVoice200Voice;
+  converted?: ConvertVoice200Converted;
+};

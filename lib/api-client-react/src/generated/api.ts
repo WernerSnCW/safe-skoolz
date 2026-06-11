@@ -31,6 +31,7 @@ import type {
   CastPtaVoteBody,
   ChildDashboard,
   ClosePtaBallot200,
+  ConvertVoice200,
   CoordinatorDashboard,
   CreateIncidentBody,
   CreateProtocolBody,
@@ -5600,4 +5601,88 @@ export const useLeaveVoice = <
   TContext
 > => {
   return useMutation(getLeaveVoiceMutationOptions(options));
+};
+
+/**
+ * @summary Convert a VOICE into PTA membership (school adopted VBE)
+ */
+export const getConvertVoiceUrl = (id: string) => {
+  return `/api/voice/${id}/convert`;
+};
+
+export const convertVoice = async (
+  id: string,
+  options?: RequestInit,
+): Promise<ConvertVoice200> => {
+  return customFetch<ConvertVoice200>(getConvertVoiceUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getConvertVoiceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof convertVoice>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof convertVoice>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["convertVoice"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof convertVoice>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return convertVoice(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ConvertVoiceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof convertVoice>>
+>;
+
+export type ConvertVoiceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Convert a VOICE into PTA membership (school adopted VBE)
+ */
+export const useConvertVoice = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof convertVoice>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof convertVoice>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getConvertVoiceMutationOptions(options));
 };

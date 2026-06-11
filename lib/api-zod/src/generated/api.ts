@@ -1640,3 +1640,21 @@ export const LeaveVoiceParams = zod.object({
 export const LeaveVoiceResponse = zod.object({
   ok: zod.boolean().optional(),
 });
+
+/**
+ * @summary Convert a VOICE into PTA membership (school adopted VBE)
+ */
+export const ConvertVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ConvertVoiceResponse = zod.object({
+  voice: zod.object({}).passthrough().optional(),
+  converted: zod
+    .object({
+      backers: zod.number().optional(),
+      added: zod.number().optional(),
+      alreadyMembers: zod.number().optional(),
+    })
+    .optional(),
+});

@@ -143,6 +143,7 @@ export function getNavSections(
       sections: [
         { label: "PTA", items: [
           { name: t("ptaDashboard"), href: "/pta", icon: Home },
+          { name: "VOICE", href: "/voice", icon: Vote },
           { name: "Members & Officers", href: "/pta/governance", icon: ShieldCheck },
           { name: "Decision Log", href: "/pta/decisions", icon: ScrollText },
           { name: "Voting", href: "/pta/voting", icon: ClipboardList },
@@ -183,6 +184,7 @@ export function getNavSections(
         ]},
         { label: "People", items: [
           { name: t("allPupils"), href: "/class", icon: Users },
+          { name: "VOICE", href: "/voice", icon: Vote },
           { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
         ]},
         { label: "Admin", items: [

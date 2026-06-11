@@ -4,9 +4,16 @@ import {
   useCreateVoice,
   useJoinVoice,
   useLeaveVoice,
+  useConvertVoice,
 } from "@workspace/api-client-react";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
-import { Megaphone, Users, Plus, Check, Crown, CheckCircle2 } from "lucide-react";
+import { Megaphone, Users, Plus, Check, Crown, CheckCircle2, ArrowRightLeft } from "lucide-react";
+
+// Roles that can fold a VOICE into the PTA once the school adopts VBE.
+const CONVERT_ROLES = ["pta", "coordinator", "head_teacher"];
+// Roles that can create / join / leave a VOICE (advocacy). Mirrors the API.
+const ADVOCATE_ROLES = ["parent", "pta"];
 
 // VOICE — parent advocacy collectives. A VOICE is a parent collective with a
 // mission to get the school to adopt VBE; backing it (joining) builds one
@@ -17,10 +24,16 @@ const inputCls =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30";
 
 export default function VoicePage() {
+  const { user } = useAuth();
+  const role = (user as any)?.role ?? "";
+  const canConvert = CONVERT_ROLES.includes(role);
+  const canAdvocate = ADVOCATE_ROLES.includes(role);
+
   const voicesQ = useListVoice();
   const createVoice = useCreateVoice();
   const joinVoice = useJoinVoice();
   const leaveVoice = useLeaveVoice();
+  const convertVoice = useConvertVoice();
 
   const [name, setName] = useState("");
   const [mission, setMission] = useState("");
@@ -55,7 +68,8 @@ export default function VoicePage() {
         <div className="rounded-md border border-destructive/30 bg-destructive/10 text-destructive text-sm px-3 py-2">{err}</div>
       )}
 
-      {/* Start a VOICE */}
+      {/* Start a VOICE — only advocacy roles (parents/PTA) can create. */}
+      {canAdvocate && (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-2">
@@ -92,6 +106,7 @@ export default function VoicePage() {
           </CardContent>
         )}
       </Card>
+      )}
 
       {/* Active collectives */}
       <section className="space-y-3">
@@ -123,16 +138,31 @@ export default function VoicePage() {
                       <span>Started by {v.createdBy}</span>
                     </div>
                   </div>
-                  <div className="shrink-0">
+                  <div className="shrink-0 flex flex-col items-end gap-2">
                     {v.myRole === "founder" ? (
                       <span className="inline-flex items-center gap-1 text-sm text-muted-foreground"><Check className="w-4 h-4 text-primary" /> Yours</span>
                     ) : v.myRole ? (
                       <Button size="sm" variant="outline" disabled={leaveVoice.isPending} onClick={() => run(() => leaveVoice.mutateAsync({ id: v.id }))}>
                         Backing — Leave
                       </Button>
-                    ) : (
+                    ) : canAdvocate ? (
                       <Button size="sm" disabled={joinVoice.isPending} onClick={() => run(() => joinVoice.mutateAsync({ id: v.id }))}>
                         Join this VOICE
+                      </Button>
+                    ) : null}
+                    {canConvert && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={convertVoice.isPending}
+                        title="The school has adopted VBE — fold this VOICE's backers into the PTA."
+                        onClick={() => {
+                          if (window.confirm(`Convert "${v.name}" into the PTA? Its ${v.memberCount} backer(s) become PTA members (founder → senior group, the rest → general membership).`)) {
+                            run(() => convertVoice.mutateAsync({ id: v.id }));
+                          }
+                        }}
+                      >
+                        <ArrowRightLeft className="w-3.5 h-3.5 mr-1" /> Convert to PTA
                       </Button>
                     )}
                   </div>
