@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui-polished";
-import { motion } from "framer-motion";
 import { Play } from "lucide-react";
 import { useDemo } from "@/components/demo/DemoWalkthrough";
 import PupilDashboard from "./dashboard/PupilDashboard";
@@ -27,10 +26,7 @@ function DemoTourBanner() {
   const { startDemo, isActive } = useDemo();
   if (isActive) return null;
   return (
-    <motion.button
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5 }}
+    <button
       onClick={startDemo}
       className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/5 border border-primary/20 hover:bg-primary/10 hover:border-primary/30 transition-all group mb-6"
     >
@@ -41,7 +37,7 @@ function DemoTourBanner() {
         <p className="text-sm font-semibold text-foreground">{t("takeGuidedTour")}</p>
         <p className="text-xs text-muted-foreground">{t("guidedTourDesc")}</p>
       </div>
-    </motion.button>
+    </button>
   );
 }
 
@@ -51,7 +47,7 @@ export default function Dashboard() {
   if (!user) return null;
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <div>
       {user.role !== "pta" && <DemoTourBanner />}
       {user.role === "pupil" ? (
         <PupilDashboard user={user} />
@@ -72,6 +68,6 @@ export default function Dashboard() {
           </Link>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
