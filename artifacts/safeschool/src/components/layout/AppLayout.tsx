@@ -4,13 +4,11 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { BrandLockup } from "@/components/brand/BrandLockup";
-import { 
-  ShieldCheck, Home, AlertTriangle, FileText, Shield,
-  Bell, Settings, LogOut, Menu, X, Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge, ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText, Presentation
-} from "lucide-react";
+import { LogOut, Menu, X, ExternalLink } from "lucide-react";
 import { useListNotifications } from "@workspace/api-client-react";
 import { useMessageNotifications, useMessageNotificationEngine } from "@/hooks/useMessageNotifications";
 import { motion, AnimatePresence } from "framer-motion";
+import { getNavSections, flattenSections, type NavItem } from "@/components/layout/nav-config";
 
 const MOBILE_PRIORITY_HREFS: Record<string, string[]> = {
   pupil: ["/", "/learn", "/diary", "/messages"],
@@ -24,9 +22,9 @@ const MOBILE_PRIORITY_HREFS: Record<string, string[]> = {
   pta: ["/pta", "/learn", "/notifications", "/learnings"],
 };
 
-function getMobileNavItems(navItems: any[], role: string) {
+function getMobileNavItems(navItems: NavItem[], role: string) {
   const priorityHrefs = MOBILE_PRIORITY_HREFS[role] || MOBILE_PRIORITY_HREFS.teacher;
-  const result: any[] = [];
+  const result: NavItem[] = [];
   for (const href of priorityHrefs) {
     const item = navItems.find(n => n.href === href);
     if (item) result.push(item);
@@ -39,6 +37,34 @@ function getMobileNavItems(navItems: any[], role: string) {
     }
   }
   return result.slice(0, 5);
+}
+
+// Single sidebar row — shared by the grouped sections and the pinned footer.
+function NavRow({ item, location }: { item: NavItem; location: string }) {
+  const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href + "/"));
+  return (
+    <Link href={item.href} className="block">
+      <div className={cn(
+        "flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 group cursor-pointer",
+        isActive
+          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      )}>
+        <div className="flex items-center gap-3 font-medium">
+          <item.icon size={20} className={cn("transition-transform duration-200 group-hover:scale-110", isActive && "text-primary-foreground")} />
+          {item.name}
+        </div>
+        {item.badge !== undefined && item.badge > 0 && (
+          <span className={cn(
+            "text-xs font-bold px-2 py-0.5 rounded-full",
+            isActive ? "bg-primary-foreground text-primary" : "bg-destructive text-destructive-foreground"
+          )}>
+            {item.badge}
+          </span>
+        )}
+      </div>
+    </Link>
+  );
 }
 
 interface AppLayoutProps {
@@ -63,145 +89,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const role = user.role;
 
-  const getNavItems = (): Array<{ name: string; href: string; icon: any; badge?: number }> => {
-    const base = [{ name: t("dashboard"), href: "/", icon: Home }];
-    
-    if (user.role === "pupil") {
-      // Phase 1 ticket 3: wellbeing-first nav for pupils.
-      // Learn / Diary / Messages lead; Report demoted to position 6
-      // (still in nav, but no longer the front-door safeguarding item).
-      // /behaviour, /case-studies, /diagnostics are intentionally NOT
-      // surfaced here for the year-7 pilot — routes remain live and
-      // reachable by direct URL, just not in the pupil sidebar.
-      return [
-        ...base,
-        { name: t("learn"), href: "/learn", icon: BookOpen },
-        { name: t("myDiary"), href: "/diary", icon: BookHeart },
-        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
-        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
-        { name: t("reportIncident"), href: "/report", icon: AlertTriangle },
-        { name: t("mySettings"), href: "/settings", icon: Settings },
-      ];
-    }
-    
-    if (user.role === "parent") {
-      return [
-        ...base,
-        { name: t("reportIncident"), href: "/report", icon: AlertTriangle },
-        { name: t("incidents"), href: "/incidents", icon: FileText },
-        { name: t("behaviour"), href: "/behaviour", icon: Gauge },
-        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
-        { name: "PTA Updates", href: "/pta-updates", icon: Megaphone },
-        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
-        { name: t("learn"), href: "/learn", icon: BookOpen },
-        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
-        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
-        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: t("settings"), href: "/settings", icon: Settings },
-      ];
-    }
-
-    if (user.role === "teacher" || user.role === "head_of_year") {
-      return [
-        ...base,
-        { name: t("logIncident"), href: "/report", icon: AlertTriangle },
-        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
-        { name: t("behaviour"), href: "/behaviour", icon: Gauge },
-        { name: user.role === "head_of_year" ? t("myYearGroup") : t("myClass"), href: "/class", icon: Users },
-        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
-        { name: t("incidents"), href: "/incidents", icon: FileText },
-        { name: t("alerts"), href: "/alerts", icon: Activity },
-        { name: t("lessons"), href: "/lessons", icon: Presentation },
-        { name: t("learn"), href: "/learn", icon: BookOpen },
-        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
-        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
-        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: t("settings"), href: "/settings", icon: Settings },
-      ];
-    }
-
-    if (user.role === "support_staff") {
-      return [
-        ...base,
-        { name: t("logIncident"), href: "/report", icon: AlertTriangle },
-        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
-        { name: t("behaviour"), href: "/behaviour", icon: Gauge },
-        { name: t("myPupils"), href: "/class", icon: Users },
-        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
-        { name: t("lessons"), href: "/lessons", icon: Presentation },
-        { name: t("learn"), href: "/learn", icon: BookOpen },
-        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
-        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
-        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: t("settings"), href: "/settings", icon: Settings },
-      ];
-    }
-
-    if (user.role === "senco") {
-      return [
-        ...base,
-        { name: t("myCaseload"), href: "/caseload", icon: ClipboardList },
-        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
-        { name: t("behaviour"), href: "/behaviour", icon: Gauge },
-        { name: t("logIncident"), href: "/report", icon: AlertTriangle },
-        { name: t("incidents"), href: "/incidents", icon: FileText },
-        { name: t("allPupils"), href: "/class", icon: Users },
-        { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
-        { name: t("protocols"), href: "/protocols", icon: Shield },
-        { name: t("alerts"), href: "/alerts", icon: Activity },
-        { name: t("lessons"), href: "/lessons", icon: Presentation },
-        { name: t("learn"), href: "/learn", icon: BookOpen },
-        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
-        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
-        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: t("settings"), href: "/settings", icon: Settings },
-      ];
-    }
-
-    if (user.role === "pta") {
-      return [
-        { name: t("ptaDashboard"), href: "/pta", icon: Home },
-        { name: "Members & Officers", href: "/pta/governance", icon: ShieldCheck },
-        { name: "Decision Log", href: "/pta/decisions", icon: ScrollText },
-        { name: "Voting", href: "/pta/voting", icon: ClipboardList },
-        { name: "Announcements", href: "/pta/announcements", icon: Megaphone },
-        { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
-        { name: t("learn"), href: "/learn", icon: BookOpen },
-        { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
-        { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
-        { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
-        { name: t("settings"), href: "/settings", icon: Settings },
-      ];
-    }
-
-    // Coordinator, Head Teacher
-    if (user.role !== "coordinator" && user.role !== "head_teacher") {
-      return base;
-    }
-    return [
-      ...base,
-      { name: t("noticeboard"), href: "/learnings", icon: Megaphone },
-      { name: t("behaviour"), href: "/behaviour", icon: Gauge },
-      { name: t("logIncident"), href: "/report", icon: AlertTriangle },
-      { name: t("incidents"), href: "/incidents", icon: FileText },
-      { name: t("allPupils"), href: "/class", icon: Users },
-      { name: t("messages"), href: "/messages", icon: MessageCircle, badge: messageUnread },
-      { name: t("protocols"), href: "/protocols", icon: Shield },
-      { name: t("alerts"), href: "/alerts", icon: Activity },
-      { name: t("auditLog"), href: "/audit", icon: ScrollText },
-      ...(user.role === "coordinator"
-        ? [{ name: t("admin"), href: "/admin", icon: ShieldCheck }]
-        : []),
-      { name: t("diagnostic"), href: "/diagnostics", icon: ClipboardCheck },
-      { name: t("lessons"), href: "/lessons", icon: Presentation },
-      { name: t("learn"), href: "/learn", icon: BookOpen },
-      { name: t("caseStudies"), href: "/case-studies", icon: BookMarked },
-      { name: t("notifications"), href: "/notifications", icon: Bell, badge: unreadCount },
-      { name: t("settings"), href: "/settings", icon: Settings },
-    ];
-  };
-
-  const navItems = getNavItems();
+  const { sections, footer } = getNavSections(role, t, { messageUnread, unreadCount });
+  const navItems = flattenSections(sections); // mobile priority + dropdown
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
@@ -211,36 +100,34 @@ export function AppLayout({ children }: AppLayoutProps) {
           <BrandLockup size="md" />
         </div>
 
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
-          {navItems.map((item) => {
-            const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href + "/"));
-            return (
-              <Link key={item.name} href={item.href} className="block">
-                <div className={cn(
-                  "flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group cursor-pointer",
-                  isActive 
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}>
-                  <div className="flex items-center gap-3 font-medium">
-                    <item.icon size={20} className={cn("transition-transform duration-200 group-hover:scale-110", isActive && "text-primary-foreground")} />
-                    {item.name}
-                  </div>
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className={cn(
-                      "text-xs font-bold px-2 py-0.5 rounded-full",
-                      isActive ? "bg-primary-foreground text-primary" : "bg-destructive text-destructive-foreground"
-                    )}>
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
+        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+          {sections.map((section, i) => (
+            <div key={section.label ?? `s${i}`} className={cn(section.label && "pt-3")}>
+              {section.label && (
+                <p className="px-4 pb-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.13em] text-muted-foreground/70">
+                  {section.label}
+                </p>
+              )}
+              <div className="space-y-1">
+                {section.items.map((item) => <NavRow key={item.name} item={item} location={location} />)}
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="p-4 border-t border-border/50">
+          <div className="space-y-1 mb-2">
+            {footer.map((item) => <NavRow key={item.name} item={item} location={location} />)}
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-sm font-medium"
+            >
+              <ExternalLink size={18} />
+              SchoolVBE
+            </a>
+          </div>
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-card border border-border shadow-sm mb-2">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden">
               {user.avatarImageUrl ? (
@@ -254,7 +141,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               <p className="text-xs text-muted-foreground capitalize truncate">{user.role.replace('_', ' ')}</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={logout}
             className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors font-medium"
           >
