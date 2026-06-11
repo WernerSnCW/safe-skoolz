@@ -225,17 +225,17 @@ export default function IncidentDetail() {
       </div>
 
       {needsDisclosure && incAny.disclosureStatus !== "approved" && (
-        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
-          <Shield size={20} className="text-amber-600 mt-0.5 shrink-0" />
+        <div className="bg-warning/10 border border-warning/30 rounded-xl p-4 flex items-start gap-3">
+          <Shield size={20} className="text-warning mt-0.5 shrink-0" />
           <div>
-            <p className="font-semibold text-amber-800 dark:text-amber-300 text-sm">
+            <p className="font-semibold text-warning text-sm">
               {incAny.disclosureStatus === "pending"
                 ? t("disclosurePermPending")
                 : incAny.disclosureStatus === "declined"
                   ? t("parentDeclinedDisclosure")
                   : t("disclosureNotRequested")}
             </p>
-            <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+            <p className="text-xs text-warning mt-1">
               {incAny.disclosureStatus === "pending"
                 ? t("disclosurePendingDetail")
                 : incAny.disclosureStatus === "declined"
@@ -247,14 +247,14 @@ export default function IncidentDetail() {
       )}
 
       {userRole === "parent" && incAny.disclosureStatus === "pending" && incAny.disclosurePermissions?.length > 0 && (
-        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+        <div className="bg-info/10 border border-info/30 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <Info size={20} className="text-blue-600 mt-0.5 shrink-0" />
+            <Info size={20} className="text-info mt-0.5 shrink-0" />
             <div className="flex-1">
-              <p className="font-semibold text-blue-800 dark:text-blue-300 text-sm">
+              <p className="font-semibold text-info text-sm">
                 {t("staffDisclosureRequest")}
               </p>
-              <p className="text-xs text-blue-700 dark:text-blue-400 mt-1 mb-3">
+              <p className="text-xs text-info mt-1 mb-3">
                 {t("staffDisclosureDetail")}
               </p>
               {incAny.disclosurePermissions
@@ -265,7 +265,7 @@ export default function IncidentDetail() {
                       size="sm"
                       onClick={() => disclosureRespondMutation.mutate({ incidentId: id, permissionId: p.id, decision: "approved" })}
                       disabled={disclosureRespondMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-success hover:bg-success/90 text-success-foreground"
                     >
                       <CheckCircle size={14} className="mr-1" /> {t("common:approve")}
                     </Button>
@@ -274,7 +274,7 @@ export default function IncidentDetail() {
                       variant="outline"
                       onClick={() => disclosureRespondMutation.mutate({ incidentId: id, permissionId: p.id, decision: "declined" })}
                       disabled={disclosureRespondMutation.isPending}
-                      className="border-red-300 text-red-700 hover:bg-red-50"
+                      className="border-destructive/40 text-destructive hover:bg-destructive/10"
                     >
                       <EyeOff size={14} className="mr-1" /> {t("common:decline")}
                     </Button>
@@ -286,9 +286,9 @@ export default function IncidentDetail() {
       )}
 
       {userRole === "parent" && incAny.disclosureStatus === "approved" && (
-        <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl p-3 flex items-center gap-2">
-          <CheckCircle size={16} className="text-green-600 shrink-0" />
-          <p className="text-xs text-green-700 dark:text-green-400">{t("approvedDisclosure")}</p>
+        <div className="bg-success/10 border border-success/30 rounded-xl p-3 flex items-center gap-2">
+          <CheckCircle size={16} className="text-success shrink-0" />
+          <p className="text-xs text-success">{t("approvedDisclosure")}</p>
         </div>
       )}
 
@@ -447,32 +447,32 @@ export default function IncidentDetail() {
                   </>
                 )}
                 {canRequestDisclosure && incAny.disclosureStatus === "pending" && (
-                  <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-3 mt-2">
-                    <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                  <div className="bg-warning/10 rounded-lg p-3 mt-2">
+                    <p className="text-xs text-warning flex items-center gap-1.5">
                       <Clock size={12} /> {t("disclosureRequested")}
                     </p>
                   </div>
                 )}
                 {canRequestDisclosure && incAny.disclosureStatus === "approved" && (
-                  <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3 mt-2 space-y-2">
-                    <p className="text-xs text-green-700 dark:text-green-400 flex items-center gap-1.5">
+                  <div className="bg-success/10 rounded-lg p-3 mt-2 space-y-2">
+                    <p className="text-xs text-success flex items-center gap-1.5">
                       <CheckCircle size={12} /> {t("parentApprovedDisclosure")}
                     </p>
                     {incAny.disclosurePermissions?.filter((p: any) => p.status === "approved").map((p: any) => (
-                      <div key={p.id} className="text-xs text-green-700 dark:text-green-400 pl-5">
+                      <div key={p.id} className="text-xs text-success pl-5">
                         {p.acknowledgedAt ? (
                           <>
                             <p className="flex items-center gap-1.5">
                               <CheckCircle size={10} /> {t("acknowledgedByParent", { date: formatDate(p.acknowledgedAt) })}
                             </p>
                             {p.parentResponse && (
-                              <p className="mt-1 pl-4 text-green-600 dark:text-green-500 italic">
+                              <p className="mt-1 pl-4 text-success italic">
                                 "{p.parentResponse}"
                               </p>
                             )}
                           </>
                         ) : (
-                          <p className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
+                          <p className="flex items-center gap-1.5 text-warning">
                             <Clock size={10} /> {t("awaitingAcknowledgement")}
                           </p>
                         )}
@@ -481,8 +481,8 @@ export default function IncidentDetail() {
                   </div>
                 )}
                 {canRequestDisclosure && incAny.disclosureStatus === "declined" && (
-                  <div className="bg-red-50 dark:bg-red-950/20 rounded-lg p-3 mt-2">
-                    <p className="text-xs text-red-700 dark:text-red-400 flex items-center gap-1.5">
+                  <div className="bg-destructive/10 rounded-lg p-3 mt-2">
+                    <p className="text-xs text-destructive flex items-center gap-1.5">
                       <EyeOff size={12} /> {t("parentDeclinedDisclosureShort")}
                     </p>
                   </div>
@@ -647,7 +647,7 @@ export default function IncidentDetail() {
                     </div>
 
                     {assessmentSaved && (
-                      <p className="text-xs text-green-600 dark:text-green-400 font-medium text-center">
+                      <p className="text-xs text-success font-medium text-center">
                         {t("assessmentSaved")}
                       </p>
                     )}
@@ -725,7 +725,7 @@ export default function IncidentDetail() {
               {incAny.parentVisible ? <Eye size={18} /> : <EyeOff size={18} />}
               {t("parentSummary")}
               {incAny.parentVisible && (
-                <span className="text-xs font-normal text-green-600 dark:text-green-400">({t("sharedWithParents")})</span>
+                <span className="text-xs font-normal text-success">({t("sharedWithParents")})</span>
               )}
             </CardTitle>
           </CardHeader>
@@ -930,17 +930,17 @@ function ParentIncidentReport({ inc }: { inc: any }) {
           {(inc.happeningToMe || inc.happeningToSomeoneElse || inc.iSawIt) && (
             <div className="flex flex-wrap gap-2">
               {inc.happeningToMe && (
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-cat-1/15 text-cat-1">
                   {t("happenedToYourChild")}
                 </span>
               )}
               {inc.happeningToSomeoneElse && (
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-cat-2/15 text-cat-2">
                   {t("happenedToSomeoneElse")}
                 </span>
               )}
               {inc.iSawIt && (
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-cat-3/15 text-cat-3">
                   {t("witnessedByChild")}
                 </span>
               )}
@@ -980,13 +980,13 @@ function ParentIncidentReport({ inc }: { inc: any }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {inc.childrenSeparated !== undefined && inc.childrenSeparated !== null && (
               <div className="flex items-center gap-2 text-sm">
-                <CheckCircle size={16} className={inc.childrenSeparated ? "text-green-600" : "text-muted-foreground"} />
+                <CheckCircle size={16} className={inc.childrenSeparated ? "text-success" : "text-muted-foreground"} />
                 <span>{inc.childrenSeparated ? t("childrenWereSeparated") : t("childrenNotSeparated")}</span>
               </div>
             )}
             {inc.immediateActionTaken && (
               <div className="flex items-center gap-2 text-sm">
-                <CheckCircle size={16} className="text-green-600" />
+                <CheckCircle size={16} className="text-success" />
                 <span>{t("immediateActionTaken")}</span>
               </div>
             )}
@@ -1008,8 +1008,8 @@ function ParentIncidentReport({ inc }: { inc: any }) {
           )}
 
           {!inc.assessedByName && inc.status !== "closed" && inc.status !== "resolved" && (
-            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-800/30 p-4 rounded-xl">
-              <p className="text-sm text-amber-800 dark:text-amber-300">
+            <div className="bg-warning/10 border border-warning/30 p-4 rounded-xl">
+              <p className="text-sm text-warning">
                 {t("stillBeingReviewed")}
               </p>
             </div>
