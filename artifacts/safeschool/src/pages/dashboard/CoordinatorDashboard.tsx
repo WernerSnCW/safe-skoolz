@@ -251,15 +251,15 @@ export default function CoordinatorDashboardView() {
           </div>
 
           {lockedPupils.length > 0 && (
-            <Card className="border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20">
+            <Card className="border-warning/40 bg-warning/10">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600">
+                  <div className="p-2.5 rounded-xl bg-warning/15 text-warning">
                     <Lock size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-amber-900 dark:text-amber-200">{t("lockedPupilAccounts")}</h3>
-                    <p className="text-sm text-amber-700 dark:text-amber-400">{t("lockedPupilCount", { count: lockedPupils.length })}</p>
+                    <h3 className="font-bold text-warning">{t("lockedPupilAccounts")}</h3>
+                    <p className="text-sm text-warning">{t("lockedPupilCount", { count: lockedPupils.length })}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -270,7 +270,7 @@ export default function CoordinatorDashboardView() {
                       : t("lockedUntil", { time: new Date(pupil.lockedUntil).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) });
 
                     return (
-                      <div key={pupil.id} className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-background border border-amber-200 dark:border-amber-800/50">
+                      <div key={pupil.id} className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-background border border-warning/30">
                         <div>
                           <p className="font-semibold text-sm">{pupil.firstName} {pupil.lastName}</p>
                           <p className="text-xs text-muted-foreground">
@@ -279,14 +279,14 @@ export default function CoordinatorDashboardView() {
                         </div>
                         <div className="flex items-center gap-2">
                           {unlockResult && unlockResult.pupilId === pupil.id && (
-                            <span className="text-xs font-mono font-bold text-green-700 bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded">{t("newPin", { pin: unlockResult.newPin })}</span>
+                            <span className="text-xs font-mono font-bold text-success bg-success/15 px-2 py-1 rounded">{t("newPin", { pin: unlockResult.newPin })}</span>
                           )}
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleUnlockPupil(pupil.id)}
                             disabled={unlockingId === pupil.id}
-                            className="border-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-800 dark:text-amber-300"
+                            className="border-warning/40 hover:bg-warning/15 text-warning"
                           >
                             {unlockingId === pupil.id ? (
                               <Loader2 size={14} className="animate-spin" />
@@ -693,9 +693,9 @@ function AnnualReportManager() {
       </div>
 
       {errorMsg && (
-        <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 flex items-center gap-2">
-          <AlertTriangle size={16} className="text-red-500 shrink-0" />
-          <p className="text-sm text-red-700 dark:text-red-400">{errorMsg}</p>
+        <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 flex items-center gap-2">
+          <AlertTriangle size={16} className="text-destructive shrink-0" />
+          <p className="text-sm text-destructive">{errorMsg}</p>
         </div>
       )}
 
@@ -738,7 +738,7 @@ function AnnualReportManager() {
                           size="sm"
                           onClick={() => approveMutation.mutate(report.id)}
                           disabled={approveMutation.isPending}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-success hover:bg-success/90 text-success-foreground"
                         >
                           {approveMutation.isPending ? (
                             <Loader2 size={12} className="animate-spin" />
