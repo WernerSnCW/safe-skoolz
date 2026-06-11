@@ -906,6 +906,52 @@ export type GetPtaResources200 = {
   resources?: PtaResource[];
 };
 
+export type ListPtaInitiatives200InitiativesItem = {
+  id?: string;
+  title?: string;
+  summary?: string;
+  status?: string;
+  ownerId?: string | null;
+  owner?: string | null;
+  originVoiceId?: string | null;
+  originVoiceName?: string | null;
+  targetDate?: string | null;
+  createdAt?: string;
+  completedAt?: string | null;
+};
+
+export type ListPtaInitiatives200 = {
+  initiatives?: ListPtaInitiatives200InitiativesItem[];
+};
+
+export type CreatePtaInitiativeBody = {
+  title: string;
+  summary: string;
+  ownerId?: string | null;
+  originVoiceId?: string | null;
+  targetDate?: string | null;
+};
+
+export type CreatePtaInitiative201Initiative = { [key: string]: unknown };
+
+export type CreatePtaInitiative201 = {
+  initiative?: CreatePtaInitiative201Initiative;
+};
+
+export type UpdatePtaInitiativeBody = {
+  status?: string;
+  title?: string;
+  summary?: string;
+  ownerId?: string | null;
+  targetDate?: string | null;
+};
+
+export type UpdatePtaInitiative200Initiative = { [key: string]: unknown };
+
+export type UpdatePtaInitiative200 = {
+  initiative?: UpdatePtaInitiative200Initiative;
+};
+
 export type ListVoice200VoicesItem = {
   id?: string;
   name?: string;

@@ -2,7 +2,7 @@ import {
   ShieldCheck, Home, AlertTriangle, FileText, Shield, Bell, Settings,
   Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge,
   ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText, Presentation,
-  Library, Vote,
+  Library, Vote, Rocket,
 } from "lucide-react";
 
 export type NavItem = { name: string; href: string; icon: any; badge?: number };
@@ -147,6 +147,7 @@ export function getNavSections(
           { name: "Members & Officers", href: "/pta/governance", icon: ShieldCheck },
           { name: "Decision Log", href: "/pta/decisions", icon: ScrollText },
           { name: "Voting", href: "/pta/voting", icon: ClipboardList },
+          { name: "Initiatives", href: "/pta/initiatives", icon: Rocket },
           { name: "Announcements", href: "/pta/announcements", icon: Megaphone },
         ]},
         { label: "Wellbeing", items: [

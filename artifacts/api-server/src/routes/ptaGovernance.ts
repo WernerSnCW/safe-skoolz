@@ -10,6 +10,8 @@ import {
   ptaVotesTable,
   ptaProxiesTable,
   ptaAnnouncementsTable,
+  ptaInitiativesTable,
+  voiceGroupsTable,
   usersTable,
   PTA_TIERS,
   PTA_MEMBER_STATUSES,
@@ -17,6 +19,7 @@ import {
   PTA_DECISION_OUTCOMES,
   PTA_PROPOSAL_CATEGORIES,
   PTA_ANNOUNCEMENT_AUDIENCES,
+  PTA_INITIATIVE_STATUSES,
 } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
@@ -626,6 +629,120 @@ router.delete("/pta/announcements/:id", authMiddleware, MANAGE, async (req, res)
   await db.delete(ptaAnnouncementsTable).where(eq(ptaAnnouncementsTable.id, id));
   await writeAudit({ schoolId: u.schoolId, eventType: "pta_announcement_deleted", actor: u, targetType: "pta_announcement", targetId: id, details: {}, req });
   res.json({ ok: true });
+});
+
+// --- Initiatives (organise) -------------------------------------------------
+
+// GET /pta/initiatives — what the PTA is running, with owner + origin VOICE names.
+router.get("/pta/initiatives", authMiddleware, VIEW, async (req, res): Promise<void> => {
+  const u = user(req);
+  const owner = alias(usersTable, "owner_u");
+  const rows = await db
+    .select({
+      id: ptaInitiativesTable.id,
+      title: ptaInitiativesTable.title,
+      summary: ptaInitiativesTable.summary,
+      status: ptaInitiativesTable.status,
+      ownerId: ptaInitiativesTable.ownerId,
+      originVoiceId: ptaInitiativesTable.originVoiceId,
+      targetDate: ptaInitiativesTable.targetDate,
+      createdAt: ptaInitiativesTable.createdAt,
+      completedAt: ptaInitiativesTable.completedAt,
+      ownerFirst: owner.firstName,
+      ownerLast: owner.lastName,
+      originVoiceName: voiceGroupsTable.name,
+    })
+    .from(ptaInitiativesTable)
+    .leftJoin(owner, eq(owner.id, ptaInitiativesTable.ownerId))
+    .leftJoin(voiceGroupsTable, eq(voiceGroupsTable.id, ptaInitiativesTable.originVoiceId))
+    .where(eq(ptaInitiativesTable.schoolId, u.schoolId))
+    .orderBy(desc(ptaInitiativesTable.createdAt));
+
+  res.json({
+    initiatives: rows.map((i) => ({
+      id: i.id,
+      title: i.title,
+      summary: i.summary,
+      status: i.status,
+      ownerId: i.ownerId,
+      owner: i.ownerFirst ? `${i.ownerFirst} ${i.ownerLast}`.trim() : null,
+      originVoiceId: i.originVoiceId,
+      originVoiceName: i.originVoiceName ?? null,
+      targetDate: i.targetDate,
+      createdAt: i.createdAt,
+      completedAt: i.completedAt,
+    })),
+  });
+});
+
+// POST /pta/initiatives — start one. Body: { title, summary, ownerId?, originVoiceId?, targetDate? }
+router.post("/pta/initiatives", authMiddleware, MANAGE, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { title, summary, ownerId = null, originVoiceId = null, targetDate } = req.body ?? {};
+
+  if (!title || typeof title !== "string" || !title.trim()) { res.status(400).json({ error: "title is required" }); return; }
+  if (!summary || typeof summary !== "string" || !summary.trim()) { res.status(400).json({ error: "summary is required" }); return; }
+
+  if (ownerId) {
+    const o = await db.select({ id: usersTable.id }).from(usersTable)
+      .where(and(eq(usersTable.id, ownerId), eq(usersTable.schoolId, u.schoolId))).limit(1);
+    if (!o.length) { res.status(404).json({ error: "Owner not found in this school" }); return; }
+  }
+  if (originVoiceId) {
+    const v = await db.select({ id: voiceGroupsTable.id }).from(voiceGroupsTable)
+      .where(and(eq(voiceGroupsTable.id, originVoiceId), eq(voiceGroupsTable.schoolId, u.schoolId))).limit(1);
+    if (!v.length) { res.status(404).json({ error: "Origin VOICE not found" }); return; }
+  }
+  let target: Date | null = null;
+  if (targetDate) { target = new Date(targetDate); if (isNaN(target.getTime())) { res.status(400).json({ error: "targetDate must be a valid date" }); return; } }
+
+  const [initiative] = await db.insert(ptaInitiativesTable)
+    .values({ schoolId: u.schoolId, title: title.trim(), summary: summary.trim(), ownerId: ownerId || null, originVoiceId: originVoiceId || null, targetDate: target, createdById: u.userId })
+    .returning();
+
+  await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_created", actor: u, targetType: "pta_initiative", targetId: initiative.id, details: { title: title.trim(), originVoiceId }, req });
+  res.status(201).json({ initiative });
+});
+
+// PATCH /pta/initiatives/:id — update fields / advance status. Body: { status?, title?, summary?, ownerId?, targetDate? }
+router.patch("/pta/initiatives/:id", authMiddleware, MANAGE, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const { status, title, summary, ownerId, targetDate } = req.body ?? {};
+
+  if (status !== undefined && !PTA_INITIATIVE_STATUSES.includes(status)) { res.status(400).json({ error: `status must be one of: ${PTA_INITIATIVE_STATUSES.join(", ")}` }); return; }
+
+  const existing = await db.select().from(ptaInitiativesTable)
+    .where(and(eq(ptaInitiativesTable.id, id), eq(ptaInitiativesTable.schoolId, u.schoolId))).limit(1);
+  if (!existing.length) { res.status(404).json({ error: "Initiative not found" }); return; }
+
+  const patch: Record<string, unknown> = {};
+  if (title !== undefined) { if (!title || !String(title).trim()) { res.status(400).json({ error: "title cannot be empty" }); return; } patch.title = String(title).trim(); }
+  if (summary !== undefined) { if (!summary || !String(summary).trim()) { res.status(400).json({ error: "summary cannot be empty" }); return; } patch.summary = String(summary).trim(); }
+  if (ownerId !== undefined) {
+    if (ownerId) {
+      const o = await db.select({ id: usersTable.id }).from(usersTable)
+        .where(and(eq(usersTable.id, ownerId), eq(usersTable.schoolId, u.schoolId))).limit(1);
+      if (!o.length) { res.status(404).json({ error: "Owner not found in this school" }); return; }
+    }
+    patch.ownerId = ownerId || null;
+  }
+  if (targetDate !== undefined) {
+    if (targetDate) { const d = new Date(targetDate); if (isNaN(d.getTime())) { res.status(400).json({ error: "targetDate must be a valid date" }); return; } patch.targetDate = d; }
+    else patch.targetDate = null;
+  }
+  if (status !== undefined) {
+    patch.status = status;
+    // Stamp / clear completion as the lifecycle crosses 'completed'.
+    patch.completedAt = status === "completed" ? sql`now()` : null;
+  }
+  if (Object.keys(patch).length === 0) { res.status(400).json({ error: "Nothing to update" }); return; }
+
+  const [initiative] = await db.update(ptaInitiativesTable).set(patch)
+    .where(eq(ptaInitiativesTable.id, id)).returning();
+
+  await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_updated", actor: u, targetType: "pta_initiative", targetId: id, details: patch.status ? { status } : { fields: Object.keys(patch) }, req });
+  res.json({ initiative });
 });
 
 export default router;

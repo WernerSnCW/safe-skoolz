@@ -1561,6 +1561,59 @@ export const GetPtaResourcesResponse = zod.object({
 });
 
 /**
+ * @summary List PTA initiatives (the organise primitive)
+ */
+export const ListPtaInitiativesResponse = zod.object({
+  initiatives: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        title: zod.string().optional(),
+        summary: zod.string().optional(),
+        status: zod.string().optional(),
+        ownerId: zod.string().nullish(),
+        owner: zod.string().nullish(),
+        originVoiceId: zod.string().nullish(),
+        originVoiceName: zod.string().nullish(),
+        targetDate: zod.string().nullish(),
+        createdAt: zod.string().optional(),
+        completedAt: zod.string().nullish(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Start a PTA initiative
+ */
+export const CreatePtaInitiativeBody = zod.object({
+  title: zod.string(),
+  summary: zod.string(),
+  ownerId: zod.string().nullish(),
+  originVoiceId: zod.string().nullish(),
+  targetDate: zod.string().nullish(),
+});
+
+/**
+ * @summary Update / advance a PTA initiative
+ */
+export const UpdatePtaInitiativeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdatePtaInitiativeBody = zod.object({
+  status: zod.string().optional(),
+  title: zod.string().optional(),
+  summary: zod.string().optional(),
+  ownerId: zod.string().nullish(),
+  targetDate: zod.string().nullish(),
+});
+
+export const UpdatePtaInitiativeResponse = zod.object({
+  initiative: zod.object({}).passthrough().optional(),
+});
+
+/**
  * @summary List VOICE advocacy collectives for the school
  */
 export const ListVoiceResponse = zod.object({

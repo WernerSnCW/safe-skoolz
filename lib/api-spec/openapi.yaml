@@ -1408,6 +1408,89 @@ paths:
                     items:
                       $ref: "#/components/schemas/PtaResource"
 
+  /pta/initiatives:
+    get:
+      operationId: listPtaInitiatives
+      tags: [pta]
+      summary: List PTA initiatives (the organise primitive)
+      responses:
+        "200":
+          description: Initiatives list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initiatives:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        title: { type: string }
+                        summary: { type: string }
+                        status: { type: string }
+                        ownerId: { type: string, nullable: true }
+                        owner: { type: string, nullable: true }
+                        originVoiceId: { type: string, nullable: true }
+                        originVoiceName: { type: string, nullable: true }
+                        targetDate: { type: string, nullable: true }
+                        createdAt: { type: string }
+                        completedAt: { type: string, nullable: true }
+    post:
+      operationId: createPtaInitiative
+      tags: [pta]
+      summary: Start a PTA initiative
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                summary: { type: string }
+                ownerId: { type: string, nullable: true }
+                originVoiceId: { type: string, nullable: true }
+                targetDate: { type: string, nullable: true }
+              required: [title, summary]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initiative: { type: object }
+  /pta/initiatives/{id}:
+    patch:
+      operationId: updatePtaInitiative
+      tags: [pta]
+      summary: Update / advance a PTA initiative
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string }
+                title: { type: string }
+                summary: { type: string }
+                ownerId: { type: string, nullable: true }
+                targetDate: { type: string, nullable: true }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initiative: { type: object }
   /voice:
     get:
       operationId: listVoice

@@ -1,6 +1,7 @@
 import { pgTable, uuid, varchar, text, integer, jsonb, timestamp, boolean, index, unique } from "drizzle-orm/pg-core";
 import { schoolsTable } from "./schools";
 import { usersTable } from "./users";
+import { voiceGroupsTable } from "./voice";
 
 /**
  * PTA governance — membership roster and officer appointments.
@@ -48,6 +49,13 @@ export const PTA_ANNOUNCEMENT_AUDIENCES = [
   "senior_group",
   "general_membership",
 ] as const;
+
+// Initiatives — the "organise" primitive (post-adoption). Where proposals are
+// decisions, ballots are votes, and announcements are comms, an initiative is a
+// concrete thing the PTA RUNS: a project/campaign with a goal and a lifecycle.
+// It often grows out of a converted VOICE's mission (optional originVoiceId),
+// completing the arc: advocate → convert → organise.
+export const PTA_INITIATIVE_STATUSES = ["proposed", "active", "completed", "cancelled"] as const;
 
 export const ptaMembersTable = pgTable("pta_members", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -162,7 +170,28 @@ export const ptaAnnouncementsTable = pgTable("pta_announcements", {
   index("idx_pta_announcements_school").on(t.schoolId),
 ]);
 
+export const ptaInitiativesTable = pgTable("pta_initiatives", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  schoolId: uuid("school_id").references(() => schoolsTable.id).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  // What the PTA is organising and the goal.
+  summary: text("summary").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("proposed"),
+  // Who is leading it (a school user — typically a PTA member/officer). Optional.
+  ownerId: uuid("owner_id").references(() => usersTable.id),
+  // The converted VOICE this initiative grew out of, if any — links the arc.
+  originVoiceId: uuid("origin_voice_id").references(() => voiceGroupsTable.id),
+  targetDate: timestamp("target_date", { withTimezone: true }),
+  createdById: uuid("created_by_id").references(() => usersTable.id).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+}, (t) => [
+  index("idx_pta_initiatives_school").on(t.schoolId),
+  index("idx_pta_initiatives_status").on(t.schoolId, t.status),
+]);
+
 export type PtaBallot = typeof ptaBallotsTable.$inferSelect;
 export type PtaVote = typeof ptaVotesTable.$inferSelect;
 export type PtaProxy = typeof ptaProxiesTable.$inferSelect;
 export type PtaAnnouncement = typeof ptaAnnouncementsTable.$inferSelect;
+export type PtaInitiative = typeof ptaInitiativesTable.$inferSelect;
