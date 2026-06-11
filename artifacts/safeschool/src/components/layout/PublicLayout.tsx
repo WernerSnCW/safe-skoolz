@@ -66,13 +66,6 @@ export function PublicLayout({ children }: { children: ReactNode }) {
               SchoolVBE
             </span>
           </Link>
-          <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
-            {NAV.map((n) => (
-              <Link key={n.href} href={n.href} className="transition-colors hover:text-foreground">
-                {n.label}
-              </Link>
-            ))}
-          </nav>
           <div className="flex items-center gap-3">
             <Link
               href="/login"
@@ -86,7 +79,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
-              className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+              className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
             >
@@ -96,7 +89,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
         </div>
 
         {menuOpen && (
-          <div className="border-t border-border/60 bg-background md:hidden">
+          <div className="border-t border-border/60 bg-background">
             <nav className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
               <div className="flex flex-col gap-1">
                 {NAV.map((n) => (
