@@ -47,6 +47,7 @@ import type {
   FlagPtaPolicy201,
   FlagPtaPolicyBody,
   GeneratePtaReport201,
+  GetCommunityDiagnostic200,
   GetLatestPtaReport200,
   GetPtaAnnouncementFeed200,
   GetPtaResources200,
@@ -101,6 +102,8 @@ import type {
   SetPtaProxy201,
   SetPtaProxyBody,
   StaffLoginBody,
+  SubmitCommunityDiagnostic201,
+  SubmitCommunityDiagnosticBody,
   SubmitPtaCodesignResponse201,
   SubmitPtaCodesignResponseBody,
   SubmitPtaConcernBody,
@@ -6115,4 +6118,187 @@ export const useSupportVoice = <
   TContext
 > => {
   return useMutation(getSupportVoiceMutationOptions(options));
+};
+
+/**
+ * @summary Get a community diagnostic survey by slug (no auth)
+ */
+export const getGetCommunityDiagnosticUrl = (slug: string) => {
+  return `/api/d/${slug}`;
+};
+
+export const getCommunityDiagnostic = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<GetCommunityDiagnostic200> => {
+  return customFetch<GetCommunityDiagnostic200>(
+    getGetCommunityDiagnosticUrl(slug),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetCommunityDiagnosticQueryKey = (slug: string) => {
+  return [`/api/d/${slug}`] as const;
+};
+
+export const getGetCommunityDiagnosticQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCommunityDiagnostic>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCommunityDiagnostic>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetCommunityDiagnosticQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCommunityDiagnostic>>
+  > = ({ signal }) =>
+    getCommunityDiagnostic(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCommunityDiagnostic>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCommunityDiagnosticQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCommunityDiagnostic>>
+>;
+export type GetCommunityDiagnosticQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a community diagnostic survey by slug (no auth)
+ */
+
+export function useGetCommunityDiagnostic<
+  TData = Awaited<ReturnType<typeof getCommunityDiagnostic>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCommunityDiagnostic>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCommunityDiagnosticQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Submit answers to a community diagnostic (no auth)
+ */
+export const getSubmitCommunityDiagnosticUrl = (slug: string) => {
+  return `/api/d/${slug}/submit`;
+};
+
+export const submitCommunityDiagnostic = async (
+  slug: string,
+  submitCommunityDiagnosticBody: SubmitCommunityDiagnosticBody,
+  options?: RequestInit,
+): Promise<SubmitCommunityDiagnostic201> => {
+  return customFetch<SubmitCommunityDiagnostic201>(
+    getSubmitCommunityDiagnosticUrl(slug),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(submitCommunityDiagnosticBody),
+    },
+  );
+};
+
+export const getSubmitCommunityDiagnosticMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitCommunityDiagnostic>>,
+    TError,
+    { slug: string; data: BodyType<SubmitCommunityDiagnosticBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof submitCommunityDiagnostic>>,
+  TError,
+  { slug: string; data: BodyType<SubmitCommunityDiagnosticBody> },
+  TContext
+> => {
+  const mutationKey = ["submitCommunityDiagnostic"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof submitCommunityDiagnostic>>,
+    { slug: string; data: BodyType<SubmitCommunityDiagnosticBody> }
+  > = (props) => {
+    const { slug, data } = props ?? {};
+
+    return submitCommunityDiagnostic(slug, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SubmitCommunityDiagnosticMutationResult = NonNullable<
+  Awaited<ReturnType<typeof submitCommunityDiagnostic>>
+>;
+export type SubmitCommunityDiagnosticMutationBody =
+  BodyType<SubmitCommunityDiagnosticBody>;
+export type SubmitCommunityDiagnosticMutationError = ErrorType<void>;
+
+/**
+ * @summary Submit answers to a community diagnostic (no auth)
+ */
+export const useSubmitCommunityDiagnostic = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitCommunityDiagnostic>>,
+    TError,
+    { slug: string; data: BodyType<SubmitCommunityDiagnosticBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof submitCommunityDiagnostic>>,
+  TError,
+  { slug: string; data: BodyType<SubmitCommunityDiagnosticBody> },
+  TContext
+> => {
+  return useMutation(getSubmitCommunityDiagnosticMutationOptions(options));
 };

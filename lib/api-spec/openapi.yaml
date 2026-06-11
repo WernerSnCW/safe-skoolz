@@ -27,6 +27,8 @@ tags:
     description: Dashboard data
   - name: pta
     description: PTA portal
+  - name: diagnostic
+    description: Community diagnostic surveys
 
 paths:
   /healthz:
@@ -1680,6 +1682,88 @@ paths:
                 properties:
                   ok: { type: boolean }
                   alreadyBacking: { type: boolean }
+
+  /d/{slug}:
+    get:
+      operationId: getCommunityDiagnostic
+      tags: [diagnostic]
+      summary: Get a community diagnostic survey by slug (no auth)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Diagnostic survey
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title: { type: string }
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key: { type: string }
+                        section: { type: string }
+                        text: { type: string }
+                        type: { type: string }
+                        options:
+                          type: array
+                          items: { type: string }
+                        optional: { type: boolean }
+                      required: [key, section, text, type]
+                  submissionCount: { type: integer }
+                  released: { type: boolean }
+                required: [title, questions, submissionCount, released]
+        "404":
+          description: Not found
+
+  /d/{slug}/submit:
+    post:
+      operationId: submitCommunityDiagnostic
+      tags: [diagnostic]
+      summary: Submit answers to a community diagnostic (no auth)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                name: { type: string }
+                yearGroup: { type: string }
+                classOrTeacher: { type: string }
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      questionKey: { type: string }
+                      answer: { type: integer }
+                      freeText: { type: string }
+                    required: [questionKey]
+              required: [email, answers]
+      responses:
+        "201":
+          description: Submission recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  counted: { type: boolean }
+                  count: { type: integer }
+                required: [counted, count]
+        "400":
+          description: Invalid submission
+        "409":
+          description: Email already took part
+        "429":
+          description: Rate limited
 
 components:
   schemas:

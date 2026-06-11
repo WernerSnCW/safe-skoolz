@@ -1045,3 +1045,38 @@ export type SupportVoice201 = {
   ok?: boolean;
   alreadyBacking?: boolean;
 };
+
+export type GetCommunityDiagnostic200QuestionsItem = {
+  key: string;
+  section: string;
+  text: string;
+  type: string;
+  options?: string[];
+  optional?: boolean;
+};
+
+export type GetCommunityDiagnostic200 = {
+  title: string;
+  questions: GetCommunityDiagnostic200QuestionsItem[];
+  submissionCount: number;
+  released: boolean;
+};
+
+export type SubmitCommunityDiagnosticBodyAnswersItem = {
+  questionKey: string;
+  answer?: number;
+  freeText?: string;
+};
+
+export type SubmitCommunityDiagnosticBody = {
+  email: string;
+  name?: string;
+  yearGroup?: string;
+  classOrTeacher?: string;
+  answers: SubmitCommunityDiagnosticBodyAnswersItem[];
+};
+
+export type SubmitCommunityDiagnostic201 = {
+  counted: boolean;
+  count: number;
+};

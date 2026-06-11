@@ -1739,3 +1739,47 @@ export const SupportVoiceBody = zod.object({
   name: zod.string(),
   email: zod.string(),
 });
+
+/**
+ * @summary Get a community diagnostic survey by slug (no auth)
+ */
+export const GetCommunityDiagnosticParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetCommunityDiagnosticResponse = zod.object({
+  title: zod.string(),
+  questions: zod.array(
+    zod.object({
+      key: zod.string(),
+      section: zod.string(),
+      text: zod.string(),
+      type: zod.string(),
+      options: zod.array(zod.string()).optional(),
+      optional: zod.boolean().optional(),
+    }),
+  ),
+  submissionCount: zod.number(),
+  released: zod.boolean(),
+});
+
+/**
+ * @summary Submit answers to a community diagnostic (no auth)
+ */
+export const SubmitCommunityDiagnosticParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const SubmitCommunityDiagnosticBody = zod.object({
+  email: zod.string(),
+  name: zod.string().optional(),
+  yearGroup: zod.string().optional(),
+  classOrTeacher: zod.string().optional(),
+  answers: zod.array(
+    zod.object({
+      questionKey: zod.string(),
+      answer: zod.number().optional(),
+      freeText: zod.string().optional(),
+    }),
+  ),
+});
