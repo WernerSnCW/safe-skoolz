@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useListNotifications } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
+import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import {
   AlertTriangle, Bell, FileText, Activity, TrendingUp, Users,
   BarChart3, PieChart as PieChartIcon, MapPin, Clock, Calendar,
@@ -402,6 +405,7 @@ export default function ParentDashboard({ user }: { user: any }) {
     },
   });
 
+  const { totalUnread: messageUnread } = useMessageNotifications();
   const childIds = parentData?.children?.map((c: any) => c.id) || [];
   const { data: childBehaviourData } = useQuery({
     queryKey: ["parent-children-behaviour", childIds],
@@ -502,6 +506,25 @@ export default function ParentDashboard({ user }: { user: any }) {
     ? childrenList.map((c: any) => c.firstName).join(" & ")
     : t("yourChild");
 
+  const digest: DigestItem[] = [];
+  if (messageUnread > 0) {
+    digest.push({
+      id: "messages", icon: MessageCircle, tone: "info",
+      title: t("newMessagesCount", { count: messageUnread, defaultValue: `${messageUnread} new messages` }),
+      detail: t("fromSchool", { defaultValue: "From the school" }),
+      href: "/messages", unread: true,
+    });
+  }
+  for (const inc of filteredIncidents.slice(0, 2)) {
+    digest.push({
+      id: `inc-${inc.id}`, icon: FileText,
+      tone: inc.status === "closed" || inc.status === "resolved" ? "info" : "warning",
+      title: t("incidentUpdate", { defaultValue: "Incident update" }),
+      detail: `${inc.referenceNumber} · ${inc.status}`,
+      href: `/incidents/${inc.id}`,
+    });
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-8 max-w-5xl mx-auto animate-pulse">
@@ -522,29 +545,34 @@ export default function ParentDashboard({ user }: { user: any }) {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-display font-bold">{t("welcomeBack", { name: user.firstName })}</h1>
-          <p className="text-muted-foreground mt-1">
-            {t("stayInformed", { child: childName })}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {PERIOD_OPTIONS.map((opt) => (
-            <button
-              key={opt.days}
-              onClick={() => setPeriodDays(opt.days)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                periodDays === opt.days
-                  ? "bg-primary text-white"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Parent"
+        title={t("welcomeBack", { name: user.firstName })}
+        subtitle={t("stayInformed", { child: childName })}
+        action={
+          <div className="flex items-center gap-2">
+            {PERIOD_OPTIONS.map((opt) => (
+              <button
+                key={opt.days}
+                onClick={() => setPeriodDays(opt.days)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                  periodDays === opt.days
+                    ? "bg-primary text-white"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        }
+      />
+
+      <WhatsNewBand
+        items={digest}
+        heading={t("sinceLastHere", { defaultValue: "Since you were last here" })}
+        emptyLabel={t("allCaughtUp", { defaultValue: "You're all caught up." })}
+      />
 
       {pendingDisclosures.length > 0 && (
         <div className="space-y-3">
