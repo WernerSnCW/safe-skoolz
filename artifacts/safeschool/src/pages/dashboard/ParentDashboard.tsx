@@ -90,8 +90,8 @@ function ParentReportCard({ inc }: { inc: any }) {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-mono text-xs text-muted-foreground">{inc.referenceNumber}</span>
               <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                inc.status === "closed" ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" :
-                inc.status === "investigating" ? "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" :
+                inc.status === "closed" ? "bg-success/15 text-success" :
+                inc.status === "investigating" ? "bg-info/15 text-info" :
                 "bg-warning/20 text-warning"
               }`}>
                 {PARENT_STATUS_LABELS[inc.status] || inc.status}
@@ -267,12 +267,12 @@ function ContactPTACard() {
   if (!ptaContacts || ptaContacts.length === 0) return null;
 
   return (
-    <Card className="border-purple-200 dark:border-purple-900/50">
+    <Card className="border-role-pta/30">
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-950/30 rounded-xl flex items-center justify-center">
-              <MessageCircle size={24} className="text-purple-600 dark:text-purple-400" />
+            <div className="w-12 h-12 bg-role-pta/15 rounded-xl flex items-center justify-center">
+              <MessageCircle size={24} className="text-role-pta" />
             </div>
             <div>
               <h3 className="font-bold">{t("contactYourPta")}</h3>
@@ -285,7 +285,7 @@ function ContactPTACard() {
             variant="outline"
             size="sm"
             onClick={() => { setIsOpen(!isOpen); setSent(false); }}
-            className="border-purple-300 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/30"
+            className="border-role-pta/40 text-role-pta hover:bg-role-pta/10"
           >
             <Send size={14} className="mr-1" />
             {isOpen ? t("common:close") : t("sendMessage")}
@@ -301,8 +301,8 @@ function ContactPTACard() {
               className="overflow-hidden"
             >
               {sent ? (
-                <div className="mt-4 p-4 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/30 text-center">
-                  <CheckCircle2 size={32} className="mx-auto text-green-500 mb-2" />
+                <div className="mt-4 p-4 rounded-xl bg-success/10 border border-success/30 text-center">
+                  <CheckCircle2 size={32} className="mx-auto text-success mb-2" />
                   <p className="font-bold text-sm">{t("messageSent")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {t("messageSentPta")}
@@ -317,7 +317,7 @@ function ContactPTACard() {
                       value={subject}
                       onChange={e => setSubject(e.target.value)}
                       placeholder={t("subjectPlaceholder")}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-role-pta/40"
                     />
                   </div>
                   <div>
@@ -327,7 +327,7 @@ function ContactPTACard() {
                       onChange={e => setMessage(e.target.value)}
                       placeholder={t("writeMessageToPta")}
                       rows={3}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-role-pta/40 resize-none"
                     />
                   </div>
                   <div className="flex justify-end">
@@ -335,7 +335,7 @@ function ContactPTACard() {
                       onClick={() => sendMutation.mutate()}
                       disabled={!message.trim() || sendMutation.isPending}
                       size="sm"
-                      className="bg-purple-600 hover:bg-purple-700"
+                      className="bg-role-pta hover:bg-role-pta/90"
                     >
                       <Send size={14} className="mr-1" />
                       {sendMutation.isPending ? t("common:sending") : t("sendToPta")}
@@ -549,15 +549,15 @@ export default function ParentDashboard({ user }: { user: any }) {
       {pendingDisclosures.length > 0 && (
         <div className="space-y-3">
           {pendingDisclosures.map((disc: any) => (
-            <Card key={disc.id} className="border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20">
+            <Card key={disc.id} className="border-warning/40 bg-warning/10">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center flex-shrink-0">
-                    <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400" />
+                  <div className="w-10 h-10 rounded-xl bg-warning/15 flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle size={20} className="text-warning" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm">{t("actionRequired")}</h3>
-                    <p className="text-sm text-amber-700 dark:text-amber-400 mt-1" dangerouslySetInnerHTML={{ __html: t("schoolSharedDetails", { ref: disc.referenceNumber }) }} />
+                    <h3 className="font-bold text-warning text-sm">{t("actionRequired")}</h3>
+                    <p className="text-sm text-warning mt-1" dangerouslySetInnerHTML={{ __html: t("schoolSharedDetails", { ref: disc.referenceNumber }) }} />
 
                     {ackDisclosureId === disc.id ? (
                       <div className="mt-3 space-y-2">
@@ -567,14 +567,14 @@ export default function ParentDashboard({ user }: { user: any }) {
                           placeholder={t("addResponseOptional")}
                           maxLength={1000}
                           rows={2}
-                          className="w-full px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-300"
+                          className="w-full px-3 py-2 rounded-lg border border-warning/30 bg-white dark:bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-warning/40"
                         />
                         <div className="flex gap-2">
                           <Button
                             size="sm"
                             onClick={() => acknowledgeMutation.mutate({ incidentId: disc.incidentId, disclosureId: disc.id, response: ackResponse })}
                             disabled={acknowledgeMutation.isPending}
-                            className="bg-amber-600 hover:bg-amber-700 text-white"
+                            className="bg-warning hover:bg-warning/90 text-warning-foreground"
                           >
                             <CheckCircle2 size={14} className="mr-1" />
                             {acknowledgeMutation.isPending ? t("confirming") : t("confirmAcknowledgement")}
@@ -596,7 +596,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                       <Button
                         size="sm"
                         onClick={() => setAckDisclosureId(disc.id)}
-                        className="mt-2 bg-amber-600 hover:bg-amber-700 text-white"
+                        className="mt-2 bg-warning hover:bg-warning/90 text-warning-foreground"
                       >
                         <CheckCircle2 size={14} className="mr-1" />
                         {t("acknowledge")}
@@ -627,7 +627,7 @@ export default function ParentDashboard({ user }: { user: any }) {
         </Card>
         <Card>
           <CardContent className="p-5 text-center">
-            <Activity className="mx-auto text-green-600 mb-2" size={28} aria-hidden="true" />
+            <Activity className="mx-auto text-success mb-2" size={28} aria-hidden="true" />
             <p className="text-3xl font-bold">{filteredIncidents.filter((i: any) => i.status === "closed").length}</p>
             <p className="text-xs text-muted-foreground font-medium mt-1">{t("statusResolved")}</p>
           </CardContent>
@@ -861,7 +861,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                         <p className="text-xs text-muted-foreground font-medium mt-1">{t("totalReports")}</p>
                       </div>
                       <div className="text-center p-4 rounded-xl bg-muted/50">
-                        <p className="text-2xl font-bold text-green-600">{schoolData.resolutionRate}%</p>
+                        <p className="text-2xl font-bold text-success">{schoolData.resolutionRate}%</p>
                         <p className="text-xs text-muted-foreground font-medium mt-1">{t("resolutionRate")}</p>
                       </div>
                       <div className="text-center p-4 rounded-xl bg-muted/50">
@@ -950,8 +950,8 @@ export default function ParentDashboard({ user }: { user: any }) {
                           {schoolData.byEscalationTier.map((tier: any) => (
                             <div key={tier.name} className={`text-center p-3 rounded-xl ${
                               tier.name === "Level 3" ? "bg-destructive/10 text-destructive" :
-                              tier.name === "Level 2" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400" :
-                              "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                              tier.name === "Level 2" ? "bg-warning/15 text-warning" :
+                              "bg-success/15 text-success"
                             }`}>
                               <p className="text-xl font-bold">{tier.count}</p>
                               <p className="text-xs font-medium mt-0.5">{tier.name}</p>
