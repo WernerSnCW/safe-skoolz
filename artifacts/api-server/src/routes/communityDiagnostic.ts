@@ -45,7 +45,7 @@ router.get("/d/:slug", async (req, res): Promise<void> => {
 // POST /d/:slug/submit — email-gated, rate-limited, stores answers unlinkably (spec §4.2).
 const submitLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 20,
+  max: 60,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many submissions from this connection. Please try again later." },
@@ -62,7 +62,7 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
   const [survey] = await db
     .select()
     .from(diagnosticSurveysTable)
-    .where(eq(diagnosticSurveysTable.publicSlug, slug));
+    .where(and(eq(diagnosticSurveysTable.publicSlug, slug), isNotNull(diagnosticSurveysTable.publicSlug)));
   if (!survey || survey.status !== "active") {
     res.status(404).json({ error: "Survey not found" });
     return;
@@ -92,6 +92,25 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
     }
   }
 
+  // Fix 4: every non-optional question must be answered.
+  // scale questions need answer != null; text questions need non-empty freeText.
+  const answerMap = new Map(answers.map((a: any) => [a.questionKey, a]));
+  for (const q of instrument) {
+    if (q.optional) continue;
+    const a = answerMap.get(q.key);
+    if (q.type === "scale") {
+      if (!a || a.answer == null) {
+        res.status(400).json({ error: "Please answer every question (the open question is optional)." });
+        return;
+      }
+    } else {
+      if (!a || !a.freeText || String(a.freeText).trim() === "") {
+        res.status(400).json({ error: "Please answer every question (the open question is optional)." });
+        return;
+      }
+    }
+  }
+
   const normalEmail = email.toLowerCase().trim();
   const emailHash = crypto.createHash("sha256").update(normalEmail).digest("hex");
 
@@ -110,31 +129,42 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
   // One transaction; the responseId never touches the submission row —
   // answers are unlinkable from the email by construction (spec §4.2).
   const responseId = crypto.randomUUID();
-  await db.transaction(async (tx) => {
-    await tx.insert(diagnosticSubmissionsTable).values({
-      surveyId: survey.id,
-      email: normalEmail,
-      emailHash,
-      name: name ? String(name).trim().slice(0, 150) : null,
-    });
-    await tx.insert(diagnosticAnswersTable).values(
-      answers.map((a: any) => ({
+  try {
+    await db.transaction(async (tx) => {
+      await tx.insert(diagnosticSubmissionsTable).values({
         surveyId: survey.id,
-        responseId,
-        questionKey: String(a.questionKey),
-        answer: a.answer ?? null,
-        freeText: a.freeText ? String(a.freeText).trim() : null,
-      })),
-    );
-    if (yearGroup || classOrTeacher) {
-      await tx.insert(diagnosticResponseMetaTable).values({
-        surveyId: survey.id,
-        responseId,
-        yearGroup: yearGroup ? String(yearGroup).slice(0, 20) : null,
-        classOrTeacher: classOrTeacher ? String(classOrTeacher).slice(0, 80) : null,
+        email: normalEmail,
+        emailHash,
+        name: name ? String(name).trim().slice(0, 150) : null,
       });
+      await tx.insert(diagnosticAnswersTable).values(
+        answers.map((a: any) => ({
+          surveyId: survey.id,
+          responseId,
+          questionKey: String(a.questionKey),
+          answer: a.answer ?? null,
+          freeText: a.freeText ? String(a.freeText).trim() : null,
+        })),
+      );
+      if (yearGroup || classOrTeacher) {
+        await tx.insert(diagnosticResponseMetaTable).values({
+          surveyId: survey.id,
+          responseId,
+          yearGroup: yearGroup ? String(yearGroup).slice(0, 20) : null,
+          classOrTeacher: classOrTeacher ? String(classOrTeacher).slice(0, 80) : null,
+        });
+      }
+    });
+  } catch (e: any) {
+    // Fix 1: concurrent duplicate submissions hit the unique constraint instead of
+    // the pre-check; surface a clean 409 rather than an unhandled 500.
+    const pgCode = e?.code ?? e?.cause?.code;
+    if (pgCode === "23505") {
+      res.status(409).json({ error: "This email address has already taken part." });
+      return;
     }
-  });
+    throw e;
+  }
 
   // Task 5: Conversion (spec funnel stage 4): invite the participant to create an
   // account so they can see the results when the exec releases them.
@@ -144,41 +174,55 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
     if (!user) {
       const first = (name ? String(name).trim().split(/\s+/)[0] : "") || "Morna";
       const last = (name ? String(name).trim().split(/\s+/).slice(1).join(" ") : "") || "Parent";
-      [user] = await db.insert(usersTable).values({
+      // Fix 2: use onConflictDoNothing to handle a creation race; if another
+      // request inserted this email between our SELECT and INSERT, re-select.
+      const inserted = await db.insert(usersTable).values({
         schoolId: survey.schoolId,
         role: "parent",
         firstName: first,
         lastName: last,
         email: normalEmail,
         membershipStatus: "pending",
-      } as any).returning();
+      } as any).onConflictDoNothing().returning();
+      if (inserted.length > 0) {
+        user = inserted[0];
+      } else {
+        [user] = await db.select().from(usersTable).where(eq(usersTable.email, normalEmail));
+      }
     }
-    const token = crypto.randomBytes(32).toString("hex");
-    const tokenHash = await bcrypt.hash(token, 12);
-    await db.insert(passwordResetTokensTable).values({
-      userId: user.id,
-      tokenHash,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days — campaign pace, not security reset
-    });
-    const appUrl = process.env.APP_URL ?? "http://localhost:5000";
-    const link = `${appUrl}/reset-password?token=${token}`;
-    if (!process.env.RESEND_API_KEY) {
-      console.log(`[community-diagnostic] DEV signup link for ${normalEmail}: ${link}`);
+    // Fix 3: only send a password-reset token + invite email to users who have NO
+    // password yet (i.e. never created an account). Users who already have a password
+    // have an active account — they will be notified via the results-release flow in
+    // M2. Sending a reset token to them would be a reset-token spam vector.
+    if (!user.passwordHash) {
+      const token = crypto.randomBytes(32).toString("hex");
+      const tokenHash = await bcrypt.hash(token, 12);
+      await db.insert(passwordResetTokensTable).values({
+        userId: user.id,
+        tokenHash,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days — campaign pace, not security reset
+      });
+      const appUrl = process.env.APP_URL ?? "http://localhost:5000";
+      const link = `${appUrl}/reset-password?token=${token}`;
+      if (!process.env.RESEND_API_KEY) {
+        console.log(`[community-diagnostic] DEV signup link for ${normalEmail}: ${link}`);
+      }
+      // Fix 7: bound toName to prevent oversized headers.
+      await sendEmail({
+        to: normalEmail,
+        toName: String(name ? String(name) : "Morna parent").slice(0, 150),
+        subject: "You're counted — create your account to see the results",
+        bodyText:
+          `Thank you for taking part in the community diagnostic.\n\n` +
+          `Your answers are anonymous and cannot be traced back to this email — not even by us.\n\n` +
+          `When the results are released, every participant will see them. Create your account now so you're ready:\n\n` +
+          `${link}\n\n` +
+          `This link is valid for 7 days. If you didn't take the diagnostic, you can ignore this email.`,
+        trigger: "community_diagnostic_signup",
+        recipientId: user.id,
+        schoolId: survey.schoolId,
+      }).catch(() => {});
     }
-    await sendEmail({
-      to: normalEmail,
-      toName: name ? String(name) : "Morna parent",
-      subject: "You're counted — create your account to see the results",
-      bodyText:
-        `Thank you for taking part in the community diagnostic.\n\n` +
-        `Your answers are anonymous and cannot be traced back to this email — not even by us.\n\n` +
-        `When the results are released, every participant will see them. Create your account now so you're ready:\n\n` +
-        `${link}\n\n` +
-        `This link is valid for 7 days. If you didn't take the diagnostic, you can ignore this email.`,
-      trigger: "community_diagnostic_signup",
-      recipientId: user.id,
-      schoolId: survey.schoolId,
-    }).catch(() => {});
   })().catch((e) => console.error("[community-diagnostic] invite failed:", e));
 
   const [{ count }] = await db

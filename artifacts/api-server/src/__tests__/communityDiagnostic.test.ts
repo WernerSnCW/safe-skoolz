@@ -48,13 +48,26 @@ beforeAll(async () => {
 
 afterAll(async () => {
   // Test data cleanup so reruns don't collide on the fixed 'cd-test' slug.
-  // Brief pause to let any in-flight async invite writes settle before cleanup.
-  await new Promise((r) => setTimeout(r, 600));
-  await pool.query(`DELETE FROM diagnostic_answers WHERE survey_id = $1`, [surveyId]);
-  await pool.query(`DELETE FROM diagnostic_response_meta WHERE survey_id = $1`, [surveyId]);
-  await pool.query(`DELETE FROM diagnostic_submissions WHERE survey_id = $1`, [surveyId]);
-  await pool.query(`DELETE FROM password_reset_tokens WHERE user_id IN (SELECT id FROM users WHERE school_id = $1)`, [schoolId]);
-  await pool.query(`DELETE FROM diagnostic_surveys WHERE id = $1`, [surveyId]);
+  // Fix 5: poll until the password_reset_tokens count for this school's users
+  // stops growing (or up to 3s), so in-flight async invite writes settle before
+  // we DELETE. Avoids a fixed sleep that is either too short or wastes CI time.
+  let prev = -1;
+  const deadline = Date.now() + 3000;
+  while (Date.now() < deadline) {
+    const { rows } = await pool.query<{ c: number }>(
+      `SELECT count(*)::int AS c FROM password_reset_tokens WHERE user_id IN (SELECT id FROM users WHERE school_id = $1)`,
+      [schoolId],
+    );
+    const cur = rows[0].c;
+    if (cur === prev) break;
+    prev = cur;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  try { await pool.query(`DELETE FROM diagnostic_answers WHERE survey_id = $1`, [surveyId]); } catch {}
+  try { await pool.query(`DELETE FROM diagnostic_response_meta WHERE survey_id = $1`, [surveyId]); } catch {}
+  try { await pool.query(`DELETE FROM diagnostic_submissions WHERE survey_id = $1`, [surveyId]); } catch {}
+  try { await pool.query(`DELETE FROM password_reset_tokens WHERE user_id IN (SELECT id FROM users WHERE school_id = $1)`, [schoolId]); } catch {}
+  try { await pool.query(`DELETE FROM diagnostic_surveys WHERE id = $1`, [surveyId]); } catch {}
   // Note: audit_log is append-only (DB trigger blocks DELETE). Users/schools are
   // intentionally left (same pattern as dsar.test.ts); only the survey rows that
   // carry the fixed slug 'cd-test' must be removed to allow reruns.
@@ -137,6 +150,17 @@ describe("POST /api/d/:slug/submit", () => {
     const bad2 = await submit({ answers: [{ questionKey: "q_scale", answer: 1 }] });
     expect(bad2.status).toBe(400);
   });
+
+  it("rejects a submission missing required questions", async () => {
+    // q_scale is non-optional; q_text is optional — submitting only q_text must fail.
+    const r = await submit({
+      email: `missing-required-${Date.now()}@example.com`,
+      answers: [{ questionKey: "q_text", freeText: "x" }],
+    });
+    expect(r.status).toBe(400);
+    const body = await r.json() as any;
+    expect(body.error).toMatch(/answer every question/i);
+  });
 });
 
 describe("signup invite on submission", () => {
@@ -186,5 +210,35 @@ describe("signup invite on submission", () => {
     await new Promise((rr) => setTimeout(rr, 500));
     const usr = await pool.query(`SELECT count(*)::int AS c FROM users WHERE email = $1`, [email]);
     expect(usr.rows[0].c).toBe(1);
+  });
+
+  it("does not send a token to an account that already has a password", async () => {
+    const email = `haspw-${Date.now()}@example.com`;
+    // Insert a user that already has a password hash (simulating a fully-created account).
+    const { rows } = await pool.query<{ id: string }>(
+      `INSERT INTO users (school_id, role, first_name, last_name, email, active, password_hash)
+       VALUES ($1, 'parent', 'Has', 'Password', $2, true, $3) RETURNING id`,
+      [schoolId, email, '$2b$12$abcdefghijklmnopqrstuv'],
+    );
+    const userId = rows[0].id;
+
+    const r = await fetch(`${baseUrl}/api/d/cd-test/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, answers: [{ questionKey: "q_scale", answer: 3 }] }),
+    });
+    expect(r.status).toBe(201);
+
+    // Poll up to ~1s to confirm no token was inserted for this user.
+    let tokenCount = 0;
+    for (let i = 0; i < 10; i++) {
+      await new Promise((rr) => setTimeout(rr, 100));
+      const res = await pool.query<{ c: number }>(
+        `SELECT count(*)::int AS c FROM password_reset_tokens WHERE user_id = $1`,
+        [userId],
+      );
+      tokenCount = res.rows[0].c;
+    }
+    expect(tokenCount).toBe(0);
   });
 });
