@@ -41,8 +41,13 @@ export default function CommunityDiagnosticPage({ slug }: { slug: string }) {
     return out;
   }, [survey]);
 
+  // Mirror the server's completeness rule: every non-optional question must be
+  // answered (scale → an option picked; text → non-empty), instrument-driven.
   const requiredScale = (survey?.questions ?? []).filter((x: any) => x.type === "scale" && !x.optional);
-  const answeredAll = requiredScale.every((x: any) => answers[x.key] != null);
+  const requiredText = (survey?.questions ?? []).filter((x: any) => x.type === "text" && !x.optional);
+  const answeredAll =
+    requiredScale.every((x: any) => answers[x.key] != null) &&
+    requiredText.every((x: any) => freeTexts[x.key]?.trim());
 
   const onSubmit = async () => {
     setErr(null);
