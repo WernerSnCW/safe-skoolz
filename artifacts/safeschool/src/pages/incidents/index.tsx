@@ -290,7 +290,7 @@ export default function IncidentsList() {
                       <p className="text-sm font-semibold">{formatDate(inc.incidentDate)}</p>
                       <p className={`text-xs font-bold capitalize ${
                         inc.status === "escalated" ? "text-destructive" :
-                        inc.status === "investigating" ? "text-amber-600" :
+                        inc.status === "investigating" ? "text-warning" :
                         inc.status === "open" ? "text-primary" :
                         "text-muted-foreground"
                       }`}>
