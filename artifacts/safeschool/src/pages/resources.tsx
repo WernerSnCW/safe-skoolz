@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Download } from "lucide-react";
+import { Download } from "lucide-react";
 
 // SchoolVBE "Resources" library (Phase 3 content migration). Copy reused
 // verbatim from the live site (/resources/). Presentational + SSR-safe so it
@@ -209,8 +209,7 @@ const CLUSTERS: Cluster[] = [
       {
         title: "The Community Prevalence Survey",
         body: "The four instruments and behavioural-itemisation methodology as a live, free tool. Run it before you have a structured wellbeing system.",
-        status: { label: "Free tool" },
-        href: "/resources/survey",
+        status: "soon",
       },
       {
         title: "Prevalence Survey Framework",
@@ -381,13 +380,9 @@ export default function ResourcesPage() {
             For a school of 500 pupils/parents, you need at least 218 responses to achieve 95%
             confidence with a 5% margin of error.
           </p>
-          <Link
-            href="/resources/calculator"
-            className="mt-4 inline-flex items-center text-sm font-semibold text-primary"
-          >
-            Open the standalone calculator
-            <ArrowRight className="ml-1.5 h-4 w-4" />
-          </Link>
+          <span className="mt-4 inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Coming soon
+          </span>
         </section>
       </div>
 

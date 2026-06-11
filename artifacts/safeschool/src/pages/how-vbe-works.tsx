@@ -36,7 +36,7 @@ const STEPS: {
     lead: "Choose your values — in 10 working days.",
     body: "The VBE Adoption Pack walks your SLT, teachers, parents and pupils through choosing five values and, crucially, the observable behaviours that make each one real — something a child can do and be held to on any given day.",
     does: "vibez gives you the pack, the process, and a place to record the values and behaviours your community agrees on.",
-    cta: { label: "Get the VBE Adoption Pack", href: "/schools" },
+    cta: { label: "Get the VBE Adoption Pack", href: "/resources" },
   },
   {
     n: 3,
@@ -114,7 +114,7 @@ export default function HowVbeWorks() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/schools"
+              href="/resources"
               className="inline-flex items-center rounded-xl bg-primary-foreground px-7 py-3 text-base font-semibold text-primary shadow-sm transition-colors hover:bg-primary-foreground/90"
             >
               Get the VBE Adoption Pack

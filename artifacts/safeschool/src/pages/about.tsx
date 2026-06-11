@@ -5,13 +5,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 
-// SchoolVBE "About" marketing page (Phase 3 content migration). Copy reused
-// verbatim from the live site (/about/). Presentational + SSR-safe so it
-// prerenders: the contact form's initial render is plain markup; its onSubmit
-// only runs client-side after hydration. The form currently shows a local
-// confirmation — wiring submissions to the real api-server is Phase 4 (the
-// "public forms → api" seam). The #contact anchor is linked from across the
-// site (e.g. PTA/parent "Free Support" cards).
+// SchoolVBE "About" marketing page (Phase 3 content migration). Presentational
+// + SSR-safe so it prerenders: the contact form's initial render is plain
+// markup; its onSubmit only runs client-side after hydration. Submissions POST
+// to /api/contact (stored in contact_messages). The #contact anchor is linked
+// from across the site (e.g. PTA/parent "Free Support" cards).
 
 const PRINCIPLES: { lead: string; body: string }[] = [
   {
@@ -24,7 +22,7 @@ const PRINCIPLES: { lead: string; body: string }[] = [
   },
   {
     lead: "Free and open.",
-    body: "The full resource library is free; our paid services are about time and facilitation, never access.",
+    body: "Everything on SchoolVBE is free — the resource library, the diagnostic, the surveys, and the vibez software. Access is never the product.",
   },
   {
     lead: "Evidence-led.",
@@ -36,12 +34,35 @@ const ROLES = ["School leader / SLT", "Governor", "PTA officer", "Parent", "Othe
 
 export default function AboutPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Placeholder until Phase 4 wires this to the api-server. Keep the data
-  // client-side; show a thank-you so the page is functional in the interim.
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitted(true);
+    setError(null);
+    setSending(true);
+    const form = new FormData(e.currentTarget);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.get("name"),
+          email: form.get("email"),
+          role: form.get("role") || undefined,
+          message: form.get("message"),
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? "Something went wrong — please try again.");
+      }
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong — please try again.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -112,9 +133,10 @@ export default function AboutPage() {
         <h2 className="font-display text-2xl font-bold text-foreground">SchoolVBE and vibez</h2>
         <p className="mt-4 text-lg text-muted-foreground">
           SchoolVBE is the front door: the adoption and advocacy site. vibez is the destination —
-          the safeguarding case management, PSHE delivery, and school wellbeing platform that
-          schools deploy once they adopt the VBE framework. SchoolVBE's content stands on its own;
-          vibez is where the framework becomes day-to-day operational reality.
+          the school platform where Values-Based Education becomes daily practice: values-led
+          learning and PSHE, pupil wellbeing and voice, parent and PTA participation, with
+          safeguarding tools built in for when they're needed. SchoolVBE's content stands on its
+          own; vibez is where the framework becomes day-to-day operational reality.
         </p>
       </section>
 
@@ -193,8 +215,13 @@ export default function AboutPage() {
                   className="mt-1.5 w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
-              <button type="submit" className={cn(buttonVariants({ size: "lg" }))}>
-                Send message
+              {error && (
+                <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
+                  {error}
+                </p>
+              )}
+              <button type="submit" disabled={sending} className={cn(buttonVariants({ size: "lg" }), "disabled:opacity-60")}>
+                {sending ? "Sending…" : "Send message"}
               </button>
             </form>
           )}

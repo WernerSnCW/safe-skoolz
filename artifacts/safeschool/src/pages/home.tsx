@@ -21,7 +21,7 @@ const AUDIENCES: {
     heading: "Give your school a values foundation it can build on.",
     body: "Adopt VBE in 10 working days. Everything your SLT, teachers, parents, and pupils need — in one pack. Not ready to commit? Run a diagnostic first.",
     cta: "Get the VBE Adoption Pack",
-    href: "/schools",
+    href: "/resources",
   },
   {
     icon: Users,
@@ -74,8 +74,9 @@ export default function HomePage() {
             Better schools start with better communities.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            SchoolVBE equips schools, parents, and PTAs with everything they need to build a
-            values-led school community.
+            SchoolVBE gives schools, parents, and PTAs free tools, resources, and software to
+            put Values-Based Education (VBE) — values taught as observable, everyday behaviours —
+            at the heart of school life.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link href="/login" className={cn(buttonVariants({ size: "lg" }))}>
@@ -83,7 +84,7 @@ export default function HomePage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
-              href="/schools"
+              href="/resources"
               className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
             >
               Get the VBE Adoption Pack

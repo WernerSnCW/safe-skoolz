@@ -101,7 +101,7 @@ export default function LearningPage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
-              href="/schools"
+              href="/resources"
               className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
             >
               Get the VBE Adoption Pack
@@ -186,7 +186,7 @@ export default function LearningPage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
-              href="/schools"
+              href="/resources"
               className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
             >
               Get the VBE Adoption Pack

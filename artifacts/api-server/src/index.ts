@@ -110,6 +110,7 @@ async function startup() {
       { code: "4A-RIVER", className: "4A" },
       { code: "5B-RIVER", className: "5B" },
       { code: "6A-RIVER", className: "6A" },
+      { code: "7A-RIVER", className: "7A" }, // Y7 — the class that sees the KS3 lesson pilot
     ];
     for (const s of schools) {
       // Wipe any existing pupil_login codes (they may not match the demo

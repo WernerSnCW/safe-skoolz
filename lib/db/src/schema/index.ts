@@ -17,6 +17,7 @@ export * from "./pta";
 export * from "./ptaGovernance";
 export * from "./voice";
 export * from "./newsletter";
+export * from "./contactMessages";
 export * from "./diagnostics";
 export * from "./diary";
 export * from "./teacherPosts";

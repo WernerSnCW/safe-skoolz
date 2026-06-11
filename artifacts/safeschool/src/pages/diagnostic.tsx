@@ -292,7 +292,7 @@ export default function DiagnosticPage() {
             <p className="mt-6 text-lg text-muted-foreground">{band.blurb}</p>
 
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/schools" className={cn(buttonVariants({ size: "lg" }))}>
+              <Link href="/resources" className={cn(buttonVariants({ size: "lg" }))}>
                 Get the VBE Adoption Pack
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
