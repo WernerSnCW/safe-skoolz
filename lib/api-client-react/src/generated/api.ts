@@ -104,8 +104,12 @@ import type {
   RejectMember200,
   ReleaseDiagnosticResults200,
   RemovePtaMember200,
+  RequestSchoolCreate201,
+  RequestSchoolCreateBody,
   RevokePtaProxy200,
   School,
+  SearchSchools200,
+  SearchSchoolsParams,
   SendPtaMessageBody,
   SetConcernStatus200,
   SetConcernStatusBody,
@@ -7160,4 +7164,184 @@ export const useSetConcernStatus = <
   TContext
 > => {
   return useMutation(getSetConcernStatusMutationOptions(options));
+};
+
+/**
+ * @summary Public school finder (name match + whether it has a Vibes group)
+ */
+export const getSearchSchoolsUrl = (params?: SearchSchoolsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/schools/search?${stringifiedParams}`
+    : `/api/schools/search`;
+};
+
+export const searchSchools = async (
+  params?: SearchSchoolsParams,
+  options?: RequestInit,
+): Promise<SearchSchools200> => {
+  return customFetch<SearchSchools200>(getSearchSchoolsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getSearchSchoolsQueryKey = (params?: SearchSchoolsParams) => {
+  return [`/api/schools/search`, ...(params ? [params] : [])] as const;
+};
+
+export const getSearchSchoolsQueryOptions = <
+  TData = Awaited<ReturnType<typeof searchSchools>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: SearchSchoolsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof searchSchools>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getSearchSchoolsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof searchSchools>>> = ({
+    signal,
+  }) => searchSchools(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof searchSchools>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type SearchSchoolsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof searchSchools>>
+>;
+export type SearchSchoolsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Public school finder (name match + whether it has a Vibes group)
+ */
+
+export function useSearchSchools<
+  TData = Awaited<ReturnType<typeof searchSchools>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: SearchSchoolsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof searchSchools>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getSearchSchoolsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Queue a request to create a Vibes for a school not yet in the directory
+ */
+export const getRequestSchoolCreateUrl = () => {
+  return `/api/schools/create-request`;
+};
+
+export const requestSchoolCreate = async (
+  requestSchoolCreateBody: RequestSchoolCreateBody,
+  options?: RequestInit,
+): Promise<RequestSchoolCreate201> => {
+  return customFetch<RequestSchoolCreate201>(getRequestSchoolCreateUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(requestSchoolCreateBody),
+  });
+};
+
+export const getRequestSchoolCreateMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof requestSchoolCreate>>,
+    TError,
+    { data: BodyType<RequestSchoolCreateBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof requestSchoolCreate>>,
+  TError,
+  { data: BodyType<RequestSchoolCreateBody> },
+  TContext
+> => {
+  const mutationKey = ["requestSchoolCreate"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof requestSchoolCreate>>,
+    { data: BodyType<RequestSchoolCreateBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return requestSchoolCreate(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RequestSchoolCreateMutationResult = NonNullable<
+  Awaited<ReturnType<typeof requestSchoolCreate>>
+>;
+export type RequestSchoolCreateMutationBody = BodyType<RequestSchoolCreateBody>;
+export type RequestSchoolCreateMutationError = ErrorType<void>;
+
+/**
+ * @summary Queue a request to create a Vibes for a school not yet in the directory
+ */
+export const useRequestSchoolCreate = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof requestSchoolCreate>>,
+    TError,
+    { data: BodyType<RequestSchoolCreateBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof requestSchoolCreate>>,
+  TError,
+  { data: BodyType<RequestSchoolCreateBody> },
+  TContext
+> => {
+  return useMutation(getRequestSchoolCreateMutationOptions(options));
 };

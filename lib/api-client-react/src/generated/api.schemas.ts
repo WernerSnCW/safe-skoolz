@@ -1202,3 +1202,27 @@ export type SetConcernStatusBody = {
 export type SetConcernStatus200 = {
   ok: boolean;
 };
+
+export type SearchSchoolsParams = {
+  q?: string;
+};
+
+export type SearchSchools200SchoolsItem = {
+  slug?: string | null;
+  name: string;
+  hasVibes: boolean;
+};
+
+export type SearchSchools200 = {
+  schools: SearchSchools200SchoolsItem[];
+};
+
+export type RequestSchoolCreateBody = {
+  schoolName: string;
+  email: string;
+  note?: string;
+};
+
+export type RequestSchoolCreate201 = {
+  ok: boolean;
+};

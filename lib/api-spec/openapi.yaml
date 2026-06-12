@@ -2047,6 +2047,58 @@ paths:
                   ok: { type: boolean }
         "400": { description: Invalid input }
         "404": { description: Not found }
+  /schools/search:
+    get:
+      operationId: searchSchools
+      tags: [schools]
+      summary: Public school finder (name match + whether it has a Vibes group)
+      parameters:
+        - { name: q, in: query, required: false, schema: { type: string } }
+      responses:
+        "200":
+          description: Matching schools
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [schools]
+                properties:
+                  schools:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, hasVibes]
+                      properties:
+                        slug: { type: string, nullable: true }
+                        name: { type: string }
+                        hasVibes: { type: boolean }
+  /schools/create-request:
+    post:
+      operationId: requestSchoolCreate
+      tags: [schools]
+      summary: Queue a request to create a Vibes for a school not yet in the directory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [schoolName, email]
+              properties:
+                schoolName: { type: string }
+                email: { type: string }
+                note: { type: string }
+      responses:
+        "201":
+          description: Request queued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok: { type: boolean }
+        "400": { description: Invalid input }
 
 components:
   schemas:

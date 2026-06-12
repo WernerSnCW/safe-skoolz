@@ -73,6 +73,7 @@ import ResourceCentre from "@/pages/resource-centre";
 import HowVbeWorks from "@/pages/how-vbe-works";
 import DiagnosticResultsPage from "@/pages/diagnostic-results";
 import JoinPage from "@/pages/join";
+import FindSchoolPage from "@/pages/find-school";
 import GoalsPage from "@/pages/goals";
 import ConcernsPage from "@/pages/concerns";
 
@@ -158,6 +159,7 @@ function Router() {
       <Route path="/d/:slug">{(params) => <CommunityDiagnosticPage slug={params.slug} />}</Route>
       <Route path="/join/:slug">{(params) => <JoinPage slug={params.slug} />}</Route>
       <Route path="/join">{() => <JoinPage slug="morna" />}</Route>
+      <Route path="/find-school">{() => <FindSchoolPage />}</Route>
       <Route path="/results/:slug">
         {(params) => (
           <ProtectedRoute

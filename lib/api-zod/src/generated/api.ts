@@ -1939,3 +1939,29 @@ export const SetConcernStatusBody = zod.object({
 export const SetConcernStatusResponse = zod.object({
   ok: zod.boolean(),
 });
+
+/**
+ * @summary Public school finder (name match + whether it has a Vibes group)
+ */
+export const SearchSchoolsQueryParams = zod.object({
+  q: zod.coerce.string().optional(),
+});
+
+export const SearchSchoolsResponse = zod.object({
+  schools: zod.array(
+    zod.object({
+      slug: zod.string().nullish(),
+      name: zod.string(),
+      hasVibes: zod.boolean(),
+    }),
+  ),
+});
+
+/**
+ * @summary Queue a request to create a Vibes for a school not yet in the directory
+ */
+export const RequestSchoolCreateBody = zod.object({
+  schoolName: zod.string(),
+  email: zod.string(),
+  note: zod.string().optional(),
+});
