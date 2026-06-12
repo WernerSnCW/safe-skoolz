@@ -51,6 +51,7 @@ import type {
   GeneratePtaReport201,
   GetCommunityDiagnostic200,
   GetDiagnosticResults200,
+  GetJoinSummary200,
   GetLatestPtaReport200,
   GetPtaAnnouncementFeed200,
   GetPtaResources200,
@@ -107,6 +108,8 @@ import type {
   SendPtaMessageBody,
   SetPtaProxy201,
   SetPtaProxyBody,
+  Signup201,
+  SignupBody,
   StaffLoginBody,
   SubmitCommunityDiagnostic201,
   SubmitCommunityDiagnosticBody,
@@ -6725,6 +6728,179 @@ export function useGetDiagnosticResults<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetDiagnosticResultsQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Email+password sign-up that logs the parent in instantly
+ */
+export const getSignupUrl = () => {
+  return `/api/auth/signup`;
+};
+
+export const signup = async (
+  signupBody: SignupBody,
+  options?: RequestInit,
+): Promise<Signup201> => {
+  return customFetch<Signup201>(getSignupUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(signupBody),
+  });
+};
+
+export const getSignupMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof signup>>,
+    TError,
+    { data: BodyType<SignupBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof signup>>,
+  TError,
+  { data: BodyType<SignupBody> },
+  TContext
+> => {
+  const mutationKey = ["signup"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof signup>>,
+    { data: BodyType<SignupBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return signup(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SignupMutationResult = NonNullable<
+  Awaited<ReturnType<typeof signup>>
+>;
+export type SignupMutationBody = BodyType<SignupBody>;
+export type SignupMutationError = ErrorType<void>;
+
+/**
+ * @summary Email+password sign-up that logs the parent in instantly
+ */
+export const useSignup = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof signup>>,
+    TError,
+    { data: BodyType<SignupBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof signup>>,
+  TError,
+  { data: BodyType<SignupBody> },
+  TContext
+> => {
+  return useMutation(getSignupMutationOptions(options));
+};
+
+/**
+ * @summary Public school + vibes summary for the front door
+ */
+export const getGetJoinSummaryUrl = (slug: string) => {
+  return `/api/join/${slug}`;
+};
+
+export const getJoinSummary = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<GetJoinSummary200> => {
+  return customFetch<GetJoinSummary200>(getGetJoinSummaryUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetJoinSummaryQueryKey = (slug: string) => {
+  return [`/api/join/${slug}`] as const;
+};
+
+export const getGetJoinSummaryQueryOptions = <
+  TData = Awaited<ReturnType<typeof getJoinSummary>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getJoinSummary>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetJoinSummaryQueryKey(slug);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getJoinSummary>>> = ({
+    signal,
+  }) => getJoinSummary(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getJoinSummary>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetJoinSummaryQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getJoinSummary>>
+>;
+export type GetJoinSummaryQueryError = ErrorType<void>;
+
+/**
+ * @summary Public school + vibes summary for the front door
+ */
+
+export function useGetJoinSummary<
+  TData = Awaited<ReturnType<typeof getJoinSummary>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getJoinSummary>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetJoinSummaryQueryOptions(slug, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

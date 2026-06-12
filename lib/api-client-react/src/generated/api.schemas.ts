@@ -1150,3 +1150,26 @@ export type GetDiagnosticResults200 = {
   questions: GetDiagnosticResults200QuestionsItem[];
   freeText?: GetDiagnosticResults200FreeTextItem[];
 };
+
+export type SignupBody = {
+  email: string;
+  password: string;
+  name?: string;
+  schoolSlug: string;
+};
+
+export type Signup201User = { [key: string]: unknown };
+
+export type Signup201 = {
+  token: string;
+  user: Signup201User;
+  firstLogin?: boolean;
+};
+
+export type GetJoinSummary200 = {
+  schoolName: string;
+  voiceName: string;
+  mission?: string;
+  joinCount: number;
+  hasVibes: boolean;
+};
