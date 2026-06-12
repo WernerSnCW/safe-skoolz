@@ -88,6 +88,29 @@ describe("POST /api/membership/:userId/approve", () => {
     expect(a.rows).toHaveLength(1);
   });
 
+  it("409s when re-approving a member who is no longer pending", async () => {
+    const r = await fetch(`${baseUrl}/api/membership/${pendingUserId}/approve`, {
+      method: "POST",
+      headers: { ...auth(execToken), "Content-Type": "application/json" },
+      body: JSON.stringify({ displayMode: "named" }),
+    });
+    expect(r.status).toBe(409);
+  });
+
+  it("400s on an invalid displayMode", async () => {
+    const fresh = await pool.query<{ id: string }>(
+      `INSERT INTO users (school_id, role, first_name, last_name, email, active, membership_status)
+       VALUES ($1, 'parent', 'Bad', 'Mode', $2, true, 'pending') RETURNING id`,
+      [schoolId, `mbr-badmode-${stamp}@example.com`],
+    );
+    const r = await fetch(`${baseUrl}/api/membership/${fresh.rows[0].id}/approve`, {
+      method: "POST",
+      headers: { ...auth(execToken), "Content-Type": "application/json" },
+      body: JSON.stringify({ displayMode: "bogus" }),
+    });
+    expect(r.status).toBe(400);
+  });
+
   it("404s for a user at another school", async () => {
     const other = signToken({ userId: pendingUserId, schoolId: "00000000-0000-0000-0000-000000000000", role: "pta" });
     const r = await fetch(`${baseUrl}/api/membership/${pendingUserId}/approve`, {

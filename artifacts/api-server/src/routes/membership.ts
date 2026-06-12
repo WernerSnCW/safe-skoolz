@@ -32,10 +32,17 @@ router.get("/membership/pending", authMiddleware, EXEC, async (req, res): Promis
 router.post("/membership/:userId/approve", authMiddleware, EXEC, async (req, res): Promise<void> => {
   const u = (req as any).user as JwtPayload;
   const { userId } = req.params;
-  const displayMode = req.body?.displayMode === "anonymous" ? "anonymous" : "named";
+
+  // Validate displayMode early; we still need target email so 404 check comes first.
+  const rawMode = req.body?.displayMode;
 
   const [target] = await db
-    .select()
+    .select({
+      id: usersTable.id,
+      email: usersTable.email,
+      firstName: usersTable.firstName,
+      membershipStatus: usersTable.membershipStatus,
+    })
     .from(usersTable)
     .where(and(eq(usersTable.id, userId), eq(usersTable.schoolId, u.schoolId)));
   if (!target) {
@@ -43,19 +50,36 @@ router.post("/membership/:userId/approve", authMiddleware, EXEC, async (req, res
     return;
   }
 
-  const [updated] = await db
-    .update(usersTable)
-    .set({ membershipStatus: "approved", displayMode })
-    .where(eq(usersTable.id, userId))
-    .returning({ id: usersTable.id, membershipStatus: usersTable.membershipStatus, displayMode: usersTable.displayMode });
+  // Idempotency guard — must be pending to approve.
+  if (target.membershipStatus !== "pending") {
+    res.status(409).json({ error: "Member is not pending" });
+    return;
+  }
 
-  await db.insert(notificationsTable).values({
-    schoolId: u.schoolId,
-    recipientId: userId,
-    trigger: "membership_approved",
-    channel: "in_app",
-    subject: "Your community membership is approved",
-    body: "You can now see results when they're released and back the parent community.",
+  // Validate displayMode.
+  if (rawMode != null && rawMode !== "named" && rawMode !== "anonymous") {
+    res.status(400).json({ error: "displayMode must be 'named' or 'anonymous'." });
+    return;
+  }
+  const displayMode = rawMode === "anonymous" ? "anonymous" : "named";
+
+  // Transactionally update status + insert notification so a member is never
+  // left approved without an in-app notification.
+  let updated: { id: string; membershipStatus: string; displayMode: string } | undefined;
+  await db.transaction(async (tx) => {
+    [updated] = await tx
+      .update(usersTable)
+      .set({ membershipStatus: "approved", displayMode })
+      .where(eq(usersTable.id, userId))
+      .returning({ id: usersTable.id, membershipStatus: usersTable.membershipStatus, displayMode: usersTable.displayMode });
+    await tx.insert(notificationsTable).values({
+      schoolId: u.schoolId,
+      recipientId: userId,
+      trigger: "membership_approved",
+      channel: "in_app",
+      subject: "Your community membership is approved",
+      body: "You can now see results when they're released and back the parent community.",
+    });
   });
 
   // Fire-and-forget email — a failed email never fails the approval.
