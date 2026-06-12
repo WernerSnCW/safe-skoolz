@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import crypto from "node:crypto";
-import { sql, eq, and, isNotNull, inArray } from "drizzle-orm";
+import { sql, eq, and, isNotNull, isNull } from "drizzle-orm";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import bcrypt from "bcrypt";
 import {
@@ -295,45 +295,59 @@ router.post("/d/:slug/release", authMiddleware, EXEC, async (req, res): Promise<
   }
 
   const releasedAt = new Date();
-  await db.update(diagnosticSurveysTable).set({ releasedAt }).where(eq(diagnosticSurveysTable.id, survey.id));
+  const claimed = await db
+    .update(diagnosticSurveysTable)
+    .set({ releasedAt })
+    .where(and(eq(diagnosticSurveysTable.id, survey.id), isNull(diagnosticSurveysTable.releasedAt)))
+    .returning({ id: diagnosticSurveysTable.id });
+  if (claimed.length === 0) {
+    // Lost the race — another request released between our read and write. Don't re-notify.
+    const fresh = await loadSurveyBySlug(slug);
+    res.json({ released: true, releasedAt: fresh?.releasedAt ?? releasedAt });
+    return;
+  }
 
-  const emailRows = await db
-    .select({ email: diagnosticSubmissionsTable.email })
-    .from(diagnosticSubmissionsTable)
-    .where(eq(diagnosticSubmissionsTable.surveyId, survey.id))
-    .groupBy(diagnosticSubmissionsTable.email);
-  const emails = emailRows.map((r) => r.email);
-  if (emails.length) {
-    const participants = await db
-      .select({ id: usersTable.id, email: usersTable.email, firstName: usersTable.firstName })
-      .from(usersTable)
-      .where(and(eq(usersTable.schoolId, survey.schoolId), inArray(usersTable.email, emails)));
-    if (participants.length) {
-      await db.insert(notificationsTable).values(
-        participants.map((p) => ({
-          schoolId: survey.schoolId,
-          recipientId: p.id,
-          trigger: "results_released",
-          channel: "in_app",
-          subject: "The community diagnostic results are out",
-          body: "The results you took part in have been released. Log in to see them.",
-        })),
-      );
-      const appUrl = process.env.APP_URL ?? "http://localhost:5000";
-      for (const p of participants) {
-        void sendEmail({
-          to: p.email!,
-          toName: p.firstName ?? "there",
-          subject: "The community diagnostic results are out",
-          bodyText:
-            `Hi ${p.firstName ?? "there"},\n\n` +
-            `The results of the community diagnostic you took part in have been released.\n\n` +
-            `See them here: ${appUrl}/results/${slug}\n`,
-          trigger: "results_released",
-          recipientId: p.id,
-          schoolId: survey.schoolId,
-        }).catch(() => {});
-      }
+  // Participants who have an account = users at this school whose email matches a
+  // submission for this survey. Joined (not inArray) so it stays correct and bounded
+  // at any submission volume. The submission email is kept only for this notification.
+  const participants = await db
+    .select({ id: usersTable.id, email: usersTable.email, firstName: usersTable.firstName })
+    .from(usersTable)
+    .innerJoin(
+      diagnosticSubmissionsTable,
+      and(
+        eq(diagnosticSubmissionsTable.email, usersTable.email),
+        eq(diagnosticSubmissionsTable.surveyId, survey.id),
+      ),
+    )
+    .where(eq(usersTable.schoolId, survey.schoolId));
+
+  if (participants.length) {
+    await db.insert(notificationsTable).values(
+      participants.map((p) => ({
+        schoolId: survey.schoolId,
+        recipientId: p.id,
+        trigger: "results_released" as const,
+        channel: "in_app" as const,
+        subject: "The community diagnostic results are out",
+        body: `The results for "${survey.title}" have been released. Log in to see them.`,
+      })),
+    );
+    const appUrl = process.env.APP_URL ?? "http://localhost:5000";
+    for (const p of participants) {
+      if (!p.email) continue;
+      void sendEmail({
+        to: p.email,
+        toName: p.firstName ?? "there",
+        subject: "The community diagnostic results are out",
+        bodyText:
+          `Hi ${p.firstName ?? "there"},\n\n` +
+          `The results of "${survey.title}" have been released.\n\n` +
+          `See them here: ${appUrl}/results/${slug}\n`,
+        trigger: "results_released",
+        recipientId: p.id,
+        schoolId: survey.schoolId,
+      }).catch(() => {});
     }
   }
 
@@ -343,7 +357,7 @@ router.post("/d/:slug/release", authMiddleware, EXEC, async (req, res): Promise<
     actor: u,
     targetType: "diagnostic_survey",
     targetId: survey.id,
-    details: { participantsNotified: emails.length },
+    details: { participantsNotified: participants.length },
     req,
   });
 

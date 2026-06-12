@@ -110,6 +110,7 @@ describe("GET /api/d/:slug/results", () => {
     expect(body.totalResponses).toBe(7);
     const q = body.questions.find((x: any) => x.key === "q_scale");
     expect(q.distribution).toEqual([2, 0, 5]);
+    expect(q.distribution.reduce((a: number, b: number) => a + b, 0)).toBe(7);
     const segYears = q.segments.map((s: any) => s.yearGroup);
     expect(segYears).toContain("Y4");
     expect(segYears).not.toContain("Y5");
