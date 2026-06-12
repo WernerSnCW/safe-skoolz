@@ -22,7 +22,7 @@ import { voiceGroupsTable } from "./voice";
 // work they have taken on, not authority over others.
 export const PTA_TIERS = ["executive_board", "senior_group", "general_membership"] as const;
 export const PTA_MEMBER_STATUSES = ["active", "invited", "lapsed"] as const;
-export const PTA_OFFICER_ROLES = ["chair", "vice_chair", "secretary", "treasurer", "domain_lead"] as const;
+export const PTA_OFFICER_ROLES = ["president", "vice_president", "chair", "vice_chair", "secretary", "treasurer", "domain_lead"] as const;
 
 // Decision log. A proposal must reach an explicit decision — "no proposal left
 // without a decision". An open proposal past its decisionDueAt is surfaced as

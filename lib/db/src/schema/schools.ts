@@ -15,6 +15,8 @@ export const schoolsTable = pgTable("schools", {
   region: varchar("region", { length: 50 }).default("Balearic Islands").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   active: boolean("active").default(true).notNull(),
+  // Set when the PTA adopts its operating-structure charter (B1). Null = forming/unclaimed.
+  ptaClaimedAt: timestamp("pta_claimed_at", { withTimezone: true }),
 });
 
 export const insertSchoolSchema = createInsertSchema(schoolsTable).omit({ id: true, createdAt: true });
