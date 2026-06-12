@@ -58,6 +58,7 @@ import PtaVoting from "@/pages/pta-voting";
 import PtaAnnouncements from "@/pages/pta-announcements";
 import PtaUpdates from "@/pages/pta-updates";
 import PtaInitiatives from "@/pages/pta-initiatives";
+import PtaGoals from "@/pages/pta-goals";
 import VoicePage from "@/pages/voice";
 import Diagnostics from "@/pages/diagnostics";
 import DiagnosticsResults from "@/pages/diagnostics-results";
@@ -273,6 +274,9 @@ function Router() {
       </Route>
       <Route path="/pta/initiatives">
         {() => <ProtectedRoute component={PtaInitiatives} />}
+      </Route>
+      <Route path="/pta/goals">
+        {() => <ProtectedRoute component={PtaGoals} />}
       </Route>
       <Route path="/pta-updates">
         {() => <ProtectedRoute component={PtaUpdates} />}
