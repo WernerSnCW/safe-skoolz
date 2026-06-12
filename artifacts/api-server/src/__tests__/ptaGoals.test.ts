@@ -81,3 +81,75 @@ describe("GET /api/pta/goals (list)", () => {
     expect(g).toHaveProperty("ballot"); // null when no ballot
   });
 });
+
+describe("goal lifecycle: shortlist → open-ballot → vote → ratify", () => {
+  let goalId: string; let ballotId: string;
+
+  it("shortlist requires MANAGE and moves proposed → shortlisted", async () => {
+    const created = await (await fetch(`${baseUrl}/api/pta/goals`, { method: "POST", headers: auth(memberTok), body: JSON.stringify({ title: "Termly family events", year: 2026 }) })).json();
+    goalId = created.goal.id;
+
+    expect((await fetch(`${baseUrl}/api/pta/goals/${goalId}`, { method: "PATCH", headers: auth(memberTok), body: JSON.stringify({ status: "shortlisted" }) })).status).toBe(403);
+
+    const r = await fetch(`${baseUrl}/api/pta/goals/${goalId}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "shortlisted" }) });
+    expect(r.status).toBe(200);
+    expect((await r.json()).goal.status).toBe("shortlisted");
+  });
+
+  it("open-ballot creates a senior_group ballot and links it", async () => {
+    const r = await fetch(`${baseUrl}/api/pta/goals/${goalId}/open-ballot`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({}) });
+    expect(r.status).toBe(200);
+    const b = await r.json();
+    ballotId = b.ballot.id;
+    expect(b.ballot.electorate).toBe("senior_group");
+    expect(b.goal.ballotId).toBe(ballotId);
+    expect((await fetch(`${baseUrl}/api/pta/goals/${goalId}/open-ballot`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({}) })).status).toBe(409);
+  });
+
+  it("ratify is blocked while the ballot is open", async () => {
+    const r = await fetch(`${baseUrl}/api/pta/goals/${goalId}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "ratified" }) });
+    expect(r.status).toBe(409);
+  });
+
+  it("ratify succeeds once the ballot is closed + carried", async () => {
+    await fetch(`${baseUrl}/api/pta/ballots/${ballotId}/vote`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ choice: "For" }) });
+    await fetch(`${baseUrl}/api/pta/ballots/${ballotId}/close`, { method: "POST", headers: auth(adminTok) });
+
+    const r = await fetch(`${baseUrl}/api/pta/goals/${goalId}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "ratified" }) });
+    expect(r.status).toBe(200);
+    const b = await r.json();
+    expect(b.goal.status).toBe("ratified");
+    expect(b.goal.ratifiedAt).toBeTruthy();
+  });
+
+  it("the goals list surfaces the linked ballot's tally + carried", async () => {
+    const b = await (await fetch(`${baseUrl}/api/pta/goals`, { headers: auth(adminTok) })).json();
+    const g = b.goals.find((x: any) => x.id === goalId);
+    expect(g).toBeTruthy();
+    expect(g.ballot).toBeTruthy();
+    expect(g.ballot.id).toBe(ballotId);
+    expect(g.ballot.status).toBe("closed");
+    expect(g.ballot.tally.For).toBe(1);
+    expect(g.ballot.carried).toBe(true);
+  });
+
+  it("ratified → completed stamps completedAt", async () => {
+    const r = await fetch(`${baseUrl}/api/pta/goals/${goalId}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "completed" }) });
+    expect(r.status).toBe(200);
+    expect((await r.json()).goal.completedAt).toBeTruthy();
+  });
+
+  it("→ failed requires a postmortem note", async () => {
+    const g = await (await fetch(`${baseUrl}/api/pta/goals`, { method: "POST", headers: auth(memberTok), body: JSON.stringify({ title: "Abandon me", year: 2026 }) })).json();
+    const noNote = await fetch(`${baseUrl}/api/pta/goals/${g.goal.id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "failed" }) });
+    expect(noNote.status).toBe(400);
+    const withNote = await fetch(`${baseUrl}/api/pta/goals/${g.goal.id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "failed", postmortemNote: "No capacity this year." }) });
+    expect(withNote.status).toBe(200);
+    expect((await withNote.json()).goal.postmortemNote).toMatch(/no capacity/i);
+  });
+
+  it("open-ballot is rejected when the goal is not shortlisted", async () => {
+    const g = await (await fetch(`${baseUrl}/api/pta/goals`, { method: "POST", headers: auth(memberTok), body: JSON.stringify({ title: "Still proposed", year: 2026 }) })).json();
+    expect((await fetch(`${baseUrl}/api/pta/goals/${g.goal.id}/open-ballot`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({}) })).status).toBe(409);
+  });
+});
