@@ -72,6 +72,7 @@ import NotFound from "@/pages/not-found";
 import ResourceCentre from "@/pages/resource-centre";
 import HowVbeWorks from "@/pages/how-vbe-works";
 import DiagnosticResultsPage from "@/pages/diagnostic-results";
+import JoinPage from "@/pages/join";
 
 const queryClient = new QueryClient();
 
@@ -153,6 +154,8 @@ function Router() {
       <Route path="/safeguarding" component={SafeguardingPage} />
       <Route path="/v/:id">{(params) => <VoicePublicPage id={params.id} />}</Route>
       <Route path="/d/:slug">{(params) => <CommunityDiagnosticPage slug={params.slug} />}</Route>
+      <Route path="/join/:slug">{(params) => <JoinPage slug={params.slug} />}</Route>
+      <Route path="/join">{() => <JoinPage slug="morna" />}</Route>
       <Route path="/results/:slug">
         {(params) => (
           <ProtectedRoute
