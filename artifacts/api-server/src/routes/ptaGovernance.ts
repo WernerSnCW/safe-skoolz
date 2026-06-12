@@ -20,6 +20,7 @@ import {
   PTA_PROPOSAL_CATEGORIES,
   PTA_ANNOUNCEMENT_AUDIENCES,
   PTA_INITIATIVE_STATUSES,
+  PTA_BALLOT_ELECTORATES,
 } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
@@ -475,12 +476,15 @@ router.post("/pta/ballots/:id/vote", authMiddleware, MANAGE, async (req, res): P
   // Senior-group ballots (e.g. goal ratification, B3) are restricted to the
   // senior_group + executive_board tiers. The member whose vote is recorded
   // (the grantor, when by proxy) must be in the electorate.
-  if (ballot.electorate === "senior_group") {
+  const SENIOR_ELECTORATE = PTA_BALLOT_ELECTORATES[1]; // "senior_group"
+  if (ballot.electorate === SENIOR_ELECTORATE) {
+    // The two leadership tiers (PTA_TIERS minus general_membership).
     const eligible = ["senior_group", "executive_board"];
     let targetTier = voter.tier;
     if (targetMemberId !== voter.id) {
       const tm = await db.select({ tier: ptaMembersTable.tier }).from(ptaMembersTable)
         .where(and(eq(ptaMembersTable.id, targetMemberId), eq(ptaMembersTable.schoolId, u.schoolId))).limit(1);
+      // Row is guaranteed to exist — proxy validation above confirmed the grantor is a member; "" is a defensive fallback that fails the eligibility check.
       targetTier = tm[0]?.tier ?? "";
     }
     if (!eligible.includes(targetTier)) {
