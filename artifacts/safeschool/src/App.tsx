@@ -52,6 +52,7 @@ import CaseloadPage from "@/pages/caseload";
 import BehaviourPage from "@/pages/behaviour";
 import PtaPortal from "@/pages/pta";
 import PtaGovernance from "@/pages/pta-governance";
+import PtaCharterPage from "@/pages/pta-charter";
 import PtaDecisions from "@/pages/pta-decisions";
 import PtaVoting from "@/pages/pta-voting";
 import PtaAnnouncements from "@/pages/pta-announcements";
@@ -257,6 +258,9 @@ function Router() {
       </Route>
       <Route path="/pta/governance">
         {() => <ProtectedRoute component={PtaGovernance} />}
+      </Route>
+      <Route path="/pta/charter">
+        {() => <ProtectedRoute component={PtaCharterPage} allowedRoles={["parent", "pta", "coordinator", "head_teacher"]} />}
       </Route>
       <Route path="/pta/decisions">
         {() => <ProtectedRoute component={PtaDecisions} />}

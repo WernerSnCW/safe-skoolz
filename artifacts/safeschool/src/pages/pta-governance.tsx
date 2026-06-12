@@ -23,6 +23,8 @@ const STATUSES = [
   { value: "lapsed", label: "Lapsed" },
 ];
 const OFFICER_ROLES = [
+  { value: "president", label: "President" },
+  { value: "vice_president", label: "Vice President" },
   { value: "chair", label: "Chair" },
   { value: "vice_chair", label: "Vice Chair" },
   { value: "secretary", label: "Secretary" },

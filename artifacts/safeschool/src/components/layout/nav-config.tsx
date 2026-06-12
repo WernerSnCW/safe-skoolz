@@ -145,6 +145,7 @@ export function getNavSections(
           { name: t("ptaDashboard"), href: "/pta", icon: Home },
           { name: "Parent VOICE", href: "/voice", icon: Vote },
           { name: "Members & Officers", href: "/pta/governance", icon: ShieldCheck },
+          { name: "Charter", href: "/pta/charter", icon: FileText },
           { name: "Decision Log", href: "/pta/decisions", icon: ScrollText },
           { name: "Voting", href: "/pta/voting", icon: ClipboardList },
           { name: "Initiatives", href: "/pta/initiatives", icon: Rocket },
