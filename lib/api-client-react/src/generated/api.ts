@@ -17,10 +17,12 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AcknowledgePtaCharter200,
   AcknowledgePtaPolicy201,
   AcknowledgePtaPolicyBody,
   AddPtaMember201,
   AddPtaMemberBody,
+  AdoptPtaCharter200,
   AppointPtaOfficer201,
   AppointPtaOfficerBody,
   ApproveMember200,
@@ -54,6 +56,7 @@ import type {
   GetJoinSummary200,
   GetLatestPtaReport200,
   GetPtaAnnouncementFeed200,
+  GetPtaCharter200,
   GetPtaResources200,
   GetVoice200,
   GetVoicePublic200,
@@ -7344,4 +7347,241 @@ export const useRequestSchoolCreate = <
   TContext
 > => {
   return useMutation(getRequestSchoolCreateMutationOptions(options));
+};
+
+/**
+ * @summary Operating-structure charter content + claim status (authed)
+ */
+export const getGetPtaCharterUrl = () => {
+  return `/api/pta/charter`;
+};
+
+export const getPtaCharter = async (
+  options?: RequestInit,
+): Promise<GetPtaCharter200> => {
+  return customFetch<GetPtaCharter200>(getGetPtaCharterUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetPtaCharterQueryKey = () => {
+  return [`/api/pta/charter`] as const;
+};
+
+export const getGetPtaCharterQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPtaCharter>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaCharter>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetPtaCharterQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getPtaCharter>>> = ({
+    signal,
+  }) => getPtaCharter({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaCharter>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPtaCharterQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPtaCharter>>
+>;
+export type GetPtaCharterQueryError = ErrorType<void>;
+
+/**
+ * @summary Operating-structure charter content + claim status (authed)
+ */
+
+export function useGetPtaCharter<
+  TData = Awaited<ReturnType<typeof getPtaCharter>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaCharter>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPtaCharterQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Admin adopts the operating structure, claiming the PTA
+ */
+export const getAdoptPtaCharterUrl = () => {
+  return `/api/pta/charter/adopt`;
+};
+
+export const adoptPtaCharter = async (
+  options?: RequestInit,
+): Promise<AdoptPtaCharter200> => {
+  return customFetch<AdoptPtaCharter200>(getAdoptPtaCharterUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getAdoptPtaCharterMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adoptPtaCharter>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adoptPtaCharter>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["adoptPtaCharter"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adoptPtaCharter>>,
+    void
+  > = () => {
+    return adoptPtaCharter(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdoptPtaCharterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adoptPtaCharter>>
+>;
+
+export type AdoptPtaCharterMutationError = ErrorType<void>;
+
+/**
+ * @summary Admin adopts the operating structure, claiming the PTA
+ */
+export const useAdoptPtaCharter = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adoptPtaCharter>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adoptPtaCharter>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getAdoptPtaCharterMutationOptions(options));
+};
+
+/**
+ * @summary An officer acknowledges the charter
+ */
+export const getAcknowledgePtaCharterUrl = () => {
+  return `/api/pta/charter/acknowledge`;
+};
+
+export const acknowledgePtaCharter = async (
+  options?: RequestInit,
+): Promise<AcknowledgePtaCharter200> => {
+  return customFetch<AcknowledgePtaCharter200>(getAcknowledgePtaCharterUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getAcknowledgePtaCharterMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof acknowledgePtaCharter>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof acknowledgePtaCharter>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["acknowledgePtaCharter"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof acknowledgePtaCharter>>,
+    void
+  > = () => {
+    return acknowledgePtaCharter(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AcknowledgePtaCharterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof acknowledgePtaCharter>>
+>;
+
+export type AcknowledgePtaCharterMutationError = ErrorType<unknown>;
+
+/**
+ * @summary An officer acknowledges the charter
+ */
+export const useAcknowledgePtaCharter = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof acknowledgePtaCharter>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof acknowledgePtaCharter>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getAcknowledgePtaCharterMutationOptions(options));
 };

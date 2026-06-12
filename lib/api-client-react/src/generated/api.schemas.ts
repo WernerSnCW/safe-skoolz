@@ -1226,3 +1226,38 @@ export type RequestSchoolCreateBody = {
 export type RequestSchoolCreate201 = {
   ok: boolean;
 };
+
+export type GetPtaCharter200SectionsItem = {
+  heading: string;
+  body: string;
+};
+
+export type GetPtaCharter200OfficersItem = {
+  role?: string;
+  domain?: string;
+  name?: string;
+};
+
+export type GetPtaCharter200AcknowledgementsItem = {
+  name?: string;
+  actionType?: string;
+  createdAt?: string;
+};
+
+export type GetPtaCharter200 = {
+  version: string;
+  title: string;
+  sections: GetPtaCharter200SectionsItem[];
+  claimed: boolean;
+  claimedAt?: string;
+  officers: GetPtaCharter200OfficersItem[];
+  acknowledgements: GetPtaCharter200AcknowledgementsItem[];
+};
+
+export type AdoptPtaCharter200 = {
+  claimedAt?: string;
+};
+
+export type AcknowledgePtaCharter200 = {
+  ok?: boolean;
+};

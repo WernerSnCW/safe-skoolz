@@ -2100,6 +2100,79 @@ paths:
                   ok: { type: boolean }
         "400": { description: Invalid input }
 
+  /pta/charter:
+    get:
+      operationId: getPtaCharter
+      tags: [pta]
+      summary: Operating-structure charter content + claim status (authed)
+      responses:
+        "200":
+          description: Charter
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [version, title, sections, claimed, officers, acknowledgements]
+                properties:
+                  version: { type: string }
+                  title: { type: string }
+                  sections:
+                    type: array
+                    items:
+                      type: object
+                      required: [heading, body]
+                      properties:
+                        heading: { type: string }
+                        body: { type: string }
+                  claimed: { type: boolean }
+                  claimedAt: { type: string }
+                  officers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role: { type: string }
+                        domain: { type: string }
+                        name: { type: string }
+                  acknowledgements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        actionType: { type: string }
+                        createdAt: { type: string }
+        "401": { description: Unauthorized }
+  /pta/charter/adopt:
+    post:
+      operationId: adoptPtaCharter
+      tags: [pta]
+      summary: Admin adopts the operating structure, claiming the PTA
+      responses:
+        "200":
+          description: Claimed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  claimedAt: { type: string }
+        "403": { description: Forbidden }
+  /pta/charter/acknowledge:
+    post:
+      operationId: acknowledgePtaCharter
+      tags: [pta]
+      summary: An officer acknowledges the charter
+      responses:
+        "200":
+          description: Acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
 components:
   schemas:
     HealthStatus:
