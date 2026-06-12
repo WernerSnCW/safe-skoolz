@@ -1117,6 +1117,7 @@ export const ListPtaBallotsResponse = zod.object({
         totalVotes: zod.number().optional(),
         quorumMet: zod.boolean().nullish(),
         myVote: zod.string().nullish(),
+        electorate: zod.string().optional(),
       }),
     )
     .optional(),
@@ -1611,6 +1612,57 @@ export const UpdatePtaInitiativeBody = zod.object({
 
 export const UpdatePtaInitiativeResponse = zod.object({
   initiative: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary List PTA annual goals (all stages) with proposer + ballot tally
+ */
+export const ListPtaGoalsResponse = zod.object({
+  goals: zod.array(zod.object({}).passthrough()).optional(),
+});
+
+/**
+ * @summary Propose a PTA goal (any approved member)
+ */
+export const ProposePtaGoalBody = zod.object({
+  title: zod.string(),
+  description: zod.string().nullish(),
+  year: zod.number().nullish(),
+});
+
+/**
+ * @summary Open the senior-group ratifying ballot for a shortlisted goal
+ */
+export const OpenPtaGoalBallotParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const OpenPtaGoalBallotBody = zod.object({
+  quorum: zod.number().nullish(),
+  closesAt: zod.string().nullish(),
+});
+
+export const OpenPtaGoalBallotResponse = zod.object({
+  goal: zod.object({}).passthrough().optional(),
+  ballot: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Update a PTA goal (status transitions + edits while proposed)
+ */
+export const UpdatePtaGoalParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdatePtaGoalBody = zod.object({
+  status: zod.string().optional(),
+  title: zod.string().optional(),
+  description: zod.string().nullish(),
+  postmortemNote: zod.string().optional(),
+});
+
+export const UpdatePtaGoalResponse = zod.object({
+  goal: zod.object({}).passthrough().optional(),
 });
 
 /**

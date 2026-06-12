@@ -641,6 +641,7 @@ export type ListPtaBallots200BallotsItem = {
   totalVotes?: number;
   quorumMet?: boolean | null;
   myVote?: string | null;
+  electorate?: string;
 };
 
 export type ListPtaBallots200 = {
@@ -950,6 +951,51 @@ export type UpdatePtaInitiative200Initiative = { [key: string]: unknown };
 
 export type UpdatePtaInitiative200 = {
   initiative?: UpdatePtaInitiative200Initiative;
+};
+
+export type ListPtaGoals200GoalsItem = { [key: string]: unknown };
+
+export type ListPtaGoals200 = {
+  goals?: ListPtaGoals200GoalsItem[];
+};
+
+export type ProposePtaGoalBody = {
+  title: string;
+  description?: string | null;
+  year?: number | null;
+};
+
+export type ProposePtaGoal201Goal = { [key: string]: unknown };
+
+export type ProposePtaGoal201 = {
+  goal?: ProposePtaGoal201Goal;
+};
+
+export type OpenPtaGoalBallotBody = {
+  quorum?: number | null;
+  closesAt?: string | null;
+};
+
+export type OpenPtaGoalBallot200Goal = { [key: string]: unknown };
+
+export type OpenPtaGoalBallot200Ballot = { [key: string]: unknown };
+
+export type OpenPtaGoalBallot200 = {
+  goal?: OpenPtaGoalBallot200Goal;
+  ballot?: OpenPtaGoalBallot200Ballot;
+};
+
+export type UpdatePtaGoalBody = {
+  status?: string;
+  title?: string;
+  description?: string | null;
+  postmortemNote?: string;
+};
+
+export type UpdatePtaGoal200Goal = { [key: string]: unknown };
+
+export type UpdatePtaGoal200 = {
+  goal?: UpdatePtaGoal200Goal;
 };
 
 export type ListVoice200VoicesItem = {

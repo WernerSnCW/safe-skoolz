@@ -73,6 +73,7 @@ import type {
   ListPtaAnnouncements200,
   ListPtaBallots200,
   ListPtaConcerns200,
+  ListPtaGoals200,
   ListPtaInitiatives200,
   ListPtaMemberCandidates200,
   ListPtaMembers200,
@@ -85,6 +86,8 @@ import type {
   Notification,
   OpenPtaBallot201,
   OpenPtaBallotBody,
+  OpenPtaGoalBallot200,
+  OpenPtaGoalBallotBody,
   PaginatedAlerts,
   PaginatedIncidents,
   PaginatedNotifications,
@@ -92,6 +95,8 @@ import type {
   PatternAlert,
   PostPtaAnnouncement201,
   PostPtaAnnouncementBody,
+  ProposePtaGoal201,
+  ProposePtaGoalBody,
   Protocol,
   ProtocolDetail,
   PtaCodesignData,
@@ -134,6 +139,8 @@ import type {
   UpdateAvatarBody,
   UpdateIncidentStatusBody,
   UpdateProtocolBody,
+  UpdatePtaGoal200,
+  UpdatePtaGoalBody,
   UpdatePtaInitiative200,
   UpdatePtaInitiativeBody,
   UpdatePtaMember200,
@@ -5475,6 +5482,341 @@ export const useUpdatePtaInitiative = <
   TContext
 > => {
   return useMutation(getUpdatePtaInitiativeMutationOptions(options));
+};
+
+/**
+ * @summary List PTA annual goals (all stages) with proposer + ballot tally
+ */
+export const getListPtaGoalsUrl = () => {
+  return `/api/pta/goals`;
+};
+
+export const listPtaGoals = async (
+  options?: RequestInit,
+): Promise<ListPtaGoals200> => {
+  return customFetch<ListPtaGoals200>(getListPtaGoalsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListPtaGoalsQueryKey = () => {
+  return [`/api/pta/goals`] as const;
+};
+
+export const getListPtaGoalsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listPtaGoals>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaGoals>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListPtaGoalsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listPtaGoals>>> = ({
+    signal,
+  }) => listPtaGoals({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaGoals>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListPtaGoalsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listPtaGoals>>
+>;
+export type ListPtaGoalsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List PTA annual goals (all stages) with proposer + ballot tally
+ */
+
+export function useListPtaGoals<
+  TData = Awaited<ReturnType<typeof listPtaGoals>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPtaGoals>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListPtaGoalsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Propose a PTA goal (any approved member)
+ */
+export const getProposePtaGoalUrl = () => {
+  return `/api/pta/goals`;
+};
+
+export const proposePtaGoal = async (
+  proposePtaGoalBody: ProposePtaGoalBody,
+  options?: RequestInit,
+): Promise<ProposePtaGoal201> => {
+  return customFetch<ProposePtaGoal201>(getProposePtaGoalUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(proposePtaGoalBody),
+  });
+};
+
+export const getProposePtaGoalMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proposePtaGoal>>,
+    TError,
+    { data: BodyType<ProposePtaGoalBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof proposePtaGoal>>,
+  TError,
+  { data: BodyType<ProposePtaGoalBody> },
+  TContext
+> => {
+  const mutationKey = ["proposePtaGoal"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof proposePtaGoal>>,
+    { data: BodyType<ProposePtaGoalBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return proposePtaGoal(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ProposePtaGoalMutationResult = NonNullable<
+  Awaited<ReturnType<typeof proposePtaGoal>>
+>;
+export type ProposePtaGoalMutationBody = BodyType<ProposePtaGoalBody>;
+export type ProposePtaGoalMutationError = ErrorType<void>;
+
+/**
+ * @summary Propose a PTA goal (any approved member)
+ */
+export const useProposePtaGoal = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proposePtaGoal>>,
+    TError,
+    { data: BodyType<ProposePtaGoalBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof proposePtaGoal>>,
+  TError,
+  { data: BodyType<ProposePtaGoalBody> },
+  TContext
+> => {
+  return useMutation(getProposePtaGoalMutationOptions(options));
+};
+
+/**
+ * @summary Open the senior-group ratifying ballot for a shortlisted goal
+ */
+export const getOpenPtaGoalBallotUrl = (id: string) => {
+  return `/api/pta/goals/${id}/open-ballot`;
+};
+
+export const openPtaGoalBallot = async (
+  id: string,
+  openPtaGoalBallotBody?: OpenPtaGoalBallotBody,
+  options?: RequestInit,
+): Promise<OpenPtaGoalBallot200> => {
+  return customFetch<OpenPtaGoalBallot200>(getOpenPtaGoalBallotUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(openPtaGoalBallotBody),
+  });
+};
+
+export const getOpenPtaGoalBallotMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof openPtaGoalBallot>>,
+    TError,
+    { id: string; data: BodyType<OpenPtaGoalBallotBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof openPtaGoalBallot>>,
+  TError,
+  { id: string; data: BodyType<OpenPtaGoalBallotBody> },
+  TContext
+> => {
+  const mutationKey = ["openPtaGoalBallot"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof openPtaGoalBallot>>,
+    { id: string; data: BodyType<OpenPtaGoalBallotBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return openPtaGoalBallot(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type OpenPtaGoalBallotMutationResult = NonNullable<
+  Awaited<ReturnType<typeof openPtaGoalBallot>>
+>;
+export type OpenPtaGoalBallotMutationBody = BodyType<OpenPtaGoalBallotBody>;
+export type OpenPtaGoalBallotMutationError = ErrorType<void>;
+
+/**
+ * @summary Open the senior-group ratifying ballot for a shortlisted goal
+ */
+export const useOpenPtaGoalBallot = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof openPtaGoalBallot>>,
+    TError,
+    { id: string; data: BodyType<OpenPtaGoalBallotBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof openPtaGoalBallot>>,
+  TError,
+  { id: string; data: BodyType<OpenPtaGoalBallotBody> },
+  TContext
+> => {
+  return useMutation(getOpenPtaGoalBallotMutationOptions(options));
+};
+
+/**
+ * @summary Update a PTA goal (status transitions + edits while proposed)
+ */
+export const getUpdatePtaGoalUrl = (id: string) => {
+  return `/api/pta/goals/${id}`;
+};
+
+export const updatePtaGoal = async (
+  id: string,
+  updatePtaGoalBody: UpdatePtaGoalBody,
+  options?: RequestInit,
+): Promise<UpdatePtaGoal200> => {
+  return customFetch<UpdatePtaGoal200>(getUpdatePtaGoalUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updatePtaGoalBody),
+  });
+};
+
+export const getUpdatePtaGoalMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updatePtaGoal>>,
+    TError,
+    { id: string; data: BodyType<UpdatePtaGoalBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updatePtaGoal>>,
+  TError,
+  { id: string; data: BodyType<UpdatePtaGoalBody> },
+  TContext
+> => {
+  const mutationKey = ["updatePtaGoal"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updatePtaGoal>>,
+    { id: string; data: BodyType<UpdatePtaGoalBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updatePtaGoal(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdatePtaGoalMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updatePtaGoal>>
+>;
+export type UpdatePtaGoalMutationBody = BodyType<UpdatePtaGoalBody>;
+export type UpdatePtaGoalMutationError = ErrorType<void>;
+
+/**
+ * @summary Update a PTA goal (status transitions + edits while proposed)
+ */
+export const useUpdatePtaGoal = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updatePtaGoal>>,
+    TError,
+    { id: string; data: BodyType<UpdatePtaGoalBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updatePtaGoal>>,
+  TError,
+  { id: string; data: BodyType<UpdatePtaGoalBody> },
+  TContext
+> => {
+  return useMutation(getUpdatePtaGoalMutationOptions(options));
 };
 
 /**

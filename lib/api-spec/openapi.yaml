@@ -734,6 +734,7 @@ paths:
                         totalVotes: { type: number }
                         quorumMet: { type: boolean, nullable: true }
                         myVote: { type: string, nullable: true }
+                        electorate: { type: string }
     post:
       operationId: openPtaBallot
       tags: [pta]
@@ -1497,6 +1498,104 @@ paths:
                 type: object
                 properties:
                   initiative: { type: object }
+  /pta/goals:
+    get:
+      operationId: listPtaGoals
+      tags: [pta]
+      summary: List PTA annual goals (all stages) with proposer + ballot tally
+      responses:
+        "200":
+          description: Goals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goals:
+                    type: array
+                    items: { type: object }
+    post:
+      operationId: proposePtaGoal
+      tags: [pta]
+      summary: Propose a PTA goal (any approved member)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string }
+                description: { type: string, nullable: true }
+                year: { type: integer, nullable: true }
+      responses:
+        "201":
+          description: Proposed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goal: { type: object }
+        "400": { description: Invalid }
+        "403": { description: Not an approved member }
+  /pta/goals/{id}/open-ballot:
+    post:
+      operationId: openPtaGoalBallot
+      tags: [pta]
+      summary: Open the senior-group ratifying ballot for a shortlisted goal
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quorum: { type: integer, nullable: true }
+                closesAt: { type: string, nullable: true }
+      responses:
+        "200":
+          description: Ballot opened
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goal: { type: object }
+                  ballot: { type: object }
+        "409": { description: "Not shortlisted, or already has a ballot" }
+  /pta/goals/{id}:
+    patch:
+      operationId: updatePtaGoal
+      tags: [pta]
+      summary: Update a PTA goal (status transitions + edits while proposed)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string }
+                title: { type: string }
+                description: { type: string, nullable: true }
+                postmortemNote: { type: string }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goal: { type: object }
+        "400": { description: Invalid transition }
+        "409": { description: Transition not allowed in the current state }
   /voice:
     get:
       operationId: listVoice

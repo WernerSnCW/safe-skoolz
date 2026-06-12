@@ -20,4 +20,5 @@ export type ListPtaBallots200BallotsItem = {
   totalVotes?: number;
   quorumMet?: boolean | null;
   myVote?: string | null;
+  electorate?: string;
 };
