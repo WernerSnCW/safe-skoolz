@@ -57,6 +57,31 @@ export const PTA_ANNOUNCEMENT_AUDIENCES = [
 // completing the arc: advocate → convert → organise.
 export const PTA_INITIATIVE_STATUSES = ["proposed", "active", "completed", "cancelled"] as const;
 
+// B4 — the five-stage school process (docx §8), as a granular state machine.
+// 'none' is the off-ramp for internal / self-approved initiatives that never
+// touch the school. The five named stages map: idea=1, presented=2,
+// accepted/rejected=3, planning=4, delivering/delivered=5.
+export const PTA_INITIATIVE_SCHOOL_STAGES = ["none", "idea", "presented", "accepted", "rejected", "planning", "delivering", "delivered"] as const;
+// self = any single exec, all six checklist boxes ticked + backed (docx §6/§7);
+// board = checklist failed, recorded as a board decision (record-only).
+export const PTA_INITIATIVE_APPROVAL_TYPES = ["self", "board"] as const;
+// Stage-history rows: an actual stage transition, or a logged follow-up chase
+// against a non-response ("silence is not acceptance", docx §10).
+export const PTA_INITIATIVE_STAGE_ENTRY_TYPES = ["transition", "follow_up"] as const;
+
+// The six self-approval booleans (docx §7), stored as one jsonb object.
+export type InitiativeChecklist = {
+  alignsGoal: boolean;
+  budgetOk: boolean;
+  namedOwner: boolean;
+  noConflict: boolean;
+  successCriteria: boolean;
+  noSchoolResource: boolean;
+};
+export const EMPTY_INITIATIVE_CHECKLIST: InitiativeChecklist = {
+  alignsGoal: false, budgetOk: false, namedOwner: false, noConflict: false, successCriteria: false, noSchoolResource: false,
+};
+
 export const PTA_GOAL_STATUSES = ["proposed", "shortlisted", "ratified", "completed", "failed"] as const;
 export const PTA_BALLOT_ELECTORATES = ["all_members", "senior_group"] as const;
 
@@ -191,6 +216,21 @@ export const ptaInitiativesTable = pgTable("pta_initiatives", {
   createdById: uuid("created_by_id").references(() => usersTable.id).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   completedAt: timestamp("completed_at", { withTimezone: true }),
+  // --- B4: one-page note (docx §7) ---
+  goalId: uuid("goal_id").references(() => ptaGoalsTable.id),
+  successCriteria: text("success_criteria"),
+  resourcesNeeded: text("resources_needed"),
+  conflicts: text("conflicts"),
+  // --- B4: six-box self-approval checklist (docx §6/§7) ---
+  checklist: jsonb("checklist").$type<InitiativeChecklist>().notNull().default(EMPTY_INITIATIVE_CHECKLIST),
+  approvedById: uuid("approved_by_id").references(() => usersTable.id),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
+  approvalType: varchar("approval_type", { length: 10 }),
+  // --- B4: five-stage school process (docx §8) ---
+  schoolStage: varchar("school_stage", { length: 20 }).notNull().default("none"),
+  // When a school response is expected, set on → presented. Past + still
+  // 'presented' = a non-response (computed, not stored).
+  responseDueAt: timestamp("response_due_at", { withTimezone: true }),
 }, (t) => [
   index("idx_pta_initiatives_school").on(t.schoolId),
   index("idx_pta_initiatives_status").on(t.schoolId, t.status),
@@ -223,3 +263,24 @@ export const ptaGoalsTable = pgTable("pta_goals", {
   index("idx_pta_goals_status").on(t.schoolId, t.status),
 ]);
 export type PtaGoal = typeof ptaGoalsTable.$inferSelect;
+
+// B4 — append-only history of an initiative's journey through the school's
+// five-stage process. Each 'transition' row records a stage change (with the
+// real-world occurredAt, a written outcome, and a reason on rejection); each
+// 'follow_up' row records a chase against a non-response.
+export const ptaInitiativeStageHistoryTable = pgTable("pta_initiative_stage_history", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  schoolId: uuid("school_id").references(() => schoolsTable.id).notNull(),
+  initiativeId: uuid("initiative_id").references(() => ptaInitiativesTable.id).notNull(),
+  entryType: varchar("entry_type", { length: 20 }).notNull().default("transition"),
+  fromStage: varchar("from_stage", { length: 20 }),
+  toStage: varchar("to_stage", { length: 20 }),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  outcomeNote: text("outcome_note"),
+  reason: text("reason"),
+  recordedById: uuid("recorded_by_id").references(() => usersTable.id).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("idx_pta_init_stage_hist_initiative").on(t.initiativeId),
+]);
+export type PtaInitiativeStageHistory = typeof ptaInitiativeStageHistoryTable.$inferSelect;
