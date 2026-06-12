@@ -6,6 +6,8 @@ import {
   voiceMembersTable,
   voiceSupportersTable,
   ptaMembersTable,
+  ptaInitiativesTable,
+  schoolsTable,
   usersTable,
 } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
@@ -237,10 +239,12 @@ router.post("/voice/:id/leave", authMiddleware, ADVOCATE, async (req, res): Prom
   res.json({ ok: true });
 });
 
-// POST /voice/:id/convert — the school has adopted VBE: fold this VOICE into the
-// PTA. Each backer becomes a pta_member (founder → senior_group, members →
-// general_membership); anyone already on the PTA roster is left as-is. The VOICE
-// is marked converted. PTA / leadership only. Audited voice_converted.
+// POST /voice/:id/convert — fold this VOICE into the PTA (B2 merge). Gated on a
+// claimed PTA (B1 adopt must have run). Each backer becomes a pta_member
+// (founder → senior_group, members → general_membership); anyone already on the
+// roster is left as-is. The VOICE's mission carries over as a pta_initiative
+// linked via originVoiceId. Member inserts + initiative + status flip run in one
+// transaction. PTA / leadership only. Audited voice_converted.
 router.post("/voice/:id/convert", authMiddleware, CONVERT, async (req, res): Promise<void> => {
   const u = user(req);
   const { id } = req.params;
@@ -248,7 +252,18 @@ router.post("/voice/:id/convert", authMiddleware, CONVERT, async (req, res): Pro
   const groups = await db.select().from(voiceGroupsTable)
     .where(and(eq(voiceGroupsTable.id, id), eq(voiceGroupsTable.schoolId, u.schoolId))).limit(1);
   if (!groups.length) { res.status(404).json({ error: "VOICE not found" }); return; }
-  if (groups[0].status !== "advocating") { res.status(409).json({ error: "This VOICE has already been converted" }); return; }
+  const voiceRow = groups[0];
+
+  // B2 claim gate: the PTA must be claimed (B1 adopt) before backers merge in.
+  // This is the sole constitution path — convert never auto-claims.
+  const [school] = await db.select({ ptaClaimedAt: schoolsTable.ptaClaimedAt })
+    .from(schoolsTable).where(eq(schoolsTable.id, u.schoolId));
+  if (!school?.ptaClaimedAt) {
+    res.status(409).json({ error: "Adopt the operating structure before merging Morna Vibes into the PTA." });
+    return;
+  }
+
+  if (voiceRow.status !== "advocating") { res.status(409).json({ error: "This VOICE has already been converted" }); return; }
 
   const backers = await db.select({ userId: voiceMembersTable.userId, role: voiceMembersTable.role })
     .from(voiceMembersTable).where(eq(voiceMembersTable.voiceId, id));
@@ -268,17 +283,41 @@ router.post("/voice/:id/convert", authMiddleware, CONVERT, async (req, res): Pro
     }));
 
   let added = 0;
-  if (toAdd.length) {
-    const inserted = await db.insert(ptaMembersTable).values(toAdd).returning({ id: ptaMembersTable.id });
-    added = inserted.length;
-  }
+  let initiative: { id: string; title: string } = { id: "", title: "" };
+  let voice: typeof voiceRow = voiceRow;
 
-  const [voice] = await db.update(voiceGroupsTable)
-    .set({ status: "converted", convertedAt: sql`now()` })
-    .where(eq(voiceGroupsTable.id, id)).returning();
+  await db.transaction(async (tx) => {
+    if (toAdd.length) {
+      const inserted = await tx.insert(ptaMembersTable).values(toAdd).returning({ id: ptaMembersTable.id });
+      added = inserted.length;
+    }
 
-  await writeAudit({ schoolId: u.schoolId, eventType: "voice_converted", actor: u, targetType: "voice_group", targetId: id, details: { backers: backers.length, added, alreadyMembers: backers.length - added }, req });
-  res.json({ voice, converted: { backers: backers.length, added, alreadyMembers: backers.length - added } });
+    // Carry the mission over as the PTA's first initiative — idempotent on originVoiceId.
+    const existingInit = await tx.select({ id: ptaInitiativesTable.id, title: ptaInitiativesTable.title })
+      .from(ptaInitiativesTable).where(eq(ptaInitiativesTable.originVoiceId, id)).limit(1);
+    if (existingInit.length) {
+      initiative = existingInit[0];
+    } else {
+      const [created] = await tx.insert(ptaInitiativesTable).values({
+        schoolId: u.schoolId,
+        title: voiceRow.name.slice(0, 255),
+        summary: voiceRow.mission,
+        status: "proposed",
+        originVoiceId: id,
+        ownerId: null,
+        createdById: u.userId,
+      }).returning({ id: ptaInitiativesTable.id, title: ptaInitiativesTable.title });
+      initiative = created;
+    }
+
+    const [updated] = await tx.update(voiceGroupsTable)
+      .set({ status: "converted", convertedAt: sql`now()` })
+      .where(eq(voiceGroupsTable.id, id)).returning();
+    voice = updated;
+  });
+
+  await writeAudit({ schoolId: u.schoolId, eventType: "voice_converted", actor: u, targetType: "voice_group", targetId: id, details: { backers: backers.length, added, alreadyMembers: backers.length - added, initiativeId: initiative.id }, req });
+  res.json({ voice, converted: { backers: backers.length, added, alreadyMembers: backers.length - added }, initiative: { id: initiative.id, title: initiative.title } });
 });
 
 // --- Public (no auth) — the shareable VOICE page ---------------------------
