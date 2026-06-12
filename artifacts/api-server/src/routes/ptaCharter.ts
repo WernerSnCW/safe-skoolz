@@ -1,12 +1,14 @@
 import { Router, type IRouter } from "express";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, isNull } from "drizzle-orm";
 import {
   db, schoolsTable, ptaOfficersTable, ptaMembersTable, usersTable, ptaPolicyAcknowledgementsTable,
 } from "@workspace/db";
-import { authMiddleware, type JwtPayload } from "../lib/auth";
+import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { writeAudit } from "../lib/auditHelper";
 import { OPERATING_STRUCTURE, OPERATING_STRUCTURE_VERSION } from "../lib/operatingStructure";
 
 const router: IRouter = Router();
+const MANAGE = requireRole("pta");
 
 // GET /pta/charter — the operating-structure content + claim status + officer
 // seats + acknowledgement roster. Authed; readable by members and exec.
@@ -43,6 +45,56 @@ router.get("/pta/charter", authMiddleware, async (req, res): Promise<void> => {
     officers: officers.map((o) => ({ role: o.role, domain: o.domain, name: `${o.firstName} ${o.lastName}`.trim() })),
     acknowledgements: acks.map((a) => ({ name: `${a.firstName} ${a.lastName}`.trim(), actionType: a.actionType, createdAt: a.createdAt })),
   });
+});
+
+// POST /pta/charter/adopt — admin (caretaker-Chair) adopts the operating structure
+// on behalf of the forming committee: sets ptaClaimedAt + records an 'adopted' ack.
+// Idempotent — re-adopting returns the existing claim without a duplicate.
+router.post("/pta/charter/adopt", authMiddleware, MANAGE, async (req, res): Promise<void> => {
+  const u = (req as any).user as JwtPayload;
+  const [school] = await db.select({ ptaClaimedAt: schoolsTable.ptaClaimedAt })
+    .from(schoolsTable).where(eq(schoolsTable.id, u.schoolId));
+  if (school?.ptaClaimedAt != null) {
+    res.json({ claimedAt: school.ptaClaimedAt });
+    return;
+  }
+  const claimedAt = new Date();
+  const claimed = await db.update(schoolsTable)
+    .set({ ptaClaimedAt: claimedAt })
+    .where(and(eq(schoolsTable.id, u.schoolId), isNull(schoolsTable.ptaClaimedAt)))
+    .returning({ id: schoolsTable.id });
+  if (claimed.length === 0) {
+    const [fresh] = await db.select({ ptaClaimedAt: schoolsTable.ptaClaimedAt }).from(schoolsTable).where(eq(schoolsTable.id, u.schoolId));
+    res.json({ claimedAt: fresh?.ptaClaimedAt ?? claimedAt });
+    return;
+  }
+  await db.insert(ptaPolicyAcknowledgementsTable).values({
+    schoolId: u.schoolId, userId: u.userId, policyVersion: OPERATING_STRUCTURE_VERSION, actionType: "adopted",
+  });
+  await writeAudit({ schoolId: u.schoolId, eventType: "pta_charter_adopted", actor: u, targetType: "school", targetId: u.schoolId, details: { version: OPERATING_STRUCTURE_VERSION }, req });
+  res.json({ claimedAt });
+});
+
+// POST /pta/charter/acknowledge — an appointed officer records their own
+// acknowledgement of the charter. Idempotent per (user, version). Does NOT
+// change ptaClaimedAt.
+router.post("/pta/charter/acknowledge", authMiddleware, async (req, res): Promise<void> => {
+  const u = (req as any).user as JwtPayload;
+  const [existing] = await db.select({ id: ptaPolicyAcknowledgementsTable.id })
+    .from(ptaPolicyAcknowledgementsTable)
+    .where(and(
+      eq(ptaPolicyAcknowledgementsTable.schoolId, u.schoolId),
+      eq(ptaPolicyAcknowledgementsTable.userId, u.userId),
+      eq(ptaPolicyAcknowledgementsTable.policyVersion, OPERATING_STRUCTURE_VERSION),
+      eq(ptaPolicyAcknowledgementsTable.actionType, "acknowledged"),
+    ));
+  if (!existing) {
+    await db.insert(ptaPolicyAcknowledgementsTable).values({
+      schoolId: u.schoolId, userId: u.userId, policyVersion: OPERATING_STRUCTURE_VERSION, actionType: "acknowledged",
+    });
+    await writeAudit({ schoolId: u.schoolId, eventType: "pta_charter_acknowledged", actor: u, targetType: "school", targetId: u.schoolId, details: {}, req });
+  }
+  res.json({ ok: true });
 });
 
 export default router;
