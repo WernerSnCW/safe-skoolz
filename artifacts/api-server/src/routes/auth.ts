@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { eq, and, isNull, gt, inArray, sql } from "drizzle-orm";
-import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable } from "@workspace/db";
+import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable, schoolsTable, voiceGroupsTable, voiceMembersTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
@@ -436,6 +436,67 @@ router.post("/auth/staff/login", async (req, res): Promise<void> => {
   });
 });
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// POST /auth/signup — email+password sign-up that logs the parent in instantly
+// (no email verification — production has no Resend yet). Creates a pending
+// parent at the school and backs that school's "Vibes" voice group (= backing
+// both goals). Returns the same shape as login.
+router.post("/auth/signup", async (req, res): Promise<void> => {
+  const { email, password, name, schoolSlug } = req.body ?? {};
+  if (!email || typeof email !== "string" || !EMAIL_RE.test(email)) {
+    res.status(400).json({ error: "A valid email address is required." });
+    return;
+  }
+  if (!password || typeof password !== "string" || password.length < 8) {
+    res.status(400).json({ error: "Password must be at least 8 characters." });
+    return;
+  }
+  if (!schoolSlug || typeof schoolSlug !== "string") {
+    res.status(400).json({ error: "A school is required." });
+    return;
+  }
+  const [school] = await db.select().from(schoolsTable)
+    .where(and(eq(schoolsTable.slug, schoolSlug), eq(schoolsTable.active, true)));
+  if (!school) {
+    res.status(404).json({ error: "School not found." });
+    return;
+  }
+
+  const normalEmail = email.toLowerCase().trim();
+  const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, normalEmail));
+  if (existing) {
+    res.status(409).json({ error: "This email already has an account. Try logging in." });
+    return;
+  }
+
+  const trimmed = name ? String(name).trim() : "";
+  const firstName = (trimmed.split(/\s+/)[0] || "Morna").slice(0, 100);
+  const lastName = (trimmed.split(/\s+/).slice(1).join(" ") || "Parent").slice(0, 100);
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const [newUser] = await db.insert(usersTable).values({
+    schoolId: school.id,
+    role: "parent",
+    firstName,
+    lastName,
+    email: normalEmail,
+    passwordHash,
+    membershipStatus: "pending",
+  } as any).returning();
+
+  try {
+    const [voice] = await db.select({ id: voiceGroupsTable.id }).from(voiceGroupsTable)
+      .where(and(eq(voiceGroupsTable.schoolId, school.id), eq(voiceGroupsTable.status, "advocating")));
+    if (voice) {
+      await db.insert(voiceMembersTable).values({ voiceId: voice.id, userId: newUser.id, role: "member" }).onConflictDoNothing();
+    }
+  } catch (e) { console.error("[signup] backing voice failed:", e); }
+
+  const token = signToken({ userId: newUser.id, schoolId: newUser.schoolId, role: newUser.role, email: newUser.email || undefined });
+  res.status(201).json({ token, user: formatUser(newUser), firstLogin: true });
+});
+
 router.post("/auth/parent/login", async (req, res): Promise<void> => {
   const parsed = StaffLoginBody.safeParse(req.body);
   if (!parsed.success) {
@@ -444,10 +505,11 @@ router.post("/auth/parent/login", async (req, res): Promise<void> => {
   }
 
   const { email, password } = parsed.data;
+  const normalEmail = String(email).toLowerCase().trim();
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(and(eq(usersTable.email, email), eq(usersTable.role, "parent"), eq(usersTable.active, true)));
+    .where(and(eq(usersTable.email, normalEmail), eq(usersTable.role, "parent"), eq(usersTable.active, true)));
 
   if (!user || !user.passwordHash) {
     res.status(401).json({ error: "Invalid credentials" });
