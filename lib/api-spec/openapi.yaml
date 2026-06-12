@@ -31,6 +31,8 @@ tags:
     description: Community diagnostic surveys
   - name: membership
   - name: join
+  - name: concerns
+    description: Community concern intake + exec triage
 
 paths:
   /healthz:
@@ -1965,6 +1967,85 @@ paths:
                   mission: { type: string }
                   joinCount: { type: integer }
                   hasVibes: { type: boolean }
+        "404": { description: Not found }
+  /concerns:
+    post:
+      operationId: submitConcern
+      tags: [concerns]
+      summary: Submit a community concern
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id]
+                properties:
+                  id: { type: string }
+        "400": { description: Invalid input }
+    get:
+      operationId: listConcerns
+      tags: [concerns]
+      summary: List concerns for the exec's school
+      responses:
+        "200":
+          description: Concerns
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [concerns]
+                properties:
+                  concerns:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, body, status, createdAt, firstName, lastName]
+                      properties:
+                        id: { type: string }
+                        body: { type: string }
+                        status: { type: string }
+                        createdAt: { type: string }
+                        firstName: { type: string }
+                        lastName: { type: string }
+        "403": { description: Insufficient permissions }
+  /concerns/{id}/status:
+    post:
+      operationId: setConcernStatus
+      tags: [concerns]
+      summary: Triage a concern by setting its status
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok: { type: boolean }
+        "400": { description: Invalid input }
         "404": { description: Not found }
 
 components:

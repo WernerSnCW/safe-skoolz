@@ -74,6 +74,7 @@ import HowVbeWorks from "@/pages/how-vbe-works";
 import DiagnosticResultsPage from "@/pages/diagnostic-results";
 import JoinPage from "@/pages/join";
 import GoalsPage from "@/pages/goals";
+import ConcernsPage from "@/pages/concerns";
 
 const queryClient = new QueryClient();
 
@@ -166,6 +167,7 @@ function Router() {
         )}
       </Route>
       <Route path="/goals">{() => <ProtectedRoute component={GoalsPage} allowedRoles={["parent", "pta", "coordinator", "head_teacher"]} />}</Route>
+      <Route path="/concerns">{() => <ProtectedRoute component={ConcernsPage} allowedRoles={["parent", "pta", "coordinator", "head_teacher"]} />}</Route>
       {/* Ported public deep guide pages (specific routes BEFORE the catch-all). */}
       <Route path="/schools/10-day-rollout" component={Schools10DayRollout} />
       <Route path="/schools/case-study" component={SchoolsCaseStudy} />

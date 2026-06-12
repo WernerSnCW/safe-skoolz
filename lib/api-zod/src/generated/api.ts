@@ -1783,3 +1783,159 @@ export const SubmitCommunityDiagnosticBody = zod.object({
     }),
   ),
 });
+
+/**
+ * @summary List members awaiting approval (exec)
+ */
+export const ListPendingMembersResponse = zod.object({
+  members: zod.array(
+    zod.object({
+      id: zod.string(),
+      firstName: zod.string(),
+      lastName: zod.string(),
+      email: zod.string(),
+      createdAt: zod.string().optional(),
+    }),
+  ),
+});
+
+/**
+ * @summary Approve a pending member and set their anonymity mode (exec)
+ */
+export const ApproveMemberParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const ApproveMemberBody = zod.object({
+  displayMode: zod.enum(["named", "anonymous"]).optional(),
+});
+
+export const ApproveMemberResponse = zod.object({
+  member: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Reject a pending member (exec)
+ */
+export const RejectMemberParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const RejectMemberResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary Release diagnostic results and notify participants (exec)
+ */
+export const ReleaseDiagnosticResultsParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const ReleaseDiagnosticResultsResponse = zod.object({
+  released: zod.boolean(),
+  releasedAt: zod.string().optional(),
+});
+
+/**
+ * @summary Aggregated diagnostic results (authed; exec sees free-text)
+ */
+export const GetDiagnosticResultsParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetDiagnosticResultsResponse = zod.object({
+  title: zod.string(),
+  released: zod.boolean(),
+  releasedAt: zod.string().optional(),
+  isExec: zod.boolean().optional(),
+  totalResponses: zod.number(),
+  questions: zod.array(
+    zod.object({
+      key: zod.string(),
+      section: zod.string(),
+      text: zod.string(),
+      type: zod.string().optional(),
+      options: zod.array(zod.string()),
+      distribution: zod.array(zod.number()),
+      segments: zod.array(
+        zod.object({
+          yearGroup: zod.string(),
+          n: zod.number(),
+          distribution: zod.array(zod.number()),
+        }),
+      ),
+    }),
+  ),
+  freeText: zod
+    .array(
+      zod.object({
+        questionKey: zod.string().optional(),
+        text: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Email+password sign-up that logs the parent in instantly
+ */
+export const SignupBody = zod.object({
+  email: zod.string(),
+  password: zod.string(),
+  name: zod.string().optional(),
+  schoolSlug: zod.string(),
+});
+
+/**
+ * @summary Public school + vibes summary for the front door
+ */
+export const GetJoinSummaryParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetJoinSummaryResponse = zod.object({
+  schoolName: zod.string(),
+  voiceName: zod.string(),
+  mission: zod.string().optional(),
+  joinCount: zod.number(),
+  hasVibes: zod.boolean(),
+});
+
+/**
+ * @summary Submit a community concern
+ */
+export const SubmitConcernBody = zod.object({
+  body: zod.string(),
+});
+
+/**
+ * @summary List concerns for the exec's school
+ */
+export const ListConcernsResponse = zod.object({
+  concerns: zod.array(
+    zod.object({
+      id: zod.string(),
+      body: zod.string(),
+      status: zod.string(),
+      createdAt: zod.string(),
+      firstName: zod.string(),
+      lastName: zod.string(),
+    }),
+  ),
+});
+
+/**
+ * @summary Triage a concern by setting its status
+ */
+export const SetConcernStatusParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const SetConcernStatusBody = zod.object({
+  status: zod.string(),
+});
+
+export const SetConcernStatusResponse = zod.object({
+  ok: zod.boolean(),
+});

@@ -62,6 +62,7 @@ import type {
   JoinVoice201,
   LeaveVoice200,
   ListAlertsParams,
+  ListConcerns200,
   ListIncidentsParams,
   ListNotificationsParams,
   ListPendingMembers200,
@@ -106,6 +107,8 @@ import type {
   RevokePtaProxy200,
   School,
   SendPtaMessageBody,
+  SetConcernStatus200,
+  SetConcernStatusBody,
   SetPtaProxy201,
   SetPtaProxyBody,
   Signup201,
@@ -113,6 +116,8 @@ import type {
   StaffLoginBody,
   SubmitCommunityDiagnostic201,
   SubmitCommunityDiagnosticBody,
+  SubmitConcern201,
+  SubmitConcernBody,
   SubmitPtaCodesignResponse201,
   SubmitPtaCodesignResponseBody,
   SubmitPtaConcernBody,
@@ -6908,3 +6913,251 @@ export function useGetJoinSummary<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Submit a community concern
+ */
+export const getSubmitConcernUrl = () => {
+  return `/api/concerns`;
+};
+
+export const submitConcern = async (
+  submitConcernBody: SubmitConcernBody,
+  options?: RequestInit,
+): Promise<SubmitConcern201> => {
+  return customFetch<SubmitConcern201>(getSubmitConcernUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(submitConcernBody),
+  });
+};
+
+export const getSubmitConcernMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitConcern>>,
+    TError,
+    { data: BodyType<SubmitConcernBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof submitConcern>>,
+  TError,
+  { data: BodyType<SubmitConcernBody> },
+  TContext
+> => {
+  const mutationKey = ["submitConcern"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof submitConcern>>,
+    { data: BodyType<SubmitConcernBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return submitConcern(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SubmitConcernMutationResult = NonNullable<
+  Awaited<ReturnType<typeof submitConcern>>
+>;
+export type SubmitConcernMutationBody = BodyType<SubmitConcernBody>;
+export type SubmitConcernMutationError = ErrorType<void>;
+
+/**
+ * @summary Submit a community concern
+ */
+export const useSubmitConcern = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitConcern>>,
+    TError,
+    { data: BodyType<SubmitConcernBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof submitConcern>>,
+  TError,
+  { data: BodyType<SubmitConcernBody> },
+  TContext
+> => {
+  return useMutation(getSubmitConcernMutationOptions(options));
+};
+
+/**
+ * @summary List concerns for the exec's school
+ */
+export const getListConcernsUrl = () => {
+  return `/api/concerns`;
+};
+
+export const listConcerns = async (
+  options?: RequestInit,
+): Promise<ListConcerns200> => {
+  return customFetch<ListConcerns200>(getListConcernsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListConcernsQueryKey = () => {
+  return [`/api/concerns`] as const;
+};
+
+export const getListConcernsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listConcerns>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listConcerns>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListConcernsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listConcerns>>> = ({
+    signal,
+  }) => listConcerns({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listConcerns>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListConcernsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listConcerns>>
+>;
+export type ListConcernsQueryError = ErrorType<void>;
+
+/**
+ * @summary List concerns for the exec's school
+ */
+
+export function useListConcerns<
+  TData = Awaited<ReturnType<typeof listConcerns>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listConcerns>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListConcernsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Triage a concern by setting its status
+ */
+export const getSetConcernStatusUrl = (id: string) => {
+  return `/api/concerns/${id}/status`;
+};
+
+export const setConcernStatus = async (
+  id: string,
+  setConcernStatusBody: SetConcernStatusBody,
+  options?: RequestInit,
+): Promise<SetConcernStatus200> => {
+  return customFetch<SetConcernStatus200>(getSetConcernStatusUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(setConcernStatusBody),
+  });
+};
+
+export const getSetConcernStatusMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setConcernStatus>>,
+    TError,
+    { id: string; data: BodyType<SetConcernStatusBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof setConcernStatus>>,
+  TError,
+  { id: string; data: BodyType<SetConcernStatusBody> },
+  TContext
+> => {
+  const mutationKey = ["setConcernStatus"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof setConcernStatus>>,
+    { id: string; data: BodyType<SetConcernStatusBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return setConcernStatus(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SetConcernStatusMutationResult = NonNullable<
+  Awaited<ReturnType<typeof setConcernStatus>>
+>;
+export type SetConcernStatusMutationBody = BodyType<SetConcernStatusBody>;
+export type SetConcernStatusMutationError = ErrorType<void>;
+
+/**
+ * @summary Triage a concern by setting its status
+ */
+export const useSetConcernStatus = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setConcernStatus>>,
+    TError,
+    { id: string; data: BodyType<SetConcernStatusBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof setConcernStatus>>,
+  TError,
+  { id: string; data: BodyType<SetConcernStatusBody> },
+  TContext
+> => {
+  return useMutation(getSetConcernStatusMutationOptions(options));
+};

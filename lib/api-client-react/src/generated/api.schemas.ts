@@ -1173,3 +1173,32 @@ export type GetJoinSummary200 = {
   joinCount: number;
   hasVibes: boolean;
 };
+
+export type SubmitConcernBody = {
+  body: string;
+};
+
+export type SubmitConcern201 = {
+  id: string;
+};
+
+export type ListConcerns200ConcernsItem = {
+  id: string;
+  body: string;
+  status: string;
+  createdAt: string;
+  firstName: string;
+  lastName: string;
+};
+
+export type ListConcerns200 = {
+  concerns: ListConcerns200ConcernsItem[];
+};
+
+export type SetConcernStatusBody = {
+  status: string;
+};
+
+export type SetConcernStatus200 = {
+  ok: boolean;
+};

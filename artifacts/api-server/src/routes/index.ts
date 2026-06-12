@@ -35,6 +35,7 @@ import passwordResetRouter from "./passwordReset";
 import mfaRouter from "./mfa";
 import meRouter from "./me";
 import adminRouter from "./admin";
+import concernsRouter from "./concerns";
 
 const router: IRouter = Router();
 
@@ -78,5 +79,6 @@ router.use(lessonsRouter);
 router.use(trainingRouter);
 router.use(auditRouter);
 router.use(adminRouter);
+router.use(concernsRouter);
 
 export default router;

@@ -16,6 +16,7 @@ export * from "./behaviourPoints";
 export * from "./pta";
 export * from "./ptaGovernance";
 export * from "./voice";
+export * from "./concerns";
 export * from "./newsletter";
 export * from "./contactMessages";
 export * from "./diagnostics";
