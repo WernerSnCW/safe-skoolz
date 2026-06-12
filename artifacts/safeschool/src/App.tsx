@@ -66,6 +66,7 @@ import CaseStudiesPage from "@/pages/case-studies";
 import HowItWorksPage from "@/pages/how-it-works";
 import TrainingStatusPage from "@/pages/training-status";
 import AuditPage from "@/pages/audit";
+import MembershipQueuePage from "@/pages/membership-queue";
 import AdminPage from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 import ResourceCentre from "@/pages/resource-centre";
@@ -289,6 +290,9 @@ function Router() {
       </Route>
       <Route path="/audit">
         {() => <ProtectedRoute component={AuditPage} allowedRoles={["coordinator", "head_teacher"]} />}
+      </Route>
+      <Route path="/membership">
+        {() => <ProtectedRoute component={MembershipQueuePage} allowedRoles={["pta", "coordinator", "head_teacher"]} />}
       </Route>
       <Route path="/settings">
         {() => <ProtectedRoute component={Settings} />}
