@@ -9,6 +9,11 @@ describe("isExecRole", () => {
     expect(isExecRole("parent")).toBe(false);
     expect(isExecRole("pupil")).toBe(false);
   });
+
+  it("returns false for null or undefined roles", () => {
+    expect(isExecRole(null)).toBe(false);
+    expect(isExecRole(undefined)).toBe(false);
+  });
 });
 
 describe("memberDisplayName", () => {
