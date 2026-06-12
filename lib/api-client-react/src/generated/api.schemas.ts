@@ -907,6 +907,10 @@ export type GetPtaResources200 = {
   resources?: PtaResource[];
 };
 
+export type ListPtaInitiatives200InitiativesItemChecklist = {
+  [key: string]: unknown;
+};
+
 export type ListPtaInitiatives200InitiativesItem = {
   id?: string;
   title?: string;
@@ -919,6 +923,20 @@ export type ListPtaInitiatives200InitiativesItem = {
   targetDate?: string | null;
   createdAt?: string;
   completedAt?: string | null;
+  goalId?: string | null;
+  goalTitle?: string | null;
+  goalStatus?: string | null;
+  successCriteria?: string | null;
+  resourcesNeeded?: string | null;
+  conflicts?: string | null;
+  checklist?: ListPtaInitiatives200InitiativesItemChecklist;
+  schoolStage?: string;
+  responseDueAt?: string | null;
+  approvalType?: string | null;
+  approvedAt?: string | null;
+  approvedBy?: string | null;
+  awaitingResponse?: boolean;
+  followUpCount?: number;
 };
 
 export type ListPtaInitiatives200 = {
@@ -931,6 +949,10 @@ export type CreatePtaInitiativeBody = {
   ownerId?: string | null;
   originVoiceId?: string | null;
   targetDate?: string | null;
+  goalId?: string | null;
+  successCriteria?: string | null;
+  resourcesNeeded?: string | null;
+  conflicts?: string | null;
 };
 
 export type CreatePtaInitiative201Initiative = { [key: string]: unknown };
@@ -939,18 +961,69 @@ export type CreatePtaInitiative201 = {
   initiative?: CreatePtaInitiative201Initiative;
 };
 
+export type UpdatePtaInitiativeBodyChecklist = { [key: string]: unknown };
+
 export type UpdatePtaInitiativeBody = {
   status?: string;
   title?: string;
   summary?: string;
   ownerId?: string | null;
   targetDate?: string | null;
+  goalId?: string | null;
+  successCriteria?: string | null;
+  resourcesNeeded?: string | null;
+  conflicts?: string | null;
+  checklist?: UpdatePtaInitiativeBodyChecklist;
 };
 
 export type UpdatePtaInitiative200Initiative = { [key: string]: unknown };
 
 export type UpdatePtaInitiative200 = {
   initiative?: UpdatePtaInitiative200Initiative;
+};
+
+export type GetPtaInitiative200Initiative = { [key: string]: unknown };
+
+export type GetPtaInitiative200StageHistoryItem = { [key: string]: unknown };
+
+export type GetPtaInitiative200 = {
+  initiative?: GetPtaInitiative200Initiative;
+  stageHistory?: GetPtaInitiative200StageHistoryItem[];
+};
+
+export type ApprovePtaInitiativeBody = {
+  approvalType: string;
+  boardNote?: string | null;
+};
+
+export type ApprovePtaInitiative200Initiative = { [key: string]: unknown };
+
+export type ApprovePtaInitiative200 = {
+  initiative?: ApprovePtaInitiative200Initiative;
+};
+
+export type AdvancePtaInitiativeStageBody = {
+  toStage: string;
+  occurredAt?: string | null;
+  outcomeNote?: string | null;
+  reason?: string | null;
+  responseDueAt?: string | null;
+};
+
+export type AdvancePtaInitiativeStage200Initiative = { [key: string]: unknown };
+
+export type AdvancePtaInitiativeStage200 = {
+  initiative?: AdvancePtaInitiativeStage200Initiative;
+};
+
+export type FollowUpPtaInitiativeBody = {
+  note: string;
+};
+
+export type FollowUpPtaInitiative201Entry = { [key: string]: unknown };
+
+export type FollowUpPtaInitiative201 = {
+  entry?: FollowUpPtaInitiative201Entry;
 };
 
 export type ListPtaGoals200GoalsItem = { [key: string]: unknown };

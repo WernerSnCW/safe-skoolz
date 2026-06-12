@@ -23,10 +23,14 @@ import type {
   AddPtaMember201,
   AddPtaMemberBody,
   AdoptPtaCharter200,
+  AdvancePtaInitiativeStage200,
+  AdvancePtaInitiativeStageBody,
   AppointPtaOfficer201,
   AppointPtaOfficerBody,
   ApproveMember200,
   ApproveMemberBody,
+  ApprovePtaInitiative200,
+  ApprovePtaInitiativeBody,
   ApprovePtaReport200,
   ApprovePtaReportBody,
   AssessIncidentBody,
@@ -50,6 +54,8 @@ import type {
   ErrorResponse,
   FlagPtaPolicy201,
   FlagPtaPolicyBody,
+  FollowUpPtaInitiative201,
+  FollowUpPtaInitiativeBody,
   GeneratePtaReport201,
   GetCommunityDiagnostic200,
   GetDiagnosticResults200,
@@ -57,6 +63,7 @@ import type {
   GetLatestPtaReport200,
   GetPtaAnnouncementFeed200,
   GetPtaCharter200,
+  GetPtaInitiative200,
   GetPtaResources200,
   GetVoice200,
   GetVoicePublic200,
@@ -5482,6 +5489,363 @@ export const useUpdatePtaInitiative = <
   TContext
 > => {
   return useMutation(getUpdatePtaInitiativeMutationOptions(options));
+};
+
+/**
+ * @summary Initiative detail + stage history
+ */
+export const getGetPtaInitiativeUrl = (id: string) => {
+  return `/api/pta/initiatives/${id}/detail`;
+};
+
+export const getPtaInitiative = async (
+  id: string,
+  options?: RequestInit,
+): Promise<GetPtaInitiative200> => {
+  return customFetch<GetPtaInitiative200>(getGetPtaInitiativeUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetPtaInitiativeQueryKey = (id: string) => {
+  return [`/api/pta/initiatives/${id}/detail`] as const;
+};
+
+export const getGetPtaInitiativeQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPtaInitiative>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPtaInitiative>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetPtaInitiativeQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPtaInitiative>>
+  > = ({ signal }) => getPtaInitiative(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPtaInitiative>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPtaInitiativeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPtaInitiative>>
+>;
+export type GetPtaInitiativeQueryError = ErrorType<void>;
+
+/**
+ * @summary Initiative detail + stage history
+ */
+
+export function useGetPtaInitiative<
+  TData = Awaited<ReturnType<typeof getPtaInitiative>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPtaInitiative>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPtaInitiativeQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Approve an initiative (self or board)
+ */
+export const getApprovePtaInitiativeUrl = (id: string) => {
+  return `/api/pta/initiatives/${id}/approve`;
+};
+
+export const approvePtaInitiative = async (
+  id: string,
+  approvePtaInitiativeBody: ApprovePtaInitiativeBody,
+  options?: RequestInit,
+): Promise<ApprovePtaInitiative200> => {
+  return customFetch<ApprovePtaInitiative200>(getApprovePtaInitiativeUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(approvePtaInitiativeBody),
+  });
+};
+
+export const getApprovePtaInitiativeMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof approvePtaInitiative>>,
+    TError,
+    { id: string; data: BodyType<ApprovePtaInitiativeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof approvePtaInitiative>>,
+  TError,
+  { id: string; data: BodyType<ApprovePtaInitiativeBody> },
+  TContext
+> => {
+  const mutationKey = ["approvePtaInitiative"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof approvePtaInitiative>>,
+    { id: string; data: BodyType<ApprovePtaInitiativeBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return approvePtaInitiative(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ApprovePtaInitiativeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof approvePtaInitiative>>
+>;
+export type ApprovePtaInitiativeMutationBody =
+  BodyType<ApprovePtaInitiativeBody>;
+export type ApprovePtaInitiativeMutationError = ErrorType<void>;
+
+/**
+ * @summary Approve an initiative (self or board)
+ */
+export const useApprovePtaInitiative = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof approvePtaInitiative>>,
+    TError,
+    { id: string; data: BodyType<ApprovePtaInitiativeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof approvePtaInitiative>>,
+  TError,
+  { id: string; data: BodyType<ApprovePtaInitiativeBody> },
+  TContext
+> => {
+  return useMutation(getApprovePtaInitiativeMutationOptions(options));
+};
+
+/**
+ * @summary Advance the school-process stage
+ */
+export const getAdvancePtaInitiativeStageUrl = (id: string) => {
+  return `/api/pta/initiatives/${id}/stage`;
+};
+
+export const advancePtaInitiativeStage = async (
+  id: string,
+  advancePtaInitiativeStageBody: AdvancePtaInitiativeStageBody,
+  options?: RequestInit,
+): Promise<AdvancePtaInitiativeStage200> => {
+  return customFetch<AdvancePtaInitiativeStage200>(
+    getAdvancePtaInitiativeStageUrl(id),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(advancePtaInitiativeStageBody),
+    },
+  );
+};
+
+export const getAdvancePtaInitiativeStageMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof advancePtaInitiativeStage>>,
+    TError,
+    { id: string; data: BodyType<AdvancePtaInitiativeStageBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof advancePtaInitiativeStage>>,
+  TError,
+  { id: string; data: BodyType<AdvancePtaInitiativeStageBody> },
+  TContext
+> => {
+  const mutationKey = ["advancePtaInitiativeStage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof advancePtaInitiativeStage>>,
+    { id: string; data: BodyType<AdvancePtaInitiativeStageBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return advancePtaInitiativeStage(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdvancePtaInitiativeStageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof advancePtaInitiativeStage>>
+>;
+export type AdvancePtaInitiativeStageMutationBody =
+  BodyType<AdvancePtaInitiativeStageBody>;
+export type AdvancePtaInitiativeStageMutationError = ErrorType<void>;
+
+/**
+ * @summary Advance the school-process stage
+ */
+export const useAdvancePtaInitiativeStage = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof advancePtaInitiativeStage>>,
+    TError,
+    { id: string; data: BodyType<AdvancePtaInitiativeStageBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof advancePtaInitiativeStage>>,
+  TError,
+  { id: string; data: BodyType<AdvancePtaInitiativeStageBody> },
+  TContext
+> => {
+  return useMutation(getAdvancePtaInitiativeStageMutationOptions(options));
+};
+
+/**
+ * @summary Record a follow-up against a non-response
+ */
+export const getFollowUpPtaInitiativeUrl = (id: string) => {
+  return `/api/pta/initiatives/${id}/follow-up`;
+};
+
+export const followUpPtaInitiative = async (
+  id: string,
+  followUpPtaInitiativeBody: FollowUpPtaInitiativeBody,
+  options?: RequestInit,
+): Promise<FollowUpPtaInitiative201> => {
+  return customFetch<FollowUpPtaInitiative201>(
+    getFollowUpPtaInitiativeUrl(id),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(followUpPtaInitiativeBody),
+    },
+  );
+};
+
+export const getFollowUpPtaInitiativeMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof followUpPtaInitiative>>,
+    TError,
+    { id: string; data: BodyType<FollowUpPtaInitiativeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof followUpPtaInitiative>>,
+  TError,
+  { id: string; data: BodyType<FollowUpPtaInitiativeBody> },
+  TContext
+> => {
+  const mutationKey = ["followUpPtaInitiative"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof followUpPtaInitiative>>,
+    { id: string; data: BodyType<FollowUpPtaInitiativeBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return followUpPtaInitiative(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type FollowUpPtaInitiativeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof followUpPtaInitiative>>
+>;
+export type FollowUpPtaInitiativeMutationBody =
+  BodyType<FollowUpPtaInitiativeBody>;
+export type FollowUpPtaInitiativeMutationError = ErrorType<void>;
+
+/**
+ * @summary Record a follow-up against a non-response
+ */
+export const useFollowUpPtaInitiative = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof followUpPtaInitiative>>,
+    TError,
+    { id: string; data: BodyType<FollowUpPtaInitiativeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof followUpPtaInitiative>>,
+  TError,
+  { id: string; data: BodyType<FollowUpPtaInitiativeBody> },
+  TContext
+> => {
+  return useMutation(getFollowUpPtaInitiativeMutationOptions(options));
 };
 
 /**

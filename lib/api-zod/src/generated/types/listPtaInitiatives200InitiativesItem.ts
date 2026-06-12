@@ -5,6 +5,7 @@
  * SafeSchool safeguarding and incident reporting API
  * OpenAPI spec version: 0.2.0
  */
+import type { ListPtaInitiatives200InitiativesItemChecklist } from "./listPtaInitiatives200InitiativesItemChecklist";
 
 export type ListPtaInitiatives200InitiativesItem = {
   id?: string;
@@ -18,4 +19,18 @@ export type ListPtaInitiatives200InitiativesItem = {
   targetDate?: string | null;
   createdAt?: string;
   completedAt?: string | null;
+  goalId?: string | null;
+  goalTitle?: string | null;
+  goalStatus?: string | null;
+  successCriteria?: string | null;
+  resourcesNeeded?: string | null;
+  conflicts?: string | null;
+  checklist?: ListPtaInitiatives200InitiativesItemChecklist;
+  schoolStage?: string;
+  responseDueAt?: string | null;
+  approvalType?: string | null;
+  approvedAt?: string | null;
+  approvedBy?: string | null;
+  awaitingResponse?: boolean;
+  followUpCount?: number;
 };

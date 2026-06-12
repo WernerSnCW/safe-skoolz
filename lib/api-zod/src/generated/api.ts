@@ -1579,6 +1579,20 @@ export const ListPtaInitiativesResponse = zod.object({
         targetDate: zod.string().nullish(),
         createdAt: zod.string().optional(),
         completedAt: zod.string().nullish(),
+        goalId: zod.string().nullish(),
+        goalTitle: zod.string().nullish(),
+        goalStatus: zod.string().nullish(),
+        successCriteria: zod.string().nullish(),
+        resourcesNeeded: zod.string().nullish(),
+        conflicts: zod.string().nullish(),
+        checklist: zod.object({}).passthrough().optional(),
+        schoolStage: zod.string().optional(),
+        responseDueAt: zod.string().nullish(),
+        approvalType: zod.string().nullish(),
+        approvedAt: zod.string().nullish(),
+        approvedBy: zod.string().nullish(),
+        awaitingResponse: zod.boolean().optional(),
+        followUpCount: zod.number().optional(),
       }),
     )
     .optional(),
@@ -1593,6 +1607,10 @@ export const CreatePtaInitiativeBody = zod.object({
   ownerId: zod.string().nullish(),
   originVoiceId: zod.string().nullish(),
   targetDate: zod.string().nullish(),
+  goalId: zod.string().nullish(),
+  successCriteria: zod.string().nullish(),
+  resourcesNeeded: zod.string().nullish(),
+  conflicts: zod.string().nullish(),
 });
 
 /**
@@ -1608,10 +1626,73 @@ export const UpdatePtaInitiativeBody = zod.object({
   summary: zod.string().optional(),
   ownerId: zod.string().nullish(),
   targetDate: zod.string().nullish(),
+  goalId: zod.string().nullish(),
+  successCriteria: zod.string().nullish(),
+  resourcesNeeded: zod.string().nullish(),
+  conflicts: zod.string().nullish(),
+  checklist: zod.object({}).passthrough().optional(),
 });
 
 export const UpdatePtaInitiativeResponse = zod.object({
   initiative: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Initiative detail + stage history
+ */
+export const GetPtaInitiativeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetPtaInitiativeResponse = zod.object({
+  initiative: zod.object({}).passthrough().optional(),
+  stageHistory: zod.array(zod.object({}).passthrough()).optional(),
+});
+
+/**
+ * @summary Approve an initiative (self or board)
+ */
+export const ApprovePtaInitiativeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ApprovePtaInitiativeBody = zod.object({
+  approvalType: zod.string(),
+  boardNote: zod.string().nullish(),
+});
+
+export const ApprovePtaInitiativeResponse = zod.object({
+  initiative: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Advance the school-process stage
+ */
+export const AdvancePtaInitiativeStageParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AdvancePtaInitiativeStageBody = zod.object({
+  toStage: zod.string(),
+  occurredAt: zod.string().nullish(),
+  outcomeNote: zod.string().nullish(),
+  reason: zod.string().nullish(),
+  responseDueAt: zod.string().nullish(),
+});
+
+export const AdvancePtaInitiativeStageResponse = zod.object({
+  initiative: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Record a follow-up against a non-response
+ */
+export const FollowUpPtaInitiativeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const FollowUpPtaInitiativeBody = zod.object({
+  note: zod.string(),
 });
 
 /**

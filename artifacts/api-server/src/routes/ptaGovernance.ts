@@ -932,7 +932,7 @@ router.post("/pta/initiatives/:id/follow-up", authMiddleware, MANAGE, async (req
 });
 
 // GET /pta/initiatives/:id — full detail + ordered stage history.
-router.get("/pta/initiatives/:id", authMiddleware, VIEW, async (req, res): Promise<void> => {
+router.get(["/pta/initiatives/:id", "/pta/initiatives/:id/detail"], authMiddleware, VIEW, async (req, res): Promise<void> => {
   const u = user(req);
   const { id } = req.params;
   const owner = alias(usersTable, "d_owner");

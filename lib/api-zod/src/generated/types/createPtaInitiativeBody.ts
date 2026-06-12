@@ -12,4 +12,8 @@ export type CreatePtaInitiativeBody = {
   ownerId?: string | null;
   originVoiceId?: string | null;
   targetDate?: string | null;
+  goalId?: string | null;
+  successCriteria?: string | null;
+  resourcesNeeded?: string | null;
+  conflicts?: string | null;
 };

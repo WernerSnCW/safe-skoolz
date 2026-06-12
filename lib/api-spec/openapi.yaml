@@ -1444,6 +1444,20 @@ paths:
                         targetDate: { type: string, nullable: true }
                         createdAt: { type: string }
                         completedAt: { type: string, nullable: true }
+                        goalId: { type: string, nullable: true }
+                        goalTitle: { type: string, nullable: true }
+                        goalStatus: { type: string, nullable: true }
+                        successCriteria: { type: string, nullable: true }
+                        resourcesNeeded: { type: string, nullable: true }
+                        conflicts: { type: string, nullable: true }
+                        checklist: { type: object }
+                        schoolStage: { type: string }
+                        responseDueAt: { type: string, nullable: true }
+                        approvalType: { type: string, nullable: true }
+                        approvedAt: { type: string, nullable: true }
+                        approvedBy: { type: string, nullable: true }
+                        awaitingResponse: { type: boolean }
+                        followUpCount: { type: integer }
     post:
       operationId: createPtaInitiative
       tags: [pta]
@@ -1460,6 +1474,10 @@ paths:
                 ownerId: { type: string, nullable: true }
                 originVoiceId: { type: string, nullable: true }
                 targetDate: { type: string, nullable: true }
+                goalId: { type: string, nullable: true }
+                successCriteria: { type: string, nullable: true }
+                resourcesNeeded: { type: string, nullable: true }
+                conflicts: { type: string, nullable: true }
               required: [title, summary]
       responses:
         "201":
@@ -1489,6 +1507,11 @@ paths:
                 summary: { type: string }
                 ownerId: { type: string, nullable: true }
                 targetDate: { type: string, nullable: true }
+                goalId: { type: string, nullable: true }
+                successCriteria: { type: string, nullable: true }
+                resourcesNeeded: { type: string, nullable: true }
+                conflicts: { type: string, nullable: true }
+                checklist: { type: object }
       responses:
         "200":
           description: Updated
@@ -1498,6 +1521,88 @@ paths:
                 type: object
                 properties:
                   initiative: { type: object }
+  /pta/initiatives/{id}/detail:
+    get:
+      operationId: getPtaInitiative
+      tags: [pta]
+      summary: Initiative detail + stage history
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initiative: { type: object }
+                  stageHistory: { type: array, items: { type: object } }
+        "404": { description: Not found }
+  /pta/initiatives/{id}/approve:
+    post:
+      operationId: approvePtaInitiative
+      tags: [pta]
+      summary: Approve an initiative (self or board)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [approvalType]
+              properties:
+                approvalType: { type: string }
+                boardNote: { type: string, nullable: true }
+      responses:
+        "200": { description: Approved, content: { application/json: { schema: { type: object, properties: { initiative: { type: object } } } } } }
+        "400": { description: Invalid }
+        "409": { description: Checklist not met or already approved }
+  /pta/initiatives/{id}/stage:
+    post:
+      operationId: advancePtaInitiativeStage
+      tags: [pta]
+      summary: Advance the school-process stage
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toStage]
+              properties:
+                toStage: { type: string }
+                occurredAt: { type: string, nullable: true }
+                outcomeNote: { type: string, nullable: true }
+                reason: { type: string, nullable: true }
+                responseDueAt: { type: string, nullable: true }
+      responses:
+        "200": { description: Advanced, content: { application/json: { schema: { type: object, properties: { initiative: { type: object } } } } } }
+        "400": { description: Invalid }
+        "409": { description: Illegal transition }
+  /pta/initiatives/{id}/follow-up:
+    post:
+      operationId: followUpPtaInitiative
+      tags: [pta]
+      summary: Record a follow-up against a non-response
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [note]
+              properties:
+                note: { type: string }
+      responses:
+        "201": { description: Logged, content: { application/json: { schema: { type: object, properties: { entry: { type: object } } } } } }
+        "400": { description: Invalid }
   /pta/goals:
     get:
       operationId: listPtaGoals

@@ -5,6 +5,7 @@
  * SafeSchool safeguarding and incident reporting API
  * OpenAPI spec version: 0.2.0
  */
+import type { UpdatePtaInitiativeBodyChecklist } from "./updatePtaInitiativeBodyChecklist";
 
 export type UpdatePtaInitiativeBody = {
   status?: string;
@@ -12,4 +13,9 @@ export type UpdatePtaInitiativeBody = {
   summary?: string;
   ownerId?: string | null;
   targetDate?: string | null;
+  goalId?: string | null;
+  successCriteria?: string | null;
+  resourcesNeeded?: string | null;
+  conflicts?: string | null;
+  checklist?: UpdatePtaInitiativeBodyChecklist;
 };
