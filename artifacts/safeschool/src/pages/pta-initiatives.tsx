@@ -18,8 +18,6 @@ import {
   Megaphone,
   Flag,
   CheckCircle2,
-  CircleDot,
-  Clock,
   ChevronRight,
   AlertTriangle,
   History,
@@ -31,16 +29,37 @@ import {
 // mission (advocate → convert → organise). Plain elements, no framer enter-anim.
 
 const STATUSES = [
-  { value: "proposed", label: "Proposed", icon: CircleDot },
+  { value: "proposed", label: "Proposed" },
   { value: "active", label: "Active", icon: Flag },
   { value: "completed", label: "Completed", icon: CheckCircle2 },
-  { value: "cancelled", label: "Cancelled", icon: Clock },
+  { value: "cancelled", label: "Cancelled" },
 ];
 
 const inputCls =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30";
 const selectCls =
   "h-9 rounded-md border border-border bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30";
+
+const CHECK_ITEMS: { key: string; label: string }[] = [
+  { key: "alignsGoal", label: "Aligns with a ratified annual goal" },
+  { key: "budgetOk", label: "No budget (or within the small-spend threshold)" },
+  { key: "namedOwner", label: "Has a named, accountable owner" },
+  { key: "noConflict", label: "Does not conflict with existing work" },
+  { key: "successCriteria", label: "Has defined success criteria" },
+  { key: "noSchoolResource", label: "Needs no formal school resource or approval" },
+];
+
+const STAGES = ["idea", "presented", "accepted", "planning", "delivering", "delivered"];
+const NEXT: Record<string, string[]> = {
+  none: ["idea"],
+  idea: ["presented"],
+  presented: ["accepted", "rejected"],
+  accepted: ["planning"],
+  planning: ["delivering"],
+  delivering: ["delivered"],
+  rejected: [],
+  delivered: [],
+};
 
 // Step 4: StageHistory sub-component — defined at module scope so the hook call
 // is not conditional within the parent loop.
@@ -89,27 +108,6 @@ export default function PtaInitiatives() {
   const members = (membersQ.data as any)?.members ?? [];
   const convertedVoices = ((voicesQ.data as any)?.voices ?? []).filter((v: any) => v.status === "converted");
   const ratifiedGoals = ((goalsQ.data as any)?.goals ?? []).filter((g: any) => g.status === "ratified");
-
-  const CHECK_ITEMS: { key: string; label: string }[] = [
-    { key: "alignsGoal", label: "Aligns with a ratified annual goal" },
-    { key: "budgetOk", label: "No budget (or within the small-spend threshold)" },
-    { key: "namedOwner", label: "Has a named, accountable owner" },
-    { key: "noConflict", label: "Does not conflict with existing work" },
-    { key: "successCriteria", label: "Has defined success criteria" },
-    { key: "noSchoolResource", label: "Needs no formal school resource or approval" },
-  ];
-
-  const STAGES = ["idea", "presented", "accepted", "planning", "delivering", "delivered"];
-  const NEXT: Record<string, string[]> = {
-    none: ["idea"],
-    idea: ["presented"],
-    presented: ["accepted", "rejected"],
-    accepted: ["planning"],
-    planning: ["delivering"],
-    delivering: ["delivered"],
-    rejected: [],
-    delivered: [],
-  };
 
   const run = async (fn: () => Promise<unknown>) => {
     setErr(null);
@@ -326,6 +324,7 @@ export default function PtaInitiatives() {
                           >
                             Self-approve
                           </Button>
+                          {/* Board approval is a recorded override — no checklist gate (docx §7: failed checklist → full exec board). */}
                           <Button
                             size="sm"
                             variant="outline"
@@ -437,7 +436,7 @@ export default function PtaInitiatives() {
                       <History className="w-3 h-3" />
                       {openId === i.id ? "Hide history" : "Show history"}
                     </button>
-                    {openId === i.id && <StageHistory id={i.id} />}
+                    {openId === i.id && <StageHistory id={i.id} key={String(initiativesQ.dataUpdatedAt)} />}
                   </div>
                 </CardContent>
               </Card>
