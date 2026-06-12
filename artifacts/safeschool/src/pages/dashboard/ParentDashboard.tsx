@@ -545,6 +545,39 @@ export default function ParentDashboard({ user }: { user: any }) {
     );
   }
 
+  // Community mode (spec §4.1): a parent who signed up via the community
+  // diagnostic has no linked pupils. Lead with community content, not child KPIs.
+  if (childrenList.length === 0) {
+    return (
+      <div className="space-y-8 max-w-5xl mx-auto">
+        <PageHeader
+          eyebrow="Community"
+          title={`Welcome, ${user.firstName}`}
+          subtitle="You're part of the parent community. Here's what you can do."
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle className="text-base">The community diagnostic</CardTitle></CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <p>Results are shared with every participant when the exec releases them. You'll be notified.</p>
+              <a className="inline-block font-semibold text-primary hover:underline" href="/results/morna">
+                See the results →
+              </a>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Your membership</CardTitle></CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              {user.membershipStatus === "pending"
+                ? "Your membership is awaiting approval. You'll get full access once an exec approves you."
+                : "Your membership is active. Thank you for being part of the community."}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       <PageHeader
