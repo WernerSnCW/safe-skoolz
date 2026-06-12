@@ -58,7 +58,6 @@ async function createInitiative(body: Record<string, unknown>): Promise<string> 
 }
 export { }; // keep this a module
 
-
 describe("POST /api/pta/initiatives (one-page note)", () => {
   it("requires MANAGE (stranger 403)", async () => {
     const r = await fetch(`${baseUrl}/api/pta/initiatives`, { method: "POST", headers: auth(strangerTok), body: JSON.stringify({ title: "X", summary: "Y" }) });

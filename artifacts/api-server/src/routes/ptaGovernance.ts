@@ -22,6 +22,7 @@ import {
   PTA_ANNOUNCEMENT_AUDIENCES,
   PTA_INITIATIVE_STATUSES,
   PTA_BALLOT_ELECTORATES,
+  EMPTY_INITIATIVE_CHECKLIST,
 } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
@@ -730,16 +731,16 @@ router.post("/pta/initiatives", authMiddleware, MANAGE, async (req, res): Promis
     .values({ schoolId: u.schoolId, title: title.trim(), summary: summary.trim(),
       ownerId: ownerId || null, originVoiceId: originVoiceId || null, targetDate: target, createdById: u.userId,
       goalId: goalId || null,
-      successCriteria: successCriteria ? String(successCriteria).trim() : null,
-      resourcesNeeded: resourcesNeeded ? String(resourcesNeeded).trim() : null,
-      conflicts: conflicts ? String(conflicts).trim() : null })
+      successCriteria: (typeof successCriteria === "string" && successCriteria.trim()) ? successCriteria.trim() : null,
+      resourcesNeeded: (typeof resourcesNeeded === "string" && resourcesNeeded.trim()) ? resourcesNeeded.trim() : null,
+      conflicts: (typeof conflicts === "string" && conflicts.trim()) ? conflicts.trim() : null })
     .returning();
 
   await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_created", actor: u, targetType: "pta_initiative", targetId: initiative.id, details: { title: title.trim(), originVoiceId }, req });
   res.status(201).json({ initiative });
 });
 
-// PATCH /pta/initiatives/:id — update fields / advance status. Body: { status?, title?, summary?, ownerId?, targetDate? }
+// PATCH /pta/initiatives/:id — update fields / advance status. Body: { status?, title?, summary?, ownerId?, targetDate?, goalId?, successCriteria?, resourcesNeeded?, conflicts?, checklist? }
 router.patch("/pta/initiatives/:id", authMiddleware, MANAGE, async (req, res): Promise<void> => {
   const u = user(req);
   const { id } = req.params;
@@ -779,13 +780,13 @@ router.patch("/pta/initiatives/:id", authMiddleware, MANAGE, async (req, res): P
   if (conflicts !== undefined) patch.conflicts = (typeof conflicts === "string" && conflicts.trim()) ? conflicts.trim() : null;
   if (checklist !== undefined) {
     if (typeof checklist !== "object" || checklist === null || Array.isArray(checklist)) { res.status(400).json({ error: "checklist must be an object" }); return; }
-    const KEYS = ["alignsGoal", "budgetOk", "namedOwner", "noConflict", "successCriteria", "noSchoolResource"] as const;
+    const KEYS = Object.keys(EMPTY_INITIATIVE_CHECKLIST);
     for (const k of Object.keys(checklist)) {
-      if (!(KEYS as readonly string[]).includes(k)) { res.status(400).json({ error: `unknown checklist key: ${k}` }); return; }
-      if (typeof (checklist as any)[k] !== "boolean") { res.status(400).json({ error: `checklist.${k} must be a boolean` }); return; }
+      if (!KEYS.includes(k)) { res.status(400).json({ error: `unknown checklist key: ${k}` }); return; }
+      if (typeof (checklist as Record<string, unknown>)[k] !== "boolean") { res.status(400).json({ error: `checklist.${k} must be a boolean` }); return; }
     }
     // Shallow-merge onto the existing checklist so the UI can toggle one box at a time.
-    patch.checklist = { ...(existing[0].checklist as Record<string, boolean>), ...checklist };
+    patch.checklist = { ...(existing[0].checklist ?? {}), ...checklist };
   }
   if (status !== undefined) {
     patch.status = status;
