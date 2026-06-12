@@ -71,6 +71,7 @@ router.get("/voice", authMiddleware, VIEW, async (req, res): Promise<void> => {
       convertedAt: voiceGroupsTable.convertedAt,
       createdByFirst: usersTable.firstName,
       createdByLast: usersTable.lastName,
+      createdByDisplayMode: usersTable.displayMode,
     })
     .from(voiceGroupsTable)
     .innerJoin(usersTable, eq(usersTable.id, voiceGroupsTable.createdById))
@@ -88,6 +89,7 @@ router.get("/voice", authMiddleware, VIEW, async (req, res): Promise<void> => {
   const myRoleByVoice: Record<string, string> = {};
   for (const m of mine) myRoleByVoice[m.voiceId] = m.role;
 
+  const viewerIsExec = isExecRole(u.role);
   res.json({
     voices: groups.map((g) => ({
       id: g.id,
@@ -96,7 +98,10 @@ router.get("/voice", authMiddleware, VIEW, async (req, res): Promise<void> => {
       status: g.status,
       createdAt: g.createdAt,
       convertedAt: g.convertedAt,
-      createdBy: `${g.createdByFirst} ${g.createdByLast}`.trim(),
+      createdBy: memberDisplayName(
+        { firstName: g.createdByFirst, lastName: g.createdByLast, displayMode: g.createdByDisplayMode },
+        viewerIsExec,
+      ),
       memberCount: counts[g.id] ?? 0,
       myRole: myRoleByVoice[g.id] ?? null,
     })),

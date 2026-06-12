@@ -88,4 +88,14 @@ describe("VOICE anonymity", () => {
     expect(body.voice.createdBy).toBe("Fiona Founder");
     expect(body.voice.members[0].name).toBe("Fiona Founder");
   });
+
+  it("list endpoint hides an anonymous founder's name from a non-exec", async () => {
+    const r = await fetch(`${baseUrl}/api/voice`, { headers: { Authorization: `Bearer ${parentToken}` } });
+    expect(r.status).toBe(200);
+    const body = await r.json();
+    const mine = (body.voices ?? body ?? []).find?.((v: any) => v.id === voiceId)
+      ?? (Array.isArray(body) ? body.find((v: any) => v.id === voiceId) : undefined);
+    expect(mine).toBeTruthy();
+    expect(mine.createdBy).toBe("A parent");
+  });
 });
