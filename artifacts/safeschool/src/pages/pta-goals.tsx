@@ -158,6 +158,9 @@ export default function PtaGoals() {
                             <Vote className="w-3.5 h-3.5 mr-1" /> Open senior-group ballot
                           </Button>
                         )}
+                        {g.status === "shortlisted" && g.ballot && g.ballot.status === "open" && (
+                          <span className="text-xs text-muted-foreground">Ballot open — awaiting votes</span>
+                        )}
                         {g.status === "shortlisted" && g.ballot && g.ballot.status === "closed" && (
                           <Button size="sm" disabled={update.isPending}
                             onClick={() => run(() => update.mutateAsync({ id: g.id, data: { status: "ratified" } }))}>
