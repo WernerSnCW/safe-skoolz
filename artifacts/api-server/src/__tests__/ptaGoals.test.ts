@@ -164,4 +164,20 @@ describe("goal lifecycle: shortlist → open-ballot → vote → ratify", () => 
     const g = await (await fetch(`${baseUrl}/api/pta/goals`, { method: "POST", headers: auth(memberTok), body: JSON.stringify({ title: "Still proposed", year: 2026 }) })).json();
     expect((await fetch(`${baseUrl}/api/pta/goals/${g.goal.id}/open-ballot`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({}) })).status).toBe(409);
   });
+
+  it("ratify is rejected when the ballot did not carry (Against ≥ For)", async () => {
+    const g = await (await fetch(`${baseUrl}/api/pta/goals`, { method: "POST", headers: auth(memberTok), body: JSON.stringify({ title: "Doomed goal", year: 2026 }) })).json();
+    const gid = g.goal.id;
+    await fetch(`${baseUrl}/api/pta/goals/${gid}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "shortlisted" }) });
+    const ob = await (await fetch(`${baseUrl}/api/pta/goals/${gid}/open-ballot`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({}) })).json();
+    const bid = ob.ballot.id;
+    await fetch(`${baseUrl}/api/pta/ballots/${bid}/vote`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ choice: "Against" }) });
+    await fetch(`${baseUrl}/api/pta/ballots/${bid}/close`, { method: "POST", headers: auth(adminTok) });
+    const r = await fetch(`${baseUrl}/api/pta/goals/${gid}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "ratified" }) });
+    expect(r.status).toBe(409);
+    // and the list should show carried=false for this ballot
+    const list = await (await fetch(`${baseUrl}/api/pta/goals`, { headers: auth(adminTok) })).json();
+    const gg = list.goals.find((x: any) => x.id === gid);
+    expect(gg.ballot.carried).toBe(false);
+  });
 });

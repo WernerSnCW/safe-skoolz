@@ -161,11 +161,14 @@ export default function PtaGoals() {
                         {g.status === "shortlisted" && g.ballot && g.ballot.status === "open" && (
                           <span className="text-xs text-muted-foreground">Ballot open — awaiting votes</span>
                         )}
-                        {g.status === "shortlisted" && g.ballot && g.ballot.status === "closed" && (
+                        {g.status === "shortlisted" && g.ballot && g.ballot.status === "closed" && g.ballot.carried && (
                           <Button size="sm" disabled={update.isPending}
                             onClick={() => run(() => update.mutateAsync({ id: g.id, data: { status: "ratified" } }))}>
                             <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Ratify
                           </Button>
+                        )}
+                        {g.status === "shortlisted" && g.ballot && g.ballot.status === "closed" && !g.ballot.carried && (
+                          <span className="text-xs text-muted-foreground">Ballot closed — did not carry</span>
                         )}
                         {g.status === "ratified" && (
                           <Button size="sm" variant="outline" disabled={update.isPending}
