@@ -57,6 +57,9 @@ export const PTA_ANNOUNCEMENT_AUDIENCES = [
 // completing the arc: advocate → convert → organise.
 export const PTA_INITIATIVE_STATUSES = ["proposed", "active", "completed", "cancelled"] as const;
 
+export const PTA_GOAL_STATUSES = ["proposed", "shortlisted", "ratified", "completed", "failed"] as const;
+export const PTA_BALLOT_ELECTORATES = ["all_members", "senior_group"] as const;
+
 export const ptaMembersTable = pgTable("pta_members", {
   id: uuid("id").defaultRandom().primaryKey(),
   schoolId: uuid("school_id").references(() => schoolsTable.id).notNull(),
@@ -114,6 +117,9 @@ export const ptaBallotsTable = pgTable("pta_ballots", {
   question: varchar("question", { length: 255 }).notNull(),
   description: text("description"),
   options: jsonb("options").$type<string[]>().notNull().default(["For", "Against", "Abstain"]),
+  // Who may vote: 'all_members' (default, the whole active roster) or 'senior_group'
+  // (senior_group + executive_board tiers — used for goal ratification, B3).
+  electorate: varchar("electorate", { length: 20 }).notNull().default("all_members"),
   status: varchar("status", { length: 20 }).notNull().default("open"),
   // Minimum votes required for the result to be valid. Null = no quorum requirement.
   quorum: integer("quorum"),
@@ -195,3 +201,25 @@ export type PtaVote = typeof ptaVotesTable.$inferSelect;
 export type PtaProxy = typeof ptaProxiesTable.$inferSelect;
 export type PtaAnnouncement = typeof ptaAnnouncementsTable.$inferSelect;
 export type PtaInitiative = typeof ptaInitiativesTable.$inferSelect;
+
+// PTA annual goals (B3). Proposed by any member, shortlisted by admin, ratified
+// by a senior-group ballot (ballotId → pta_ballots with electorate='senior_group'),
+// then completed or failed (failed records a postmortem). Visible to all members.
+export const ptaGoalsTable = pgTable("pta_goals", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  schoolId: uuid("school_id").references(() => schoolsTable.id).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  year: integer("year").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("proposed"),
+  proposedById: uuid("proposed_by_id").references(() => usersTable.id).notNull(),
+  ballotId: uuid("ballot_id").references(() => ptaBallotsTable.id),
+  ratifiedAt: timestamp("ratified_at", { withTimezone: true }),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  postmortemNote: text("postmortem_note"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("idx_pta_goals_school").on(t.schoolId),
+  index("idx_pta_goals_status").on(t.schoolId, t.status),
+]);
+export type PtaGoal = typeof ptaGoalsTable.$inferSelect;
