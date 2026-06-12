@@ -202,6 +202,7 @@ router.patch("/pta/goals/:id", authMiddleware, MANAGE, async (req, res): Promise
       const forN = vs.filter((v) => v.choice === "For").length;
       const againstN = vs.filter((v) => v.choice === "Against").length;
       const total = vs.length;
+      // Abstain votes count toward quorum (total) but not the For/Against outcome.
       const carried = forN > againstN && (b!.quorum == null || total >= b!.quorum);
       if (!carried) { res.status(409).json({ error: "The ballot did not carry (need For > Against and quorum met)" }); return; }
       patch.ratifiedAt = sql`now()`;
@@ -209,6 +210,9 @@ router.patch("/pta/goals/:id", authMiddleware, MANAGE, async (req, res): Promise
       if (from !== "ratified") { res.status(409).json({ error: "Only a ratified goal can be completed" }); return; }
       patch.completedAt = sql`now()`;
     } else if (status === "failed") {
+      if (from !== "proposed" && from !== "shortlisted") {
+        res.status(409).json({ error: "Only a proposed or shortlisted goal can be marked failed" }); return;
+      }
       if (!postmortemNote || !String(postmortemNote).trim()) { res.status(400).json({ error: "A postmortem note is required to fail a goal" }); return; }
       patch.postmortemNote = String(postmortemNote).trim();
     } else {

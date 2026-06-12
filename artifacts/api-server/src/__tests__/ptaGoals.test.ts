@@ -148,6 +148,18 @@ describe("goal lifecycle: shortlist → open-ballot → vote → ratify", () => 
     expect((await withNote.json()).goal.postmortemNote).toMatch(/no capacity/i);
   });
 
+  it("a completed goal cannot be marked failed", async () => {
+    const r = await fetch(`${baseUrl}/api/pta/goals/${goalId}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "failed", postmortemNote: "too late" }) });
+    expect(r.status).toBe(409);
+  });
+
+  it("open-ballot rejects a negative quorum", async () => {
+    const g = await (await fetch(`${baseUrl}/api/pta/goals`, { method: "POST", headers: auth(memberTok), body: JSON.stringify({ title: "Bad quorum", year: 2026 }) })).json();
+    await fetch(`${baseUrl}/api/pta/goals/${g.goal.id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "shortlisted" }) });
+    const r = await fetch(`${baseUrl}/api/pta/goals/${g.goal.id}/open-ballot`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ quorum: -1 }) });
+    expect(r.status).toBe(400);
+  });
+
   it("open-ballot is rejected when the goal is not shortlisted", async () => {
     const g = await (await fetch(`${baseUrl}/api/pta/goals`, { method: "POST", headers: auth(memberTok), body: JSON.stringify({ title: "Still proposed", year: 2026 }) })).json();
     expect((await fetch(`${baseUrl}/api/pta/goals/${g.goal.id}/open-ballot`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({}) })).status).toBe(409);
