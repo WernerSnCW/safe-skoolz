@@ -475,15 +475,26 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
   const lastName = (trimmed.split(/\s+/).slice(1).join(" ") || "Parent").slice(0, 100);
   const passwordHash = await bcrypt.hash(password, 10);
 
-  const [newUser] = await db.insert(usersTable).values({
-    schoolId: school.id,
-    role: "parent",
-    firstName,
-    lastName,
-    email: normalEmail,
-    passwordHash,
-    membershipStatus: "pending",
-  } as any).returning();
+  let newUser;
+  try {
+    [newUser] = await db.insert(usersTable).values({
+      schoolId: school.id,
+      role: "parent",
+      firstName,
+      lastName,
+      email: normalEmail,
+      passwordHash,
+      membershipStatus: "pending",
+      lastLogin: new Date(),
+    } as any).returning();
+  } catch (e: any) {
+    const pgCode = e?.code ?? e?.cause?.code;
+    if (pgCode === "23505") {
+      res.status(409).json({ error: "This email already has an account. Try logging in." });
+      return;
+    }
+    throw e;
+  }
 
   try {
     const [voice] = await db.select({ id: voiceGroupsTable.id }).from(voiceGroupsTable)

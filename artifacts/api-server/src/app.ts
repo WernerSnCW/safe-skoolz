@@ -95,6 +95,7 @@ app.use("/api/auth/pupil/start", authLimiter);
 app.use("/api/auth/pupil/login", authLimiter);
 app.use("/api/auth/staff/login", authLimiter);
 app.use("/api/auth/parent/login", authLimiter);
+app.use("/api/auth/signup", authLimiter);
 app.use("/api/auth/demo-login", authLimiter);
 app.use("/api/newsletter", newsletterLimiter);
 
