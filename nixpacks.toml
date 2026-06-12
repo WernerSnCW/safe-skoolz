@@ -1,0 +1,6 @@
+# Override Nixpacks' auto-detected install phase: it exports NODE_ENV=production
+# globally, which makes pnpm skip devDependencies — and vite/esbuild/tsc are all
+# devDependencies. Force a full install here; the build commands in railway.json
+# then run against a complete node_modules.
+[phases.install]
+cmds = ["NODE_ENV=development pnpm install --frozen-lockfile --prod=false"]
