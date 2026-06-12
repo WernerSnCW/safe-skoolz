@@ -674,6 +674,8 @@ function formatUser(user: typeof usersTable.$inferSelect) {
     avatarImageUrl: user.avatarImageUrl,
     parentOf: user.parentOf || [],
     active: user.active,
+    membershipStatus: user.membershipStatus,
+    displayMode: user.displayMode,
     lastLogin: user.lastLogin?.toISOString() || null,
   };
 }

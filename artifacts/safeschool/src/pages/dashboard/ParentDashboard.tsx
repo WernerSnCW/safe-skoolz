@@ -13,7 +13,8 @@ import {
   AlertTriangle, Bell, FileText, Activity, TrendingUp, Users,
   BarChart3, PieChart as PieChartIcon, MapPin, Clock, Calendar,
   UserCheck, ChevronDown, ChevronUp, Shield, Gauge, MessageCircle, Send,
-  CheckCircle2, Vote
+  CheckCircle2, Vote, Flag, ClipboardList, Lock, Check,
+  type LucideIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
@@ -545,34 +546,31 @@ export default function ParentDashboard({ user }: { user: any }) {
     );
   }
 
-  // Community mode (spec §4.1): a parent who signed up via the community
-  // diagnostic has no linked pupils. Lead with community content, not child KPIs.
+  // Community mode → the Morna Vibes shell (spec A §4.3). One simple screen.
   if (childrenList.length === 0) {
+    const pending = (user as any).membershipStatus === "pending";
+    const Tile = ({ icon: Icon, title, body, href, locked }: { icon: LucideIcon; title: string; body: string; href?: string; locked?: boolean }) => {
+      const inner = (
+        <div className="h-full rounded-2xl border border-border bg-card p-4">
+          <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
+          <p className="mt-2 font-semibold text-foreground flex items-center gap-1">{title} {locked && <Lock className="h-3 w-3 text-muted-foreground" aria-hidden="true" />}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{body}</p>
+        </div>
+      );
+      return href ? <a href={href} className="block hover:opacity-90">{inner}</a> : inner;
+    };
     return (
-      <div className="space-y-8 max-w-5xl mx-auto">
-        <PageHeader
-          eyebrow="Community"
-          title={`Welcome, ${user.firstName}`}
-          subtitle="You're part of the parent community. Here's what you can do."
-        />
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <PageHeader eyebrow="Morna Vibes" title={`Welcome, ${user.firstName}`} subtitle="You're backing both goals. Here's everything in one place." />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
-            <CardHeader><CardTitle className="text-base">The community diagnostic</CardTitle></CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>Results are shared with every participant when the exec releases them. You'll be notified.</p>
-              <a className="inline-block font-semibold text-primary hover:underline" href="/results/morna">
-                See the results →
-              </a>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle className="text-base">Your membership</CardTitle></CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              {user.membershipStatus === "pending"
-                ? "Your membership is awaiting approval. You'll get full access once an exec approves you."
-                : "Your membership is active. Thank you for being part of the community."}
-            </CardContent>
-          </Card>
+          <Tile icon={Flag} title="Goal 1 · Adopt VBE" body="Ask the school to adopt Values-based Education. You're backing it." href="/goals#vbe" />
+          <Tile icon={Users} title="Goal 2 · Equal voice" body="Ask the PTA to adopt a three-tier structure so every parent has an equal voice and the same information." href="/goals#structure" />
+          <Tile icon={AlertTriangle} title="Concerns" body="The patterns we've seen — and add your own." href="/concerns" />
+          <Tile icon={ClipboardList} title="Survey" body="Take it so every parent gets the full picture." href="/d/morna" />
+          <Tile icon={BarChart3} title="Results" body={pending ? "Unlocks once your membership is approved and results are released." : "Unlocks when results are released."} href="/results/morna" locked />
+        </div>
+        <div className="rounded-2xl bg-primary/5 border border-primary/20 p-4 text-sm text-primary flex items-center gap-1">
+          <Check className="h-4 w-4" aria-hidden="true" /> You're backing both goals.{pending ? " Your membership is awaiting approval." : ""}
         </div>
       </div>
     );
