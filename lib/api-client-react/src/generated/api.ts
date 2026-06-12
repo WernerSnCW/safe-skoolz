@@ -23,6 +23,8 @@ import type {
   AddPtaMemberBody,
   AppointPtaOfficer201,
   AppointPtaOfficerBody,
+  ApproveMember200,
+  ApproveMemberBody,
   ApprovePtaReport200,
   ApprovePtaReportBody,
   AssessIncidentBody,
@@ -48,6 +50,7 @@ import type {
   FlagPtaPolicyBody,
   GeneratePtaReport201,
   GetCommunityDiagnostic200,
+  GetDiagnosticResults200,
   GetLatestPtaReport200,
   GetPtaAnnouncementFeed200,
   GetPtaResources200,
@@ -60,6 +63,7 @@ import type {
   ListAlertsParams,
   ListIncidentsParams,
   ListNotificationsParams,
+  ListPendingMembers200,
   ListProtocolsParams,
   ListPtaAnnouncements200,
   ListPtaBallots200,
@@ -95,6 +99,8 @@ import type {
   PupilStartResponse,
   RaisePtaProposal201,
   RaisePtaProposalBody,
+  RejectMember200,
+  ReleaseDiagnosticResults200,
   RemovePtaMember200,
   RevokePtaProxy200,
   School,
@@ -6302,3 +6308,427 @@ export const useSubmitCommunityDiagnostic = <
 > => {
   return useMutation(getSubmitCommunityDiagnosticMutationOptions(options));
 };
+
+/**
+ * @summary List members awaiting approval (exec)
+ */
+export const getListPendingMembersUrl = () => {
+  return `/api/membership/pending`;
+};
+
+export const listPendingMembers = async (
+  options?: RequestInit,
+): Promise<ListPendingMembers200> => {
+  return customFetch<ListPendingMembers200>(getListPendingMembersUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListPendingMembersQueryKey = () => {
+  return [`/api/membership/pending`] as const;
+};
+
+export const getListPendingMembersQueryOptions = <
+  TData = Awaited<ReturnType<typeof listPendingMembers>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPendingMembers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListPendingMembersQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listPendingMembers>>
+  > = ({ signal }) => listPendingMembers({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listPendingMembers>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListPendingMembersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listPendingMembers>>
+>;
+export type ListPendingMembersQueryError = ErrorType<void>;
+
+/**
+ * @summary List members awaiting approval (exec)
+ */
+
+export function useListPendingMembers<
+  TData = Awaited<ReturnType<typeof listPendingMembers>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listPendingMembers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListPendingMembersQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Approve a pending member and set their anonymity mode (exec)
+ */
+export const getApproveMemberUrl = (userId: string) => {
+  return `/api/membership/${userId}/approve`;
+};
+
+export const approveMember = async (
+  userId: string,
+  approveMemberBody: ApproveMemberBody,
+  options?: RequestInit,
+): Promise<ApproveMember200> => {
+  return customFetch<ApproveMember200>(getApproveMemberUrl(userId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(approveMemberBody),
+  });
+};
+
+export const getApproveMemberMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof approveMember>>,
+    TError,
+    { userId: string; data: BodyType<ApproveMemberBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof approveMember>>,
+  TError,
+  { userId: string; data: BodyType<ApproveMemberBody> },
+  TContext
+> => {
+  const mutationKey = ["approveMember"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof approveMember>>,
+    { userId: string; data: BodyType<ApproveMemberBody> }
+  > = (props) => {
+    const { userId, data } = props ?? {};
+
+    return approveMember(userId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ApproveMemberMutationResult = NonNullable<
+  Awaited<ReturnType<typeof approveMember>>
+>;
+export type ApproveMemberMutationBody = BodyType<ApproveMemberBody>;
+export type ApproveMemberMutationError = ErrorType<void>;
+
+/**
+ * @summary Approve a pending member and set their anonymity mode (exec)
+ */
+export const useApproveMember = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof approveMember>>,
+    TError,
+    { userId: string; data: BodyType<ApproveMemberBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof approveMember>>,
+  TError,
+  { userId: string; data: BodyType<ApproveMemberBody> },
+  TContext
+> => {
+  return useMutation(getApproveMemberMutationOptions(options));
+};
+
+/**
+ * @summary Reject a pending member (exec)
+ */
+export const getRejectMemberUrl = (userId: string) => {
+  return `/api/membership/${userId}/reject`;
+};
+
+export const rejectMember = async (
+  userId: string,
+  options?: RequestInit,
+): Promise<RejectMember200> => {
+  return customFetch<RejectMember200>(getRejectMemberUrl(userId), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getRejectMemberMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof rejectMember>>,
+    TError,
+    { userId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof rejectMember>>,
+  TError,
+  { userId: string },
+  TContext
+> => {
+  const mutationKey = ["rejectMember"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof rejectMember>>,
+    { userId: string }
+  > = (props) => {
+    const { userId } = props ?? {};
+
+    return rejectMember(userId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RejectMemberMutationResult = NonNullable<
+  Awaited<ReturnType<typeof rejectMember>>
+>;
+
+export type RejectMemberMutationError = ErrorType<void>;
+
+/**
+ * @summary Reject a pending member (exec)
+ */
+export const useRejectMember = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof rejectMember>>,
+    TError,
+    { userId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof rejectMember>>,
+  TError,
+  { userId: string },
+  TContext
+> => {
+  return useMutation(getRejectMemberMutationOptions(options));
+};
+
+/**
+ * @summary Release diagnostic results and notify participants (exec)
+ */
+export const getReleaseDiagnosticResultsUrl = (slug: string) => {
+  return `/api/d/${slug}/release`;
+};
+
+export const releaseDiagnosticResults = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<ReleaseDiagnosticResults200> => {
+  return customFetch<ReleaseDiagnosticResults200>(
+    getReleaseDiagnosticResultsUrl(slug),
+    {
+      ...options,
+      method: "POST",
+    },
+  );
+};
+
+export const getReleaseDiagnosticResultsMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof releaseDiagnosticResults>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof releaseDiagnosticResults>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  const mutationKey = ["releaseDiagnosticResults"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof releaseDiagnosticResults>>,
+    { slug: string }
+  > = (props) => {
+    const { slug } = props ?? {};
+
+    return releaseDiagnosticResults(slug, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ReleaseDiagnosticResultsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof releaseDiagnosticResults>>
+>;
+
+export type ReleaseDiagnosticResultsMutationError = ErrorType<void>;
+
+/**
+ * @summary Release diagnostic results and notify participants (exec)
+ */
+export const useReleaseDiagnosticResults = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof releaseDiagnosticResults>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof releaseDiagnosticResults>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  return useMutation(getReleaseDiagnosticResultsMutationOptions(options));
+};
+
+/**
+ * @summary Aggregated diagnostic results (authed; exec sees free-text)
+ */
+export const getGetDiagnosticResultsUrl = (slug: string) => {
+  return `/api/d/${slug}/results`;
+};
+
+export const getDiagnosticResults = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<GetDiagnosticResults200> => {
+  return customFetch<GetDiagnosticResults200>(
+    getGetDiagnosticResultsUrl(slug),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetDiagnosticResultsQueryKey = (slug: string) => {
+  return [`/api/d/${slug}/results`] as const;
+};
+
+export const getGetDiagnosticResultsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDiagnosticResults>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDiagnosticResults>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetDiagnosticResultsQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDiagnosticResults>>
+  > = ({ signal }) => getDiagnosticResults(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDiagnosticResults>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetDiagnosticResultsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDiagnosticResults>>
+>;
+export type GetDiagnosticResultsQueryError = ErrorType<void>;
+
+/**
+ * @summary Aggregated diagnostic results (authed; exec sees free-text)
+ */
+
+export function useGetDiagnosticResults<
+  TData = Awaited<ReturnType<typeof getDiagnosticResults>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDiagnosticResults>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetDiagnosticResultsQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}

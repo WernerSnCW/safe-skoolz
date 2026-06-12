@@ -1080,3 +1080,73 @@ export type SubmitCommunityDiagnostic201 = {
   counted: boolean;
   count: number;
 };
+
+export type ListPendingMembers200MembersItem = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  createdAt?: string;
+};
+
+export type ListPendingMembers200 = {
+  members: ListPendingMembers200MembersItem[];
+};
+
+export type ApproveMemberBodyDisplayMode =
+  (typeof ApproveMemberBodyDisplayMode)[keyof typeof ApproveMemberBodyDisplayMode];
+
+export const ApproveMemberBodyDisplayMode = {
+  named: "named",
+  anonymous: "anonymous",
+} as const;
+
+export type ApproveMemberBody = {
+  displayMode?: ApproveMemberBodyDisplayMode;
+};
+
+export type ApproveMember200Member = { [key: string]: unknown };
+
+export type ApproveMember200 = {
+  member?: ApproveMember200Member;
+};
+
+export type RejectMember200 = {
+  ok?: boolean;
+};
+
+export type ReleaseDiagnosticResults200 = {
+  released: boolean;
+  releasedAt?: string;
+};
+
+export type GetDiagnosticResults200QuestionsItemSegmentsItem = {
+  yearGroup: string;
+  n: number;
+  distribution: number[];
+};
+
+export type GetDiagnosticResults200QuestionsItem = {
+  key: string;
+  section: string;
+  text: string;
+  type?: string;
+  options: string[];
+  distribution: number[];
+  segments: GetDiagnosticResults200QuestionsItemSegmentsItem[];
+};
+
+export type GetDiagnosticResults200FreeTextItem = {
+  questionKey?: string;
+  text?: string;
+};
+
+export type GetDiagnosticResults200 = {
+  title: string;
+  released: boolean;
+  releasedAt?: string;
+  isExec?: boolean;
+  totalResponses: number;
+  questions: GetDiagnosticResults200QuestionsItem[];
+  freeText?: GetDiagnosticResults200FreeTextItem[];
+};

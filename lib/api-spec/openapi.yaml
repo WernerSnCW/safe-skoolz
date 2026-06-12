@@ -29,6 +29,7 @@ tags:
     description: PTA portal
   - name: diagnostic
     description: Community diagnostic surveys
+  - name: membership
 
 paths:
   /healthz:
@@ -1764,6 +1765,151 @@ paths:
           description: Email already took part
         "429":
           description: Rate limited
+
+  /membership/pending:
+    get:
+      operationId: listPendingMembers
+      tags: [membership]
+      summary: List members awaiting approval (exec)
+      responses:
+        "200":
+          description: Pending members
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [members]
+                properties:
+                  members:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, firstName, lastName, email]
+                      properties:
+                        id: { type: string }
+                        firstName: { type: string }
+                        lastName: { type: string }
+                        email: { type: string }
+                        createdAt: { type: string }
+        "401": { description: Unauthorized }
+        "403": { description: Forbidden }
+  /membership/{userId}/approve:
+    post:
+      operationId: approveMember
+      tags: [membership]
+      summary: Approve a pending member and set their anonymity mode (exec)
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayMode: { type: string, enum: [named, anonymous] }
+      responses:
+        "200":
+          description: Approved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member: { type: object }
+        "403": { description: Forbidden }
+        "404": { description: Not found }
+        "409": { description: Member is not pending }
+  /membership/{userId}/reject:
+    post:
+      operationId: rejectMember
+      tags: [membership]
+      summary: Reject a pending member (exec)
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+        "403": { description: Forbidden }
+        "404": { description: Not found }
+  /d/{slug}/release:
+    post:
+      operationId: releaseDiagnosticResults
+      tags: [diagnostic]
+      summary: Release diagnostic results and notify participants (exec)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Released
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [released]
+                properties:
+                  released: { type: boolean }
+                  releasedAt: { type: string }
+        "403": { description: Forbidden }
+        "404": { description: Not found }
+  /d/{slug}/results:
+    get:
+      operationId: getDiagnosticResults
+      tags: [diagnostic]
+      summary: Aggregated diagnostic results (authed; exec sees free-text)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Aggregated results
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [title, released, totalResponses, questions]
+                properties:
+                  title: { type: string }
+                  released: { type: boolean }
+                  releasedAt: { type: string }
+                  isExec: { type: boolean }
+                  totalResponses: { type: integer }
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      required: [key, section, text, options, distribution, segments]
+                      properties:
+                        key: { type: string }
+                        section: { type: string }
+                        text: { type: string }
+                        type: { type: string }
+                        options: { type: array, items: { type: string } }
+                        distribution: { type: array, items: { type: integer } }
+                        segments:
+                          type: array
+                          items:
+                            type: object
+                            required: [yearGroup, n, distribution]
+                            properties:
+                              yearGroup: { type: string }
+                              n: { type: integer }
+                              distribution: { type: array, items: { type: integer } }
+                  freeText:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        questionKey: { type: string }
+                        text: { type: string }
+        "401": { description: Unauthorized }
+        "403": { description: Not released / not your school }
+        "404": { description: Not found }
 
 components:
   schemas:
