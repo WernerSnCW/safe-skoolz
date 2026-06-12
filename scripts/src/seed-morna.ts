@@ -1,5 +1,5 @@
-import { db, schoolsTable, usersTable, diagnosticSurveysTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { db, schoolsTable, usersTable, diagnosticSurveysTable, voiceGroupsTable } from "@workspace/db";
+import { eq, and } from "drizzle-orm";
 import { MORNA_INSTRUMENT } from "../../artifacts/api-server/src/lib/communityInstrument";
 
 // Idempotent Morna production seed: school + community diagnostic + chair account.
@@ -59,6 +59,21 @@ async function main() {
     console.log("[seed-morna] created community survey /d/morna");
   } else {
     console.log("[seed-morna] survey exists");
+  }
+  const [existingVoice] = await db.select().from(voiceGroupsTable)
+    .where(and(eq(voiceGroupsTable.schoolId, school.id), eq(voiceGroupsTable.name, "Morna Vibes")));
+  if (!existingVoice) {
+    const [voice] = await db.insert(voiceGroupsTable).values({
+      schoolId: school.id,
+      name: "Morna Vibes",
+      mission:
+        "Parents asking Morna to adopt Values-based Education, and asking the PTA to adopt a three-tier structure so every parent has an equal voice and the same information.",
+      status: "advocating",
+      createdById: chair.id,
+    }).returning();
+    console.log("[seed-morna] created Morna Vibes voice group", voice.id);
+  } else {
+    console.log("[seed-morna] Morna Vibes voice group exists", existingVoice.id);
   }
   process.exit(0);
 }
