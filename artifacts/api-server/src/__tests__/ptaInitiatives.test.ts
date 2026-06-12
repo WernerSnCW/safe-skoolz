@@ -226,3 +226,34 @@ describe("POST /api/pta/initiatives/:id/stage", () => {
     expect(list.initiatives.find((i: any) => i.id === id).awaitingResponse).toBe(true);
   });
 });
+
+describe("follow-up + detail", () => {
+  it("logs a follow-up (follow_up history row) and increments followUpCount", async () => {
+    const id = await createInitiative({});
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "idea" }) });
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "presented", responseDueAt: new Date(Date.now() - 864e5).toISOString() }) });
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}/follow-up`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ note: "Chased the head 14 Jun" }) });
+    expect(r.status).toBe(201);
+    const list = await (await fetch(`${baseUrl}/api/pta/initiatives`, { headers: auth(adminTok) })).json();
+    expect(list.initiatives.find((i: any) => i.id === id).followUpCount).toBe(1);
+  });
+  it("rejects a follow-up without a note (400)", async () => {
+    const id = await createInitiative({});
+    expect((await fetch(`${baseUrl}/api/pta/initiatives/${id}/follow-up`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({}) })).status).toBe(400);
+  });
+  it("GET /:id returns the initiative + ordered stage history", async () => {
+    const id = await createInitiative({ goalId: ratifiedGoalId });
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "idea", outcomeNote: "kickoff" }) });
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { headers: auth(adminTok) });
+    expect(r.status).toBe(200);
+    const b = await r.json();
+    expect(b.initiative.id).toBe(id);
+    expect(b.initiative.goalTitle).toBe("Ratified goal");
+    expect(Array.isArray(b.stageHistory)).toBe(true);
+    expect(b.stageHistory[0].toStage).toBe("idea");
+    expect(b.stageHistory[0].recordedBy).toBeTruthy();
+  });
+  it("GET /:id 404s for another school's id", async () => {
+    expect((await fetch(`${baseUrl}/api/pta/initiatives/00000000-0000-0000-0000-000000000000`, { headers: auth(adminTok) })).status).toBe(404);
+  });
+});

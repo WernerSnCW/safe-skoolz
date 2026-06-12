@@ -913,4 +913,83 @@ router.post("/pta/initiatives/:id/stage", authMiddleware, MANAGE, async (req, re
   res.json({ initiative });
 });
 
+// POST /pta/initiatives/:id/follow-up — record a chase against a non-response.
+router.post("/pta/initiatives/:id/follow-up", authMiddleware, MANAGE, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const { note } = req.body ?? {};
+  if (!note || !String(note).trim()) { res.status(400).json({ error: "note is required" }); return; }
+
+  const existing = await db.select({ id: ptaInitiativesTable.id }).from(ptaInitiativesTable)
+    .where(and(eq(ptaInitiativesTable.id, id), eq(ptaInitiativesTable.schoolId, u.schoolId))).limit(1);
+  if (!existing.length) { res.status(404).json({ error: "Initiative not found" }); return; }
+
+  const [row] = await db.insert(ptaInitiativeStageHistoryTable)
+    .values({ schoolId: u.schoolId, initiativeId: id, entryType: "follow_up", outcomeNote: String(note).trim(), recordedById: u.userId })
+    .returning();
+  await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_followed_up", actor: u, targetType: "pta_initiative", targetId: id, details: {}, req });
+  res.status(201).json({ entry: row });
+});
+
+// GET /pta/initiatives/:id — full detail + ordered stage history.
+router.get("/pta/initiatives/:id", authMiddleware, VIEW, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const owner = alias(usersTable, "d_owner");
+  const approver = alias(usersTable, "d_approver");
+  const rows = await db.select({
+      id: ptaInitiativesTable.id, title: ptaInitiativesTable.title, summary: ptaInitiativesTable.summary,
+      status: ptaInitiativesTable.status, ownerId: ptaInitiativesTable.ownerId,
+      originVoiceId: ptaInitiativesTable.originVoiceId, targetDate: ptaInitiativesTable.targetDate,
+      createdAt: ptaInitiativesTable.createdAt, completedAt: ptaInitiativesTable.completedAt,
+      goalId: ptaInitiativesTable.goalId, successCriteria: ptaInitiativesTable.successCriteria,
+      resourcesNeeded: ptaInitiativesTable.resourcesNeeded, conflicts: ptaInitiativesTable.conflicts,
+      checklist: ptaInitiativesTable.checklist, schoolStage: ptaInitiativesTable.schoolStage,
+      responseDueAt: ptaInitiativesTable.responseDueAt, approvalType: ptaInitiativesTable.approvalType,
+      approvedAt: ptaInitiativesTable.approvedAt,
+      ownerFirst: owner.firstName, ownerLast: owner.lastName,
+      approverFirst: approver.firstName, approverLast: approver.lastName,
+      goalTitle: ptaGoalsTable.title, goalStatus: ptaGoalsTable.status,
+    })
+    .from(ptaInitiativesTable)
+    .leftJoin(owner, eq(owner.id, ptaInitiativesTable.ownerId))
+    .leftJoin(approver, eq(approver.id, ptaInitiativesTable.approvedById))
+    .leftJoin(ptaGoalsTable, eq(ptaGoalsTable.id, ptaInitiativesTable.goalId))
+    .where(and(eq(ptaInitiativesTable.id, id), eq(ptaInitiativesTable.schoolId, u.schoolId))).limit(1);
+  if (!rows.length) { res.status(404).json({ error: "Initiative not found" }); return; }
+  const i = rows[0];
+
+  const rec = alias(usersTable, "hist_u");
+  const hist = await db.select({
+      id: ptaInitiativeStageHistoryTable.id, entryType: ptaInitiativeStageHistoryTable.entryType,
+      fromStage: ptaInitiativeStageHistoryTable.fromStage, toStage: ptaInitiativeStageHistoryTable.toStage,
+      occurredAt: ptaInitiativeStageHistoryTable.occurredAt, outcomeNote: ptaInitiativeStageHistoryTable.outcomeNote,
+      reason: ptaInitiativeStageHistoryTable.reason, recFirst: rec.firstName, recLast: rec.lastName,
+    })
+    .from(ptaInitiativeStageHistoryTable)
+    .leftJoin(rec, eq(rec.id, ptaInitiativeStageHistoryTable.recordedById))
+    .where(eq(ptaInitiativeStageHistoryTable.initiativeId, id))
+    .orderBy(desc(ptaInitiativeStageHistoryTable.occurredAt));
+  const now = Date.now();
+
+  res.json({
+    initiative: {
+      id: i.id, title: i.title, summary: i.summary, status: i.status, ownerId: i.ownerId,
+      owner: i.ownerFirst ? `${i.ownerFirst} ${i.ownerLast}`.trim() : null,
+      originVoiceId: i.originVoiceId, targetDate: i.targetDate, createdAt: i.createdAt, completedAt: i.completedAt,
+      goalId: i.goalId, goalTitle: i.goalTitle ?? null, goalStatus: i.goalStatus ?? null,
+      successCriteria: i.successCriteria, resourcesNeeded: i.resourcesNeeded, conflicts: i.conflicts,
+      checklist: i.checklist, schoolStage: i.schoolStage, responseDueAt: i.responseDueAt,
+      approvalType: i.approvalType ?? null, approvedAt: i.approvedAt ?? null,
+      approvedBy: i.approverFirst ? `${i.approverFirst} ${i.approverLast}`.trim() : null,
+      awaitingResponse: i.schoolStage === "presented" && !!i.responseDueAt && new Date(i.responseDueAt).getTime() < now,
+    },
+    stageHistory: hist.map((h) => ({
+      id: h.id, entryType: h.entryType, fromStage: h.fromStage, toStage: h.toStage,
+      occurredAt: h.occurredAt, outcomeNote: h.outcomeNote, reason: h.reason,
+      recordedBy: h.recFirst ? `${h.recFirst} ${h.recLast}`.trim() : null,
+    })),
+  });
+});
+
 export default router;
