@@ -6,9 +6,11 @@
  * OpenAPI spec version: 0.2.0
  */
 import type { ConvertVoice200Converted } from "./convertVoice200Converted";
+import type { ConvertVoice200Initiative } from "./convertVoice200Initiative";
 import type { ConvertVoice200Voice } from "./convertVoice200Voice";
 
 export type ConvertVoice200 = {
   voice?: ConvertVoice200Voice;
   converted?: ConvertVoice200Converted;
+  initiative?: ConvertVoice200Initiative;
 };

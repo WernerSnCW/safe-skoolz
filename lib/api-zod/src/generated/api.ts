@@ -1710,6 +1710,12 @@ export const ConvertVoiceResponse = zod.object({
       alreadyMembers: zod.number().optional(),
     })
     .optional(),
+  initiative: zod
+    .object({
+      id: zod.string().optional(),
+      title: zod.string().optional(),
+    })
+    .optional(),
 });
 
 /**
@@ -1964,4 +1970,49 @@ export const RequestSchoolCreateBody = zod.object({
   schoolName: zod.string(),
   email: zod.string(),
   note: zod.string().optional(),
+});
+
+/**
+ * @summary Operating-structure charter content + claim status (authed)
+ */
+export const GetPtaCharterResponse = zod.object({
+  version: zod.string(),
+  title: zod.string(),
+  youAcknowledged: zod.boolean(),
+  sections: zod.array(
+    zod.object({
+      heading: zod.string(),
+      body: zod.string(),
+    }),
+  ),
+  claimed: zod.boolean(),
+  claimedAt: zod.string().optional(),
+  officers: zod.array(
+    zod.object({
+      role: zod.string().optional(),
+      domain: zod.string().optional(),
+      name: zod.string().optional(),
+    }),
+  ),
+  acknowledgements: zod.array(
+    zod.object({
+      name: zod.string().optional(),
+      actionType: zod.string().optional(),
+      createdAt: zod.string().optional(),
+    }),
+  ),
+});
+
+/**
+ * @summary Admin adopts the operating structure, claiming the PTA
+ */
+export const AdoptPtaCharterResponse = zod.object({
+  claimedAt: zod.string().optional(),
+});
+
+/**
+ * @summary An officer acknowledges the charter
+ */
+export const AcknowledgePtaCharterResponse = zod.object({
+  ok: zod.boolean().optional(),
 });

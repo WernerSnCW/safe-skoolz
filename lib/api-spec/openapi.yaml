@@ -1638,6 +1638,13 @@ paths:
                       backers: { type: integer }
                       added: { type: integer }
                       alreadyMembers: { type: integer }
+                  initiative:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      title: { type: string }
+        "409":
+          description: PTA not yet claimed, or the VOICE was already converted
   /voice/{id}/public:
     get:
       operationId: getVoicePublic

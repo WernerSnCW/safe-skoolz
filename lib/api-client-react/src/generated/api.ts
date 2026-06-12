@@ -5901,7 +5901,7 @@ export const convertVoice = async (
 };
 
 export const getConvertVoiceMutationOptions = <
-  TError = ErrorType<unknown>,
+  TError = ErrorType<void>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -5942,13 +5942,13 @@ export type ConvertVoiceMutationResult = NonNullable<
   Awaited<ReturnType<typeof convertVoice>>
 >;
 
-export type ConvertVoiceMutationError = ErrorType<unknown>;
+export type ConvertVoiceMutationError = ErrorType<void>;
 
 /**
  * @summary Convert a VOICE into PTA membership (school adopted VBE)
  */
 export const useConvertVoice = <
-  TError = ErrorType<unknown>,
+  TError = ErrorType<void>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<

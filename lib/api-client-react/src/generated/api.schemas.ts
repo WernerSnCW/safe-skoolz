@@ -1022,9 +1022,15 @@ export type ConvertVoice200Converted = {
   alreadyMembers?: number;
 };
 
+export type ConvertVoice200Initiative = {
+  id?: string;
+  title?: string;
+};
+
 export type ConvertVoice200 = {
   voice?: ConvertVoice200Voice;
   converted?: ConvertVoice200Converted;
+  initiative?: ConvertVoice200Initiative;
 };
 
 export type GetVoicePublic200 = {
