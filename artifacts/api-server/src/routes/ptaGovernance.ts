@@ -22,6 +22,7 @@ import {
   PTA_PROPOSAL_CATEGORIES,
   PTA_ANNOUNCEMENT_AUDIENCES,
   PTA_INITIATIVE_STATUSES,
+  PTA_INITIATIVE_APPROVAL_TYPES,
   PTA_BALLOT_ELECTORATES,
   EMPTY_INITIATIVE_CHECKLIST,
 } from "@workspace/db";
@@ -823,6 +824,40 @@ router.patch("/pta/initiatives/:id", authMiddleware, MANAGE, async (req, res): P
     .where(eq(ptaInitiativesTable.id, id)).returning();
 
   await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_updated", actor: u, targetType: "pta_initiative", targetId: id, details: patch.status ? { status } : { fields: Object.keys(patch) }, req });
+  res.json({ initiative });
+});
+
+// POST /pta/initiatives/:id/approve — self (all six boxes + backed) or board (record-only).
+router.post("/pta/initiatives/:id/approve", authMiddleware, MANAGE, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const { approvalType, boardNote = null } = req.body ?? {};
+  if (!PTA_INITIATIVE_APPROVAL_TYPES.includes(approvalType)) { res.status(400).json({ error: `approvalType must be one of: ${PTA_INITIATIVE_APPROVAL_TYPES.join(", ")}` }); return; }
+
+  const existing = await db.select().from(ptaInitiativesTable)
+    .where(and(eq(ptaInitiativesTable.id, id), eq(ptaInitiativesTable.schoolId, u.schoolId))).limit(1);
+  if (!existing.length) { res.status(404).json({ error: "Initiative not found" }); return; }
+  const init = existing[0];
+  if (init.approvalType) { res.status(409).json({ error: "already approved" }); return; }
+
+  if (approvalType === "self") {
+    const c = (init.checklist ?? {}) as Record<string, boolean>;
+    const allTicked = Object.keys(EMPTY_INITIATIVE_CHECKLIST).every((k) => c[k] === true);
+    if (!allTicked) { res.status(409).json({ error: "All six checklist boxes must be ticked to self-approve" }); return; }
+    // Backing invariants behind the ticked boxes.
+    if (!init.goalId) { res.status(409).json({ error: "alignsGoal requires a linked goal" }); return; }
+    const g = await db.select({ status: ptaGoalsTable.status }).from(ptaGoalsTable)
+      .where(and(eq(ptaGoalsTable.id, init.goalId), eq(ptaGoalsTable.schoolId, u.schoolId))).limit(1);
+    if (!g.length || g[0].status !== "ratified") { res.status(409).json({ error: "Initiatives must align with a ratified goal to self-approve" }); return; }
+    if (!init.ownerId) { res.status(409).json({ error: "namedOwner requires an assigned owner" }); return; }
+    if (!init.successCriteria || !init.successCriteria.trim()) { res.status(409).json({ error: "successCriteria must be defined" }); return; }
+  }
+
+  const [initiative] = await db.update(ptaInitiativesTable)
+    .set({ approvalType, approvedById: u.userId, approvedAt: sql`now()` })
+    .where(eq(ptaInitiativesTable.id, id)).returning();
+
+  await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_approved", actor: u, targetType: "pta_initiative", targetId: id, details: { approvalType, boardNote: boardNote || undefined }, req });
   res.json({ initiative });
 });
 

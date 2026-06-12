@@ -137,3 +137,50 @@ describe("GET /api/pta/initiatives (extended list)", () => {
     expect(row.approvalType ?? null).toBe(null);
   });
 });
+
+describe("POST /api/pta/initiatives/:id/approve", () => {
+  // Fully-backed, all six boxes ticked → self-approvable.
+  async function backedInitiative(): Promise<string> {
+    const id = await createInitiative({ goalId: ratifiedGoalId, ownerId: adminUserId, successCriteria: "Done when X" });
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ checklist: { alignsGoal: true, budgetOk: true, namedOwner: true, noConflict: true, successCriteria: true, noSchoolResource: true } }) });
+    return id;
+  }
+  it("self-approves when all six boxes ticked + backed (stamps approver/type)", async () => {
+    const id = await backedInitiative();
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}/approve`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ approvalType: "self" }) });
+    expect(r.status).toBe(200);
+    const b = await r.json();
+    expect(b.initiative.approvalType).toBe("self");
+    expect(b.initiative.approvedById).toBe(adminUserId);
+    expect(b.initiative.approvedAt).toBeTruthy();
+  });
+  it("blocks self-approve when a box is unticked (409)", async () => {
+    const id = await createInitiative({ goalId: ratifiedGoalId, ownerId: adminUserId, successCriteria: "X" });
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ checklist: { alignsGoal: true, budgetOk: true, namedOwner: true, noConflict: true, successCriteria: false, noSchoolResource: true } }) });
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}/approve`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ approvalType: "self" }) });
+    expect(r.status).toBe(409);
+  });
+  it("blocks self-approve when alignsGoal ticked but goal is NOT ratified (409)", async () => {
+    const id = await createInitiative({ goalId: proposedGoalId, ownerId: adminUserId, successCriteria: "X" });
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ checklist: { alignsGoal: true, budgetOk: true, namedOwner: true, noConflict: true, successCriteria: true, noSchoolResource: true } }) });
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}/approve`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ approvalType: "self" }) });
+    expect(r.status).toBe(409);
+  });
+  it("board-approves with no checklist gate (record-only)", async () => {
+    const id = await createInitiative({});
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}/approve`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ approvalType: "board", boardNote: "Approved at exec board 12 Jun" }) });
+    expect(r.status).toBe(200);
+    expect((await r.json()).initiative.approvalType).toBe("board");
+  });
+  it("is idempotent — re-approving an approved initiative 409s", async () => {
+    const id = await createInitiative({});
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/approve`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ approvalType: "board" }) });
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}/approve`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ approvalType: "board" }) });
+    expect(r.status).toBe(409);
+  });
+  it("rejects an invalid approvalType (400) and a stranger (403)", async () => {
+    const id = await createInitiative({});
+    expect((await fetch(`${baseUrl}/api/pta/initiatives/${id}/approve`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ approvalType: "magic" }) })).status).toBe(400);
+    expect((await fetch(`${baseUrl}/api/pta/initiatives/${id}/approve`, { method: "POST", headers: auth(strangerTok), body: JSON.stringify({ approvalType: "board" }) })).status).toBe(403);
+  });
+});
