@@ -11,6 +11,7 @@ import {
   ptaProxiesTable,
   ptaAnnouncementsTable,
   ptaInitiativesTable,
+  ptaGoalsTable,
   voiceGroupsTable,
   usersTable,
   PTA_TIERS,
@@ -696,10 +697,11 @@ router.get("/pta/initiatives", authMiddleware, VIEW, async (req, res): Promise<v
   });
 });
 
-// POST /pta/initiatives — start one. Body: { title, summary, ownerId?, originVoiceId?, targetDate? }
+// POST /pta/initiatives — start one. Body: { title, summary, ownerId?, originVoiceId?, targetDate?, goalId?, successCriteria?, resourcesNeeded?, conflicts? }
 router.post("/pta/initiatives", authMiddleware, MANAGE, async (req, res): Promise<void> => {
   const u = user(req);
-  const { title, summary, ownerId = null, originVoiceId = null, targetDate } = req.body ?? {};
+  const { title, summary, ownerId = null, originVoiceId = null, targetDate,
+          goalId = null, successCriteria = null, resourcesNeeded = null, conflicts = null } = req.body ?? {};
 
   if (!title || typeof title !== "string" || !title.trim()) { res.status(400).json({ error: "title is required" }); return; }
   if (!summary || typeof summary !== "string" || !summary.trim()) { res.status(400).json({ error: "summary is required" }); return; }
@@ -714,11 +716,23 @@ router.post("/pta/initiatives", authMiddleware, MANAGE, async (req, res): Promis
       .where(and(eq(voiceGroupsTable.id, originVoiceId), eq(voiceGroupsTable.schoolId, u.schoolId))).limit(1);
     if (!v.length) { res.status(404).json({ error: "Origin VOICE not found" }); return; }
   }
+  // goalId is OPTIONAL at creation and need NOT be ratified yet (alignment is a
+  // sign-off requirement, docx §5/§7); just verify it belongs to this school.
+  if (goalId) {
+    const g = await db.select({ id: ptaGoalsTable.id }).from(ptaGoalsTable)
+      .where(and(eq(ptaGoalsTable.id, goalId), eq(ptaGoalsTable.schoolId, u.schoolId))).limit(1);
+    if (!g.length) { res.status(404).json({ error: "Goal not found in this school" }); return; }
+  }
   let target: Date | null = null;
   if (targetDate) { target = new Date(targetDate); if (isNaN(target.getTime())) { res.status(400).json({ error: "targetDate must be a valid date" }); return; } }
 
   const [initiative] = await db.insert(ptaInitiativesTable)
-    .values({ schoolId: u.schoolId, title: title.trim(), summary: summary.trim(), ownerId: ownerId || null, originVoiceId: originVoiceId || null, targetDate: target, createdById: u.userId })
+    .values({ schoolId: u.schoolId, title: title.trim(), summary: summary.trim(),
+      ownerId: ownerId || null, originVoiceId: originVoiceId || null, targetDate: target, createdById: u.userId,
+      goalId: goalId || null,
+      successCriteria: successCriteria ? String(successCriteria).trim() : null,
+      resourcesNeeded: resourcesNeeded ? String(resourcesNeeded).trim() : null,
+      conflicts: conflicts ? String(conflicts).trim() : null })
     .returning();
 
   await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_created", actor: u, targetType: "pta_initiative", targetId: initiative.id, details: { title: title.trim(), originVoiceId }, req });
