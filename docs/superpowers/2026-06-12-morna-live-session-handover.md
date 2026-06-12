@@ -7,7 +7,7 @@ branch: feat/unified-app
 pr: https://github.com/cloudworkz-org/safe-skoolz/pull/2
 production: https://safe-skoolz-production.up.railway.app
 parent_session: "Riverside demo seed + content-audit High/Small + VBE-journey guided tour + Morna-ready brainstorm→spec→plan→build→production deploy"
-next_session_focus: "Pathway = do it all: Phase A (Morna Vibes join experience) SHIPPED + live in prod 2026-06-12 (code deployed; Tom runs 2 prod DB steps before the Mon 6/15 PTA meeting — see below). NEXT: Phase B (PTA depth / M3 §4.3-4.4: officer roles, charter claim, VOICE→PTA merge, pta_goals, initiatives + five-stage) and Track C (the affluent-abuse report — parallel, LEGALLY GATED). Plus: Resend/domain so signup emails send; Tom's instrument + goal/concern copy sign-off; demo-track leftovers. (M2 SHIPPED 6/12 too.)"
+next_session_focus: "Pathway = do it all. SHIPPED + live in prod (all 2026-06-12): M2; Phase A (Morna Vibes join experience, /join/morna); Phase B1 (officer roles + charter claim, /pta/charter). Phase B is decomposed B1→B4; **NEXT = B2 (VOICE→PTA merge — extend POST /voice/:id/convert: gate on a claimed PTA, constitute-where-none, carry the Morna Vibes mission over as a pta_initiative)**, then B3 (pta_goals propose→ballot→ratify), then B4 (initiatives upgrade + five-stage school process + pta_initiative_stage_history). Track C (affluent-abuse report) still parallel + LEGALLY GATED. Gates: Tom signs off charter wording (operatingStructure.ts) before adopting in-app; instrument + goal/concern copy; Resend/domain for emails. Per-slice spec→plan→subagent-build, same as A/B1."
 ---
 
 # Handover — Morna live in production, 2026-06-12
