@@ -10,6 +10,7 @@ import {
 } from "@workspace/db";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
+import { isExecRole, memberDisplayName } from "../lib/memberDisplay";
 
 /**
  * VOICE — parent advocacy collectives (Slice 1: create / list / join / leave).
@@ -137,6 +138,7 @@ router.get("/voice/:id", authMiddleware, VIEW, async (req, res): Promise<void> =
       convertedAt: voiceGroupsTable.convertedAt,
       createdByFirst: usersTable.firstName,
       createdByLast: usersTable.lastName,
+      createdByDisplayMode: usersTable.displayMode,
     })
     .from(voiceGroupsTable)
     .innerJoin(usersTable, eq(usersTable.id, voiceGroupsTable.createdById))
@@ -153,12 +155,14 @@ router.get("/voice/:id", authMiddleware, VIEW, async (req, res): Promise<void> =
       joinedAt: voiceMembersTable.joinedAt,
       firstName: usersTable.firstName,
       lastName: usersTable.lastName,
+      displayMode: usersTable.displayMode,
     })
     .from(voiceMembersTable)
     .innerJoin(usersTable, eq(usersTable.id, voiceMembersTable.userId))
     .where(eq(voiceMembersTable.voiceId, id))
     .orderBy(desc(voiceMembersTable.role), voiceMembersTable.joinedAt);
 
+  const viewerIsExec = isExecRole(u.role);
   res.json({
     voice: {
       id: g.id,
@@ -167,7 +171,10 @@ router.get("/voice/:id", authMiddleware, VIEW, async (req, res): Promise<void> =
       status: g.status,
       createdAt: g.createdAt,
       convertedAt: g.convertedAt,
-      createdBy: `${g.createdByFirst} ${g.createdByLast}`.trim(),
+      createdBy: memberDisplayName(
+        { firstName: g.createdByFirst, lastName: g.createdByLast, displayMode: g.createdByDisplayMode },
+        viewerIsExec,
+      ),
       memberCount: members.length,
       myRole: members.find((m) => m.userId === u.userId)?.role ?? null,
       members: members.map((m) => ({
@@ -175,7 +182,10 @@ router.get("/voice/:id", authMiddleware, VIEW, async (req, res): Promise<void> =
         userId: m.userId,
         role: m.role,
         joinedAt: m.joinedAt,
-        name: `${m.firstName} ${m.lastName}`.trim(),
+        name: memberDisplayName(
+          { firstName: m.firstName, lastName: m.lastName, displayMode: m.displayMode },
+          viewerIsExec,
+        ),
       })),
     },
   });
@@ -282,6 +292,7 @@ router.get("/voice/:id/public", async (req, res): Promise<void> => {
       status: voiceGroupsTable.status,
       createdByFirst: usersTable.firstName,
       createdByLast: usersTable.lastName,
+      createdByDisplayMode: usersTable.displayMode,
     })
     .from(voiceGroupsTable)
     .innerJoin(usersTable, eq(usersTable.id, voiceGroupsTable.createdById))
@@ -300,7 +311,10 @@ router.get("/voice/:id/public", async (req, res): Promise<void> => {
     name: g.name,
     mission: g.mission,
     status: g.status,
-    startedBy: `${g.createdByFirst} ${g.createdByLast}`.trim(),
+    startedBy: memberDisplayName(
+      { firstName: g.createdByFirst, lastName: g.createdByLast, displayMode: g.createdByDisplayMode },
+      false,
+    ),
     backerCount: (memberCount?.n ?? 0) + (supporterCount?.n ?? 0),
   });
 });
