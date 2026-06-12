@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useGetPtaCharter, useAdoptPtaCharter, useAcknowledgePtaCharter } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
@@ -11,8 +12,17 @@ export default function PtaCharterPage() {
   const data = q.data as any;
   const isAdmin = (user as any)?.role === "pta";
 
-  const onAdopt = async () => { await adopt.mutateAsync(); await q.refetch(); };
-  const onAck = async () => { await ack.mutateAsync(); await q.refetch(); };
+  const [err, setErr] = useState<string | null>(null);
+  const onAdopt = async () => {
+    setErr(null);
+    try { await adopt.mutateAsync(); await q.refetch(); }
+    catch (e: any) { setErr(e?.data?.error ?? "Couldn't adopt the charter — please try again."); }
+  };
+  const onAck = async () => {
+    setErr(null);
+    try { await ack.mutateAsync(); await q.refetch(); }
+    catch (e: any) { setErr(e?.data?.error ?? "Couldn't record your acknowledgement — please try again."); }
+  };
 
   if (q.isLoading) return <div className="mx-auto max-w-2xl px-4 py-16 text-center text-muted-foreground">Loading…</div>;
   if (!data) return <div className="mx-auto max-w-2xl px-4 py-16 text-center"><h1 className="font-display text-2xl font-bold">Charter unavailable</h1></div>;
@@ -31,7 +41,8 @@ export default function PtaCharterPage() {
               : undefined
         }
       />
-      {data.sections.map((s: any) => (
+      {err && <p className="text-sm text-destructive">{err}</p>}
+      {(data.sections ?? []).map((s: any) => (
         <Card key={s.heading}>
           <CardHeader><CardTitle className="text-base">{s.heading}</CardTitle></CardHeader>
           <CardContent className="text-sm text-muted-foreground">{s.body}</CardContent>
