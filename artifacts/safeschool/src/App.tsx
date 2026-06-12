@@ -70,6 +70,7 @@ import AdminPage from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 import ResourceCentre from "@/pages/resource-centre";
 import HowVbeWorks from "@/pages/how-vbe-works";
+import DiagnosticResultsPage from "@/pages/diagnostic-results";
 
 const queryClient = new QueryClient();
 
@@ -151,6 +152,14 @@ function Router() {
       <Route path="/safeguarding" component={SafeguardingPage} />
       <Route path="/v/:id">{(params) => <VoicePublicPage id={params.id} />}</Route>
       <Route path="/d/:slug">{(params) => <CommunityDiagnosticPage slug={params.slug} />}</Route>
+      <Route path="/results/:slug">
+        {(params) => (
+          <ProtectedRoute
+            component={() => <DiagnosticResultsPage slug={params.slug} />}
+            allowedRoles={["parent", "pta", "coordinator", "head_teacher"]}
+          />
+        )}
+      </Route>
       {/* Ported public deep guide pages (specific routes BEFORE the catch-all). */}
       <Route path="/schools/10-day-rollout" component={Schools10DayRollout} />
       <Route path="/schools/case-study" component={SchoolsCaseStudy} />
