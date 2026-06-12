@@ -93,9 +93,18 @@ describe("VOICE anonymity", () => {
     const r = await fetch(`${baseUrl}/api/voice`, { headers: { Authorization: `Bearer ${parentToken}` } });
     expect(r.status).toBe(200);
     const body = await r.json();
-    const mine = (body.voices ?? body ?? []).find?.((v: any) => v.id === voiceId)
-      ?? (Array.isArray(body) ? body.find((v: any) => v.id === voiceId) : undefined);
+    expect(Array.isArray(body.voices)).toBe(true);
+    const mine = body.voices.find((v: any) => v.id === voiceId);
     expect(mine).toBeTruthy();
     expect(mine.createdBy).toBe("A parent");
+  });
+
+  it("list endpoint shows the real founder name to an exec", async () => {
+    const r = await fetch(`${baseUrl}/api/voice`, { headers: { Authorization: `Bearer ${execToken}` } });
+    expect(r.status).toBe(200);
+    const body = await r.json();
+    const mine = body.voices.find((v: any) => v.id === voiceId);
+    expect(mine).toBeTruthy();
+    expect(mine.createdBy).toBe("Fiona Founder");
   });
 });
