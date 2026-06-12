@@ -743,7 +743,7 @@ router.post("/pta/initiatives", authMiddleware, MANAGE, async (req, res): Promis
 router.patch("/pta/initiatives/:id", authMiddleware, MANAGE, async (req, res): Promise<void> => {
   const u = user(req);
   const { id } = req.params;
-  const { status, title, summary, ownerId, targetDate } = req.body ?? {};
+  const { status, title, summary, ownerId, targetDate, goalId, successCriteria, resourcesNeeded, conflicts, checklist } = req.body ?? {};
 
   if (status !== undefined && !PTA_INITIATIVE_STATUSES.includes(status)) { res.status(400).json({ error: `status must be one of: ${PTA_INITIATIVE_STATUSES.join(", ")}` }); return; }
 
@@ -765,6 +765,27 @@ router.patch("/pta/initiatives/:id", authMiddleware, MANAGE, async (req, res): P
   if (targetDate !== undefined) {
     if (targetDate) { const d = new Date(targetDate); if (isNaN(d.getTime())) { res.status(400).json({ error: "targetDate must be a valid date" }); return; } patch.targetDate = d; }
     else patch.targetDate = null;
+  }
+  if (goalId !== undefined) {
+    if (goalId) {
+      const g = await db.select({ id: ptaGoalsTable.id }).from(ptaGoalsTable)
+        .where(and(eq(ptaGoalsTable.id, goalId), eq(ptaGoalsTable.schoolId, u.schoolId))).limit(1);
+      if (!g.length) { res.status(404).json({ error: "Goal not found in this school" }); return; }
+    }
+    patch.goalId = goalId || null;
+  }
+  if (successCriteria !== undefined) patch.successCriteria = (typeof successCriteria === "string" && successCriteria.trim()) ? successCriteria.trim() : null;
+  if (resourcesNeeded !== undefined) patch.resourcesNeeded = (typeof resourcesNeeded === "string" && resourcesNeeded.trim()) ? resourcesNeeded.trim() : null;
+  if (conflicts !== undefined) patch.conflicts = (typeof conflicts === "string" && conflicts.trim()) ? conflicts.trim() : null;
+  if (checklist !== undefined) {
+    if (typeof checklist !== "object" || checklist === null || Array.isArray(checklist)) { res.status(400).json({ error: "checklist must be an object" }); return; }
+    const KEYS = ["alignsGoal", "budgetOk", "namedOwner", "noConflict", "successCriteria", "noSchoolResource"] as const;
+    for (const k of Object.keys(checklist)) {
+      if (!(KEYS as readonly string[]).includes(k)) { res.status(400).json({ error: `unknown checklist key: ${k}` }); return; }
+      if (typeof (checklist as any)[k] !== "boolean") { res.status(400).json({ error: `checklist.${k} must be a boolean` }); return; }
+    }
+    // Shallow-merge onto the existing checklist so the UI can toggle one box at a time.
+    patch.checklist = { ...(existing[0].checklist as Record<string, boolean>), ...checklist };
   }
   if (status !== undefined) {
     patch.status = status;

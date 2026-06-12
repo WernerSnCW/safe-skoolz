@@ -58,6 +58,7 @@ async function createInitiative(body: Record<string, unknown>): Promise<string> 
 }
 export { }; // keep this a module
 
+
 describe("POST /api/pta/initiatives (one-page note)", () => {
   it("requires MANAGE (stranger 403)", async () => {
     const r = await fetch(`${baseUrl}/api/pta/initiatives`, { method: "POST", headers: auth(strangerTok), body: JSON.stringify({ title: "X", summary: "Y" }) });
@@ -86,6 +87,37 @@ describe("POST /api/pta/initiatives (one-page note)", () => {
   });
   it("still requires title + summary (400)", async () => {
     const r = await fetch(`${baseUrl}/api/pta/initiatives`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ title: "" }) });
+    expect(r.status).toBe(400);
+  });
+});
+
+describe("PATCH /api/pta/initiatives/:id (note + checklist)", () => {
+  it("edits the one-page-note fields", async () => {
+    const id = await createInitiative({ goalId: ratifiedGoalId });
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ successCriteria: "Updated", resourcesNeeded: "Paint", conflicts: "Clashes with fair" }) });
+    expect(r.status).toBe(200);
+    const b = await r.json();
+    expect(b.initiative.successCriteria).toBe("Updated");
+    expect(b.initiative.conflicts).toBe("Clashes with fair");
+  });
+  it("merges checklist booleans (partial update keeps the others)", async () => {
+    const id = await createInitiative({});
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ checklist: { namedOwner: true } }) });
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ checklist: { budgetOk: true } }) });
+    const b = await r.json();
+    expect(b.initiative.checklist.namedOwner).toBe(true);
+    expect(b.initiative.checklist.budgetOk).toBe(true);
+    expect(b.initiative.checklist.alignsGoal).toBe(false);
+  });
+  it("changes goalId (school-scoped)", async () => {
+    const id = await createInitiative({});
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ goalId: ratifiedGoalId }) });
+    expect(r.status).toBe(200);
+    expect((await r.json()).initiative.goalId).toBe(ratifiedGoalId);
+  });
+  it("rejects a checklist with an unknown key (400)", async () => {
+    const id = await createInitiative({});
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ checklist: { bogus: true } }) });
     expect(r.status).toBe(400);
   });
 });
