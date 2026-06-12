@@ -27,6 +27,10 @@ export default function JoinPage({ slug }: { slug: string }) {
     }
   };
 
+  if (q.isLoading) {
+    return <div className="mx-auto max-w-md px-4 py-20 text-center text-muted-foreground">Loading…</div>;
+  }
+
   if (q.isError || (q.data && !(q.data as any).schoolName)) {
     return <div className="mx-auto max-w-md px-4 py-20 text-center"><h1 className="font-display text-2xl font-bold">School not found</h1></div>;
   }
@@ -49,9 +53,9 @@ export default function JoinPage({ slug }: { slug: string }) {
           </span>
         </div>
         <div className="mt-5 space-y-2">
-          <input className={inputCls} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input className={inputCls} placeholder="Your name (optional)" value={name} onChange={(e) => setName(e.target.value)} />
-          <input className={inputCls} type="password" placeholder="Create a password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input className={inputCls} type="email" placeholder="Email" aria-label="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input className={inputCls} placeholder="Your name (optional)" aria-label="Your name (optional)" value={name} onChange={(e) => setName(e.target.value)} />
+          <input className={inputCls} type="password" placeholder="Create a password" aria-label="Create a password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
         <button
