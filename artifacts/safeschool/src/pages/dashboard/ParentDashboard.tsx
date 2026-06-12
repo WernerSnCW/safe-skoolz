@@ -561,7 +561,7 @@ export default function ParentDashboard({ user }: { user: any }) {
     };
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
-        <PageHeader eyebrow="Morna Vibes" title={`Welcome, ${user.firstName}`} subtitle="You're backing both goals. Here's everything in one place." />
+        <PageHeader eyebrow="Morna Vibes" title={user.firstName && user.firstName !== "Morna" ? `Welcome, ${user.firstName}` : "Welcome"} subtitle="You're backing both goals. Here's everything in one place." />
         <div className="grid gap-4 sm:grid-cols-2">
           <Tile icon={Flag} title="Goal 1 · Adopt VBE" body="Ask the school to adopt Values-based Education. You're backing it." href="/goals#vbe" />
           <Tile icon={Users} title="Goal 2 · Equal voice" body="Ask the PTA to adopt a three-tier structure so every parent has an equal voice and the same information." href="/goals#structure" />
