@@ -121,4 +121,86 @@ describe("POST /api/voice/:id/convert (B2 merge)", () => {
     expect(r.status).toBe(409);
     expect((await r.json()).error).toMatch(/already been converted/i);
   });
+
+  it("zero-backer VOICE: creates the initiative, flips status, added 0", async () => {
+    // Ensure PTA is claimed (may already be from test 3, but guard for isolation).
+    await pool.query(
+      `UPDATE schools SET pta_claimed_at = now() WHERE id = $1 AND pta_claimed_at IS NULL`,
+      [schoolId]
+    );
+    const v = await pool.query<{ id: string }>(
+      `INSERT INTO voice_groups (school_id, name, mission, created_by_id, status)
+       VALUES ($1,'Empty Vibes','Mission with no backers yet.',$2,'advocating') RETURNING id`,
+      [schoolId, founderId]
+    );
+    const zeroVoiceId = v.rows[0].id;
+
+    const r = await fetch(`${baseUrl}/api/voice/${zeroVoiceId}/convert`, {
+      method: "POST",
+      headers: auth(adminTok),
+    });
+    expect(r.status).toBe(200);
+    const b = await r.json();
+    expect(b.converted).toMatchObject({ backers: 0, added: 0, alreadyMembers: 0 });
+    expect(b.initiative.title).toBe("Empty Vibes");
+    expect(b.voice.status).toBe("converted");
+
+    const init = await pool.query(
+      `SELECT count(*)::int c FROM pta_initiatives WHERE origin_voice_id = $1`,
+      [zeroVoiceId]
+    );
+    expect(init.rows[0].c).toBe(1);
+    // No voice_members rows were inserted for this voice, so no extra cleanup needed.
+  });
+
+  it("all backers already PTA members: added 0, alreadyMembers N, initiative still created", async () => {
+    await pool.query(
+      `UPDATE schools SET pta_claimed_at = now() WHERE id = $1 AND pta_claimed_at IS NULL`,
+      [schoolId]
+    );
+
+    // Create a fresh user who is already a PTA member.
+    const alreadyUser = await pool.query<{ id: string }>(
+      `INSERT INTO users (school_id, role, first_name, last_name, email, active)
+       VALUES ($1,'parent','Al','Ready',$2,true) RETURNING id`,
+      [schoolId, `merge-already-${stamp}@example.com`]
+    );
+    const alreadyUserId = alreadyUser.rows[0].id;
+    await pool.query(
+      `INSERT INTO pta_members (school_id, user_id, tier, status)
+       VALUES ($1,$2,'general_membership','active')`,
+      [schoolId, alreadyUserId]
+    );
+
+    // Create a VOICE with that user as its sole backer.
+    const v = await pool.query<{ id: string }>(
+      `INSERT INTO voice_groups (school_id, name, mission, created_by_id, status)
+       VALUES ($1,'All Already','Everyone here is already a member.',$2,'advocating') RETURNING id`,
+      [schoolId, founderId]
+    );
+    const allAlreadyVoiceId = v.rows[0].id;
+    await pool.query(
+      `INSERT INTO voice_members (voice_id, user_id, role) VALUES ($1,$2,'member')`,
+      [allAlreadyVoiceId, alreadyUserId]
+    );
+
+    const r = await fetch(`${baseUrl}/api/voice/${allAlreadyVoiceId}/convert`, {
+      method: "POST",
+      headers: auth(adminTok),
+    });
+    expect(r.status).toBe(200);
+    const b = await r.json();
+    expect(b.converted).toMatchObject({ backers: 1, added: 0, alreadyMembers: 1 });
+    expect(b.initiative.title).toBe("All Already");
+    expect(b.voice.status).toBe("converted");
+
+    const init = await pool.query(
+      `SELECT count(*)::int c FROM pta_initiatives WHERE origin_voice_id = $1`,
+      [allAlreadyVoiceId]
+    );
+    expect(init.rows[0].c).toBe(1);
+
+    // Cleanup voice_members for this new voice (no ON DELETE CASCADE in schema).
+    await pool.query(`DELETE FROM voice_members WHERE voice_id = $1`, [allAlreadyVoiceId]);
+  });
 });
