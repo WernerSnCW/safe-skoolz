@@ -281,6 +281,7 @@ export const ptaInitiativeStageHistoryTable = pgTable("pta_initiative_stage_hist
   recordedById: uuid("recorded_by_id").references(() => usersTable.id).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
+  index("idx_pta_init_stage_hist_school").on(t.schoolId),
   index("idx_pta_init_stage_hist_initiative").on(t.initiativeId),
 ]);
 export type PtaInitiativeStageHistory = typeof ptaInitiativeStageHistoryTable.$inferSelect;

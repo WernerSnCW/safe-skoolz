@@ -138,6 +138,7 @@ CREATE TABLE IF NOT EXISTS pta_initiative_stage_history (
   recorded_by_id uuid NOT NULL REFERENCES users(id),
   created_at timestamptz NOT NULL DEFAULT now()
 );
+CREATE INDEX IF NOT EXISTS idx_pta_init_stage_hist_school ON pta_initiative_stage_history(school_id);
 CREATE INDEX IF NOT EXISTS idx_pta_init_stage_hist_initiative ON pta_initiative_stage_history(initiative_id);
 SQL
 ```
