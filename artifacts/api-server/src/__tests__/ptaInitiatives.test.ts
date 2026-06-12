@@ -184,3 +184,45 @@ describe("POST /api/pta/initiatives/:id/approve", () => {
     expect((await fetch(`${baseUrl}/api/pta/initiatives/${id}/approve`, { method: "POST", headers: auth(strangerTok), body: JSON.stringify({ approvalType: "board" }) })).status).toBe(403);
   });
 });
+
+describe("POST /api/pta/initiatives/:id/stage", () => {
+  it("walks the happy path none→idea→presented→accepted→planning→delivering→delivered, writing history", async () => {
+    const id = await createInitiative({});
+    for (const toStage of ["idea", "presented", "accepted", "planning", "delivering", "delivered"]) {
+      const body: any = { toStage, outcomeNote: `now ${toStage}` };
+      if (toStage === "presented") body.responseDueAt = new Date(Date.now() + 7 * 864e5).toISOString();
+      const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify(body) });
+      expect(r.status).toBe(200);
+      expect((await r.json()).initiative.schoolStage).toBe(toStage);
+    }
+  });
+  it("rejects an illegal transition (idea→delivered) 409", async () => {
+    const id = await createInitiative({});
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "idea" }) });
+    const r = await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "delivered" }) });
+    expect(r.status).toBe(409);
+  });
+  it("requires a reason when rejecting (400 without, 200 with)", async () => {
+    const id = await createInitiative({});
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "idea" }) });
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "presented" }) });
+    expect((await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "rejected" }) })).status).toBe(400);
+    expect((await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "rejected", reason: "Budget unavailable" }) })).status).toBe(200);
+  });
+  it("does NOT change status (orthogonal axes)", async () => {
+    const id = await createInitiative({});
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}`, { method: "PATCH", headers: auth(adminTok), body: JSON.stringify({ status: "active" }) });
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "idea" }) });
+    const list = await (await fetch(`${baseUrl}/api/pta/initiatives`, { headers: auth(adminTok) })).json();
+    const row = list.initiatives.find((i: any) => i.id === id);
+    expect(row.status).toBe("active");
+    expect(row.schoolStage).toBe("idea");
+  });
+  it("computes awaitingResponse once presented + past due", async () => {
+    const id = await createInitiative({});
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "idea" }) });
+    await fetch(`${baseUrl}/api/pta/initiatives/${id}/stage`, { method: "POST", headers: auth(adminTok), body: JSON.stringify({ toStage: "presented", responseDueAt: new Date(Date.now() - 864e5).toISOString() }) });
+    const list = await (await fetch(`${baseUrl}/api/pta/initiatives`, { headers: auth(adminTok) })).json();
+    expect(list.initiatives.find((i: any) => i.id === id).awaitingResponse).toBe(true);
+  });
+});

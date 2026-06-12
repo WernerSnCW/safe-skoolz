@@ -23,6 +23,7 @@ import {
   PTA_ANNOUNCEMENT_AUDIENCES,
   PTA_INITIATIVE_STATUSES,
   PTA_INITIATIVE_APPROVAL_TYPES,
+  PTA_INITIATIVE_SCHOOL_STAGES,
   PTA_BALLOT_ELECTORATES,
   EMPTY_INITIATIVE_CHECKLIST,
 } from "@workspace/db";
@@ -45,6 +46,18 @@ const router: IRouter = Router();
 
 const MANAGE = requireRole("pta");
 const VIEW = requireRole("pta", "coordinator", "head_teacher");
+
+// B4 — the five-stage school process (docx §8). Forward-only transitions.
+const STAGE_TRANSITIONS: Record<string, readonly string[]> = {
+  none: ["idea"],
+  idea: ["presented"],
+  presented: ["accepted", "rejected"],
+  accepted: ["planning"],
+  planning: ["delivering"],
+  delivering: ["delivered"],
+  rejected: [],
+  delivered: [],
+};
 
 function user(req: any): JwtPayload {
   return req.user as JwtPayload;
@@ -860,6 +873,43 @@ router.post("/pta/initiatives/:id/approve", authMiddleware, MANAGE, async (req, 
   if (!initiative) { res.status(409).json({ error: "Initiative is already approved" }); return; }
 
   await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_approved", actor: u, targetType: "pta_initiative", targetId: id, details: { approvalType, boardNote: boardNote || undefined }, req });
+  res.json({ initiative });
+});
+
+// POST /pta/initiatives/:id/stage — advance the school-process stage + log history.
+router.post("/pta/initiatives/:id/stage", authMiddleware, MANAGE, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const { toStage, occurredAt, outcomeNote = null, reason = null, responseDueAt } = req.body ?? {};
+  if (!PTA_INITIATIVE_SCHOOL_STAGES.includes(toStage)) { res.status(400).json({ error: `toStage must be one of: ${PTA_INITIATIVE_SCHOOL_STAGES.join(", ")}` }); return; }
+
+  const existing = await db.select().from(ptaInitiativesTable)
+    .where(and(eq(ptaInitiativesTable.id, id), eq(ptaInitiativesTable.schoolId, u.schoolId))).limit(1);
+  if (!existing.length) { res.status(404).json({ error: "Initiative not found" }); return; }
+  const init = existing[0];
+  const from = init.schoolStage;
+  if (!STAGE_TRANSITIONS[from]?.includes(toStage)) { res.status(409).json({ error: `Cannot move from ${from} to ${toStage}` }); return; }
+  if (toStage === "rejected" && (!reason || !String(reason).trim())) { res.status(400).json({ error: "A reason is required when the school rejects an initiative" }); return; }
+
+  let occurred: Date | undefined;
+  if (occurredAt) { occurred = new Date(occurredAt); if (isNaN(occurred.getTime())) { res.status(400).json({ error: "occurredAt must be a valid date" }); return; } }
+  let due: Date | null | undefined;
+  if (toStage === "presented" && responseDueAt) { due = new Date(responseDueAt); if (isNaN(due.getTime())) { res.status(400).json({ error: "responseDueAt must be a valid date" }); return; } }
+
+  const initiative = await db.transaction(async (tx) => {
+    await tx.insert(ptaInitiativeStageHistoryTable).values({
+      schoolId: u.schoolId, initiativeId: id, entryType: "transition",
+      fromStage: from, toStage, occurredAt: occurred,
+      outcomeNote: outcomeNote ? String(outcomeNote).trim() : null,
+      reason: reason ? String(reason).trim() : null, recordedById: u.userId,
+    });
+    const setPatch: Record<string, unknown> = { schoolStage: toStage };
+    if (toStage === "presented") setPatch.responseDueAt = due ?? null;
+    const [row] = await tx.update(ptaInitiativesTable).set(setPatch).where(eq(ptaInitiativesTable.id, id)).returning();
+    return row;
+  });
+
+  await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_stage_changed", actor: u, targetType: "pta_initiative", targetId: id, details: { fromStage: from, toStage }, req });
   res.json({ initiative });
 });
 
