@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import crypto from "node:crypto";
-import { sql, eq, and, isNotNull } from "drizzle-orm";
+import { sql, eq, and, isNotNull, inArray } from "drizzle-orm";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import bcrypt from "bcrypt";
 import {
@@ -11,9 +11,13 @@ import {
   diagnosticResponseMetaTable,
   usersTable,
   passwordResetTokensTable,
+  notificationsTable,
 } from "@workspace/db";
 import { PgRateLimitStore } from "../lib/rateLimitStore";
 import { sendEmail } from "../lib/emailHelper";
+import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { isExecRole } from "../lib/memberDisplay";
+import { writeAudit } from "../lib/auditHelper";
 
 const router: IRouter = Router();
 
@@ -54,6 +58,11 @@ const submitLimiter = rateLimit({
 });
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// A year-group (or any) segment is shown only when it has at least this many
+// responses, so no individual's answers can be inferred from a thin slice (spec §4.2).
+const SEGMENT_MIN = 5;
+const EXEC = requireRole("pta", "coordinator", "head_teacher");
 
 router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> => {
   const slug = String(req.params.slug).toLowerCase();
@@ -254,6 +263,196 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
     .where(eq(diagnosticSubmissionsTable.surveyId, survey.id));
 
   res.status(201).json({ counted: true, count });
+});
+
+// Helper: load a public survey by slug or null.
+async function loadSurveyBySlug(slug: string) {
+  const [survey] = await db
+    .select()
+    .from(diagnosticSurveysTable)
+    .where(and(eq(diagnosticSurveysTable.publicSlug, slug), isNotNull(diagnosticSurveysTable.publicSlug)));
+  return survey ?? null;
+}
+
+// POST /d/:slug/release — exec releases results; notifies every participant who
+// has an account. Idempotent: a second call returns the existing release.
+router.post("/d/:slug/release", authMiddleware, EXEC, async (req, res): Promise<void> => {
+  const u = (req as any).user as JwtPayload;
+  const slug = String(req.params.slug).toLowerCase();
+  const survey = await loadSurveyBySlug(slug);
+  if (!survey || survey.status !== "active") {
+    res.status(404).json({ error: "Survey not found" });
+    return;
+  }
+  if (u.schoolId !== survey.schoolId) {
+    res.status(403).json({ error: "Insufficient permissions" });
+    return;
+  }
+
+  if (survey.releasedAt != null) {
+    res.json({ released: true, releasedAt: survey.releasedAt });
+    return;
+  }
+
+  const releasedAt = new Date();
+  await db.update(diagnosticSurveysTable).set({ releasedAt }).where(eq(diagnosticSurveysTable.id, survey.id));
+
+  const emailRows = await db
+    .select({ email: diagnosticSubmissionsTable.email })
+    .from(diagnosticSubmissionsTable)
+    .where(eq(diagnosticSubmissionsTable.surveyId, survey.id))
+    .groupBy(diagnosticSubmissionsTable.email);
+  const emails = emailRows.map((r) => r.email);
+  if (emails.length) {
+    const participants = await db
+      .select({ id: usersTable.id, email: usersTable.email, firstName: usersTable.firstName })
+      .from(usersTable)
+      .where(and(eq(usersTable.schoolId, survey.schoolId), inArray(usersTable.email, emails)));
+    if (participants.length) {
+      await db.insert(notificationsTable).values(
+        participants.map((p) => ({
+          schoolId: survey.schoolId,
+          recipientId: p.id,
+          trigger: "results_released",
+          channel: "in_app",
+          subject: "The community diagnostic results are out",
+          body: "The results you took part in have been released. Log in to see them.",
+        })),
+      );
+      const appUrl = process.env.APP_URL ?? "http://localhost:5000";
+      for (const p of participants) {
+        void sendEmail({
+          to: p.email!,
+          toName: p.firstName ?? "there",
+          subject: "The community diagnostic results are out",
+          bodyText:
+            `Hi ${p.firstName ?? "there"},\n\n` +
+            `The results of the community diagnostic you took part in have been released.\n\n` +
+            `See them here: ${appUrl}/results/${slug}\n`,
+          trigger: "results_released",
+          recipientId: p.id,
+          schoolId: survey.schoolId,
+        }).catch(() => {});
+      }
+    }
+  }
+
+  await writeAudit({
+    schoolId: survey.schoolId,
+    eventType: "results_released",
+    actor: u,
+    targetType: "diagnostic_survey",
+    targetId: survey.id,
+    details: { participantsNotified: emails.length },
+    req,
+  });
+
+  res.json({ released: true, releasedAt });
+});
+
+// GET /d/:slug/results — authed. Seeing results requires signing up. Non-execs
+// only after release and without free-text; execs any time + shuffled free-text.
+router.get("/d/:slug/results", authMiddleware, async (req, res): Promise<void> => {
+  const u = (req as any).user as JwtPayload;
+  const slug = String(req.params.slug).toLowerCase();
+  const survey = await loadSurveyBySlug(slug);
+  if (!survey || survey.status !== "active") {
+    res.status(404).json({ error: "Survey not found" });
+    return;
+  }
+  if (u.schoolId !== survey.schoolId) {
+    res.status(403).json({ error: "Not your school's results" });
+    return;
+  }
+  const isExec = isExecRole(u.role);
+  if (!isExec && survey.releasedAt == null) {
+    res.status(403).json({ error: "Results haven't been released yet.", released: false });
+    return;
+  }
+
+  const instrument = (survey.instrument ?? []) as Array<{
+    key: string; section: string; text: string; type: string; options?: string[];
+  }>;
+  const scaleQs = instrument.filter((q) => q.type === "scale");
+
+  const answerRows = await db
+    .select({
+      questionKey: diagnosticAnswersTable.questionKey,
+      answer: diagnosticAnswersTable.answer,
+      yearGroup: diagnosticResponseMetaTable.yearGroup,
+    })
+    .from(diagnosticAnswersTable)
+    .leftJoin(
+      diagnosticResponseMetaTable,
+      and(
+        eq(diagnosticResponseMetaTable.surveyId, diagnosticAnswersTable.surveyId),
+        eq(diagnosticResponseMetaTable.responseId, diagnosticAnswersTable.responseId),
+      ),
+    )
+    .where(and(eq(diagnosticAnswersTable.surveyId, survey.id), isNotNull(diagnosticAnswersTable.answer)));
+
+  const segCounts = await db
+    .select({ yearGroup: diagnosticResponseMetaTable.yearGroup, n: sql<number>`count(*)::int` })
+    .from(diagnosticResponseMetaTable)
+    .where(and(eq(diagnosticResponseMetaTable.surveyId, survey.id), isNotNull(diagnosticResponseMetaTable.yearGroup)))
+    .groupBy(diagnosticResponseMetaTable.yearGroup);
+  const eligibleYears = new Map(
+    segCounts.filter((s) => s.yearGroup != null && s.n >= SEGMENT_MIN).map((s) => [s.yearGroup as string, s.n]),
+  );
+
+  const [{ total }] = await db
+    .select({ total: sql<number>`count(distinct ${diagnosticAnswersTable.responseId})::int` })
+    .from(diagnosticAnswersTable)
+    .where(eq(diagnosticAnswersTable.surveyId, survey.id));
+
+  const questions = scaleQs.map((q) => {
+    const optCount = q.options?.length ?? 0;
+    const overall = new Array(optCount).fill(0);
+    const segDist = new Map<string, number[]>();
+    for (const yg of eligibleYears.keys()) segDist.set(yg, new Array(optCount).fill(0));
+    for (const row of answerRows) {
+      if (row.questionKey !== q.key || row.answer == null || row.answer < 0 || row.answer >= optCount) continue;
+      overall[row.answer]++;
+      if (row.yearGroup && eligibleYears.has(row.yearGroup)) segDist.get(row.yearGroup)![row.answer]++;
+    }
+    return {
+      key: q.key,
+      section: q.section,
+      text: q.text,
+      type: "scale",
+      options: q.options ?? [],
+      distribution: overall,
+      segments: [...segDist.entries()].map(([yearGroup, distribution]) => ({
+        yearGroup,
+        n: eligibleYears.get(yearGroup)!,
+        distribution,
+      })),
+    };
+  });
+
+  let freeText: { questionKey: string; text: string }[] | undefined;
+  if (isExec) {
+    const textRows = await db
+      .select({ questionKey: diagnosticAnswersTable.questionKey, freeText: diagnosticAnswersTable.freeText })
+      .from(diagnosticAnswersTable)
+      .where(and(eq(diagnosticAnswersTable.surveyId, survey.id), isNotNull(diagnosticAnswersTable.freeText)));
+    const arr = textRows.map((r) => ({ questionKey: r.questionKey, text: r.freeText as string }));
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    freeText = arr;
+  }
+
+  res.json({
+    title: survey.title,
+    released: survey.releasedAt != null,
+    releasedAt: survey.releasedAt,
+    isExec,
+    totalResponses: total,
+    questions,
+    ...(freeText ? { freeText } : {}),
+  });
 });
 
 export default router;
