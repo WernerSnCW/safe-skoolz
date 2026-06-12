@@ -351,8 +351,8 @@ router.post("/pta/proposals/:id/withdraw", authMiddleware, MANAGE, async (req, r
 // --- Voting (ballots, votes, proxies) --------------------------------------
 
 // Resolve the current user's PTA member row (voters must be on the roster).
-async function myMember(schoolId: string, userId: string): Promise<{ id: string } | null> {
-  const r = await db.select({ id: ptaMembersTable.id }).from(ptaMembersTable)
+async function myMember(schoolId: string, userId: string): Promise<{ id: string; tier: string } | null> {
+  const r = await db.select({ id: ptaMembersTable.id, tier: ptaMembersTable.tier }).from(ptaMembersTable)
     .where(and(eq(ptaMembersTable.schoolId, schoolId), eq(ptaMembersTable.userId, userId))).limit(1);
   return r[0] ?? null;
 }
@@ -470,6 +470,23 @@ router.post("/pta/ballots/:id/vote", authMiddleware, MANAGE, async (req, res): P
       .where(and(eq(ptaProxiesTable.schoolId, u.schoolId), eq(ptaProxiesTable.grantorMemberId, targetMemberId), eq(ptaProxiesTable.holderMemberId, voter.id))).limit(1);
     if (!proxy.length) { res.status(403).json({ error: "You do not hold a proxy for that member" }); return; }
     viaProxy = true;
+  }
+
+  // Senior-group ballots (e.g. goal ratification, B3) are restricted to the
+  // senior_group + executive_board tiers. The member whose vote is recorded
+  // (the grantor, when by proxy) must be in the electorate.
+  if (ballot.electorate === "senior_group") {
+    const eligible = ["senior_group", "executive_board"];
+    let targetTier = voter.tier;
+    if (targetMemberId !== voter.id) {
+      const tm = await db.select({ tier: ptaMembersTable.tier }).from(ptaMembersTable)
+        .where(and(eq(ptaMembersTable.id, targetMemberId), eq(ptaMembersTable.schoolId, u.schoolId))).limit(1);
+      targetTier = tm[0]?.tier ?? "";
+    }
+    if (!eligible.includes(targetTier)) {
+      res.status(403).json({ error: "Only the senior group may vote on this ballot" });
+      return;
+    }
   }
 
   // One vote per member.
