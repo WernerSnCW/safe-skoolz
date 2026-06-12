@@ -969,7 +969,7 @@ router.get("/pta/initiatives/:id", authMiddleware, VIEW, async (req, res): Promi
     .from(ptaInitiativeStageHistoryTable)
     .leftJoin(rec, eq(rec.id, ptaInitiativeStageHistoryTable.recordedById))
     .where(eq(ptaInitiativeStageHistoryTable.initiativeId, id))
-    .orderBy(desc(ptaInitiativeStageHistoryTable.occurredAt));
+    .orderBy(desc(ptaInitiativeStageHistoryTable.occurredAt), desc(ptaInitiativeStageHistoryTable.createdAt));
   const now = Date.now();
 
   res.json({
