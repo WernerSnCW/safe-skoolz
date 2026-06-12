@@ -11,6 +11,7 @@ import {
   ptaProxiesTable,
   ptaAnnouncementsTable,
   ptaInitiativesTable,
+  ptaInitiativeStageHistoryTable,
   ptaGoalsTable,
   voiceGroupsTable,
   usersTable,
@@ -660,6 +661,7 @@ router.delete("/pta/announcements/:id", authMiddleware, MANAGE, async (req, res)
 router.get("/pta/initiatives", authMiddleware, VIEW, async (req, res): Promise<void> => {
   const u = user(req);
   const owner = alias(usersTable, "owner_u");
+  const approver = alias(usersTable, "approver_u");
   const rows = await db
     .select({
       id: ptaInitiativesTable.id,
@@ -671,29 +673,51 @@ router.get("/pta/initiatives", authMiddleware, VIEW, async (req, res): Promise<v
       targetDate: ptaInitiativesTable.targetDate,
       createdAt: ptaInitiativesTable.createdAt,
       completedAt: ptaInitiativesTable.completedAt,
-      ownerFirst: owner.firstName,
-      ownerLast: owner.lastName,
+      goalId: ptaInitiativesTable.goalId,
+      successCriteria: ptaInitiativesTable.successCriteria,
+      resourcesNeeded: ptaInitiativesTable.resourcesNeeded,
+      conflicts: ptaInitiativesTable.conflicts,
+      checklist: ptaInitiativesTable.checklist,
+      schoolStage: ptaInitiativesTable.schoolStage,
+      responseDueAt: ptaInitiativesTable.responseDueAt,
+      approvalType: ptaInitiativesTable.approvalType,
+      approvedAt: ptaInitiativesTable.approvedAt,
+      ownerFirst: owner.firstName, ownerLast: owner.lastName,
+      approverFirst: approver.firstName, approverLast: approver.lastName,
       originVoiceName: voiceGroupsTable.name,
+      goalTitle: ptaGoalsTable.title,
+      goalStatus: ptaGoalsTable.status,
     })
     .from(ptaInitiativesTable)
     .leftJoin(owner, eq(owner.id, ptaInitiativesTable.ownerId))
+    .leftJoin(approver, eq(approver.id, ptaInitiativesTable.approvedById))
     .leftJoin(voiceGroupsTable, eq(voiceGroupsTable.id, ptaInitiativesTable.originVoiceId))
+    .leftJoin(ptaGoalsTable, eq(ptaGoalsTable.id, ptaInitiativesTable.goalId))
     .where(eq(ptaInitiativesTable.schoolId, u.schoolId))
     .orderBy(desc(ptaInitiativesTable.createdAt));
 
+  // Follow-up counts, grouped per initiative.
+  const fu = await db
+    .select({ initiativeId: ptaInitiativeStageHistoryTable.initiativeId, n: sql<number>`count(*)::int` })
+    .from(ptaInitiativeStageHistoryTable)
+    .where(and(eq(ptaInitiativeStageHistoryTable.schoolId, u.schoolId), eq(ptaInitiativeStageHistoryTable.entryType, "follow_up")))
+    .groupBy(ptaInitiativeStageHistoryTable.initiativeId);
+  const fuMap = new Map(fu.map((x) => [x.initiativeId, x.n]));
+  const now = Date.now();
+
   res.json({
     initiatives: rows.map((i) => ({
-      id: i.id,
-      title: i.title,
-      summary: i.summary,
-      status: i.status,
-      ownerId: i.ownerId,
-      owner: i.ownerFirst ? `${i.ownerFirst} ${i.ownerLast}`.trim() : null,
-      originVoiceId: i.originVoiceId,
-      originVoiceName: i.originVoiceName ?? null,
-      targetDate: i.targetDate,
-      createdAt: i.createdAt,
-      completedAt: i.completedAt,
+      id: i.id, title: i.title, summary: i.summary, status: i.status,
+      ownerId: i.ownerId, owner: i.ownerFirst ? `${i.ownerFirst} ${i.ownerLast}`.trim() : null,
+      originVoiceId: i.originVoiceId, originVoiceName: i.originVoiceName ?? null,
+      targetDate: i.targetDate, createdAt: i.createdAt, completedAt: i.completedAt,
+      goalId: i.goalId, goalTitle: i.goalTitle ?? null, goalStatus: i.goalStatus ?? null,
+      successCriteria: i.successCriteria, resourcesNeeded: i.resourcesNeeded, conflicts: i.conflicts,
+      checklist: i.checklist, schoolStage: i.schoolStage, responseDueAt: i.responseDueAt,
+      approvalType: i.approvalType ?? null, approvedAt: i.approvedAt ?? null,
+      approvedBy: i.approverFirst ? `${i.approverFirst} ${i.approverLast}`.trim() : null,
+      awaitingResponse: i.schoolStage === "presented" && !!i.responseDueAt && new Date(i.responseDueAt).getTime() < now,
+      followUpCount: fuMap.get(i.id) ?? 0,
     })),
   });
 });

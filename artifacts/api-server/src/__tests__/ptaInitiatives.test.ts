@@ -120,3 +120,20 @@ describe("PATCH /api/pta/initiatives/:id (note + checklist)", () => {
     expect(r.status).toBe(400);
   });
 });
+
+describe("GET /api/pta/initiatives (extended list)", () => {
+  it("returns goal title, schoolStage, checklist, and computed awaitingResponse + followUpCount", async () => {
+    await createInitiative({ goalId: ratifiedGoalId, successCriteria: "X" });
+    const r = await fetch(`${baseUrl}/api/pta/initiatives`, { headers: auth(adminTok) });
+    expect(r.status).toBe(200);
+    const b = await r.json();
+    const row = b.initiatives.find((i: any) => i.goalId === ratifiedGoalId);
+    expect(row.goalTitle).toBe("Ratified goal");
+    expect(row.goalStatus).toBe("ratified");
+    expect(row.schoolStage).toBe("none");
+    expect(row.checklist).toBeTruthy();
+    expect(row.awaitingResponse).toBe(false);
+    expect(row.followUpCount).toBe(0);
+    expect(row.approvalType ?? null).toBe(null);
+  });
+});
