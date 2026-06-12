@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, desc, inArray, notInArray, sql } from "drizzle-orm";
+import { eq, and, desc, inArray, notInArray, sql, isNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import {
   db,
@@ -838,7 +838,7 @@ router.post("/pta/initiatives/:id/approve", authMiddleware, MANAGE, async (req, 
     .where(and(eq(ptaInitiativesTable.id, id), eq(ptaInitiativesTable.schoolId, u.schoolId))).limit(1);
   if (!existing.length) { res.status(404).json({ error: "Initiative not found" }); return; }
   const init = existing[0];
-  if (init.approvalType) { res.status(409).json({ error: "already approved" }); return; }
+  if (init.approvalType) { res.status(409).json({ error: "Initiative is already approved" }); return; }
 
   if (approvalType === "self") {
     const c = (init.checklist ?? {}) as Record<string, boolean>;
@@ -848,14 +848,16 @@ router.post("/pta/initiatives/:id/approve", authMiddleware, MANAGE, async (req, 
     if (!init.goalId) { res.status(409).json({ error: "alignsGoal requires a linked goal" }); return; }
     const g = await db.select({ status: ptaGoalsTable.status }).from(ptaGoalsTable)
       .where(and(eq(ptaGoalsTable.id, init.goalId), eq(ptaGoalsTable.schoolId, u.schoolId))).limit(1);
-    if (!g.length || g[0].status !== "ratified") { res.status(409).json({ error: "Initiatives must align with a ratified goal to self-approve" }); return; }
+    if (!g.length) { res.status(409).json({ error: "Linked goal not found in this school" }); return; }
+    if (g[0].status !== "ratified") { res.status(409).json({ error: "Initiatives must align with a ratified goal to self-approve" }); return; }
     if (!init.ownerId) { res.status(409).json({ error: "namedOwner requires an assigned owner" }); return; }
     if (!init.successCriteria || !init.successCriteria.trim()) { res.status(409).json({ error: "successCriteria must be defined" }); return; }
   }
 
   const [initiative] = await db.update(ptaInitiativesTable)
     .set({ approvalType, approvedById: u.userId, approvedAt: sql`now()` })
-    .where(eq(ptaInitiativesTable.id, id)).returning();
+    .where(and(eq(ptaInitiativesTable.id, id), isNull(ptaInitiativesTable.approvalType))).returning();
+  if (!initiative) { res.status(409).json({ error: "Initiative is already approved" }); return; }
 
   await writeAudit({ schoolId: u.schoolId, eventType: "pta_initiative_approved", actor: u, targetType: "pta_initiative", targetId: id, details: { approvalType, boardNote: boardNote || undefined }, req });
   res.json({ initiative });
