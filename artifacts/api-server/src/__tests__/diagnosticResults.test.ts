@@ -147,3 +147,16 @@ describe("POST /api/d/:slug/release", () => {
     expect(body.freeText).toBeUndefined();
   });
 });
+
+describe("results membership gate", () => {
+  it("blocks a non-approved (rejected) member even after release", async () => {
+    const rejected = await pool.query<{ id: string }>(
+      `INSERT INTO users (school_id, role, first_name, last_name, email, active, membership_status)
+       VALUES ($1, 'parent', 'Rej', 'Ected', $2, true, 'rejected') RETURNING id`,
+      [schoolId, `res-rejected-${stamp}@example.com`],
+    );
+    const tok = signToken({ userId: rejected.rows[0].id, schoolId, role: "parent" });
+    const r = await fetch(`${baseUrl}/api/d/res-test-${stamp}/results`, { headers: { Authorization: `Bearer ${tok}` } });
+    expect(r.status).toBe(403);
+  });
+});

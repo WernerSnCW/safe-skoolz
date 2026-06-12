@@ -370,7 +370,7 @@ router.get("/d/:slug/results", authMiddleware, async (req, res): Promise<void> =
   const u = (req as any).user as JwtPayload;
   const slug = String(req.params.slug).toLowerCase();
   const survey = await loadSurveyBySlug(slug);
-  if (!survey || survey.status !== "active") {
+  if (!survey || (survey.status !== "active" && survey.status !== "closed")) {
     res.status(404).json({ error: "Survey not found" });
     return;
   }
@@ -382,6 +382,18 @@ router.get("/d/:slug/results", authMiddleware, async (req, res): Promise<void> =
   if (!isExec && survey.releasedAt == null) {
     res.status(403).json({ error: "Results haven't been released yet.", released: false });
     return;
+  }
+  // Non-execs must be approved members to see results (a rejected/pending
+  // member must not — "reject" has teeth here). Execs are exempt.
+  if (!isExec) {
+    const [viewer] = await db
+      .select({ membershipStatus: usersTable.membershipStatus })
+      .from(usersTable)
+      .where(eq(usersTable.id, u.userId));
+    if (!viewer || viewer.membershipStatus !== "approved") {
+      res.status(403).json({ error: "Your membership isn't approved yet.", released: survey.releasedAt != null });
+      return;
+    }
   }
 
   const instrument = (survey.instrument ?? []) as Array<{
