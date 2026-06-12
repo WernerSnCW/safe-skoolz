@@ -2112,10 +2112,11 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [version, title, sections, claimed, officers, acknowledgements]
+                required: [version, title, sections, claimed, youAcknowledged, officers, acknowledgements]
                 properties:
                   version: { type: string }
                   title: { type: string }
+                  youAcknowledged: { type: boolean }
                   sections:
                     type: array
                     items:

@@ -53,6 +53,7 @@ describe("GET /api/pta/charter", () => {
     expect(b.sections.length).toBeGreaterThanOrEqual(3);
     expect(b.claimed).toBe(false);
     expect(b.claimedAt).toBeNull();
+    expect(b.youAcknowledged).toBe(false);
     expect(b.officers.some((o: any) => o.role === "president")).toBe(true);
     expect(Array.isArray(b.acknowledgements)).toBe(true);
   });
@@ -82,6 +83,7 @@ describe("POST /api/pta/charter/adopt", () => {
   it("GET now reports claimed", async () => {
     const b = await (await fetch(`${baseUrl}/api/pta/charter`, { headers: auth(adminTok) })).json();
     expect(b.claimed).toBe(true);
+    expect(b.youAcknowledged).toBe(true); // admin's adopt recorded their ack
   });
 });
 

@@ -36,12 +36,21 @@ router.get("/pta/charter", authMiddleware, async (req, res): Promise<void> => {
       eq(ptaPolicyAcknowledgementsTable.policyVersion, OPERATING_STRUCTURE_VERSION),
     )).orderBy(desc(ptaPolicyAcknowledgementsTable.createdAt));
 
+  const [mine] = await db.select({ id: ptaPolicyAcknowledgementsTable.id })
+    .from(ptaPolicyAcknowledgementsTable)
+    .where(and(
+      eq(ptaPolicyAcknowledgementsTable.schoolId, u.schoolId),
+      eq(ptaPolicyAcknowledgementsTable.userId, u.userId),
+      eq(ptaPolicyAcknowledgementsTable.policyVersion, OPERATING_STRUCTURE_VERSION),
+    ));
+
   res.json({
     version: OPERATING_STRUCTURE.version,
     title: OPERATING_STRUCTURE.title,
     sections: OPERATING_STRUCTURE.sections,
     claimed: school?.ptaClaimedAt != null,
     claimedAt: school?.ptaClaimedAt ?? null,
+    youAcknowledged: mine != null,
     officers: officers.map((o) => ({ role: o.role, domain: o.domain, name: `${o.firstName} ${o.lastName}`.trim() })),
     acknowledgements: acks.map((a) => ({ name: `${a.firstName} ${a.lastName}`.trim(), actionType: a.actionType, createdAt: a.createdAt })),
   });
@@ -59,18 +68,23 @@ router.post("/pta/charter/adopt", authMiddleware, MANAGE, async (req, res): Prom
     return;
   }
   const claimedAt = new Date();
-  const claimed = await db.update(schoolsTable)
-    .set({ ptaClaimedAt: claimedAt })
-    .where(and(eq(schoolsTable.id, u.schoolId), isNull(schoolsTable.ptaClaimedAt)))
-    .returning({ id: schoolsTable.id });
-  if (claimed.length === 0) {
+  let won = false;
+  await db.transaction(async (tx) => {
+    const claimed = await tx.update(schoolsTable)
+      .set({ ptaClaimedAt: claimedAt })
+      .where(and(eq(schoolsTable.id, u.schoolId), isNull(schoolsTable.ptaClaimedAt)))
+      .returning({ id: schoolsTable.id });
+    if (claimed.length === 0) return;
+    won = true;
+    await tx.insert(ptaPolicyAcknowledgementsTable).values({
+      schoolId: u.schoolId, userId: u.userId, policyVersion: OPERATING_STRUCTURE_VERSION, actionType: "adopted",
+    });
+  });
+  if (!won) {
     const [fresh] = await db.select({ ptaClaimedAt: schoolsTable.ptaClaimedAt }).from(schoolsTable).where(eq(schoolsTable.id, u.schoolId));
     res.json({ claimedAt: fresh?.ptaClaimedAt ?? claimedAt });
     return;
   }
-  await db.insert(ptaPolicyAcknowledgementsTable).values({
-    schoolId: u.schoolId, userId: u.userId, policyVersion: OPERATING_STRUCTURE_VERSION, actionType: "adopted",
-  });
   await writeAudit({ schoolId: u.schoolId, eventType: "pta_charter_adopted", actor: u, targetType: "school", targetId: u.schoolId, details: { version: OPERATING_STRUCTURE_VERSION }, req });
   res.json({ claimedAt });
 });

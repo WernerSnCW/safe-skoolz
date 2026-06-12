@@ -36,9 +36,9 @@ export default function PtaCharterPage() {
         action={
           isAdmin && !data.claimed
             ? <Button onClick={onAdopt} isLoading={adopt.isPending}>Adopt the operating structure</Button>
-            : !data.claimed
-              ? <Button variant="outline" onClick={onAck} isLoading={ack.isPending}>I acknowledge</Button>
-              : undefined
+            : data.youAcknowledged
+              ? <span className="text-sm text-muted-foreground">✓ You've acknowledged</span>
+              : <Button variant="outline" onClick={onAck} isLoading={ack.isPending}>I acknowledge</Button>
         }
       />
       {err && <p className="text-sm text-destructive">{err}</p>}

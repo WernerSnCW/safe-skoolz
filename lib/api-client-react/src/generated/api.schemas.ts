@@ -1247,6 +1247,7 @@ export type GetPtaCharter200AcknowledgementsItem = {
 export type GetPtaCharter200 = {
   version: string;
   title: string;
+  youAcknowledged: boolean;
   sections: GetPtaCharter200SectionsItem[];
   claimed: boolean;
   claimedAt?: string;
