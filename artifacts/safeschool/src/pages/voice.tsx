@@ -39,13 +39,14 @@ export default function VoicePage() {
   const [mission, setMission] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [okMsg, setOkMsg] = useState<string | null>(null);
 
   const voices = (voicesQ.data as any)?.voices ?? [];
   const advocating = voices.filter((v: any) => v.status === "advocating");
   const converted = voices.filter((v: any) => v.status === "converted");
 
   const run = async (fn: () => Promise<unknown>) => {
-    setErr(null);
+    setErr(null); setOkMsg(null);
     try { await fn(); voicesQ.refetch(); }
     catch (e: any) { setErr(e?.message || "Something went wrong"); }
   };
@@ -66,6 +67,10 @@ export default function VoicePage() {
 
       {err && (
         <div className="rounded-md border border-destructive/30 bg-destructive/10 text-destructive text-sm px-3 py-2">{err}</div>
+      )}
+
+      {okMsg && (
+        <div className="rounded-md border border-primary/30 bg-primary/10 text-primary text-sm px-3 py-2">{okMsg}</div>
       )}
 
       {/* Start a VOICE — only advocacy roles (parents/PTA) can create. */}
@@ -167,7 +172,12 @@ export default function VoicePage() {
                         title="The school has adopted VBE — fold this VOICE's backers into the PTA."
                         onClick={() => {
                           if (window.confirm(`Convert "${v.name}" into the PTA? Its ${v.memberCount} backer(s) become PTA members (founder → senior group, the rest → general membership).`)) {
-                            run(() => convertVoice.mutateAsync({ id: v.id }));
+                            run(async () => {
+                              const r: any = await convertVoice.mutateAsync({ id: v.id });
+                              const added = r?.converted?.added ?? 0;
+                              const title = r?.initiative?.title ?? v.name;
+                              setOkMsg(`Merged into the PTA — ${added} new member${added === 1 ? "" : "s"} · initiative “${title}” created.`);
+                            });
                           }
                         }}
                       >
