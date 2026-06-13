@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { DemoProvider, DemoOverlay } from "@/components/demo/DemoWalkthrough";
+import { TenantProvider } from "@/providers/tenant";
 
 // Pages
 import Login from "@/pages/login";
@@ -340,14 +341,16 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <DemoProvider>
-              <ScrollToTop />
-              <Router />
-              <DemoOverlay />
-            </DemoProvider>
-          </WouterRouter>
-          <Toaster />
+          <TenantProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <DemoProvider>
+                <ScrollToTop />
+                <Router />
+                <DemoOverlay />
+              </DemoProvider>
+            </WouterRouter>
+            <Toaster />
+          </TenantProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
