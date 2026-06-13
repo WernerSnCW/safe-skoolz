@@ -68,6 +68,7 @@ The platform is **the infrastructure that lets a PTA actually function** — the
 - **Infrastructure to get things done** — the operating spine: annual goals → initiatives → the six-box self-approval checklist → the five-stage school process (B1–B4), so good ideas move quickly with named owners and clear criteria.
 - **Track progress of initiatives** — status + school-stage history, non-response tracking ("silence is not acceptance"), follow-ups — visible progress, not lost threads.
 - **Support parents** — a structured channel for concerns (aggregated, not landing ad hoc on exec members), a real voice without needing to attend meetings, and information available nowhere else.
+- **Participation without a time commitment** — busy parents, parents working abroad, parents who'll never make a meeting can still **support, contribute ideas, ask questions, give feedback, and back proposals — asynchronously, from anywhere in the world, at any time.** No meeting attendance required. Especially decisive for an international, transient community where the in-person committee model excludes most families. (Docx §2b/§11: lightweight, low-friction, asynchronous contribution.)
 
 Most of this is already built (members/officers, decision log, voting/proxies, announcements, charter, goals, initiatives + five-stage). The redesign's job here is to **surface it as a coherent value pillar** in the front door (the complete-solution story) and the home (per state), rather than leaving it buried.
 
