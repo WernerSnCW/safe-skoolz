@@ -147,7 +147,8 @@ function HomeRoute() {
 // Learn hub (prerendered to static HTML for SEO); authenticated users get the
 // in-app learning dispatcher exactly as before. use-auth reports isLoading=false
 // immediately with no token, so the anon render is synchronous and matches the
-// prerendered markup.
+// prerendered markup. When a token is present, ProtectedRoute handles the
+// loading/auth/redirect flow exactly as before.
 function LearnRoute() {
   const { isAuthenticated, isLoading } = useAuth();
   if (!isAuthenticated && !isLoading) {
