@@ -2,145 +2,131 @@ import { Link } from "wouter";
 import { AppShell } from "@/components/layout/AppShell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  ArrowRight,
-  Layers,
-  FileClock,
-  ShieldCheck,
-  Package,
-  Handshake,
-  HeartHandshake,
-} from "lucide-react";
+import { Crown, Users, Settings, FileText, Wallet, ArrowRight } from "lucide-react";
 
-// SchoolVBE "For PTAs" marketing page (Phase 3 content migration). Copy reused
-// verbatim from the live site (/pta/ — the unified app routes it at /ptas to
-// match AppShell nav). Presentational + SSR-safe so it prerenders; card
-// links point to deeper /ptas/* routes not yet built (404 until ported later).
+// Phase 2b: the public "Get your PTA VIBING" page — the PTA VIBES model + the
+// why-structure argument + what VIBES facilitates + the engagement principles.
+// Presentational / SSR-safe (prerenders for SEO). Source: PTA VIBES brief.
 
-const TRACK: {
-  icon: typeof Layers;
-  title: string;
-  body: string;
-  href: string;
-}[] = [
-  {
-    icon: Layers,
-    title: "The Two-Layer PTA Model",
-    body: "A strategy hub and an evidence hub — why the architecture works and how to deploy both layers.",
-    href: "/ptas/two-layer-model",
-  },
-  {
-    icon: FileClock,
-    title: "Operating Before Your Constitution Exists",
-    body: "The three-tier structure, the equal-standing principle, and the self-approval checklist that lets you act now.",
-    href: "/ptas/pre-constitutional",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Why Your PTA Needs Proper Governance",
-    body: "What governance failure looks like, what it costs, and why governance is the foundation of credibility with the school.",
-    href: "/ptas/why-governance",
-  },
-  {
-    icon: Package,
-    title: "The PTA Operating Pack",
-    body: "All 17 documents — governance, transparency, voting, safeguarding, and engagement. Free, gated by email.",
-    href: "/ptas/operating-pack",
-  },
-  {
-    icon: Handshake,
-    title: "How to Engage Your School Constructively",
-    body: "The five-stage initiative process. No proposal left without a decision. Silence is not acceptance.",
-    href: "/ptas/school-engagement",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Free Support",
-    body: "Want a hand setting up your PTA, tightening governance, or running a survey? Our help is free — just get in touch.",
-    href: "/about#contact",
-  },
+const SEATS: { icon: typeof Crown; seat: string; remit: string }[] = [
+  { icon: Crown, seat: "President", remit: "The primary channel to the school." },
+  { icon: Users, seat: "Vice President", remit: "Growing membership and community engagement." },
+  { icon: Settings, seat: "Chair", remit: "Runs the platform — the operational, caretaker-admin seat." },
+  { icon: FileText, seat: "Secretary", remit: "Records, agendas, and the paper trail." },
+  { icon: Wallet, seat: "Treasurer", remit: "Funds and financial transparency." },
+];
+
+const FACILITATES: string[] = [
+  "Structured meetings with rolling agendas",
+  "Reviewing the data from survey results",
+  "Formal questions and responses to the school",
+  "Clear, agreed goals",
+  "Initiatives that are tracked end to end",
+];
+
+const PRINCIPLES: string[] = [
+  "We support the school, the PTA, and each other — we don't criticise any of them.",
+  "Partners, not petitioners: every message reads as working with the school.",
+  "Every proposal reaches a decision; silence is recorded, not accepted.",
 ];
 
 export default function PtasPage() {
   return (
     <AppShell>
       {/* Hero */}
-      <section className="border-b border-border/60 bg-accent/40">
-        <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">For PTAs</p>
-          <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            You don't need a constitution to start operating well. Start here.
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg text-muted-foreground">
-            Every other PTA toolkit starts with constitution work. SchoolVBE starts with getting
-            things done — with the governance, transparency, and school-engagement tools you can
-            deploy this term.
+      <section className="mx-auto max-w-5xl px-4 py-20 text-center sm:px-6 sm:py-28">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">For PTAs</p>
+        <h1 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight sm:text-6xl">
+          Get your PTA VIBING
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
+          A PTA with VIBES runs on structure, not personalities — transparent by default,
+          equal access to information, and participation from anywhere in the world.
+        </p>
+        <div className="mt-8 flex justify-center">
+          <Link href="/find-school" className={cn(buttonVariants({ size: "lg" }))}>
+            Find your school
+          </Link>
+        </div>
+      </section>
+
+      {/* Why structure matters */}
+      <section className="mx-auto max-w-3xl px-4 pb-4 sm:px-6">
+        <div className="rounded-2xl border border-border bg-accent/40 p-8">
+          <h2 className="font-display text-2xl font-bold">Why structure matters</h2>
+          <p className="mt-3 text-lg text-muted-foreground">
+            Without structure you get second- and third-class citizens. Parents outside the
+            PTA have no information. Parents inside it, but outside the inner circle, know less
+            than the executive. VIBES levels that: transparent by default, equal access to
+            information, async participation from anywhere — no meeting attendance required.
           </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link href="/ptas/operating-pack" className={cn(buttonVariants({ size: "lg" }))}>
-              Get the PTA Operating Pack
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-            <Link
-              href="/ptas/school-engagement"
-              className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
-            >
-              See how to engage your school
-            </Link>
+        </div>
+      </section>
+
+      {/* The 5-seat model */}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">The model</p>
+        <h2 className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+          Five seats — equal responsibility, not rank
+        </h2>
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {SEATS.map((s) => (
+            <div key={s.seat} className="rounded-2xl border border-border bg-card p-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                <s.icon className="h-6 w-6" aria-hidden />
+              </div>
+              <h3 className="mt-4 font-display text-xl font-bold">{s.seat}</h3>
+              <p className="mt-2 text-muted-foreground">{s.remit}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <h3 className="font-display text-xl font-bold">Active Members</h3>
+            <p className="mt-2 text-muted-foreground">
+              Take part in meetings and run initiatives — with sign-off from any one exec member.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <h3 className="font-display text-xl font-bold">Voting Members</h3>
+            <p className="mt-2 text-muted-foreground">
+              Vote, raise issues, and get equal access to information. A voice without a time commitment.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Operate first statement */}
+      {/* What VIBES facilitates */}
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-        <h2 className="font-display text-2xl font-bold text-foreground">
-          Operate first. Formalise later.
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">What VIBES facilitates</p>
+        <h2 className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+          The software that does the operating
         </h2>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Most PTAs stall before they start, waiting on a constitution, an AGM, or a quorum. The
-          truth is you can run a credible, transparent, well-governed PTA without any of that in
-          place yet. The constitution catches up with the operating reality — not the other way
-          round.
-        </p>
-        <p className="mt-4 text-lg text-muted-foreground">
-          This track gives you the operating model, the decision-making structure, and the tools to
-          engage your school as a partner. Adopt what you need by a simple membership vote. No
-          constitutional amendment required.
-        </p>
-      </section>
-
-      {/* Explore the PTA track */}
-      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
-        <h2 className="font-display text-2xl font-bold text-foreground">Explore the PTA track</h2>
-        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {TRACK.map((t) => (
-            <Link
-              key={t.href}
-              href={t.href}
-              className="group flex flex-col rounded-2xl border border-border bg-card p-7 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-                <t.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 font-display text-lg font-bold text-foreground">{t.title}</h3>
-              <p className="mt-2 flex-1 text-sm text-muted-foreground">{t.body}</p>
-              <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
-                Read more
-                <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </span>
-            </Link>
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+          {FACILITATES.map((item) => (
+            <li key={item} className="rounded-2xl border border-border bg-card p-5 text-foreground">
+              {item}
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
-      {/* Equal standing callout */}
-      <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6">
-        <blockquote className="rounded-2xl border-l-4 border-primary bg-card p-8 text-xl text-foreground sm:text-2xl">
-          Equal standing, responsibility not authority.{" "}
-          <span className="font-semibold">
-            A well-run PTA distributes work, not hierarchy.
-          </span>
-        </blockquote>
+      {/* Engagement principles */}
+      <section className="mx-auto max-w-4xl px-4 pb-16 sm:px-6">
+        <div className="rounded-2xl bg-primary px-8 py-12 text-primary-foreground">
+          <h2 className="font-display text-3xl font-bold tracking-tight">How we work together</h2>
+          <ul className="mt-6 space-y-4">
+            {PRINCIPLES.map((p) => (
+              <li key={p} className="text-lg text-primary-foreground/90">{p}</li>
+            ))}
+          </ul>
+          <Link
+            href="/find-school"
+            className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "mt-8 inline-flex items-center gap-1")}
+          >
+            Find your school <ArrowRight className="h-5 w-5" aria-hidden />
+          </Link>
+        </div>
       </section>
     </AppShell>
   );
