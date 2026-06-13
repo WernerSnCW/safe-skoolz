@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSearchSchools, useRequestSchoolCreate } from "@workspace/api-client-react";
+import { AppShell } from "@/components/layout/AppShell";
 
 const inputCls = "w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm";
 
@@ -30,6 +31,7 @@ export default function FindSchoolPage() {
   };
 
   return (
+    <AppShell>
     <div className="mx-auto max-w-md px-4 py-12 sm:px-6">
       <div className="rounded-2xl border border-border bg-card p-6">
         <h1 className="text-center font-display text-xl font-bold text-foreground">Find your school</h1>
@@ -116,5 +118,6 @@ export default function FindSchoolPage() {
         )}
       </div>
     </div>
+    </AppShell>
   );
 }

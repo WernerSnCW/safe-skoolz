@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useGetJoinSummary, useSignup } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
+import { AppShell } from "@/components/layout/AppShell";
 
 const inputCls = "w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm";
 
@@ -28,14 +29,15 @@ export default function JoinPage({ slug }: { slug: string }) {
   };
 
   if (q.isLoading) {
-    return <div className="mx-auto max-w-md px-4 py-20 text-center text-muted-foreground">Loading…</div>;
+    return <AppShell><div className="mx-auto max-w-md px-4 py-20 text-center text-muted-foreground">Loading…</div></AppShell>;
   }
 
   if (q.isError || (q.data && !(q.data as any).schoolName)) {
-    return <div className="mx-auto max-w-md px-4 py-20 text-center"><h1 className="font-display text-2xl font-bold">School not found</h1></div>;
+    return <AppShell><div className="mx-auto max-w-md px-4 py-20 text-center"><h1 className="font-display text-2xl font-bold">School not found</h1></div></AppShell>;
   }
 
   return (
+    <AppShell>
     <div className="mx-auto max-w-md px-4 py-12 sm:px-6">
       <div className="rounded-2xl border border-border bg-card p-6">
         <div className="text-center">
@@ -72,5 +74,6 @@ export default function JoinPage({ slug }: { slug: string }) {
         </div>
       </div>
     </div>
+    </AppShell>
   );
 }
