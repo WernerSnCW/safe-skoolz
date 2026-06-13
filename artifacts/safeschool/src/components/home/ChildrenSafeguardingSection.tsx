@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useTenant } from "@/providers/tenant";
-import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useListNotifications } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
@@ -14,8 +13,7 @@ import {
   AlertTriangle, Bell, FileText, Activity, TrendingUp, Users,
   BarChart3, PieChart as PieChartIcon, MapPin, Clock, Calendar,
   UserCheck, ChevronDown, ChevronUp, Shield, Gauge, MessageCircle, Send,
-  CheckCircle2, Vote, Flag,
-  type LucideIcon
+  CheckCircle2, Vote,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
@@ -362,7 +360,6 @@ function ContactPTACard() {
 }
 
 export function ChildrenSafeguardingSection() {
-  const { user } = useAuth();
   const { tenant, isLoading: tenantLoading } = useTenant();
   const cap = (tenant?.capabilities ?? {}) as any;
   const { t } = useTranslation("dashboard");
@@ -507,11 +504,6 @@ export function ChildrenSafeguardingSection() {
     .map(([name, count]) => ({ name: PARENT_STATUS_LABELS[name] || name, count }));
 
   const childrenList = parentData?.children || [];
-  const childName = childrenList.length === 1
-    ? `${childrenList[0].firstName} ${childrenList[0].lastName}`
-    : childrenList.length > 1
-    ? childrenList.map((c: any) => c.firstName).join(" & ")
-    : t("yourChild");
 
   const digest: DigestItem[] = [];
   if (messageUnread > 0) {
