@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/layout/AppShell";
 import { DemoProvider, DemoOverlay } from "@/components/demo/DemoWalkthrough";
 import { TenantProvider } from "@/providers/tenant";
+import { AudienceProvider } from "@/providers/audience";
 
 // Pages
 import Login from "@/pages/login";
@@ -346,11 +347,13 @@ function App() {
         <AuthProvider>
           <TenantProvider>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <DemoProvider>
-                <ScrollToTop />
-                <Router />
-                <DemoOverlay />
-              </DemoProvider>
+              <AudienceProvider>
+                <DemoProvider>
+                  <ScrollToTop />
+                  <Router />
+                  <DemoOverlay />
+                </DemoProvider>
+              </AudienceProvider>
             </WouterRouter>
             <Toaster />
           </TenantProvider>
