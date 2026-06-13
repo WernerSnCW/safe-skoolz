@@ -8,8 +8,10 @@ import { LogOut, Menu, X, ExternalLink } from "lucide-react";
 import { useListNotifications } from "@workspace/api-client-react";
 import { useMessageNotifications, useMessageNotificationEngine } from "@/hooks/useMessageNotifications";
 import { motion, AnimatePresence } from "framer-motion";
-import { getNavSections, flattenSections, type NavItem } from "@/components/layout/nav-config";
+import { getNav, flattenSections, type NavItem } from "@/components/layout/nav-config";
 import { GlobalLauncher } from "@/components/layout/GlobalLauncher";
+import { useTenant } from "@/providers/tenant";
+import { getMembershipState } from "@/lib/membership";
 
 const MOBILE_PRIORITY_HREFS: Record<string, string[]> = {
   pupil: ["/", "/learn", "/diary", "/messages"],
@@ -43,6 +45,24 @@ function getMobileNavItems(navItems: NavItem[], role: string) {
 // Single sidebar row — shared by the grouped sections and the pinned footer.
 function NavRow({ item, location }: { item: NavItem; location: string }) {
   const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href + "/"));
+
+  if (item.state === "soon" || item.state === "locked") {
+    return (
+      <div
+        className="flex items-center justify-between px-4 py-2.5 rounded-xl text-muted-foreground/60 cursor-default select-none"
+        title={item.state === "soon" ? "Available — switched on as your school adopts VBE" : "Unlocks once you're an approved member"}
+      >
+        <div className="flex items-center gap-3 font-medium">
+          <item.icon size={20} />
+          <span className="flex-1 text-sm">{item.name}</span>
+        </div>
+        <span className="text-[9px] uppercase tracking-wide rounded-full border border-border px-1.5 py-0.5">
+          {item.state === "soon" ? "soon" : "🔒"}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <Link href={item.href} className="block">
       <div className={cn(
@@ -86,12 +106,22 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { totalUnread: messageUnread } = useMessageNotifications();
   useMessageNotificationEngine();
 
+  const { tenant } = useTenant();
+
   if (!user) return <>{children}</>;
 
   const role = user.role;
 
-  const { sections, footer } = getNavSections(role, t, { messageUnread, unreadCount });
-  const navItems = flattenSections(sections); // mobile priority + dropdown
+  const capabilities = (tenant?.capabilities ?? {
+    learn: true, diagnostic: true, voice: true, membership: true,
+    results: true, concerns: true, pta: true,
+    safeguarding: true, lessons: true, behaviour: true,
+  }) as any; // fallback all-on so staff navs are unaffected before tenant loads
+  const displayName = tenant?.displayName ?? "";
+  const slug = tenant?.slug ?? "";
+  const membershipState = getMembershipState(user);
+  const { sections, footer } = getNav({ membershipState, role, capabilities, displayName, slug, t, counts: { messageUnread, unreadCount } });
+  const navItems = flattenSections(sections).filter(i => i.state !== "soon" && i.state !== "locked"); // mobile priority + dropdown
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
