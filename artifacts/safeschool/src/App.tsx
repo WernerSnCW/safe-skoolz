@@ -46,6 +46,7 @@ import NotificationsList from "@/pages/notifications";
 import Settings from "@/pages/settings";
 import MyClass from "@/pages/my-class";
 import LearnPage from "@/pages/learn";
+import LearnHub from "@/pages/learn-hub";
 import LearnLessonPage from "@/pages/learn-lesson";
 import StaffLessons from "@/pages/learn-staff";
 import LearnPresentPage from "@/pages/learn-present";
@@ -142,6 +143,19 @@ function HomeRoute() {
   return <ProtectedRoute component={Dashboard} />;
 }
 
+// /learn is auth-aware, mirroring HomeRoute: anonymous visitors get the public
+// Learn hub (prerendered to static HTML for SEO); authenticated users get the
+// in-app learning dispatcher exactly as before. use-auth reports isLoading=false
+// immediately with no token, so the anon render is synchronous and matches the
+// prerendered markup.
+function LearnRoute() {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (!isAuthenticated && !isLoading) {
+    return <LearnHub />;
+  }
+  return <ProtectedRoute component={LearnPage} />;
+}
+
 function Router() {
   return (
     <Switch>
@@ -223,7 +237,7 @@ function Router() {
         {() => <ProtectedRoute component={NotificationsList} />}
       </Route>
       <Route path="/learn">
-        {() => <ProtectedRoute component={LearnPage} />}
+        {() => <LearnRoute />}
       </Route>
       <Route path="/learn/:id">
         {() => <ProtectedRoute component={LearnLessonPage} />}
