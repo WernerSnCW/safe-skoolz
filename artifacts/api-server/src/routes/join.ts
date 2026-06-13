@@ -4,7 +4,7 @@ import { db, schoolsTable, voiceGroupsTable, voiceMembersTable } from "@workspac
 
 const router: IRouter = Router();
 
-// Public summary for the Morna Vibes front door — school name, the Vibes group's
+// Public summary for the tenant's Vibes front door — school name, the Vibes group's
 // mission, and the live join count. No auth, no internal ids leaked.
 router.get("/join/:slug", async (req, res): Promise<void> => {
   const slug = String(req.params.slug).toLowerCase();

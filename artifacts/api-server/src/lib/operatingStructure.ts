@@ -1,4 +1,4 @@
-// The Morna PTA operating-structure charter (B1). policyVersion is what
+// The PTA operating-structure charter (B1). policyVersion is what
 // pta_policy_acknowledgements rows reference when an officer adopts/acknowledges.
 export const OPERATING_STRUCTURE_VERSION = "operating-structure-v1";
 
@@ -6,7 +6,7 @@ export interface CharterSection { heading: string; body: string }
 
 export const OPERATING_STRUCTURE: { version: string; title: string; sections: CharterSection[] } = {
   version: OPERATING_STRUCTURE_VERSION,
-  title: "Morna PTA — Operating Structure",
+  title: "PTA — Operating Structure",
   sections: [
     { heading: "Purpose",
       body: "The PTA adopts this structure so that every parent has an equal voice and the same information — ending the situation where what shapes school life is visible only to a small committee." },

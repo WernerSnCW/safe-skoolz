@@ -259,7 +259,7 @@ router.post("/voice/:id/convert", authMiddleware, CONVERT, async (req, res): Pro
   const [school] = await db.select({ ptaClaimedAt: schoolsTable.ptaClaimedAt })
     .from(schoolsTable).where(eq(schoolsTable.id, u.schoolId));
   if (!school?.ptaClaimedAt) {
-    res.status(409).json({ error: "Adopt the operating structure before merging Morna Vibes into the PTA." });
+    res.status(409).json({ error: "Adopt the operating structure before merging the VOICE into the PTA." });
     return;
   }
 

@@ -472,7 +472,7 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
   }
 
   const trimmed = name ? String(name).trim() : "";
-  const firstName = (trimmed.split(/\s+/)[0] || "Morna").slice(0, 100);
+  const firstName = (trimmed.split(/\s+/)[0] || "Member").slice(0, 100);
   const lastName = (trimmed.split(/\s+/).slice(1).join(" ") || "Parent").slice(0, 100);
   const passwordHash = await bcrypt.hash(password, 10);
 

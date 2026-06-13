@@ -202,7 +202,7 @@ router.post("/d/:slug/submit", submitLimiter, async (req, res): Promise<void> =>
   void (async () => {
     let [user] = await db.select().from(usersTable).where(eq(usersTable.email, normalEmail));
     if (!user) {
-      const first = (name ? String(name).trim().split(/\s+/)[0] : "") || "Morna";
+      const first = (name ? String(name).trim().split(/\s+/)[0] : "") || "Member";
       const last = (name ? String(name).trim().split(/\s+/).slice(1).join(" ") : "") || "Parent";
       // Fix 2: use onConflictDoNothing to handle a creation race; if another
       // request inserted this email between our SELECT and INSERT, re-select.

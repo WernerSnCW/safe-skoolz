@@ -14,7 +14,7 @@ export function YoureInBanner() {
   const joinQ = useGetJoinSummary(slug, { query: { enabled: !!slug } as any });
   const summary = joinQ.data as any;
   const state = getMembershipState(user);
-  const firstName = user?.firstName && user.firstName !== "Morna" ? user.firstName : "";
+  const firstName = user?.firstName ?? "";
   const eyebrow = `${tenant?.displayName ?? ""} Vibes`.trim();
   const subtitle =
     state === "pending"
