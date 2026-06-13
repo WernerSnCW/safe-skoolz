@@ -3,6 +3,7 @@ import {
   Users, Activity, BookOpen, MessageCircle, ClipboardList, Gauge,
   ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText, Presentation,
   Library, Vote, Rocket, Target,
+  HelpCircle, School, Heart, GraduationCap, LogIn, Search,
 } from "lucide-react";
 import type { Capabilities } from "@workspace/api-client-react";
 import type { MembershipState } from "@/lib/membership";
@@ -284,6 +285,33 @@ function communityNav(
   return { sections, footer };
 }
 
+// The anonymous (marketing) nav — top-level audience + tool entries for the
+// top-nav presentation, plus right-side actions. All hrefs are existing routes.
+// The big multi-column marketing footer lives in AppShell (lifted from
+// PublicLayout); getNav only supplies the bar items + actions here.
+function marketingNav(
+  displayName: string,
+  slug: string,
+): { sections: NavSection[]; footer: NavItem[] } {
+  const items: NavItem[] = [
+    { name: "How it works", href: "/how-it-works", icon: HelpCircle, state: "live" },
+    { name: "For schools", href: "/schools", icon: School, state: "live" },
+    { name: "For parents", href: "/parents", icon: Users, state: "live" },
+    { name: "For PTAs", href: "/ptas", icon: Heart, state: "live" },
+    { name: "For pupils", href: "/pupils", icon: GraduationCap, state: "live" },
+    { name: "Learn", href: "/learning", icon: BookOpen, state: "live" },
+    { name: "Diagnostic", href: "/diagnostic", icon: Gauge, state: "live" },
+  ];
+  const footer: NavItem[] = [
+    { name: "Find your school", href: "/find-school", icon: Search, state: "live" },
+    { name: "Log in", href: "/login", icon: LogIn, state: "live" },
+  ];
+  if (slug) {
+    footer.unshift({ name: "Join", href: `/s/${slug}`, icon: LogIn, state: "live" });
+  }
+  return { sections: [{ label: null, items }], footer };
+}
+
 // ---------------------------------------------------------------------------
 // State-aware dispatcher — entry point for Task 11 AppLayout migration
 // ---------------------------------------------------------------------------
@@ -297,6 +325,9 @@ export function getNav(args: {
   counts: { messageUnread: number; unreadCount: number };
 }): { sections: NavSection[]; footer: NavItem[] } {
   const { membershipState, role, capabilities, displayName, slug, t, counts } = args;
+  if (membershipState === "anon") {
+    return marketingNav(displayName, slug);
+  }
   if (role === "parent" || role === "pta") {
     return communityNav(membershipState, capabilities, displayName, slug, t, counts);
   }
