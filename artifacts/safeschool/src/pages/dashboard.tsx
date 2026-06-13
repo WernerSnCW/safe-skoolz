@@ -8,7 +8,7 @@ import { useDemo } from "@/components/demo/DemoWalkthrough";
 import PupilDashboard from "./dashboard/PupilDashboard";
 import CoordinatorDashboardView from "./dashboard/CoordinatorDashboard";
 import TeacherDashboard from "./dashboard/TeacherDashboard";
-import ParentDashboard from "./dashboard/ParentDashboard";
+import CommunityHome from "./community-home";
 
 function PtaDashboardRedirect() {
   const { t } = useTranslation("dashboard");
@@ -72,7 +72,7 @@ export default function Dashboard() {
       {user.role === "pupil" ? (
         <PupilDashboard user={user} />
       ) : user.role === "parent" ? (
-        <ParentDashboard user={user} />
+        <CommunityHome />
       ) : user.role === "pta" ? (
         <PtaDashboardRedirect />
       ) : user.role === "coordinator" || user.role === "head_teacher" || user.role === "senco" ? (
