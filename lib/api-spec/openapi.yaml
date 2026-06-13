@@ -2529,6 +2529,8 @@ components:
           type: boolean
         lastLogin:
           type: ["string", "null"]
+        membershipStatus:
+          type: string
         tenant:
           allOf:
             - $ref: "#/components/schemas/Tenant"
@@ -2540,6 +2542,7 @@ components:
         - firstName
         - lastName
         - active
+        - membershipStatus
 
     School:
       type: object
