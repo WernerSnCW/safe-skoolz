@@ -21,6 +21,18 @@ async function main() {
     console.log("[seed-morna] school exists", school.id);
   }
 
+  await db.update(schoolsTable)
+    .set({
+      displayName: "Morna",
+      capabilities: {
+        learn: true, diagnostic: true, voice: true, membership: true,
+        results: true, concerns: true, pta: true,
+        safeguarding: false, lessons: false, behaviour: false,
+      },
+    })
+    .where(eq(schoolsTable.slug, "morna"));
+  console.log("[seed-morna] set Morna capabilities (PTA tier)");
+
   let [chair] = await db.select().from(usersTable).where(eq(usersTable.email, chairEmail));
   if (!chair) {
     [chair] = await db.insert(usersTable).values({
