@@ -36,7 +36,8 @@ export function tenantPublicView(school: School) {
   return {
     slug: school.slug,
     displayName: school.displayName ?? school.name,
-    theme: (school.theme && typeof school.theme === "object" ? school.theme : {}) as Record<string, unknown>,
+    theme: (school.theme != null && typeof school.theme === "object" && !Array.isArray(school.theme)
+      ? school.theme : {}) as Record<string, unknown>,
     capabilities: resolveCapabilities(school.capabilities),
   };
 }
