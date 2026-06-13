@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useGetCommunityDiagnostic, useSubmitCommunityDiagnostic } from "@workspace/api-client-react";
-import { PublicLayout } from "@/components/layout/PublicLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Users, ShieldCheck, Check } from "lucide-react";
@@ -80,24 +80,24 @@ export default function CommunityDiagnosticPage({ slug }: { slug: string }) {
 
   if (q.isLoading) {
     return (
-      <PublicLayout>
+      <AppShell>
         <div className="mx-auto max-w-2xl px-4 py-24 text-center text-muted-foreground">Loading…</div>
-      </PublicLayout>
+      </AppShell>
     );
   }
   if (!survey) {
     return (
-      <PublicLayout>
+      <AppShell>
         <div className="mx-auto max-w-2xl px-4 py-24 text-center">
           <h1 className="font-display text-2xl font-bold text-foreground">Survey not found</h1>
         </div>
-      </PublicLayout>
+      </AppShell>
     );
   }
 
   if (done) {
     return (
-      <PublicLayout>
+      <AppShell>
         <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Check className="h-7 w-7" />
@@ -113,12 +113,12 @@ export default function CommunityDiagnosticPage({ slug }: { slug: string }) {
             Know another family at the school? Share the link — every voice makes the picture clearer.
           </p>
         </div>
-      </PublicLayout>
+      </AppShell>
     );
   }
 
   return (
-    <PublicLayout>
+    <AppShell>
       <section className="border-b border-border/60 bg-accent/40">
         <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
@@ -250,6 +250,6 @@ export default function CommunityDiagnosticPage({ slug }: { slug: string }) {
           )}
         </div>
       </section>
-    </PublicLayout>
+    </AppShell>
   );
 }

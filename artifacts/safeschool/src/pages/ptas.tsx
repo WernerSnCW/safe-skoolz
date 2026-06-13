@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { PublicLayout } from "@/components/layout/PublicLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -14,7 +14,7 @@ import {
 
 // SchoolVBE "For PTAs" marketing page (Phase 3 content migration). Copy reused
 // verbatim from the live site (/pta/ — the unified app routes it at /ptas to
-// match PublicLayout nav). Presentational + SSR-safe so it prerenders; card
+// match AppShell nav). Presentational + SSR-safe so it prerenders; card
 // links point to deeper /ptas/* routes not yet built (404 until ported later).
 
 const TRACK: {
@@ -63,7 +63,7 @@ const TRACK: {
 
 export default function PtasPage() {
   return (
-    <PublicLayout>
+    <AppShell>
       {/* Hero */}
       <section className="border-b border-border/60 bg-accent/40">
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
@@ -142,6 +142,6 @@ export default function PtasPage() {
           </span>
         </blockquote>
       </section>
-    </PublicLayout>
+    </AppShell>
   );
 }

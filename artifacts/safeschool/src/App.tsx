@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Hooks & Lib
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { DemoProvider, DemoOverlay } from "@/components/demo/DemoWalkthrough";
 import { TenantProvider } from "@/providers/tenant";
 
@@ -111,19 +111,19 @@ function ProtectedRoute({
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     return (
-      <AppLayout>
+      <AppShell>
         <div className="p-12 text-center">
           <h1 className="text-2xl font-bold mb-2">Access denied</h1>
           <p className="text-muted-foreground">You don't have permission to view this page.</p>
         </div>
-      </AppLayout>
+      </AppShell>
     );
   }
 
   return (
-    <AppLayout>
+    <AppShell>
       <Component />
-    </AppLayout>
+    </AppShell>
   );
 }
 

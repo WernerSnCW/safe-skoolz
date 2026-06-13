@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { PublicLayout } from "@/components/layout/PublicLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -22,7 +22,7 @@ import {
 // score is computed in the browser. SSR-safe — the intro + first question render
 // with no window/document/localStorage access, so the prerender step can
 // renderToString it. Distinct from the authed in-app /diagnostics. Wrapped in
-// PublicLayout; routing is wired centrally (do not touch App.tsx / nav here).
+// AppShell; routing is wired centrally (do not touch App.tsx / nav here).
 
 type Option = { label: string; points: number };
 
@@ -167,7 +167,7 @@ export default function DiagnosticPage() {
   }
 
   return (
-    <PublicLayout>
+    <AppShell>
       {/* Hero */}
       <section className="border-b border-border/60 bg-accent/40">
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
@@ -315,6 +315,6 @@ export default function DiagnosticPage() {
           </div>
         )}
       </section>
-    </PublicLayout>
+    </AppShell>
   );
 }

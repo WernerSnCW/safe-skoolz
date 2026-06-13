@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { PublicLayout } from "@/components/layout/PublicLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -60,7 +60,7 @@ const STEPS: {
 
 export default function HowVbeWorks() {
   return (
-    <PublicLayout>
+    <AppShell>
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 sm:py-28">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">How it works</p>
@@ -129,6 +129,6 @@ export default function HowVbeWorks() {
           </div>
         </div>
       </section>
-    </PublicLayout>
+    </AppShell>
   );
 }

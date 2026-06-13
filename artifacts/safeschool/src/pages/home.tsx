@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { PublicLayout } from "@/components/layout/PublicLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { School, Users, Vote, HeartHandshake, ArrowRight, Heart } from "lucide-react";
@@ -63,7 +63,7 @@ const GOALS: { heading: string; body: string }[] = [
 
 export default function HomePage() {
   return (
-    <PublicLayout>
+    <AppShell>
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 sm:py-32">
@@ -239,6 +239,6 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
-    </PublicLayout>
+    </AppShell>
   );
 }

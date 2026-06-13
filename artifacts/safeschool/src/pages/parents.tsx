@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { PublicLayout } from "@/components/layout/PublicLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -71,7 +71,7 @@ const TRACK: {
 
 export default function ParentsPage() {
   return (
-    <PublicLayout>
+    <AppShell>
       {/* Hero */}
       <section className="border-b border-border/60 bg-accent/40">
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
@@ -137,6 +137,6 @@ export default function ParentsPage() {
           ))}
         </div>
       </section>
-    </PublicLayout>
+    </AppShell>
   );
 }

@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { PublicLayout } from "@/components/layout/PublicLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Download } from "lucide-react";
@@ -311,7 +311,7 @@ function DocBadge({ status }: { status: Status }) {
 
 export default function ResourcesPage() {
   return (
-    <PublicLayout>
+    <AppShell>
       {/* Hero */}
       <section className="border-b border-border/60 bg-accent/40">
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
@@ -393,6 +393,6 @@ export default function ResourcesPage() {
           <span className="font-semibold">vibez delivers the reality.</span>
         </blockquote>
       </section>
-    </PublicLayout>
+    </AppShell>
   );
 }

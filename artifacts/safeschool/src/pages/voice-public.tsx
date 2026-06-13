@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useGetVoicePublic, useSupportVoice } from "@workspace/api-client-react";
-import { PublicLayout } from "@/components/layout/PublicLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Megaphone, Users, Check, ArrowRight, Share2 } from "lucide-react";
@@ -40,7 +40,7 @@ export default function VoicePublicPage({ id }: { id: string }) {
   };
 
   return (
-    <PublicLayout>
+    <AppShell>
       <section className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
         {q.isLoading ? (
           <p className="text-center text-muted-foreground">Loading…</p>
@@ -108,6 +108,6 @@ export default function VoicePublicPage({ id }: { id: string }) {
           </>
         )}
       </section>
-    </PublicLayout>
+    </AppShell>
   );
 }
