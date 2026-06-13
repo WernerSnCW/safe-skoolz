@@ -450,12 +450,11 @@ export default function Login() {
           <ArrowLeft size={16} /> Back to SchoolVBE
         </a>
         <div>
-          <span className="font-brand text-6xl italic leading-none">vibez</span>
-          <span className="mt-1 block font-display text-xs font-medium uppercase tracking-wide text-white/80">by SchoolVBE</span>
+          <BrandLockup size="lg" endorse />
           <p className="mt-5 max-w-xs text-xl font-semibold">{t("tagline")}</p>
           <p className="mt-3 max-w-sm text-sm text-white/85">Free software for values-based education — supporting schools, parents and PTAs.</p>
         </div>
-        <p className="max-w-sm text-xs text-white/70">Everything on SchoolVBE is free. vibez is the platform schools deploy after adopting VBE.</p>
+        <p className="max-w-sm text-xs text-white/70">{t("protectedBy")}</p>
       </div>
 
       {/* Form column */}

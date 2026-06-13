@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
+import { useTenant } from "@/providers/tenant";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useListNotifications } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
@@ -362,6 +363,7 @@ function ContactPTACard() {
 
 export default function ParentDashboard({ user }: { user: any }) {
   const { t } = useTranslation("dashboard");
+  const { tenant } = useTenant();
   const [periodDays, setPeriodDays] = useState(180);
   const { data: notificationsData } = useListNotifications();
   const notifications = notificationsData?.data || [];
@@ -561,13 +563,13 @@ export default function ParentDashboard({ user }: { user: any }) {
     };
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
-        <PageHeader eyebrow="Morna Vibes" title={user.firstName && user.firstName !== "Morna" ? `Welcome, ${user.firstName}` : "Welcome"} subtitle="You're backing both goals. Here's everything in one place." />
+        <PageHeader eyebrow={`${tenant?.displayName ?? ""} Vibes`.trim()} title={user.firstName && user.firstName !== "Morna" ? `Welcome, ${user.firstName}` : "Welcome"} subtitle="You're backing both goals. Here's everything in one place." />
         <div className="grid gap-4 sm:grid-cols-2">
           <Tile icon={Flag} title="Goal 1 · Adopt VBE" body="Ask the school to adopt Values-based Education. You're backing it." href="/goals#vbe" />
           <Tile icon={Users} title="Goal 2 · Equal voice" body="Ask the PTA to adopt a three-tier structure so every parent has an equal voice and the same information." href="/goals#structure" />
           <Tile icon={AlertTriangle} title="Concerns" body="The patterns we've seen — and add your own." href="/concerns" />
-          <Tile icon={ClipboardList} title="Survey" body="Take it so every parent gets the full picture." href="/d/morna" />
-          <Tile icon={BarChart3} title="Results" body={pending ? "Unlocks once your membership is approved and results are released." : "Unlocks when results are released."} href="/results/morna" locked />
+          <Tile icon={ClipboardList} title="Survey" body="Take it so every parent gets the full picture." href={`/d/${tenant?.slug ?? ""}`} />
+          <Tile icon={BarChart3} title="Results" body={pending ? "Unlocks once your membership is approved and results are released." : "Unlocks when results are released."} href={`/results/${tenant?.slug ?? ""}`} locked />
         </div>
         <div className="rounded-2xl bg-primary/5 border border-primary/20 p-4 text-sm text-primary flex items-center gap-1">
           <Check className="h-4 w-4" aria-hidden="true" /> You're backing both goals.{pending ? " Your membership is awaiting approval." : ""}

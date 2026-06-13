@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGetPtaCharter, useAdoptPtaCharter, useAcknowledgePtaCharter } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useTenant } from "@/providers/tenant";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { PageHeader } from "@/components/layout/PageHeader";
 
@@ -9,6 +10,7 @@ export default function PtaCharterPage() {
   const adopt = useAdoptPtaCharter();
   const ack = useAcknowledgePtaCharter();
   const { user } = useAuth();
+  const { tenant } = useTenant();
   const data = q.data as any;
   const isAdmin = (user as any)?.role === "pta";
 
@@ -30,7 +32,7 @@ export default function PtaCharterPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
       <PageHeader
-        eyebrow="Morna Vibes"
+        eyebrow={`${tenant?.displayName ?? ""} Vibes`.trim()}
         title={data.title}
         subtitle={data.claimed ? `Adopted ${new Date(data.claimedAt).toLocaleDateString()}` : "Forming — not yet adopted"}
         action={
