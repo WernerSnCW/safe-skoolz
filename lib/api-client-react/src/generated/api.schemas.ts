@@ -43,6 +43,28 @@ export interface StaffLoginBody {
   password: string;
 }
 
+export interface Capabilities {
+  learn?: boolean;
+  diagnostic?: boolean;
+  voice?: boolean;
+  membership?: boolean;
+  results?: boolean;
+  concerns?: boolean;
+  pta?: boolean;
+  safeguarding?: boolean;
+  lessons?: boolean;
+  behaviour?: boolean;
+}
+
+export type TenantTheme = { [key: string]: unknown };
+
+export interface Tenant {
+  slug?: string | null;
+  displayName?: string;
+  theme?: TenantTheme;
+  capabilities?: Capabilities;
+}
+
 export interface User {
   id: string;
   schoolId: string;
@@ -65,6 +87,7 @@ export interface User {
   active: boolean;
   /** @nullable */
   lastLogin?: string | null;
+  tenant?: Tenant | null;
 }
 
 export interface LoginResponse {

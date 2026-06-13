@@ -62,6 +62,27 @@ export const PupilLoginResponse = zod.object({
     parentOf: zod.array(zod.string()).optional(),
     active: zod.boolean(),
     lastLogin: zod.string().nullish(),
+    tenant: zod
+      .object({
+        slug: zod.string().nullish(),
+        displayName: zod.string().optional(),
+        theme: zod.record(zod.string(), zod.unknown()).optional(),
+        capabilities: zod
+          .object({
+            learn: zod.boolean().optional(),
+            diagnostic: zod.boolean().optional(),
+            voice: zod.boolean().optional(),
+            membership: zod.boolean().optional(),
+            results: zod.boolean().optional(),
+            concerns: zod.boolean().optional(),
+            pta: zod.boolean().optional(),
+            safeguarding: zod.boolean().optional(),
+            lessons: zod.boolean().optional(),
+            behaviour: zod.boolean().optional(),
+          })
+          .optional(),
+      })
+      .nullish(),
   }),
   firstLogin: zod.boolean(),
 });
@@ -91,6 +112,27 @@ export const StaffLoginResponse = zod.object({
     parentOf: zod.array(zod.string()).optional(),
     active: zod.boolean(),
     lastLogin: zod.string().nullish(),
+    tenant: zod
+      .object({
+        slug: zod.string().nullish(),
+        displayName: zod.string().optional(),
+        theme: zod.record(zod.string(), zod.unknown()).optional(),
+        capabilities: zod
+          .object({
+            learn: zod.boolean().optional(),
+            diagnostic: zod.boolean().optional(),
+            voice: zod.boolean().optional(),
+            membership: zod.boolean().optional(),
+            results: zod.boolean().optional(),
+            concerns: zod.boolean().optional(),
+            pta: zod.boolean().optional(),
+            safeguarding: zod.boolean().optional(),
+            lessons: zod.boolean().optional(),
+            behaviour: zod.boolean().optional(),
+          })
+          .optional(),
+      })
+      .nullish(),
   }),
   firstLogin: zod.boolean(),
 });
@@ -120,6 +162,27 @@ export const ParentLoginResponse = zod.object({
     parentOf: zod.array(zod.string()).optional(),
     active: zod.boolean(),
     lastLogin: zod.string().nullish(),
+    tenant: zod
+      .object({
+        slug: zod.string().nullish(),
+        displayName: zod.string().optional(),
+        theme: zod.record(zod.string(), zod.unknown()).optional(),
+        capabilities: zod
+          .object({
+            learn: zod.boolean().optional(),
+            diagnostic: zod.boolean().optional(),
+            voice: zod.boolean().optional(),
+            membership: zod.boolean().optional(),
+            results: zod.boolean().optional(),
+            concerns: zod.boolean().optional(),
+            pta: zod.boolean().optional(),
+            safeguarding: zod.boolean().optional(),
+            lessons: zod.boolean().optional(),
+            behaviour: zod.boolean().optional(),
+          })
+          .optional(),
+      })
+      .nullish(),
   }),
   firstLogin: zod.boolean(),
 });
@@ -142,6 +205,27 @@ export const GetCurrentUserResponse = zod.object({
   parentOf: zod.array(zod.string()).optional(),
   active: zod.boolean(),
   lastLogin: zod.string().nullish(),
+  tenant: zod
+    .object({
+      slug: zod.string().nullish(),
+      displayName: zod.string().optional(),
+      theme: zod.record(zod.string(), zod.unknown()).optional(),
+      capabilities: zod
+        .object({
+          learn: zod.boolean().optional(),
+          diagnostic: zod.boolean().optional(),
+          voice: zod.boolean().optional(),
+          membership: zod.boolean().optional(),
+          results: zod.boolean().optional(),
+          concerns: zod.boolean().optional(),
+          pta: zod.boolean().optional(),
+          safeguarding: zod.boolean().optional(),
+          lessons: zod.boolean().optional(),
+          behaviour: zod.boolean().optional(),
+        })
+        .optional(),
+    })
+    .nullish(),
 });
 
 /**
@@ -181,6 +265,27 @@ export const ListStaffBySchoolResponseItem = zod.object({
   parentOf: zod.array(zod.string()).optional(),
   active: zod.boolean(),
   lastLogin: zod.string().nullish(),
+  tenant: zod
+    .object({
+      slug: zod.string().nullish(),
+      displayName: zod.string().optional(),
+      theme: zod.record(zod.string(), zod.unknown()).optional(),
+      capabilities: zod
+        .object({
+          learn: zod.boolean().optional(),
+          diagnostic: zod.boolean().optional(),
+          voice: zod.boolean().optional(),
+          membership: zod.boolean().optional(),
+          results: zod.boolean().optional(),
+          concerns: zod.boolean().optional(),
+          pta: zod.boolean().optional(),
+          safeguarding: zod.boolean().optional(),
+          lessons: zod.boolean().optional(),
+          behaviour: zod.boolean().optional(),
+        })
+        .optional(),
+    })
+    .nullish(),
 });
 export const ListStaffBySchoolResponse = zod.array(
   ListStaffBySchoolResponseItem,
@@ -2039,6 +2144,33 @@ export const GetJoinSummaryResponse = zod.object({
   mission: zod.string().optional(),
   joinCount: zod.number(),
   hasVibes: zod.boolean(),
+});
+
+/**
+ * @summary Public tenant config for the unified shell
+ */
+export const GetTenantParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetTenantResponse = zod.object({
+  slug: zod.string().nullish(),
+  displayName: zod.string().optional(),
+  theme: zod.record(zod.string(), zod.unknown()).optional(),
+  capabilities: zod
+    .object({
+      learn: zod.boolean().optional(),
+      diagnostic: zod.boolean().optional(),
+      voice: zod.boolean().optional(),
+      membership: zod.boolean().optional(),
+      results: zod.boolean().optional(),
+      concerns: zod.boolean().optional(),
+      pta: zod.boolean().optional(),
+      safeguarding: zod.boolean().optional(),
+      lessons: zod.boolean().optional(),
+      behaviour: zod.boolean().optional(),
+    })
+    .optional(),
 });
 
 /**

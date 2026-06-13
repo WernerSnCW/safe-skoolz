@@ -2179,6 +2179,23 @@ paths:
                   joinCount: { type: integer }
                   hasVibes: { type: boolean }
         "404": { description: Not found }
+  /tenant/{slug}:
+    get:
+      operationId: getTenant
+      summary: Public tenant config for the unified shell
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Resolved tenant config
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+        "404":
+          description: Tenant not found
   /concerns:
     post:
       operationId: submitConcern
@@ -2512,6 +2529,10 @@ components:
           type: boolean
         lastLogin:
           type: ["string", "null"]
+        tenant:
+          allOf:
+            - $ref: "#/components/schemas/Tenant"
+          nullable: true
       required:
         - id
         - schoolId
@@ -3468,3 +3489,24 @@ components:
         - description
         - category
         - type
+
+    Capabilities:
+      type: object
+      properties:
+        learn: { type: boolean }
+        diagnostic: { type: boolean }
+        voice: { type: boolean }
+        membership: { type: boolean }
+        results: { type: boolean }
+        concerns: { type: boolean }
+        pta: { type: boolean }
+        safeguarding: { type: boolean }
+        lessons: { type: boolean }
+        behaviour: { type: boolean }
+    Tenant:
+      type: object
+      properties:
+        slug: { type: string, nullable: true }
+        displayName: { type: string }
+        theme: { type: object, additionalProperties: true }
+        capabilities: { $ref: "#/components/schemas/Capabilities" }
