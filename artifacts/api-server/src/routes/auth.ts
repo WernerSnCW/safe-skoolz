@@ -6,6 +6,7 @@ import { eq, and, isNull, gt, inArray, sql } from "drizzle-orm";
 import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable, schoolsTable, voiceGroupsTable, voiceMembersTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { tenantPublicView } from "../lib/tenant";
 import { writeAudit } from "../lib/auditHelper";
 import { signMfaChallengeToken, signMfaEnrollmentToken, MFA_ENFORCED_ROLES } from "./mfa";
 
@@ -656,10 +657,11 @@ router.get("/auth/me", authMiddleware, async (req, res): Promise<void> => {
     return;
   }
 
-  res.json(formatUser(user));
+  const [school] = await db.select().from(schoolsTable).where(eq(schoolsTable.id, user.schoolId));
+  res.json(formatUser(user, school ? tenantPublicView(school) : undefined));
 });
 
-function formatUser(user: typeof usersTable.$inferSelect) {
+function formatUser(user: typeof usersTable.$inferSelect, tenant?: ReturnType<typeof tenantPublicView>) {
   return {
     id: user.id,
     schoolId: user.schoolId,
@@ -677,6 +679,7 @@ function formatUser(user: typeof usersTable.$inferSelect) {
     membershipStatus: user.membershipStatus,
     displayMode: user.displayMode,
     lastLogin: user.lastLogin?.toISOString() || null,
+    tenant: tenant ?? null,
   };
 }
 
