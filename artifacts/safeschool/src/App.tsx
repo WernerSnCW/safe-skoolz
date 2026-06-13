@@ -160,8 +160,11 @@ function Router() {
       <Route path="/safeguarding" component={SafeguardingPage} />
       <Route path="/v/:id">{(params) => <VoicePublicPage id={params.id} />}</Route>
       <Route path="/d/:slug">{(params) => <CommunityDiagnosticPage slug={params.slug} />}</Route>
+      <Route path="/s/:slug">{(params) => (
+        <TenantProvider slug={params.slug}><JoinPage slug={params.slug} /></TenantProvider>
+      )}</Route>
       <Route path="/join/:slug">{(params) => <JoinPage slug={params.slug} />}</Route>
-      <Route path="/join">{() => <JoinPage slug="morna" />}</Route>
+      <Route path="/join">{() => { window.location.replace("/find-school"); return null; }}</Route>
       <Route path="/find-school">{() => <FindSchoolPage />}</Route>
       <Route path="/results/:slug">
         {(params) => (
