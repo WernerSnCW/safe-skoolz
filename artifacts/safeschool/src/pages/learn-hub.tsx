@@ -84,6 +84,7 @@ export default function LearnHub() {
 
       {/* The spine */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <h2 className="sr-only">Understand VBE</h2>
         <div className="grid gap-6 md:grid-cols-3">
           {SPINE.map((s) => (
             <div key={s.title} className="flex flex-col rounded-2xl border border-border bg-card p-6">
@@ -91,7 +92,7 @@ export default function LearnHub() {
                 <s.icon className="h-6 w-6" aria-hidden />
               </div>
               <p className="mt-4 text-sm font-semibold uppercase tracking-[0.2em] text-primary">{s.eyebrow}</p>
-              <h2 className="mt-2 font-display text-2xl font-bold">{s.title}</h2>
+              <h3 className="mt-2 font-display text-2xl font-bold tracking-tight">{s.title}</h3>
               <p className="mt-2 flex-1 text-muted-foreground">{s.body}</p>
               <Link href={s.cta.href} className="mt-4 inline-flex items-center gap-1 font-semibold text-primary hover:underline">
                 {s.cta.label} <ArrowRight className="h-4 w-4" aria-hidden />
