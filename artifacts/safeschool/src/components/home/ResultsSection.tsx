@@ -11,7 +11,9 @@ export function ResultsSection() {
   const cap = (tenant?.capabilities ?? {}) as any;
   const slug = tenant?.slug ?? "";
   const q = useGetDiagnosticResults(slug, { query: { enabled: !!cap.results && !!slug } as any });
-  if (isLoading || !cap.results) return null;
+  // Guard !!slug too: a resolved tenant with no slug (e.g. a not-yet-slugged
+  // school) must not render a broken "/results/" link.
+  if (isLoading || !cap.results || !slug) return null;
 
   const data = q.data as any;
   const available = !q.isError && !!data && data.released;

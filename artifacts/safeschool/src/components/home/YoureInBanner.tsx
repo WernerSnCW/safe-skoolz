@@ -9,7 +9,7 @@ import { Users } from "lucide-react";
 // Copy is placeholder (end-of-redesign content audit).
 export function YoureInBanner() {
   const { user } = useAuth();
-  const { tenant } = useTenant();
+  const { tenant, isLoading } = useTenant();
   const slug = tenant?.slug ?? "";
   const joinQ = useGetJoinSummary(slug, { query: { enabled: !!slug } as any });
   const summary = joinQ.data as any;
@@ -20,6 +20,12 @@ export function YoureInBanner() {
     state === "pending"
       ? "You're in — your membership is awaiting approval. You'll be notified when results are released."
       : "You're backing the cause. Here's everything in one place.";
+
+  // Defer tenant-dependent strings (eyebrow/title) until the tenant resolves, so
+  // the banner doesn't flash "Vibes" / "Welcome" before the school name lands.
+  if (isLoading) {
+    return <div className="h-24 animate-pulse rounded-2xl bg-muted" />;
+  }
 
   return (
     <div className="space-y-4">
