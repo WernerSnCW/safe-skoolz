@@ -206,10 +206,6 @@ export function getRoleNavSections(
   return { sections: [{ label: null, items: [home] }], footer };
 }
 
-// Compatibility alias — AppLayout and any other callers continue to work until
-// they are updated to use getNav (Task 11).
-export const getNavSections = getRoleNavSections;
-
 // ---------------------------------------------------------------------------
 // Off-capability "More of Vibes" block
 // ---------------------------------------------------------------------------
@@ -305,7 +301,7 @@ export function getNav(args: {
     return communityNav(membershipState, capabilities, displayName, slug, t, counts);
   }
   const base = getRoleNavSections(role, t, counts);
-  const sections = base.sections.map(s => ({
+  const sections: NavSection[] = base.sections.map(s => ({
     ...s,
     items: s.items.map(i => ({ ...i, state: "live" as const })),
   }));
