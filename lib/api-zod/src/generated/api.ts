@@ -62,6 +62,7 @@ export const PupilLoginResponse = zod.object({
     parentOf: zod.array(zod.string()).optional(),
     active: zod.boolean(),
     lastLogin: zod.string().nullish(),
+    membershipStatus: zod.string(),
     tenant: zod
       .object({
         slug: zod.string().nullish(),
@@ -112,6 +113,7 @@ export const StaffLoginResponse = zod.object({
     parentOf: zod.array(zod.string()).optional(),
     active: zod.boolean(),
     lastLogin: zod.string().nullish(),
+    membershipStatus: zod.string(),
     tenant: zod
       .object({
         slug: zod.string().nullish(),
@@ -162,6 +164,7 @@ export const ParentLoginResponse = zod.object({
     parentOf: zod.array(zod.string()).optional(),
     active: zod.boolean(),
     lastLogin: zod.string().nullish(),
+    membershipStatus: zod.string(),
     tenant: zod
       .object({
         slug: zod.string().nullish(),
@@ -205,6 +208,7 @@ export const GetCurrentUserResponse = zod.object({
   parentOf: zod.array(zod.string()).optional(),
   active: zod.boolean(),
   lastLogin: zod.string().nullish(),
+  membershipStatus: zod.string(),
   tenant: zod
     .object({
       slug: zod.string().nullish(),
@@ -265,6 +269,7 @@ export const ListStaffBySchoolResponseItem = zod.object({
   parentOf: zod.array(zod.string()).optional(),
   active: zod.boolean(),
   lastLogin: zod.string().nullish(),
+  membershipStatus: zod.string(),
   tenant: zod
     .object({
       slug: zod.string().nullish(),

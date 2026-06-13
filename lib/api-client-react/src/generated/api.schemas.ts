@@ -85,9 +85,9 @@ export interface User {
   avatarImageUrl?: string | null;
   parentOf?: string[];
   active: boolean;
-  membershipStatus: string;
   /** @nullable */
   lastLogin?: string | null;
+  membershipStatus: string;
   tenant?: Tenant | null;
 }
 

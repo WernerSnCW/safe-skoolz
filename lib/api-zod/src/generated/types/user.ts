@@ -29,5 +29,6 @@ export interface User {
   active: boolean;
   /** @nullable */
   lastLogin?: string | null;
+  membershipStatus: string;
   tenant?: Tenant | null;
 }
