@@ -17,6 +17,8 @@ import PtasOperatingPack from "@/pages/ptas-operating-pack";
 import PtasSchoolEngagement from "@/pages/ptas-school-engagement";
 import Schools10DayRollout from "@/pages/schools-10-day-rollout";
 import SchoolsCaseStudy from "@/pages/schools-case-study";
+import LearnHub from "@/pages/learn-hub";
+import HowVbeWorks from "@/pages/how-vbe-works";
 
 // SSR entry for the build-time prerender step (driven by ../prerender.mjs via
 // Vite's ssrLoadModule). Each public marketing route renders to static HTML so
@@ -32,6 +34,8 @@ export const PUBLIC_ROUTES: string[] = [
   "/pupils",
   "/diagnostic",
   "/learning",
+  "/learn",
+  "/how-it-works",
   "/safeguarding",
   "/resources",
   "/about",
@@ -51,6 +55,8 @@ const ROUTE_COMPONENTS: Record<string, ComponentType> = {
   "/pupils": PupilsPage,
   "/diagnostic": DiagnosticPage,
   "/learning": LearningPage,
+  "/learn": LearnHub,
+  "/how-it-works": HowVbeWorks,
   "/safeguarding": SafeguardingPage,
   "/resources": ResourcesPage,
   "/about": AboutPage,
