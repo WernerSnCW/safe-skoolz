@@ -11,7 +11,7 @@ export function YoureInBanner() {
   const { user } = useAuth();
   const { tenant } = useTenant();
   const slug = tenant?.slug ?? "";
-  const joinQ = useGetJoinSummary(slug, { query: { enabled: !!slug } });
+  const joinQ = useGetJoinSummary(slug, { query: { enabled: !!slug } as any });
   const summary = joinQ.data as any;
   const state = getMembershipState(user);
   const firstName = user?.firstName && user.firstName !== "Morna" ? user.firstName : "";
