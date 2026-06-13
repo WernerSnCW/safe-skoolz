@@ -399,6 +399,7 @@ export function ChildrenSafeguardingSection() {
 
   const { data: parentData, isLoading } = useQuery({
     queryKey: ["/api/dashboard/parent"],
+    enabled: !!cap.safeguarding,
     queryFn: async () => {
       const token = localStorage.getItem("safeschool_token");
       const res = await fetch("/api/dashboard/parent", {
@@ -432,6 +433,7 @@ export function ChildrenSafeguardingSection() {
   const queryClient = useQueryClient();
   const { data: disclosuresData } = useQuery({
     queryKey: ["/api/incidents/my-disclosures"],
+    enabled: !!cap.safeguarding,
     queryFn: async () => {
       const token = localStorage.getItem("safeschool_token");
       const res = await fetch("/api/incidents/my-disclosures", {
