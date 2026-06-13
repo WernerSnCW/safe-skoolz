@@ -363,7 +363,7 @@ const PUBLIC_FOOTER: { heading: string; links: { label: string; href: string }[]
     heading: "Tools & resources",
     links: [
       { label: "VBE readiness diagnostic", href: "/diagnostic" },
-      { label: "The learning centre", href: "/learning" },
+      { label: "Learn VBE", href: "/learn" },
       { label: "Safeguarding & reporting", href: "/safeguarding" },
       { label: "Free resources", href: "/resources" },
       { label: "Illustrative case study", href: "/schools/case-study" },

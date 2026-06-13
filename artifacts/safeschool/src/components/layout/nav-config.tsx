@@ -245,7 +245,7 @@ function communityNav(
 
   if (capabilities.learn) {
     sections.push({ label: "Learn VBE", items: [
-      { name: "What VBE is & why", href: "/learning", icon: BookOpen, state: "live" },
+      { name: "What VBE is & why", href: "/learn", icon: BookOpen, state: "live" },
       { name: "Resources", href: "/resources-hub", icon: Library, state: "live" },
     ]});
   }
@@ -299,7 +299,7 @@ function marketingNav(
     { name: "For parents", href: "/parents", icon: Users, state: "live" },
     { name: "For PTAs", href: "/ptas", icon: Heart, state: "live" },
     { name: "For pupils", href: "/pupils", icon: GraduationCap, state: "live" },
-    { name: "Learn", href: "/learning", icon: BookOpen, state: "live" },
+    { name: "Learn", href: "/learn", icon: BookOpen, state: "live" },
     { name: "Diagnostic", href: "/diagnostic", icon: Gauge, state: "live" },
   ];
   const footer: NavItem[] = [
