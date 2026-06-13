@@ -45,7 +45,7 @@ export function AudienceProvider({ children }: { children: ReactNode }) {
     const url = new URL(window.location.href);
     if (next === "all") url.searchParams.delete("audience");
     else url.searchParams.set("audience", next);
-    window.history.replaceState(null, "", url.toString());
+    window.history.replaceState(window.history.state, "", url.toString());
   }, []);
 
   return (
