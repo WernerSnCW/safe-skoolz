@@ -31,7 +31,7 @@ Tom's critique, verbatim in spirit: the experience is *a bit of a mess*. Concret
 
 ## 4. Stakeholders & states
 
-**Stakeholders (the complete solution serves all four):** children (report safely · learn the values · a voice), parents (stay informed · raise concerns · back the change), the PTA (operate with structure · evidence-backed asks), the school (safeguarding on record · embed VBE · respond with evidence).
+**Stakeholders (the complete solution serves all four):** children (report safely · learn the values · a voice), parents (stay informed · raise concerns · back the change), **the PTA (the operating infrastructure — see §5.2)**, the school (safeguarding on record · embed VBE · respond with evidence).
 
 **Membership states (the progressive-disclosure spine):**
 
@@ -55,6 +55,21 @@ Capabilities outside a state's reach are not hidden — they're shown gated by r
 4. **The complete solution** — the four-stakeholder picture (children/parents/PTA/school) so it reads complete, not like a survey.
 5. **What you get by joining** — value-led: the real picture/results, a voice with weight, track responses, shape it.
 6. **The ask** — one-click join, at the end, once taught.
+
+### 5.2 PTA operating infrastructure (a first-class capability pillar)
+
+The platform is **the infrastructure that lets a PTA actually function** — the operating-structure docx made real, moving a committee from "individuals acting alone" to structured collective process. This is a headline value pillar in its own right, not an exec-only tab. It must be visible (members see and participate; exec runs) and, like everything, tenant-generic:
+
+- **Build membership** — grow the PTA; the join front door feeds the roster (tiers: executive board / senior group / general membership). Growth-by-demonstrated-value, not by asking.
+- **Facilitate elections** — officer elections / AGM machinery. *Roadmap per the operating-structure docx (formal elections deliberately deferred today); the infrastructure is built to support them, surfaced under the "available — switched on as you're ready" rule, not shown as live until run.*
+- **Voting** — ballots, quorum, proxies, electorate scoping (senior-group vs all-members) — built (B-era).
+- **Democratise information / transparency** — decisions, results, and what the PTA is doing are relayed to the whole parent community ("transparent by default"); answers the school gives — and **doesn't** give — are on record.
+- **Provide visibility** — a clear, shared picture of goals, initiatives, decisions, and where each stands.
+- **Infrastructure to get things done** — the operating spine: annual goals → initiatives → the six-box self-approval checklist → the five-stage school process (B1–B4), so good ideas move quickly with named owners and clear criteria.
+- **Track progress of initiatives** — status + school-stage history, non-response tracking ("silence is not acceptance"), follow-ups — visible progress, not lost threads.
+- **Support parents** — a structured channel for concerns (aggregated, not landing ad hoc on exec members), a real voice without needing to attend meetings, and information available nowhere else.
+
+Most of this is already built (members/officers, decision log, voting/proxies, announcements, charter, goals, initiatives + five-stage). The redesign's job here is to **surface it as a coherent value pillar** in the front door (the complete-solution story) and the home (per state), rather than leaving it buried.
 
 ## 6. Decomposition (a program, not one spec)
 
