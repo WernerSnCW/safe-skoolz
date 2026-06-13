@@ -4,15 +4,18 @@ import {
   ClipboardCheck, BookHeart, Megaphone, BookMarked, ScrollText, Presentation,
   Library, Vote, Rocket, Target,
 } from "lucide-react";
+import type { Capabilities } from "@workspace/api-client-react";
+import type { MembershipState } from "@/lib/membership";
 
-export type NavItem = { name: string; href: string; icon: any; badge?: number };
+export type NavItemState = "live" | "locked" | "soon";
+export type NavItem = { name: string; href: string; icon: any; badge?: number; state?: NavItemState };
 export type NavSection = { label: string | null; items: NavItem[] };
 
 // Grouped, ordered nav for the authed sidebar. Preserves every item/href/icon
 // the flat lists used before — only adds grouping + order. Footer items
 // (Notifications, Settings) are returned separately so AppLayout can pin them.
 // t = i18next nav-namespace translator; counts passed in from AppLayout.
-export function getNavSections(
+export function getRoleNavSections(
   role: string,
   t: (k: string) => string,
   counts: { messageUnread: number; unreadCount: number },
@@ -201,6 +204,114 @@ export function getNavSections(
 
   // Fallback: home only
   return { sections: [{ label: null, items: [home] }], footer };
+}
+
+// Compatibility alias — AppLayout and any other callers continue to work until
+// they are updated to use getNav (Task 11).
+export const getNavSections = getRoleNavSections;
+
+// ---------------------------------------------------------------------------
+// Off-capability "More of Vibes" block
+// ---------------------------------------------------------------------------
+function moreOfVibesSection(capabilities: Capabilities, displayName: string): NavSection | null {
+  const candidates: Array<{ key: keyof Capabilities; name: string; href: string; icon: any }> = [
+    { key: "safeguarding", name: "Safeguarding", href: "/report", icon: ShieldCheck },
+    { key: "lessons", name: "Lessons & PSHE", href: "/learn", icon: BookOpen },
+    { key: "behaviour", name: "Behaviour", href: "/behaviour", icon: Activity },
+  ];
+  const off = candidates.filter(c => capabilities[c.key] === false);
+  if (off.length === 0) return null;
+  return {
+    label: `More of Vibes — switched on as ${displayName} adopts`,
+    items: off.map(c => ({ name: c.name, href: c.href, icon: c.icon, state: "soon" as const })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Community (parent / pta) state-aware nav
+// ---------------------------------------------------------------------------
+function communityNav(
+  membershipState: MembershipState,
+  capabilities: Capabilities,
+  displayName: string,
+  slug: string,
+  t: (k: string) => string,
+  counts: { messageUnread: number; unreadCount: number },
+): { sections: NavSection[]; footer: NavItem[] } {
+  const isExec = membershipState === "exec";
+  const isPending = membershipState === "pending";
+  const lockIfPending = (item: NavItem): NavItem =>
+    isPending ? { ...item, state: "locked" } : { ...item, state: "live" };
+
+  const sections: NavSection[] = [];
+  sections.push({ label: null, items: [{ name: t("dashboard"), href: "/", icon: Home, state: "live" }] });
+
+  if (capabilities.learn) {
+    sections.push({ label: "Learn VBE", items: [
+      { name: "What VBE is & why", href: "/learning", icon: BookOpen, state: "live" },
+      { name: "Resources", href: "/resources-hub", icon: Library, state: "live" },
+    ]});
+  }
+
+  const picture: NavItem[] = [];
+  if (capabilities.diagnostic) picture.push({ name: "Diagnostic", href: `/d/${slug}`, icon: Gauge, state: "live" });
+  if (capabilities.results) picture.push(lockIfPending({ name: "Results", href: `/results/${slug}`, icon: Activity }));
+  if (picture.length) sections.push({ label: "The picture", items: picture });
+
+  const community: NavItem[] = [];
+  if (capabilities.voice) community.push({ name: "The ask & backing", href: "/voice", icon: Vote, state: "live" });
+  if (capabilities.concerns) community.push({ name: "Concerns", href: "/concerns", icon: MessageCircle, state: "live" });
+  if (isExec && capabilities.membership) community.push({ name: "Members", href: "/membership", icon: Users, state: "live" });
+  if (community.length) sections.push({ label: "Your community", items: community });
+
+  if (capabilities.pta) {
+    const pta: NavItem[] = [
+      lockIfPending({ name: "Goals", href: "/pta/goals", icon: Target }),
+      lockIfPending({ name: "Initiatives", href: "/pta/initiatives", icon: Rocket }),
+      lockIfPending({ name: "Decisions", href: "/pta/decisions", icon: ClipboardList }),
+      lockIfPending({ name: "Announcements", href: "/pta/announcements", icon: Megaphone }),
+    ];
+    if (isExec) {
+      pta.push({ name: "Voting", href: "/pta/voting", icon: Vote, state: "live" });
+      pta.push({ name: "Charter", href: "/pta/charter", icon: ScrollText, state: "live" });
+    }
+    sections.push({ label: "PTA", items: pta });
+  }
+
+  const more = moreOfVibesSection(capabilities, displayName);
+  if (more) sections.push(more);
+
+  const footer: NavItem[] = [
+    { name: t("notifications"), href: "/notifications", icon: Bell, badge: counts.unreadCount },
+    { name: t("settings"), href: "/settings", icon: Settings },
+  ];
+  return { sections, footer };
+}
+
+// ---------------------------------------------------------------------------
+// State-aware dispatcher — entry point for Task 11 AppLayout migration
+// ---------------------------------------------------------------------------
+export function getNav(args: {
+  membershipState: MembershipState;
+  role: string;
+  capabilities: Capabilities;
+  displayName: string;
+  slug: string;
+  t: (k: string) => string;
+  counts: { messageUnread: number; unreadCount: number };
+}): { sections: NavSection[]; footer: NavItem[] } {
+  const { membershipState, role, capabilities, displayName, slug, t, counts } = args;
+  if (role === "parent" || role === "pta") {
+    return communityNav(membershipState, capabilities, displayName, slug, t, counts);
+  }
+  const base = getRoleNavSections(role, t, counts);
+  const sections = base.sections.map(s => ({
+    ...s,
+    items: s.items.map(i => ({ ...i, state: "live" as const })),
+  }));
+  const more = moreOfVibesSection(capabilities, displayName);
+  if (more) sections.push(more);
+  return { sections, footer: base.footer };
 }
 
 // Flatten for the mobile bottom-nav priority logic + dropdown (preserves behaviour).
