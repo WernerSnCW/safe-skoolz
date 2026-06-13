@@ -26,7 +26,7 @@ export default function HomePage() {
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
           Values-Based Education
         </p>
-        <h1 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight sm:text-6xl">
+        <h1 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
           VBE improves how children treat each other — and how the school responds when they don't.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">

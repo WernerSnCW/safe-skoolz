@@ -36,7 +36,7 @@ export default function PtasPage() {
       {/* Hero */}
       <section className="mx-auto max-w-5xl px-4 py-20 text-center sm:px-6 sm:py-28">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">For PTAs</p>
-        <h1 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight sm:text-6xl">
+        <h1 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
           Get your PTA VIBING
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
@@ -122,7 +122,7 @@ export default function PtasPage() {
           </ul>
           <Link
             href="/find-school"
-            className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "mt-8 inline-flex items-center gap-1")}
+            className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "mt-8 gap-1")}
           >
             Find your school <ArrowRight className="h-5 w-5" aria-hidden />
           </Link>
