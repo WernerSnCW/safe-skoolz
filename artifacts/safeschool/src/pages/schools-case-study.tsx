@@ -550,7 +550,7 @@ export default function SchoolsCaseStudy() {
       {/* CTAs */}
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
         <div className="flex flex-wrap gap-4">
-          <Link href="/diagnostics" className={cn(buttonVariants({ size: "lg" }))}>
+          <Link href="/diagnostic" className={cn(buttonVariants({ size: "lg" }))}>
             Run the diagnostic for your school
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>

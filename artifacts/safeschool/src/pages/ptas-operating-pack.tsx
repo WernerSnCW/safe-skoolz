@@ -228,10 +228,10 @@ export default function PtasOperatingPack() {
       {/* CTA row */}
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
         <div className="flex flex-wrap gap-4">
-          <span className={cn(buttonVariants({ size: "lg" }))}>
+          <Link href="/resources" className={cn(buttonVariants({ size: "lg" }))}>
             Get the whole pack
             <ArrowRight className="ml-2 h-4 w-4" />
-          </span>
+          </Link>
           <Link
             href="/about#contact"
             className={cn(buttonVariants({ variant: "outline", size: "lg" }))}

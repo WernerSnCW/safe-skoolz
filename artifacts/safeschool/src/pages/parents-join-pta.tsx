@@ -127,7 +127,7 @@ export default function ParentsJoinPta() {
             starting a parent group
           </Link>{" "}
           instead, and point existing volunteers to the{" "}
-          <Link href="/ptas" className="font-semibold text-primary hover:underline">
+          <Link href="/ptas/operating-pack" className="font-semibold text-primary hover:underline">
             PTA Operating Pack
           </Link>
           .

@@ -1279,13 +1279,6 @@ export default function HowItWorksPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-background">
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 relative">
-        <Link
-          href="/admin"
-          className="absolute top-8 right-4 sm:top-12 sm:right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-md hover:bg-primary/90 transition-colors z-10"
-        >
-          <ShieldCheck size={14} />
-          Admin
-        </Link>
         <div className="text-center mb-10">
           <Link href="/login" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-6">
             <ArrowLeft size={14} /> Back to login
