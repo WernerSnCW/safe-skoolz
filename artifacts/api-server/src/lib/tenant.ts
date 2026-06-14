@@ -41,3 +41,18 @@ export function tenantPublicView(school: School) {
     capabilities: resolveCapabilities(school.capabilities),
   };
 }
+
+/**
+ * Community-mode discriminator (spec §6 regression guard). A tenant is in
+ * community mode when the whole-school (paid) capabilities are all OFF — i.e.
+ * the school hasn't adopted. Community mode => open-join + flag/remove +
+ * threshold-release. Whole-school mode (e.g. Riverside) keeps the existing
+ * approve-then-display + manual exec release. Pass a school row or resolved caps.
+ */
+export function isCommunityMode(school: { capabilities?: unknown } | Capabilities): boolean {
+  const caps =
+    "safeguarding" in (school as any) && typeof (school as any).safeguarding === "boolean"
+      ? (school as Capabilities)
+      : resolveCapabilities((school as { capabilities?: unknown }).capabilities);
+  return !caps.safeguarding && !caps.lessons && !caps.behaviour;
+}
