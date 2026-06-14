@@ -66,3 +66,17 @@ export function requireRole(...roles: string[]) {
     next();
   };
 }
+
+/** Platform-operator allowlist (spec §4.6) — env PLATFORM_OPERATOR_EMAILS. */
+export function isPlatformOperator(payload: JwtPayload): boolean {
+  const allow = (process.env.PLATFORM_OPERATOR_EMAILS ?? "")
+    .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  return !!payload.email && allow.includes(payload.email.toLowerCase());
+}
+
+export function requirePlatformOperator(req: Request, res: Response, next: NextFunction): void {
+  const user = (req as any).user as JwtPayload;
+  if (!user) { res.status(401).json({ error: "Authentication required" }); return; }
+  if (!isPlatformOperator(user)) { res.status(403).json({ error: "Platform-operator only." }); return; }
+  next();
+}

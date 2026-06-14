@@ -20,7 +20,7 @@ beforeAll(async () => {
   process.env.JWT_SECRET ||= "test-secret";
   process.env.PLATFORM_OPERATOR_EMAILS = OP_EMAIL;
   // Clear rate-limit buckets so prior test runs don't cause 429s on reruns.
-  await pool.query(`DELETE FROM rate_limit_buckets WHERE key LIKE 'schools-create:%'`);
+  await pool.query(`DELETE FROM rate_limit_buckets WHERE key LIKE 'schools-create:%' OR key LIKE 'auth:%'`);
   const cs = await pool.query<{ id: string }>(`INSERT INTO schools (name, slug) VALUES ('Comm ${TAG}','comm-m-${TAG}') RETURNING id`);
   commSchool = cs.rows[0].id;
   const ws = await pool.query<{ id: string }>(`INSERT INTO schools (name, slug, capabilities) VALUES ('WS ${TAG}','ws-m-${TAG}','{"safeguarding":true}') RETURNING id`);

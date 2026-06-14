@@ -2,9 +2,9 @@ import { Router, type IRouter } from "express";
 import { eq, and, inArray, ilike, or, sql } from "drizzle-orm";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { db, schoolsTable, voiceGroupsTable, usersTable } from "@workspace/db";
-import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { authMiddleware, requireRole, requirePlatformOperator, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
-import { tenantPublicView } from "../lib/tenant";
+import { tenantPublicView, resolveCapabilities, CAPABILITY_KEYS } from "../lib/tenant";
 import { slugify, uniqueSlug } from "../lib/slugify";
 import { PgRateLimitStore } from "../lib/rateLimitStore";
 import bcrypt from "bcrypt";
@@ -123,6 +123,36 @@ router.post("/schools", createSchoolLimiter, async (req, res): Promise<void> => 
     school: { ...tenantPublicView(result.school), id: result.school.id, contactName: result.school.contactName },
     voice: { id: result.voice.id, name: result.voice.name, status: result.voice.status },
   });
+});
+
+// PATCH /api/schools/:slug/capabilities (spec §4.6) — platform-operator only.
+// Merges the provided overrides into schools.capabilities (stored as the sparse
+// override map; defaults still resolve over CAPABILITY_DEFAULTS). Tenants are
+// read-only and never reach this. Body: { capabilities: { <key>: boolean } }.
+router.patch("/schools/:slug/capabilities", authMiddleware, requirePlatformOperator, async (req, res): Promise<void> => {
+  const u = (req as any).user as JwtPayload;
+  const slug = String(req.params.slug).toLowerCase();
+  const incoming = req.body?.capabilities;
+  if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
+    res.status(400).json({ error: "capabilities object required." });
+    return;
+  }
+  const valid = new Set<string>(CAPABILITY_KEYS as readonly string[]);
+  const overrides: Record<string, boolean> = {};
+  for (const [k, v] of Object.entries(incoming)) {
+    if (!valid.has(k)) { res.status(400).json({ error: `Unknown capability: ${k}` }); return; }
+    if (typeof v !== "boolean") { res.status(400).json({ error: `Capability ${k} must be boolean.` }); return; }
+    overrides[k] = v;
+  }
+
+  const [school] = await db.select().from(schoolsTable).where(eq(schoolsTable.slug, slug));
+  if (!school) { res.status(404).json({ error: "School not found" }); return; }
+
+  const merged = { ...(school.capabilities && typeof school.capabilities === "object" ? school.capabilities as Record<string, boolean> : {}), ...overrides };
+  const [updated] = await db.update(schoolsTable).set({ capabilities: merged }).where(eq(schoolsTable.id, school.id)).returning();
+
+  await writeAudit({ schoolId: school.id, eventType: "capabilities_updated", actor: u, targetType: "school", targetId: school.id, details: { overrides }, req }).catch(() => {});
+  res.json({ slug, capabilities: resolveCapabilities(updated.capabilities) });
 });
 
 router.get("/schools", async (_req, res): Promise<void> => {

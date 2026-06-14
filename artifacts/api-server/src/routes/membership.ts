@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { and, eq } from "drizzle-orm";
 import { db, usersTable, notificationsTable, memberReportsTable } from "@workspace/db";
-import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { authMiddleware, requireRole, requirePlatformOperator, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
 import { sendEmail } from "../lib/emailHelper";
 
@@ -10,23 +10,6 @@ const router: IRouter = Router();
 // Exec roles that manage membership (spec §4.1). At Morna only `pta` exists,
 // but coordinator/head_teacher are included so school staff can manage it later.
 const EXEC = requireRole("pta", "coordinator", "head_teacher");
-
-// Platform-operator guard (spec §4.6/§4.3): removal/flag is NOT a tenant power.
-// Simplest mechanism available today — an env allowlist of operator emails
-// (the JWT carries email). No `admin` role exists in the JWT, so email is the
-// discriminator. Comma-separated PLATFORM_OPERATOR_EMAILS.
-function isPlatformOperator(u: JwtPayload): boolean {
-  const allow = (process.env.PLATFORM_OPERATOR_EMAILS ?? "")
-    .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
-  return !!u.email && allow.includes(u.email.toLowerCase());
-}
-function platformOperatorGuard(req: any, res: any, next: any): void {
-  if (!isPlatformOperator((req as any).user as JwtPayload)) {
-    res.status(403).json({ error: "Platform-operator only." });
-    return;
-  }
-  next();
-}
 
 // GET /api/membership/pending — exec sees parents awaiting approval at their school.
 router.get("/membership/pending", authMiddleware, EXEC, async (req, res): Promise<void> => {
@@ -179,7 +162,7 @@ router.post("/membership/:userId/report", authMiddleware, async (req, res): Prom
 // Replaces the exec approval gate for community tenants: members are active on
 // join; an imposter is removed on the school's word. Sets membershipStatus
 // 'rejected' (the only reachable path to rejected under open join).
-router.post("/membership/:userId/remove", authMiddleware, platformOperatorGuard, async (req, res): Promise<void> => {
+router.post("/membership/:userId/remove", authMiddleware, requirePlatformOperator, async (req, res): Promise<void> => {
   const u = (req as any).user as JwtPayload;
   const { userId } = req.params;
 
