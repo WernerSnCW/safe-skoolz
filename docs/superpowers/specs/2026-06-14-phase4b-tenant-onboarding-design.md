@@ -40,13 +40,15 @@ Chapter 1 is first because 2 and 3 depend on it (charter/merge/voting must exist
 3. Capture **school/PTA contact** + a **"tell your school"** share card; record an in-app school-notification (auto-email when Resend lands).
 4. **Short sign-up intake** → instant aggregate = first data delivered to PTA + school, growing per member.
 5. **Threshold-gated** deep diagnostic + **report release** (no exec release button pre-PTA).
-6. **Constitute-PTA → caretaker-Chair** promotion (`role: parent → pta`) — the one parent→exec moment.
-7. **Slug policy** (auto-derive + editable + collision suffix) and **backfill Riverside → `riverside`**.
-8. **Platform-operator capability toggle** so caps can be flipped without raw SQL; tenants see caps read-only.
+6. **Slug policy** (auto-derive + editable + collision suffix) and **backfill Riverside → `riverside`**.
+7. **Platform-operator capability toggle** so caps can be flipped without raw SQL; tenants see caps read-only.
+
+*(Note: the originally-scoped "parent→exec role assignment" is NOT a 4b goal — formal adoption + exec seats are gated on elections, Chapter 3. See §4.5.)*
 
 **Non-goals (deferred to Ch2/Ch3 or later):**
 - The PTA-relative legitimacy threshold, vote-of-no-confidence, school-acknowledgment-as-rep-group (Ch2).
 - Elections: role descriptions, self-nomination, candidate questionnaire, the vote (Ch3).
+- **Formal adoption of the VIBE structure + any parent→exec promotion** — gated on elections, so Ch3 (revises shipped B1). See §4.5.
 - A full per-tenant moderation role (removal stays platform-operator in Ch1).
 - Resend / verified domain (auto-email to the school is deferred; the share card covers it now).
 - Multilingual re-language of new copy (English first; later pass).
@@ -81,14 +83,15 @@ Chapter 1 is first because 2 and 3 depend on it (charter/merge/voting must exist
 - ⚠ **Behaviour change** vs M2's exec approval. Reconcile so the Riverside whole-school demo (which *does* use approve/anonymous-display) is not broken — see §6 regression guard.
 
 ### 4.4 Sign-up intake + threshold-gated deep diagnostic
-- **Short intake at sign-up** (3–5 questions) — stored via the **existing unlinkable answer storage** (the `diagnostic_submissions`/`answers` model, day-truncated timestamps, no FK to identity). Modelled as a **short "intake" survey** distinct from the deep instrument.
+- **Short intake at sign-up — MULTIPLE CHOICE, not open questions** *(Tom, this session)*. Select-all-that-apply across **three domains**: (1) **communications from the PTA** (how informed/heard families feel), (2) **pupil issues at school** (what children are experiencing), (3) **how the school handles situations** (response/resolution). Each domain mixes negative + positive options so the tally reads as a genuine pulse, not a complaints box. Stored via the **existing unlinkable answer storage** (the `diagnostic_submissions`/`answers` model, day-truncated timestamps, no FK to identity), modelled as a short "intake" survey distinct from the deep instrument. Multiple-choice → clean aggregation into the first-data tally. **Exact option wording is Tom-owned (content audit); the format + the three domains are fixed here.** The deeper diagnostic expands within the same three domains.
 - The **intake aggregate** is the **first data delivered to the PTA + school** (surfaced in-app now; carried in the school-notification). It grows with every member; honour the **n≥5 segment-suppression** rule already built.
 - The **deep community diagnostic** (the existing 16-q instrument) is the **deep dive, unlocked when the coalition hits the release threshold.**
 - ⚠ **Release is threshold-driven, not an exec button** (replaces M2's manual release pre-PTA). **Threshold value:** Ch1 default = the n≥5 privacy floor / a small configurable target on the tenant; Ch2 replaces it with the PTA-relative number. Manual exec release returns only *after* a PTA constitutes.
 
-### 4.5 Constitute the PTA → caretaker-Chair (the one parent→exec point)
-- When a member adopts the operating structure (B1 `POST /pta/charter/adopt`), **promote the actor `role=parent → role=pta`** (caretaker-Chair, exactly the B1 framing — "someone holds this until the seats fill"), in the same transaction as the charter claim. This *is* the "parent→exec role assignment" 4b item, resolved by **moment**, not an admin screen.
-- ⚠ The only place a user's role auto-changes. Audit it (`role_promoted_caretaker_chair` or similar).
+### 4.5 No formal adoption / parent→exec in Chapter 1 *(Tom's correction, this session)*
+- **The VIBE operating structure cannot be formally adopted until elections have taken place.** No caretaker-Chair unilaterally adopts it; the *elected* committee adopts it. So **Chapter 1 has no "constitute → caretaker-Chair" step and no parent→exec promotion** — exec seats are an **election outcome (Chapter 3)**.
+- This **supersedes the shipped B1 model** ("admin = caretaker-Chair adopts, ratified over time"). The charter/role *definitions* stay visible pre-election (candidates must know what they're standing for); the *formal adoption act* (`ptaClaimedAt` + filled seats) moves to **after** the vote. B1 remains live in prod until Ch2/Ch3 revise its adopt-path.
+- **Chapter 1 needs no internal exec at all:** join is open, the **school verifies** (flag-to-remove), results **release on threshold**, and the only privileged surface is the **platform-operator** capability toggle (§4.6 — that's the platform operator, not a tenant member). The "parent→exec role assignment" originally scoped into 4b is therefore **reframed as the Chapter-3 election outcome**, not a 4b deliverable.
 
 ### 4.6 Capability config (platform-operator)
 - New **`PATCH /api/schools/:slug/capabilities`** behind a **platform-operator guard** (role `admin`, and/or an env allowlist of platform-operator emails — implementation picks; must NOT be self-serve for a tenant). Lets Tom flip caps (e.g. Morna whole-school on/off) without raw SQL — needed to drive the acceptance test's pre/post-adoption states.
@@ -101,9 +104,9 @@ Chapter 1 is first because 2 and 3 depend on it (charter/merge/voting must exist
 1. Tom signs up (email #1) at `/find-school` → "start one for {School}" → `POST /api/schools` → school+VOICE created, slug shown, school contact captured, **role=parent**.
 2. Short intake answered → first aggregate recorded.
 3. Tom shares the `/v/:id` link (and the "tell your school" card) → emails #2/#3 sign up → auto-back the VOICE → answer intake → counter + aggregate grow.
-4. Threshold met → deep diagnostic unlocks + report releases to members.
-5. Tom (or a member) **constitutes the PTA** (adopt operating structure) → role→pta (caretaker-Chair) → runs B1–B4 (goals/initiatives/voting/announcements).
-6. Tom flips Morna's whole-school caps via the platform-operator toggle to exercise the pre/post-adoption surfaces.
+4. Threshold met → deep diagnostic unlocks + report releases to members. **This is where the Chapter-1 acceptance test ends** ("run diagnostics").
+5. Tom flips Morna's whole-school caps via the platform-operator toggle to exercise the pre/post-adoption surfaces.
+6. *(Beyond Chapter 1 — Ch2/Ch3:)* legitimacy pathway → **elections** → the elected committee **formally adopts** the VIBE structure → PTA operates (B1–B4). No caretaker constitution in Chapter 1.
 
 ## 6. Regression guard
 - The **Riverside whole-school demo** uses the *current* approve-then-display and exec-release flows. The flat-join + threshold-release changes must be gated so they apply to **community-tier tenants** (Morna), while whole-school tenants (Riverside) retain their existing membership/release behaviour. Capability flags are the natural discriminator (e.g. release-on-threshold applies where `pta`/`results` community-mode; manual release where whole-school). Implementation must prove both Morna (community) and Riverside (whole-school) paths in-browser.
@@ -117,8 +120,8 @@ Chapter 1 is first because 2 and 3 depend on it (charter/merge/voting must exist
 - **Pre-PTA powers:** no internal exec; the **school verifies** (flag-to-remove); growth = advocacy. *(Tom)*
 - **School channel now:** capture contact + share card + in-app stub; auto-email when Resend lands. *(Tom — option 1)*
 - **Results release:** threshold-driven (same number as legitimacy), not an exec button, pre-PTA. *(Tom)*
-- **Sign-up data:** short intro intake (first data) + deep diagnostic unlocked at threshold. *(Tom)*
-- **Parent→exec:** auto-promote to caretaker-Chair at PTA constitution only. *(recommended; Tom to confirm in review)*
+- **Sign-up data:** short intro intake (first data) + deep diagnostic unlocked at threshold. Intake = **multiple-choice, select-all-that-apply across 3 domains** (PTA communications · pupil issues · how the school handles situations), not open questions. *(Tom)*
+- **Parent→exec / formal adoption:** the VIBE structure **cannot be formally adopted until elections** (Tom). No caretaker-Chair promotion in Chapter 1; exec seats are a Chapter-3 election outcome. **Supersedes the shipped B1 caretaker-adopt model** (revise B1 adopt-path in Ch2/Ch3). *(Tom)*
 - **Capabilities:** platform-operator toggle, not tenant self-serve (schools pay). *(recommended)*
 
 ## 9. Open / Tom-owned

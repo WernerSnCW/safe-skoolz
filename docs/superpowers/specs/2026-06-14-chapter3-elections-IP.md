@@ -4,6 +4,9 @@
 
 > Captured from Tom this session. Once a VOICE has **converged with the PTA or been acknowledged as a representative group** (Chapter 2 outcome), **VIBES facilitates elections.** Build after Chapters 1 & 2; needs its own brainstorm→spec→plan.
 
+## KEY SEQUENCING (Tom, 2026-06-14)
+**The VIBE operating structure cannot be formally adopted until elections have taken place.** No caretaker-Chair adopts it unilaterally — the *elected* committee adopts it. So the order is: legitimacy (Ch2) → **elections (this chapter)** → **formal adoption** of the structure by the elected officers → PTA operates (B1–B4). The charter/role *definitions* must be visible BEFORE the vote (candidates need to know what they're standing for); the *formal adoption act* (`schools.ptaClaimedAt` + filled `pta_officers` seats) happens AFTER. **This supersedes the shipped B1 model** ("admin = caretaker-Chair adopts, ratified over time") — B1's adopt-path must be revised here so adoption is post-election, not caretaker-initiated.
+
 ## Mechanics
 - **Roles are described.** Each role (the 5-seat "responsibility not rank" model — President / Vice-President / Chair / Secretary / Treasurer) carries a **description + responsibilities**, shown to voters and candidates.
 - **Self-nomination, open to all.** Any member can **put themselves forward for any role.**
