@@ -14,7 +14,7 @@ import {
   usersTable,
   PTA_MOTION_OUTCOMES,
 } from "@workspace/db";
-import { authMiddleware, requireRole, isExecOrOperator, requireExecOrOperator, type JwtPayload } from "../lib/auth";
+import { authMiddleware, requireRole, requireExecOrOperator, type JwtPayload } from "../lib/auth";
 import { effectiveStage, thresholdMet, legitimacyMetric, isPathwayComplete } from "../lib/pathway";
 import { writeAudit } from "../lib/auditHelper";
 import { isExecRole, memberDisplayName } from "../lib/memberDisplay";

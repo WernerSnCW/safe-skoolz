@@ -2,7 +2,7 @@
 // callers supply the counts; this module decides the effective stage, whether
 // the absolute signal threshold is met, the relative legitimacy metric, and the
 // terminal gate Chapter 3 (elections) reads. Tracker-only: these never act.
-import { PATHWAY_STAGES, type PathwayStage } from "@workspace/db";
+import { type PathwayStage } from "@workspace/db";
 
 const STAGE_ORDER: Record<PathwayStage, number> = {
   your_voice: 0, shared_voice: 1, collective_signal: 2, pta_motion: 3, school_recognition: 4,
@@ -34,10 +34,11 @@ export function legitimacyMetric(input: {
 
 /**
  * The effective stage (spec §2) — computed from data, never below the highest
- * recorded stage. Progression:
+ * recorded stage. COMPUTED progression:
  *   your_voice → shared_voice (>1 backer) → collective_signal (threshold met
- *   OR signal fired) → pta_motion (PTA motion recorded by Task 6 endpoints)
- *   → school_recognition (motion declined or school recognised).
+ *   OR signal fired) → school_recognition (motion declined or school recognised).
+ * NOTE: pta_motion is NEVER computed here — it is only reached via the
+ * recorded-stage floor, set exclusively by the motion endpoint on vad_adopted.
  * Terminal outcomes (vad_adopted / converged / school_recognised) are surfaced
  * separately via isPathwayComplete; the stage itself caps at school_recognition.
  */
