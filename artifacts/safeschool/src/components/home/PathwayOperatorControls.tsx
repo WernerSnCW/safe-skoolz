@@ -30,11 +30,11 @@ export function PathwayOperatorControls() {
       <h2 className="font-display text-xl font-bold">Record an outcome</h2>
       <Card>
         <CardContent className="space-y-3 p-5">
-          <p className="text-sm text-muted-foreground">For school leadership / the PTA to record what happened in the real world.</p>
+          <p className="text-sm text-muted-foreground">For school leadership or the PTA to record what's happened.</p>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => motion.mutate({ id: lead.id, data: { outcome: "vad_adopted" } })} className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">PTA adopted the structure</button>
+            <button type="button" onClick={() => motion.mutate({ id: lead.id, data: { outcome: "vad_adopted" } })} className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">PTA adopted an open structure</button>
             <button type="button" onClick={() => motion.mutate({ id: lead.id, data: { outcome: "vad_declined" } })} className="rounded-md border border-border px-3 py-2 text-sm font-semibold text-foreground">PTA declined</button>
-            <button type="button" onClick={() => recognition.mutate({ id: lead.id })} className="rounded-md border border-border px-3 py-2 text-sm font-semibold text-foreground">School recognised the coalition</button>
+            <button type="button" onClick={() => recognition.mutate({ id: lead.id })} className="rounded-md border border-border px-3 py-2 text-sm font-semibold text-foreground">School recognised these families</button>
           </div>
           <div className="flex items-center gap-2">
             <input className="w-40 rounded-md border border-border bg-background px-3 py-2 text-sm" type="number" min={0} placeholder="Current PTA size" aria-label="Current PTA size" value={size} onChange={(e) => setSize(e.target.value)} />

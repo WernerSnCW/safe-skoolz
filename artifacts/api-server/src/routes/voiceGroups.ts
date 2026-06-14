@@ -328,9 +328,9 @@ router.post("/voice/:id/signal", authMiddleware, ADVOCATE, async (req, res): Pro
   await writeAudit({ schoolId: u.schoolId, eventType: "collective_signal_fired", actor: u, targetType: "voice_group", targetId: id, details: { memberCountAtFire: stats.backerCount }, req }).catch(() => {});
 
   const message =
-    `Parents of ${school?.name ?? "our school"} are asking to work with you on two things: ` +
-    `(G1) embedding a values-based education framework, and (G2) giving the PTA a structure that represents every family. ` +
-    `${authorisingParents.length} parents have authorised this message. We'd value a named point of contact to take these forward together.`;
+    `${authorisingParents.length} families at ${school?.name ?? "our school"} have come together to ask the school to work with them on two things: ` +
+    `adopting values-based education, and helping the PTA run openly so every family has a voice. ` +
+    `We're not asking for anything beyond these two. Could you let us know who we should work with to take them forward — we'd love to do this together.`;
 
   const view = await pathwayView({ id: voiceRow.id, status: voiceRow.status }, u.schoolId);
   res.status(201).json({

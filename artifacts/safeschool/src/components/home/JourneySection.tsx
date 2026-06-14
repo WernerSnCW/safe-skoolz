@@ -7,9 +7,9 @@ import { Flag } from "lucide-react";
 const STAGE_LABELS: Record<string, string> = {
   your_voice: "Your voice",
   shared_voice: "A shared voice",
-  collective_signal: "Ready to send a collective message",
-  pta_motion: "Bringing it to the PTA",
-  school_recognition: "Asking the school to recognise the coalition",
+  collective_signal: "Ready to speak together",
+  pta_motion: "Working with the PTA",
+  school_recognition: "Working with the school",
 };
 
 export function JourneySection() {
@@ -52,7 +52,7 @@ export function JourneySection() {
           <div>
             <p className="text-sm font-semibold text-foreground">{STAGE_LABELS[p.stage] ?? p.stage}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {p.backerCount} {p.backerCount === 1 ? "parent has" : "parents have"} joined and authorised the two asks.
+              {p.backerCount} {p.backerCount === 1 ? "family has" : "families have"} joined and authorised the two asks.
             </p>
           </div>
           <div>
@@ -61,21 +61,21 @@ export function JourneySection() {
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
               {p.thresholdMet
-                ? "The coalition is ready to send one collective message to the school."
-                : `${p.backerCount} of ${p.signalThreshold} families needed to send a collective message.`}
+                ? "These families are ready to speak to the school together, with one message."
+                : `${p.backerCount} of ${p.signalThreshold} families needed before speaking to the school together.`}
             </p>
           </div>
           {p.legitimacy?.met != null && (
             <p className="text-sm text-muted-foreground">
               {p.legitimacy.met
-                ? "This coalition now represents more parents than the current PTA."
-                : "As more families join, the coalition will represent more parents than the current PTA."}
+                ? `${p.backerCount} families now share this hope for the school — enough to speak as a genuinely representative voice.`
+                : "Every family who joins makes this a more representative voice for the school."}
             </p>
           )}
           {p.thresholdMet && !p.complete && (
             <div>
               <button type="button" onClick={onFire} disabled={fire.isPending} className="rounded-md bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60">
-                {fire.isPending ? "Preparing…" : "Send the collective message"}
+                {fire.isPending ? "Preparing…" : "Speak to the school together"}
               </button>
               {err && <p className="mt-2 text-sm text-destructive">{err}</p>}
             </div>
