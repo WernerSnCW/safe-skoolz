@@ -5,12 +5,15 @@ import {
   voiceGroupsTable,
   voiceMembersTable,
   voiceSupportersTable,
+  coalitionPathwayTable,
+  collectiveSignalsTable,
   ptaMembersTable,
   ptaInitiativesTable,
   schoolsTable,
   usersTable,
 } from "@workspace/db";
-import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { authMiddleware, requireRole, isExecOrOperator, type JwtPayload } from "../lib/auth";
+import { effectiveStage, thresholdMet, legitimacyMetric, isPathwayComplete } from "../lib/pathway";
 import { writeAudit } from "../lib/auditHelper";
 import { isExecRole, memberDisplayName } from "../lib/memberDisplay";
 
@@ -57,6 +60,71 @@ async function memberCounts(voiceIds: string[]): Promise<Record<string, number>>
   const out: Record<string, number> = {};
   for (const r of rows) out[r.voiceId] = r.count;
   return out;
+}
+
+// Chapter 2: load the pathway row for a VOICE scoped to the caller's school.
+async function loadPathway(voiceId: string, schoolId: string) {
+  const [row] = await db.select().from(coalitionPathwayTable)
+    .where(and(eq(coalitionPathwayTable.voiceId, voiceId), eq(coalitionPathwayTable.schoolId, schoolId)));
+  return row ?? null;
+}
+
+// Backer count + PTA-members-in-VOICE across BOTH backing tables.
+async function backingStats(voiceId: string): Promise<{ backerCount: number; ptaMembersInVoice: number }> {
+  const [m] = await db.select({
+    n: sql<number>`count(*)::int`,
+    pta: sql<number>`count(*) filter (where ${voiceMembersTable.wasPtaMember} = true)::int`,
+  }).from(voiceMembersTable).where(eq(voiceMembersTable.voiceId, voiceId));
+  const [s] = await db.select({
+    n: sql<number>`count(*)::int`,
+    pta: sql<number>`count(*) filter (where ${voiceSupportersTable.wasPtaMember} = true)::int`,
+  }).from(voiceSupportersTable).where(eq(voiceSupportersTable.voiceId, voiceId));
+  return {
+    backerCount: (m?.n ?? 0) + (s?.n ?? 0),
+    ptaMembersInVoice: (m?.pta ?? 0) + (s?.pta ?? 0),
+  };
+}
+
+// Assemble the full pathway view (shared by GET pathway + the action endpoints).
+async function pathwayView(voiceRow: { id: string; status: string }, schoolId: string) {
+  const [school] = await db.select({ signalThreshold: schoolsTable.signalThreshold }).from(schoolsTable).where(eq(schoolsTable.id, schoolId));
+  const pathway = await loadPathway(voiceRow.id, schoolId);
+  if (!pathway) return null;
+  const stats = await backingStats(voiceRow.id);
+  const signalThreshold = school?.signalThreshold ?? 10;
+  const signals = await db.select().from(collectiveSignalsTable)
+    .where(eq(collectiveSignalsTable.voiceId, voiceRow.id)).orderBy(desc(collectiveSignalsTable.firedAt));
+
+  const stage = effectiveStage({
+    recordedStage: pathway.stage as any,
+    backerCount: stats.backerCount,
+    signalThreshold,
+    signalFiredAt: pathway.signalFiredAt,
+    ptaMotionOutcome: pathway.ptaMotionOutcome,
+    schoolRecognisedAt: pathway.schoolRecognisedAt,
+    voiceStatus: voiceRow.status,
+  });
+  const legitimacy = legitimacyMetric({
+    backerCount: stats.backerCount,
+    declaredIncumbent: pathway.incumbentPtaSize,
+    ptaMembersInVoice: stats.ptaMembersInVoice,
+  });
+  return {
+    voiceId: voiceRow.id,
+    stage,
+    backerCount: stats.backerCount,
+    signalThreshold,
+    thresholdMet: thresholdMet(stats.backerCount, signalThreshold),
+    legitimacy: { ...legitimacy, incumbentConfirmedBySchoolAt: pathway.incumbentConfirmedBySchoolAt },
+    signalFiredAt: pathway.signalFiredAt,
+    ptaMotionOutcome: pathway.ptaMotionOutcome,
+    schoolRecognisedAt: pathway.schoolRecognisedAt,
+    complete: isPathwayComplete({ ptaMotionOutcome: pathway.ptaMotionOutcome, schoolRecognisedAt: pathway.schoolRecognisedAt, voiceStatus: voiceRow.status }),
+    signals: signals.map((sg) => ({
+      id: sg.id, firedAt: sg.firedAt, topics: sg.topics, memberCountAtFire: sg.memberCountAtFire,
+      schoolResponseStatus: sg.schoolResponseStatus, schoolResponseText: sg.schoolResponseText, schoolRespondedAt: sg.schoolRespondedAt,
+    })),
+  };
 }
 
 // GET /voice — list the school's VOICEs with member counts, status, and whether
@@ -196,6 +264,18 @@ router.get("/voice/:id", authMiddleware, VIEW, async (req, res): Promise<void> =
       })),
     },
   });
+});
+
+// GET /voice/:id/pathway (spec §7) — the journey state for any VOICE member.
+router.get("/voice/:id/pathway", authMiddleware, VIEW, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const [voiceRow] = await db.select({ id: voiceGroupsTable.id, status: voiceGroupsTable.status })
+    .from(voiceGroupsTable).where(and(eq(voiceGroupsTable.id, id), eq(voiceGroupsTable.schoolId, u.schoolId)));
+  if (!voiceRow) { res.status(404).json({ error: "VOICE not found" }); return; }
+  const view = await pathwayView(voiceRow, u.schoolId);
+  if (!view) { res.status(404).json({ error: "Pathway not found" }); return; }
+  res.json(view);
 });
 
 // POST /voice/:id/join — back this VOICE (creates a voice_member). Idempotent.
