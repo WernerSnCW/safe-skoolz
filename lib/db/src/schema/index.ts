@@ -34,3 +34,4 @@ export * from "./lessons";
 export * from "./lessonQuizzes";
 export * from "./lessonProgress";
 export * from "./schoolCreateRequests";
+export * from "./memberReports";

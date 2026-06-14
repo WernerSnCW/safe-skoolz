@@ -29,7 +29,10 @@ export const voiceGroupsTable = pgTable("voice_groups", {
   // The advocacy goal — what this collective is asking the school to do.
   mission: text("mission").notNull(),
   status: varchar("status", { length: 20 }).notNull().default("advocating"),
-  createdById: uuid("created_by_id").references(() => usersTable.id).notNull(),
+  // Phase 4b (spec §4.1): nullable — the VOICE is created founder-less when a
+  // school is started; the founder is set when the creator signs up at /join/:slug
+  // (first backer becomes founder). Pre-4b VOICEs always have a founder.
+  createdById: uuid("created_by_id").references(() => usersTable.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   // Set when the VOICE converts into PTA membership (Slice 2).
   convertedAt: timestamp("converted_at", { withTimezone: true }),

@@ -6,6 +6,10 @@ export const diagnosticSurveysTable = pgTable("diagnostic_surveys", {
   id: uuid("id").defaultRandom().primaryKey(),
   schoolId: uuid("school_id").notNull().references(() => schoolsTable.id),
   title: varchar("title", { length: 255 }).notNull(),
+  // Phase 4b (spec §4.4): distinguishes the short multiple-choice INTAKE survey
+  // (captured at signup; feeds the live first-data tally) from the DEEP 16-q
+  // diagnostic (unlocked at the release threshold). One of each per school.
+  kind: varchar("kind", { length: 10 }).notNull().default("deep"),
   // Public community diagnostics (spec §4.2): when publicSlug is set the survey
   // is reachable without auth at /d/:slug. instrument holds the question set as
   // data; releasedAt is the exec's release switch (results invisible until set).
