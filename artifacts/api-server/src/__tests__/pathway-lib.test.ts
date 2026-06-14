@@ -41,8 +41,8 @@ describe("effectiveStage", () => {
   it("collective_signal once the threshold is met (before firing)", () => {
     expect(effectiveStage({ ...base, backerCount: 10 })).toBe("collective_signal");
   });
-  it("pta_motion once the signal has fired", () => {
-    expect(effectiveStage({ ...base, backerCount: 12, signalFiredAt: new Date() })).toBe("pta_motion");
+  it("collective_signal once the signal has fired (pta_motion comes from Task 6 motion endpoints)", () => {
+    expect(effectiveStage({ ...base, backerCount: 12, signalFiredAt: new Date() })).toBe("collective_signal");
   });
   it("school_recognition once the motion is declined", () => {
     expect(effectiveStage({ ...base, backerCount: 12, signalFiredAt: new Date(), ptaMotionOutcome: "vad_declined" })).toBe("school_recognition");

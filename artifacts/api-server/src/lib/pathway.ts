@@ -35,8 +35,9 @@ export function legitimacyMetric(input: {
 /**
  * The effective stage (spec §2) — computed from data, never below the highest
  * recorded stage. Progression:
- *   your_voice → shared_voice (>1 backer) → collective_signal (threshold met)
- *   → pta_motion (signal fired) → school_recognition (motion declined).
+ *   your_voice → shared_voice (>1 backer) → collective_signal (threshold met
+ *   OR signal fired) → pta_motion (PTA motion recorded by Task 6 endpoints)
+ *   → school_recognition (motion declined or school recognised).
  * Terminal outcomes (vad_adopted / converged / school_recognised) are surfaced
  * separately via isPathwayComplete; the stage itself caps at school_recognition.
  */
@@ -52,7 +53,7 @@ export function effectiveStage(input: {
   let computed: PathwayStage = "your_voice";
   if (input.backerCount > 1) computed = "shared_voice";
   if (thresholdMet(input.backerCount, input.signalThreshold)) computed = "collective_signal";
-  if (input.signalFiredAt != null) computed = "pta_motion";
+  if (input.signalFiredAt != null) computed = "collective_signal";
   if (input.ptaMotionOutcome === "vad_declined") computed = "school_recognition";
   if (input.schoolRecognisedAt != null) computed = "school_recognition";
   // Never regress below the highest recorded stage.

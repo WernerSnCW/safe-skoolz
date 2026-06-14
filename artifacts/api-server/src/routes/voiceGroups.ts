@@ -7,6 +7,7 @@ import {
   voiceSupportersTable,
   coalitionPathwayTable,
   collectiveSignalsTable,
+  voiceMandatesTable,
   ptaMembersTable,
   ptaInitiativesTable,
   schoolsTable,
@@ -276,6 +277,66 @@ router.get("/voice/:id/pathway", authMiddleware, VIEW, async (req, res): Promise
   const view = await pathwayView(voiceRow, u.schoolId);
   if (!view) { res.status(404).json({ error: "Pathway not found" }); return; }
   res.json(view);
+});
+
+// POST /voice/:id/signal (spec §4) — fire the collective signal. ANY VOICE
+// member, gated on threshold-met. Assembles ONE communication: the authorising
+// parents by name, the two topics (G1/G2), a request for a named school contact.
+// No Resend yet -> records the signal + returns the shareable artefact; auto-emails
+// when Resend lands. Non-adversarial framing.
+router.post("/voice/:id/signal", authMiddleware, ADVOCATE, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const [voiceRow] = await db.select({ id: voiceGroupsTable.id, name: voiceGroupsTable.name, status: voiceGroupsTable.status })
+    .from(voiceGroupsTable).where(and(eq(voiceGroupsTable.id, id), eq(voiceGroupsTable.schoolId, u.schoolId)));
+  if (!voiceRow) { res.status(404).json({ error: "VOICE not found" }); return; }
+  if (voiceRow.status !== "advocating") { res.status(409).json({ error: "This VOICE is no longer advocating" }); return; }
+
+  const pathway = await loadPathway(id, u.schoolId);
+  if (!pathway) { res.status(404).json({ error: "Pathway not found" }); return; }
+
+  const [school] = await db.select({ signalThreshold: schoolsTable.signalThreshold, name: schoolsTable.name })
+    .from(schoolsTable).where(eq(schoolsTable.id, u.schoolId));
+  const stats = await backingStats(id);
+  const signalThreshold = school?.signalThreshold ?? 10;
+  if (!thresholdMet(stats.backerCount, signalThreshold)) {
+    res.status(409).json({ error: "The coalition hasn't reached the threshold to send a collective message yet.", backerCount: stats.backerCount, signalThreshold });
+    return;
+  }
+
+  // Authorising parents by name (those who hold a mandate at this school).
+  const authorising = await db.select({
+    firstName: usersTable.firstName, lastName: usersTable.lastName, displayMode: usersTable.displayMode,
+  }).from(voiceMandatesTable)
+    .innerJoin(usersTable, eq(usersTable.id, voiceMandatesTable.userId))
+    .where(and(eq(voiceMandatesTable.schoolId, u.schoolId), eq(voiceMandatesTable.goal, "G1")));
+  const authorisingParents = authorising.map((a) => memberDisplayName({ firstName: a.firstName, lastName: a.lastName, displayMode: a.displayMode }, false));
+
+  let signal!: typeof collectiveSignalsTable.$inferSelect;
+  await db.transaction(async (tx) => {
+    const [s] = await tx.insert(collectiveSignalsTable).values({
+      voiceId: id, schoolId: u.schoolId, firedById: u.userId,
+      topics: ["G1", "G2"], memberCountAtFire: stats.backerCount, schoolResponseStatus: "pending",
+    }).returning();
+    signal = s;
+    await tx.update(coalitionPathwayTable)
+      .set({ signalFiredAt: sql`now()`, stage: "collective_signal" })
+      .where(eq(coalitionPathwayTable.voiceId, id));
+  });
+
+  await writeAudit({ schoolId: u.schoolId, eventType: "collective_signal_fired", actor: u, targetType: "voice_group", targetId: id, details: { memberCountAtFire: stats.backerCount }, req }).catch(() => {});
+
+  const message =
+    `Parents of ${school?.name ?? "our school"} are asking to work with you on two things: ` +
+    `(G1) embedding a values-based education framework, and (G2) giving the PTA a structure that represents every family. ` +
+    `${authorisingParents.length} parents have authorised this message. We'd value a named point of contact to take these forward together.`;
+
+  const view = await pathwayView({ id: voiceRow.id, status: voiceRow.status }, u.schoolId);
+  res.status(201).json({
+    signal: { id: signal.id, topics: signal.topics, memberCountAtFire: signal.memberCountAtFire, firedAt: signal.firedAt },
+    artefact: { topics: ["G1", "G2"], authorisingParents, message },
+    pathway: view,
+  });
 });
 
 // POST /voice/:id/join — back this VOICE (creates a voice_member). Idempotent.
