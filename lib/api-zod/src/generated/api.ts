@@ -248,6 +248,18 @@ export const ListSchoolsResponseItem = zod.object({
 export const ListSchoolsResponse = zod.array(ListSchoolsResponseItem);
 
 /**
+ * @summary Create a school + founding VOICE in one transaction (public, rate-limited)
+ */
+export const CreateSchoolBody = zod.object({
+  name: zod.string(),
+  slug: zod.string().optional(),
+  coalitionName: zod.string().optional(),
+  contactName: zod.string().optional(),
+  contactEmail: zod.string().optional(),
+  contactPhone: zod.string().optional(),
+});
+
+/**
  * @summary List staff for a school
  */
 export const ListStaffBySchoolParams = zod.object({
@@ -2285,4 +2297,75 @@ export const AdoptPtaCharterResponse = zod.object({
  */
 export const AcknowledgePtaCharterResponse = zod.object({
   ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary Platform-operator capability toggle (spec §4.6)
+ */
+export const PatchSchoolCapabilitiesParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const PatchSchoolCapabilitiesBody = zod.object({
+  capabilities: zod.record(zod.string(), zod.boolean()),
+});
+
+export const PatchSchoolCapabilitiesResponse = zod.object({
+  slug: zod.string(),
+  capabilities: zod.record(zod.string(), zod.boolean()),
+});
+
+/**
+ * @summary Submit answers to the short sign-up intake (no auth, rate-limited)
+ */
+export const SubmitIntakeParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const SubmitIntakeBody = zod.object({
+  email: zod.string(),
+  selections: zod.record(zod.string(), zod.array(zod.number())),
+});
+
+/**
+ * @summary Intake aggregate — domain/option shape always present; counts suppressed below n>=5
+ */
+export const GetIntakeAggregateParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetIntakeAggregateResponse = zod.object({
+  suppressed: zod.boolean(),
+  n: zod.number(),
+  floor: zod.number(),
+  domains: zod.array(
+    zod.object({
+      key: zod.string(),
+      section: zod.string(),
+      options: zod.array(zod.string()),
+      counts: zod.array(zod.number()).nullish(),
+    }),
+  ),
+});
+
+/**
+ * @summary In-app report-this-member affordance (any authed member)
+ */
+export const ReportMemberParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const ReportMemberBody = zod.object({
+  reason: zod.string().optional(),
+});
+
+/**
+ * @summary Platform-operator flag/remove a member (community moderation)
+ */
+export const RemoveMemberParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const RemoveMemberResponse = zod.object({
+  removed: zod.boolean(),
 });

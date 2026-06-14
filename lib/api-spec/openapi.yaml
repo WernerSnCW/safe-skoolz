@@ -33,6 +33,8 @@ tags:
   - name: join
   - name: concerns
     description: Community concern intake + exec triage
+  - name: intake
+    description: Short multiple-choice sign-up intake (Phase 4b)
 
 paths:
   /healthz:
@@ -181,7 +183,53 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/School"
-
+    post:
+      operationId: createSchool
+      tags: [schools]
+      security: []
+      summary: Create a school + founding VOICE in one transaction (public, rate-limited)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                slug: { type: string }
+                coalitionName: { type: string }
+                contactName: { type: string }
+                contactEmail: { type: string }
+                contactPhone: { type: string }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [school, voice]
+                properties:
+                  school:
+                    type: object
+                    required: [id, slug, displayName, capabilities]
+                    properties:
+                      id: { type: string }
+                      slug: { type: string }
+                      displayName: { type: string }
+                      contactName: { type: string, nullable: true }
+                      theme: { type: object, additionalProperties: true }
+                      capabilities: { type: object, additionalProperties: { type: boolean } }
+                  voice:
+                    type: object
+                    required: [id, name, status]
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+                      status: { type: string }
+        "400": { description: Invalid }
+        "409": { description: Slug or school already exists }
 
   /schools/{schoolId}/staff:
     get:
@@ -2401,6 +2449,171 @@ paths:
                 type: object
                 properties:
                   ok: { type: boolean }
+
+  /schools/{slug}/capabilities:
+    patch:
+      operationId: patchSchoolCapabilities
+      tags: [schools]
+      summary: Platform-operator capability toggle (spec §4.6)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [capabilities]
+              properties:
+                capabilities: { type: object, additionalProperties: { type: boolean } }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [slug, capabilities]
+                properties:
+                  slug: { type: string }
+                  capabilities: { type: object, additionalProperties: { type: boolean } }
+        "400": { description: Invalid }
+        "403": { description: Platform-operator only }
+        "404": { description: Not found }
+
+  /intake/{slug}/submit:
+    post:
+      operationId: submitIntake
+      tags: [intake]
+      security: []
+      summary: Submit answers to the short sign-up intake (no auth, rate-limited)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, selections]
+              properties:
+                email: { type: string }
+                selections:
+                  type: object
+                  additionalProperties:
+                    type: array
+                    items: { type: integer }
+      responses:
+        "201":
+          description: Counted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [counted, n]
+                properties:
+                  counted: { type: boolean }
+                  n: { type: integer }
+        "400": { description: Invalid }
+        "404": { description: Not found }
+        "409": { description: Already taken part }
+
+  /intake/{slug}/aggregate:
+    get:
+      operationId: getIntakeAggregate
+      tags: [intake]
+      security: []
+      summary: Intake aggregate — domain/option shape always present; counts suppressed below n>=5
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Aggregate (suppressed below n>=5)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [suppressed, n, floor, domains]
+                properties:
+                  suppressed: { type: boolean }
+                  n: { type: integer }
+                  floor: { type: integer }
+                  domains:
+                    type: array
+                    items:
+                      type: object
+                      required: [key, section, options]
+                      properties:
+                        key: { type: string }
+                        section: { type: string }
+                        options: { type: array, items: { type: string } }
+                        counts:
+                          type: array
+                          items: { type: integer }
+                          nullable: true
+        "404": { description: Not found }
+
+  /membership/{userId}/report:
+    post:
+      operationId: reportMember
+      tags: [membership]
+      summary: In-app report-this-member affordance (any authed member)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        "201":
+          description: Reported
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [reported]
+                properties:
+                  reported: { type: boolean }
+        "404": { description: Not found }
+
+  /membership/{userId}/remove:
+    post:
+      operationId: removeMember
+      tags: [membership]
+      summary: Platform-operator flag/remove a member (community moderation)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Removed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [removed]
+                properties:
+                  removed: { type: boolean }
+        "403": { description: Platform-operator only }
+        "404": { description: Not found }
 
 components:
   schemas:

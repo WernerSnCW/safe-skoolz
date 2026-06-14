@@ -45,6 +45,8 @@ import type {
   CreateProtocolBody,
   CreatePtaInitiative201,
   CreatePtaInitiativeBody,
+  CreateSchool201,
+  CreateSchoolBody,
   CreateVoice201,
   CreateVoiceBody,
   DecidePtaProposal200,
@@ -59,6 +61,7 @@ import type {
   GeneratePtaReport201,
   GetCommunityDiagnostic200,
   GetDiagnosticResults200,
+  GetIntakeAggregate200,
   GetJoinSummary200,
   GetLatestPtaReport200,
   GetPtaAnnouncementFeed200,
@@ -99,6 +102,8 @@ import type {
   PaginatedIncidents,
   PaginatedNotifications,
   PaginatedProtocols,
+  PatchSchoolCapabilities200,
+  PatchSchoolCapabilitiesBody,
   PatternAlert,
   PostPtaAnnouncement201,
   PostPtaAnnouncementBody,
@@ -118,7 +123,10 @@ import type {
   RaisePtaProposalBody,
   RejectMember200,
   ReleaseDiagnosticResults200,
+  RemoveMember200,
   RemovePtaMember200,
+  ReportMember201,
+  ReportMemberBody,
   RequestSchoolCreate201,
   RequestSchoolCreateBody,
   RevokePtaProxy200,
@@ -137,6 +145,8 @@ import type {
   SubmitCommunityDiagnosticBody,
   SubmitConcern201,
   SubmitConcernBody,
+  SubmitIntake201,
+  SubmitIntakeBody,
   SubmitPtaCodesignResponse201,
   SubmitPtaCodesignResponseBody,
   SubmitPtaConcernBody,
@@ -730,6 +740,92 @@ export function useListSchools<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Create a school + founding VOICE in one transaction (public, rate-limited)
+ */
+export const getCreateSchoolUrl = () => {
+  return `/api/schools`;
+};
+
+export const createSchool = async (
+  createSchoolBody: CreateSchoolBody,
+  options?: RequestInit,
+): Promise<CreateSchool201> => {
+  return customFetch<CreateSchool201>(getCreateSchoolUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createSchoolBody),
+  });
+};
+
+export const getCreateSchoolMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createSchool>>,
+    TError,
+    { data: BodyType<CreateSchoolBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createSchool>>,
+  TError,
+  { data: BodyType<CreateSchoolBody> },
+  TContext
+> => {
+  const mutationKey = ["createSchool"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createSchool>>,
+    { data: BodyType<CreateSchoolBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createSchool(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateSchoolMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createSchool>>
+>;
+export type CreateSchoolMutationBody = BodyType<CreateSchoolBody>;
+export type CreateSchoolMutationError = ErrorType<void>;
+
+/**
+ * @summary Create a school + founding VOICE in one transaction (public, rate-limited)
+ */
+export const useCreateSchool = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createSchool>>,
+    TError,
+    { data: BodyType<CreateSchoolBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createSchool>>,
+  TError,
+  { data: BodyType<CreateSchoolBody> },
+  TContext
+> => {
+  return useMutation(getCreateSchoolMutationOptions(options));
+};
 
 /**
  * @summary List staff for a school
@@ -8376,4 +8472,441 @@ export const useAcknowledgePtaCharter = <
   TContext
 > => {
   return useMutation(getAcknowledgePtaCharterMutationOptions(options));
+};
+
+/**
+ * @summary Platform-operator capability toggle (spec §4.6)
+ */
+export const getPatchSchoolCapabilitiesUrl = (slug: string) => {
+  return `/api/schools/${slug}/capabilities`;
+};
+
+export const patchSchoolCapabilities = async (
+  slug: string,
+  patchSchoolCapabilitiesBody: PatchSchoolCapabilitiesBody,
+  options?: RequestInit,
+): Promise<PatchSchoolCapabilities200> => {
+  return customFetch<PatchSchoolCapabilities200>(
+    getPatchSchoolCapabilitiesUrl(slug),
+    {
+      ...options,
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(patchSchoolCapabilitiesBody),
+    },
+  );
+};
+
+export const getPatchSchoolCapabilitiesMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchSchoolCapabilities>>,
+    TError,
+    { slug: string; data: BodyType<PatchSchoolCapabilitiesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof patchSchoolCapabilities>>,
+  TError,
+  { slug: string; data: BodyType<PatchSchoolCapabilitiesBody> },
+  TContext
+> => {
+  const mutationKey = ["patchSchoolCapabilities"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof patchSchoolCapabilities>>,
+    { slug: string; data: BodyType<PatchSchoolCapabilitiesBody> }
+  > = (props) => {
+    const { slug, data } = props ?? {};
+
+    return patchSchoolCapabilities(slug, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PatchSchoolCapabilitiesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof patchSchoolCapabilities>>
+>;
+export type PatchSchoolCapabilitiesMutationBody =
+  BodyType<PatchSchoolCapabilitiesBody>;
+export type PatchSchoolCapabilitiesMutationError = ErrorType<void>;
+
+/**
+ * @summary Platform-operator capability toggle (spec §4.6)
+ */
+export const usePatchSchoolCapabilities = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchSchoolCapabilities>>,
+    TError,
+    { slug: string; data: BodyType<PatchSchoolCapabilitiesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof patchSchoolCapabilities>>,
+  TError,
+  { slug: string; data: BodyType<PatchSchoolCapabilitiesBody> },
+  TContext
+> => {
+  return useMutation(getPatchSchoolCapabilitiesMutationOptions(options));
+};
+
+/**
+ * @summary Submit answers to the short sign-up intake (no auth, rate-limited)
+ */
+export const getSubmitIntakeUrl = (slug: string) => {
+  return `/api/intake/${slug}/submit`;
+};
+
+export const submitIntake = async (
+  slug: string,
+  submitIntakeBody: SubmitIntakeBody,
+  options?: RequestInit,
+): Promise<SubmitIntake201> => {
+  return customFetch<SubmitIntake201>(getSubmitIntakeUrl(slug), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(submitIntakeBody),
+  });
+};
+
+export const getSubmitIntakeMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitIntake>>,
+    TError,
+    { slug: string; data: BodyType<SubmitIntakeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof submitIntake>>,
+  TError,
+  { slug: string; data: BodyType<SubmitIntakeBody> },
+  TContext
+> => {
+  const mutationKey = ["submitIntake"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof submitIntake>>,
+    { slug: string; data: BodyType<SubmitIntakeBody> }
+  > = (props) => {
+    const { slug, data } = props ?? {};
+
+    return submitIntake(slug, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SubmitIntakeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof submitIntake>>
+>;
+export type SubmitIntakeMutationBody = BodyType<SubmitIntakeBody>;
+export type SubmitIntakeMutationError = ErrorType<void>;
+
+/**
+ * @summary Submit answers to the short sign-up intake (no auth, rate-limited)
+ */
+export const useSubmitIntake = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitIntake>>,
+    TError,
+    { slug: string; data: BodyType<SubmitIntakeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof submitIntake>>,
+  TError,
+  { slug: string; data: BodyType<SubmitIntakeBody> },
+  TContext
+> => {
+  return useMutation(getSubmitIntakeMutationOptions(options));
+};
+
+/**
+ * @summary Intake aggregate — domain/option shape always present; counts suppressed below n>=5
+ */
+export const getGetIntakeAggregateUrl = (slug: string) => {
+  return `/api/intake/${slug}/aggregate`;
+};
+
+export const getIntakeAggregate = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<GetIntakeAggregate200> => {
+  return customFetch<GetIntakeAggregate200>(getGetIntakeAggregateUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetIntakeAggregateQueryKey = (slug: string) => {
+  return [`/api/intake/${slug}/aggregate`] as const;
+};
+
+export const getGetIntakeAggregateQueryOptions = <
+  TData = Awaited<ReturnType<typeof getIntakeAggregate>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getIntakeAggregate>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetIntakeAggregateQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getIntakeAggregate>>
+  > = ({ signal }) => getIntakeAggregate(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getIntakeAggregate>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetIntakeAggregateQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getIntakeAggregate>>
+>;
+export type GetIntakeAggregateQueryError = ErrorType<void>;
+
+/**
+ * @summary Intake aggregate — domain/option shape always present; counts suppressed below n>=5
+ */
+
+export function useGetIntakeAggregate<
+  TData = Awaited<ReturnType<typeof getIntakeAggregate>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getIntakeAggregate>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetIntakeAggregateQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary In-app report-this-member affordance (any authed member)
+ */
+export const getReportMemberUrl = (userId: string) => {
+  return `/api/membership/${userId}/report`;
+};
+
+export const reportMember = async (
+  userId: string,
+  reportMemberBody?: ReportMemberBody,
+  options?: RequestInit,
+): Promise<ReportMember201> => {
+  return customFetch<ReportMember201>(getReportMemberUrl(userId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(reportMemberBody),
+  });
+};
+
+export const getReportMemberMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof reportMember>>,
+    TError,
+    { userId: string; data: BodyType<ReportMemberBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof reportMember>>,
+  TError,
+  { userId: string; data: BodyType<ReportMemberBody> },
+  TContext
+> => {
+  const mutationKey = ["reportMember"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof reportMember>>,
+    { userId: string; data: BodyType<ReportMemberBody> }
+  > = (props) => {
+    const { userId, data } = props ?? {};
+
+    return reportMember(userId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ReportMemberMutationResult = NonNullable<
+  Awaited<ReturnType<typeof reportMember>>
+>;
+export type ReportMemberMutationBody = BodyType<ReportMemberBody>;
+export type ReportMemberMutationError = ErrorType<void>;
+
+/**
+ * @summary In-app report-this-member affordance (any authed member)
+ */
+export const useReportMember = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof reportMember>>,
+    TError,
+    { userId: string; data: BodyType<ReportMemberBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof reportMember>>,
+  TError,
+  { userId: string; data: BodyType<ReportMemberBody> },
+  TContext
+> => {
+  return useMutation(getReportMemberMutationOptions(options));
+};
+
+/**
+ * @summary Platform-operator flag/remove a member (community moderation)
+ */
+export const getRemoveMemberUrl = (userId: string) => {
+  return `/api/membership/${userId}/remove`;
+};
+
+export const removeMember = async (
+  userId: string,
+  options?: RequestInit,
+): Promise<RemoveMember200> => {
+  return customFetch<RemoveMember200>(getRemoveMemberUrl(userId), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getRemoveMemberMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof removeMember>>,
+    TError,
+    { userId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof removeMember>>,
+  TError,
+  { userId: string },
+  TContext
+> => {
+  const mutationKey = ["removeMember"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof removeMember>>,
+    { userId: string }
+  > = (props) => {
+    const { userId } = props ?? {};
+
+    return removeMember(userId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RemoveMemberMutationResult = NonNullable<
+  Awaited<ReturnType<typeof removeMember>>
+>;
+
+export type RemoveMemberMutationError = ErrorType<void>;
+
+/**
+ * @summary Platform-operator flag/remove a member (community moderation)
+ */
+export const useRemoveMember = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof removeMember>>,
+    TError,
+    { userId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof removeMember>>,
+  TError,
+  { userId: string },
+  TContext
+> => {
+  return useMutation(getRemoveMemberMutationOptions(options));
 };

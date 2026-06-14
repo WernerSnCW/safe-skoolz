@@ -577,6 +577,39 @@ export interface PtaResource {
   type: string;
 }
 
+export type CreateSchoolBody = {
+  name: string;
+  slug?: string;
+  coalitionName?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+};
+
+export type CreateSchool201SchoolTheme = { [key: string]: unknown };
+
+export type CreateSchool201SchoolCapabilities = { [key: string]: boolean };
+
+export type CreateSchool201School = {
+  id: string;
+  slug: string;
+  displayName: string;
+  contactName?: string | null;
+  theme?: CreateSchool201SchoolTheme;
+  capabilities: CreateSchool201SchoolCapabilities;
+};
+
+export type CreateSchool201Voice = {
+  id: string;
+  name: string;
+  status: string;
+};
+
+export type CreateSchool201 = {
+  school: CreateSchool201School;
+  voice: CreateSchool201Voice;
+};
+
 export type ListIncidentsParams = {
   status?: string;
   category?: string;
@@ -1410,4 +1443,57 @@ export type AdoptPtaCharter200 = {
 
 export type AcknowledgePtaCharter200 = {
   ok?: boolean;
+};
+
+export type PatchSchoolCapabilitiesBodyCapabilities = {
+  [key: string]: boolean;
+};
+
+export type PatchSchoolCapabilitiesBody = {
+  capabilities: PatchSchoolCapabilitiesBodyCapabilities;
+};
+
+export type PatchSchoolCapabilities200Capabilities = { [key: string]: boolean };
+
+export type PatchSchoolCapabilities200 = {
+  slug: string;
+  capabilities: PatchSchoolCapabilities200Capabilities;
+};
+
+export type SubmitIntakeBodySelections = { [key: string]: number[] };
+
+export type SubmitIntakeBody = {
+  email: string;
+  selections: SubmitIntakeBodySelections;
+};
+
+export type SubmitIntake201 = {
+  counted: boolean;
+  n: number;
+};
+
+export type GetIntakeAggregate200DomainsItem = {
+  key: string;
+  section: string;
+  options: string[];
+  counts?: number[] | null;
+};
+
+export type GetIntakeAggregate200 = {
+  suppressed: boolean;
+  n: number;
+  floor: number;
+  domains: GetIntakeAggregate200DomainsItem[];
+};
+
+export type ReportMemberBody = {
+  reason?: string;
+};
+
+export type ReportMember201 = {
+  reported: boolean;
+};
+
+export type RemoveMember200 = {
+  removed: boolean;
 };
