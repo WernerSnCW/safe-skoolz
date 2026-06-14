@@ -26,6 +26,11 @@ export const schoolsTable = pgTable("schools", {
   // value. Null => use the n>=5 privacy floor. Ch2 replaces this with the
   // PTA-relative number. Ignored for whole-school tenants (manual exec release).
   releaseThreshold: integer("release_threshold"),
+  // Chapter 2 (spec §4): the collective-signal threshold. Below it, mandates are
+  // logged internally and NO external communication fires; at/above it the
+  // coalition can fire the collective signal (Stage 3). Per-tenant configurable
+  // via the Ch1 platform-operator capability surface. Default 10 (brief).
+  signalThreshold: integer("signal_threshold").default(10).notNull(),
   // Phase-1 tenant config (spec §3.1). display_name drives "{School} Vibes";
   // theme overrides design tokens (v1: { primaryColor: "H S% L%" }); capabilities
   // is a key→bool map resolved server-side over CAPABILITY_DEFAULTS.
