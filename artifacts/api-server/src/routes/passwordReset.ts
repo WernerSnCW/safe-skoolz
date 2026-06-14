@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import bcrypt from "bcrypt";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { eq, and, isNull, gt, inArray } from "drizzle-orm";
 import { db, usersTable, passwordResetTokensTable } from "@workspace/db";
 import { sendEmail } from "../lib/emailHelper";
@@ -47,11 +47,13 @@ router.post("/auth/password-reset/request", async (req, res): Promise<void> => {
 
   const token = crypto.randomBytes(32).toString("hex");
   const tokenHash = await bcrypt.hash(token, BCRYPT_ROUNDS);
+  const tokenLookup = crypto.createHash("sha256").update(token).digest("hex");
   const expiresAt = new Date(Date.now() + TOKEN_TTL_MS);
 
   await db.insert(passwordResetTokensTable).values({
     userId: user.id,
     tokenHash,
+    tokenLookup,
     expiresAt,
   });
 
@@ -105,26 +107,51 @@ router.post("/auth/password-reset/complete", async (req, res): Promise<void> => 
     return;
   }
 
-  // Scan unexpired, unconsumed tokens and bcrypt.compare each. The token table is
-  // tiny in steady state thanks to TTL + consumption; lookup remains constant-time
-  // per row regardless of total user count.
-  const candidates = await db
+  // Fast path: SHA-256 of the presented token narrows to at most one candidate
+  // row (indexed exact-match). bcrypt.compare still validates the real secret.
+  // Legacy rows predate token_lookup and have NULL there; they fall through to
+  // the full scan below so that in-flight tokens issued before this deploy
+  // continue to work.
+  const presentedLookup = crypto.createHash("sha256").update(token).digest("hex");
+  const fastCandidates = await db
     .select()
     .from(passwordResetTokensTable)
     .where(
       and(
+        eq(passwordResetTokensTable.tokenLookup, presentedLookup),
         isNull(passwordResetTokensTable.consumedAt),
         gt(passwordResetTokensTable.expiresAt, new Date()),
       ),
     );
 
-  let matchedRow: (typeof candidates)[number] | null = null;
-  for (const row of candidates) {
+  let matchedRow: (typeof fastCandidates)[number] | null = null;
+  for (const row of fastCandidates) {
     if (await bcrypt.compare(token, row.tokenHash)) {
       matchedRow = row;
       break;
     }
   }
+
+  // Legacy fallback: rows without token_lookup (created before this deploy).
+  if (!matchedRow) {
+    const legacyCandidates = await db
+      .select()
+      .from(passwordResetTokensTable)
+      .where(
+        and(
+          isNull(passwordResetTokensTable.tokenLookup),
+          isNull(passwordResetTokensTable.consumedAt),
+          gt(passwordResetTokensTable.expiresAt, new Date()),
+        ),
+      );
+    for (const row of legacyCandidates) {
+      if (await bcrypt.compare(token, row.tokenHash)) {
+        matchedRow = row;
+        break;
+      }
+    }
+  }
+
   if (!matchedRow) {
     res.status(400).json({ error: "Invalid or expired reset token" });
     return;

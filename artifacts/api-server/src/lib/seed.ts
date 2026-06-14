@@ -34,7 +34,7 @@ export async function seedDemoData() {
 
   await db.insert(schoolsTable).values({
     id: SCHOOL_ID,
-    name: "Morna",
+    name: "Riverside School",
     legalEntity: "ISM Foundation S.L.",
     cif: "B12345678",
     address: "Carrer de Sa Figuera 12, Palma, Mallorca",
@@ -44,11 +44,11 @@ export async function seedDemoData() {
 
   // Per-class access codes — each class gets its own code
   const classCodes = [
-    { code: "3A-MORNA", className: "3A" },
-    { code: "4A-MORNA", className: "4A" },
-    { code: "5B-MORNA", className: "5B" },
-    { code: "6A-MORNA", className: "6A" },
-    { code: "7A-MORNA", className: "7A" },
+    { code: "3A-RIVER", className: "3A" },
+    { code: "4A-RIVER", className: "4A" },
+    { code: "5B-RIVER", className: "5B" },
+    { code: "6A-RIVER", className: "6A" },
+    { code: "7A-RIVER", className: "7A" },
   ];
   for (const { code, className } of classCodes) {
     const codeHash = await bcrypt.hash(code, 12);

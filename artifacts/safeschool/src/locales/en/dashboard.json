@@ -261,5 +261,7 @@
   "currentStatus": "Current Status",
   "reviewedBy": "Reviewed by {{name}} on {{date}}",
   "adminTileTitle": "Compliance overview",
-  "adminTileDescription": "Policies, permissions, frameworks, and data controller"
+  "adminTileDescription": "Policies, permissions, frameworks, and data controller",
+  "followJourney": "Follow the VBE journey",
+  "journeyDesc": "From one parent's voice to a whole school living its values"
 }

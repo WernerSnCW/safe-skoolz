@@ -47,6 +47,18 @@ async function seed() {
 
   console.log(`Created school: ${school.name} (${school.id})`);
 
+  await db.update(schoolsTable)
+    .set({
+      displayName: "Riverside",
+      capabilities: {
+        learn: true, diagnostic: true, voice: true, membership: true,
+        results: true, concerns: true, pta: true,
+        safeguarding: true, lessons: true, behaviour: true,
+      },
+    })
+    .where(eq(schoolsTable.id, school.id));
+  console.log(`Set Riverside capabilities (full tier)`);
+
   const classCodes = [
     { code: "3A-MORNA", className: "3A" },
     { code: "4A-MORNA", className: "4A" },

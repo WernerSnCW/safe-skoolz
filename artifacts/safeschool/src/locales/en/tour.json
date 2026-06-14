@@ -52,7 +52,7 @@
         "benefit": "Your voice matters. You can see the results too — real data on how safe your school feels."
       },
       {
-        "title": "How To Use safeskoolz",
+        "title": "How To Use vibez",
         "description": "Step-by-step guides explain every feature: how to report an incident, how to use your diary, how messages work, how to send an urgent help alert, and how the behaviour system works. Each guide has numbered steps you can follow along with.",
         "benefit": "If you're ever unsure how something works, the answer is here."
       },
@@ -68,8 +68,8 @@
       },
       {
         "title": "Your Avatar & Settings",
-        "description": "Pick your animal avatar from the grid — dog, cat, rabbit, bear, fox, owl, penguin, lion, panda, unicorn, and more. Your chosen animal appears next to your name everywhere in safeskoolz. You can change it any time.",
-        "benefit": "Your avatar is your identity in safeskoolz — pick the one that feels like you."
+        "description": "Pick your animal avatar from the grid — dog, cat, rabbit, bear, fox, owl, penguin, lion, panda, unicorn, and more. Your chosen animal appears next to your name everywhere in vibez. You can change it any time.",
+        "benefit": "Your avatar is your identity in vibez — pick the one that feels like you."
       }
     ],
     "parent": [
@@ -109,7 +109,7 @@
         "benefit": "Your voice shapes real improvements. See the scores, the gaps, and the action plans that follow."
       },
       {
-        "title": "How To Use safeskoolz",
+        "title": "How To Use vibez",
         "description": "Step-by-step guides for every feature — viewing incidents, checking behaviour points and levels, messaging staff, and reporting concerns. Each guide has numbered steps you can follow along with.",
         "benefit": "Never feel lost — everything is explained here."
       },
@@ -312,7 +312,7 @@
         "benefit": "Anonymised data you can reference at governor meetings. See the scores, the gaps, and what's being done."
       },
       {
-        "title": "How To Use safeskoolz",
+        "title": "How To Use vibez",
         "description": "Step-by-step guides for every PTA feature: navigating the dashboard, messaging the coordinator, reviewing policy, accessing the annual report, using the co-design workspace, and understanding the resources library.",
         "benefit": "Get up to speed quickly. Every PTA feature explained step by step."
       },
@@ -337,6 +337,159 @@
         "title": "Training Guide",
         "description": "Step-by-step guides for every feature.",
         "benefit": "Learn at your own pace."
+      }
+    ]
+  },
+  "journeyButton": "Follow the VBE journey",
+  "journey": {
+    "parent": [
+      {
+        "title": "It starts with you",
+        "description": "This is your parent home — signing up is free and takes a minute. You can see your child's world here: lessons, wellbeing, messages, and anything the school shares with you. But vibez is also where parents change schools — and that journey starts one click away.",
+        "benefit": "One parent with a clear ask is all it takes to start."
+      },
+      {
+        "title": "Create a VOICE",
+        "description": "A VOICE is a parent collective with one mission: ask your school to adopt Values-Based Education. Give it a name and a mission — you're the founder. No committee, no meetings, no permission needed.",
+        "benefit": "Scattered concern becomes one clear, respectful ask."
+      },
+      {
+        "title": "Build your coalition",
+        "description": "Every VOICE has a public page made for sharing. Hit Share and drop the link in your class WhatsApp group — parents add their name and email to back the mission, no login needed. Watch the backer count become your mandate.",
+        "benefit": "Ten backers is a conversation. Fifty is a mandate."
+      },
+      {
+        "title": "Show, don't tell",
+        "description": "Back the ask with evidence. The diagnostics measure how the community actually feels — wellbeing, belonging, values — so the conversation with the school starts from data, not anecdotes.",
+        "benefit": "Schools move on evidence. Bring some."
+      },
+      {
+        "title": "Prepare what the school needs",
+        "description": "Everything the school needs to say yes is already prepared: the VBE Adoption Pack, SLT briefings, teacher materials, and rollout guides — all free in the Resource Centre. You're not asking them to invent something; you're handing them a plan.",
+        "benefit": "Make yes the easy answer."
+      },
+      {
+        "title": "The PTA carries it",
+        "description": "When the school adopts, your VOICE folds into the PTA — founders and backers become members. The PTA runs open ballots, logs decisions, and posts announcements you can follow right here.",
+        "benefit": "Your one ask becomes a permanent, organised parent voice."
+      },
+      {
+        "title": "The school lives it",
+        "description": "This is where the journey lands: values-led lessons pupils actually take, wellbeing diaries, behaviour that reflects the values, and safeguarding tools underneath it all. From one parent's voice to a school living its values — that's the whole journey.",
+        "benefit": "Change that reaches every classroom, every child."
+      }
+    ],
+    "coordinator": [
+      {
+        "title": "The ask arrives",
+        "description": "You're looking at the school's seat. When parents organise a VOICE, the ask lands here — visible, respectful, and backed by names. This tour follows what happens when a school says yes.",
+        "benefit": "Parent energy arrives organised, not scattered."
+      },
+      {
+        "title": "See the mandate",
+        "description": "Each VOICE shows its mission and its backers — parents and public supporters who signed their names. You're not reacting to a complaint; you're responding to an organised, constructive ask.",
+        "benefit": "You know exactly who's asking, and what for."
+      },
+      {
+        "title": "Measure before you move",
+        "description": "Run the diagnostics to see where the community actually stands — wellbeing, belonging, values. Adopt VBE from evidence, and you'll have a baseline to show progress against later.",
+        "benefit": "A baseline today is proof of progress tomorrow."
+      },
+      {
+        "title": "Prepare the rollout",
+        "description": "The Resource Centre carries the full VBE Adoption Pack: SLT briefings, teacher materials, parent letters, and a 10-day rollout plan. Free, ready, and already written.",
+        "benefit": "Adoption is a plan you pick up, not a project you invent."
+      },
+      {
+        "title": "Roll it out to classrooms",
+        "description": "The learning centre delivers values-led PSHE lessons teachers present directly — with quizzes and per-pupil progress. Your Year 7 pilot is live right here.",
+        "benefit": "Values taught as observable behaviour, lesson by lesson."
+      },
+      {
+        "title": "Give the culture teeth",
+        "description": "A values culture still needs safeguarding. Reporting, pattern alerts, formal protocols, and case tasks — all connected, all logged. Watch how reports become patterns and patterns become protocols.",
+        "benefit": "Nothing slips through; everything is auditable."
+      },
+      {
+        "title": "Sustain it",
+        "description": "Back at your dashboard, the whole school is one picture: reports, alerts, protocols, behaviour, wellbeing. That's VBE operational — adopted on evidence, taught in classrooms, protected by process.",
+        "benefit": "One screen tells you the culture is holding."
+      }
+    ],
+    "teacher": [
+      {
+        "title": "Your start here",
+        "description": "Your home leads with the two things teachers actually need: log something quickly, and teach the values. This tour follows the VBE rollout from your seat.",
+        "benefit": "Less admin, more teaching."
+      },
+      {
+        "title": "Teach the lessons",
+        "description": "Values-led PSHE lessons, ready to present — hooks, slides, quizzes. Pick the next one for your class and walk through it on the board.",
+        "benefit": "A full lesson in your hand, zero prep."
+      },
+      {
+        "title": "Know your class",
+        "description": "Every pupil in one place — wellbeing signals, behaviour, incidents they're involved in. The whole child, not just the last thing that happened.",
+        "benefit": "Spot the quiet ones before they disappear."
+      },
+      {
+        "title": "Behaviour as feedback",
+        "description": "Points reflect the school's values, with levels that trigger the right conversations at the right time — and parents see the same picture you do.",
+        "benefit": "Consistent, transparent, and never a surprise."
+      },
+      {
+        "title": "When something happens",
+        "description": "Log an incident in about sixty seconds. It routes to the right people, joins any pattern that exists, and you're done.",
+        "benefit": "Sixty seconds, and it's in the right hands."
+      }
+    ],
+    "pupil": [
+      {
+        "title": "Your space",
+        "description": "This is yours: how you're feeling, what you're learning, and a way to speak up if something's wrong. The tour shows you around.",
+        "benefit": "School, but it actually listens."
+      },
+      {
+        "title": "Your lessons",
+        "description": "Lessons about real things — sleep, friends, the internet, money — with quick quizzes. Your progress is saved as you go.",
+        "benefit": "Stuff you'll actually use."
+      },
+      {
+        "title": "Your diary",
+        "description": "Jot down how today felt. It's private to you and the adults whose job is to look out for you — and it helps them notice when something's off.",
+        "benefit": "A place to put the day down."
+      },
+      {
+        "title": "Speak up",
+        "description": "If something's wrong — for you or for someone else — say it here. You can stay anonymous, and a real person will look at it.",
+        "benefit": "Saying something is always safe here."
+      }
+    ],
+    "pta": [
+      {
+        "title": "The PTA seat",
+        "description": "When a VOICE wins and the school adopts, the PTA carries the change. This is the operating home: members, decisions, ballots, and announcements in one place.",
+        "benefit": "An organised PTA earns the school's trust."
+      },
+      {
+        "title": "From VOICE to membership",
+        "description": "Converted VOICEs fold their backers straight into the PTA — founders into the senior group, members into the general membership. The energy that won the ask doesn't evaporate; it joins.",
+        "benefit": "Momentum becomes membership."
+      },
+      {
+        "title": "Organise the change",
+        "description": "Initiatives turn the mission into projects with owners and target dates — each one linked back to the VOICE it came from.",
+        "benefit": "From 'someone should' to 'someone is'."
+      },
+      {
+        "title": "Decide in the open",
+        "description": "Formal ballots with quorum, proxies, and one vote per member. Decisions get made, recorded, and stand up to scrutiny.",
+        "benefit": "Silence is not acceptance — votes are votes."
+      },
+      {
+        "title": "Keep parents in the loop",
+        "description": "Announcements reach exactly who they should — all parents, members, or officers. The loop that started with one parent's share stays open.",
+        "benefit": "Nobody asks 'what happened with that?' twice."
       }
     ]
   }

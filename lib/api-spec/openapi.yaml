@@ -27,6 +27,14 @@ tags:
     description: Dashboard data
   - name: pta
     description: PTA portal
+  - name: diagnostic
+    description: Community diagnostic surveys
+  - name: membership
+  - name: join
+  - name: concerns
+    description: Community concern intake + exec triage
+  - name: intake
+    description: Short multiple-choice sign-up intake (Phase 4b)
 
 paths:
   /healthz:
@@ -175,7 +183,53 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/School"
-
+    post:
+      operationId: createSchool
+      tags: [schools]
+      security: []
+      summary: Create a school + founding VOICE in one transaction (public, rate-limited)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                slug: { type: string }
+                coalitionName: { type: string }
+                contactName: { type: string }
+                contactEmail: { type: string }
+                contactPhone: { type: string }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [school, voice]
+                properties:
+                  school:
+                    type: object
+                    required: [id, slug, displayName, capabilities]
+                    properties:
+                      id: { type: string }
+                      slug: { type: string }
+                      displayName: { type: string }
+                      contactName: { type: string, nullable: true }
+                      theme: { type: object, additionalProperties: true }
+                      capabilities: { type: object, additionalProperties: { type: boolean } }
+                  voice:
+                    type: object
+                    required: [id, name, status]
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+                      status: { type: string }
+        "400": { description: Invalid }
+        "409": { description: Slug or school already exists }
 
   /schools/{schoolId}/staff:
     get:
@@ -603,6 +657,543 @@ paths:
               schema:
                 $ref: "#/components/schemas/PtaDashboard"
 
+  /pta/announcements/feed:
+    get:
+      operationId: getPtaAnnouncementFeed
+      tags: [pta]
+      summary: Announcements visible to the current user (parent feed)
+      responses:
+        "200":
+          description: Feed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        title: { type: string }
+                        body: { type: string }
+                        audience: { type: string }
+                        pinned: { type: boolean }
+                        createdAt: { type: string }
+                        author: { type: string }
+
+  /pta/announcements:
+    get:
+      operationId: listPtaAnnouncements
+      tags: [pta]
+      summary: PTA announcements (published log)
+      responses:
+        "200":
+          description: Announcements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        title: { type: string }
+                        body: { type: string }
+                        audience: { type: string }
+                        pinned: { type: boolean }
+                        createdAt: { type: string }
+                        author: { type: string }
+    post:
+      operationId: postPtaAnnouncement
+      tags: [pta]
+      summary: Publish a PTA announcement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                body: { type: string }
+                audience: { type: string }
+                pinned: { type: boolean }
+              required: [title, body]
+      responses:
+        "201":
+          description: Published
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcement: { type: object }
+  /pta/announcements/{id}:
+    delete:
+      operationId: deletePtaAnnouncement
+      tags: [pta]
+      summary: Delete a PTA announcement
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
+  /pta/ballots:
+    get:
+      operationId: listPtaBallots
+      tags: [pta]
+      summary: Ballots with live tally and quorum status
+      responses:
+        "200":
+          description: Ballots
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rosterActive: { type: number }
+                  isMember: { type: boolean }
+                  ballots:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        question: { type: string }
+                        description: { type: string, nullable: true }
+                        options: { type: array, items: { type: string } }
+                        status: { type: string }
+                        quorum: { type: number, nullable: true }
+                        closesAt: { type: string, nullable: true }
+                        createdAt: { type: string }
+                        tally: { type: object, additionalProperties: { type: number } }
+                        totalVotes: { type: number }
+                        quorumMet: { type: boolean, nullable: true }
+                        myVote: { type: string, nullable: true }
+                        electorate: { type: string }
+    post:
+      operationId: openPtaBallot
+      tags: [pta]
+      summary: Open a ballot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question: { type: string }
+                description: { type: string }
+                options: { type: array, items: { type: string } }
+                quorum: { type: number }
+                closesAt: { type: string }
+                proposalId: { type: string }
+              required: [question]
+      responses:
+        "201":
+          description: Opened
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ballot: { type: object }
+  /pta/ballots/{id}/close:
+    post:
+      operationId: closePtaBallot
+      tags: [pta]
+      summary: Close a ballot
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Closed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ballot: { type: object }
+  /pta/ballots/{id}/vote:
+    post:
+      operationId: castPtaVote
+      tags: [pta]
+      summary: Cast a vote (self or by proxy)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                choice: { type: string }
+                memberId: { type: string }
+              required: [choice]
+      responses:
+        "201":
+          description: Vote cast
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vote: { type: object }
+  /pta/proxies:
+    get:
+      operationId: listPtaProxies
+      tags: [pta]
+      summary: Standing proxies (grantor to holder)
+      responses:
+        "200":
+          description: Proxies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  myMemberId: { type: string, nullable: true }
+                  proxies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        grantorMemberId: { type: string }
+                        holderMemberId: { type: string }
+                        grantor: { type: string }
+                        holder: { type: string }
+    post:
+      operationId: setPtaProxy
+      tags: [pta]
+      summary: Set my standing proxy holder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                holderMemberId: { type: string }
+              required: [holderMemberId]
+      responses:
+        "201":
+          description: Proxy set
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proxy: { type: object }
+    delete:
+      operationId: revokePtaProxy
+      tags: [pta]
+      summary: Revoke my standing proxy
+      responses:
+        "200":
+          description: Revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
+  /pta/proposals:
+    get:
+      operationId: listPtaProposals
+      tags: [pta]
+      summary: The PTA decision log
+      responses:
+        "200":
+          description: Proposals list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proposals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        title: { type: string }
+                        detail: { type: string }
+                        category: { type: string }
+                        status: { type: string }
+                        decisionDueAt: { type: string, nullable: true }
+                        decisionRationale: { type: string, nullable: true }
+                        decidedAt: { type: string, nullable: true }
+                        createdAt: { type: string }
+                        raisedBy: { type: string }
+                        decidedBy: { type: string, nullable: true }
+                        overdue: { type: boolean }
+    post:
+      operationId: raisePtaProposal
+      tags: [pta]
+      summary: Raise a proposal for decision
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                detail: { type: string }
+                category: { type: string }
+                decisionDueAt: { type: string }
+              required: [title, detail]
+      responses:
+        "201":
+          description: Raised
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proposal: { type: object }
+  /pta/proposals/{id}/decide:
+    post:
+      operationId: decidePtaProposal
+      tags: [pta]
+      summary: Record an explicit decision on a proposal
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outcome: { type: string }
+                rationale: { type: string }
+              required: [outcome]
+      responses:
+        "200":
+          description: Decided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proposal: { type: object }
+  /pta/proposals/{id}/withdraw:
+    post:
+      operationId: withdrawPtaProposal
+      tags: [pta]
+      summary: Withdraw an open proposal
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Withdrawn
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  proposal: { type: object }
+
+  /pta/members:
+    get:
+      operationId: listPtaMembers
+      tags: [pta]
+      summary: List PTA members with their active officer roles
+      responses:
+        "200":
+          description: Members list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        userId: { type: string }
+                        name: { type: string }
+                        email: { type: string }
+                        tier: { type: string }
+                        status: { type: string }
+                        joinedAt: { type: string }
+                        offices:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              role: { type: string }
+                              domain: { type: string, nullable: true }
+    post:
+      operationId: addPtaMember
+      tags: [pta]
+      summary: Add a PTA member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: { type: string }
+                tier: { type: string }
+                status: { type: string }
+              required: [userId]
+      responses:
+        "201":
+          description: Member created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member: { type: object }
+  /pta/members/candidates:
+    get:
+      operationId: listPtaMemberCandidates
+      tags: [pta]
+      summary: School users (parents/PTA) not yet members
+      responses:
+        "200":
+          description: Candidate users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candidates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                        email: { type: string }
+                        role: { type: string }
+  /pta/members/{id}:
+    patch:
+      operationId: updatePtaMember
+      tags: [pta]
+      summary: Update a PTA member's tier or status
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tier: { type: string }
+                status: { type: string }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member: { type: object }
+    delete:
+      operationId: removePtaMember
+      tags: [pta]
+      summary: Remove a PTA member (and end their officer appointments)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+  /pta/officers:
+    get:
+      operationId: listPtaOfficers
+      tags: [pta]
+      summary: List active PTA officers
+      responses:
+        "200":
+          description: Officers list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  officers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        memberId: { type: string }
+                        name: { type: string }
+                        role: { type: string }
+                        domain: { type: string, nullable: true }
+                        termStartAt: { type: string }
+                        active: { type: boolean }
+    post:
+      operationId: appointPtaOfficer
+      tags: [pta]
+      summary: Appoint a PTA officer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                memberId: { type: string }
+                role: { type: string }
+                domain: { type: string }
+              required: [memberId, role]
+      responses:
+        "201":
+          description: Appointed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  officer: { type: object }
+  /pta/officers/{id}/end:
+    post:
+      operationId: endPtaOfficer
+      tags: [pta]
+      summary: End a PTA officer appointment
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Ended
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  officer: { type: object }
+
   /pta/messages:
     get:
       operationId: listPtaMessages
@@ -872,6 +1463,1337 @@ paths:
                     items:
                       $ref: "#/components/schemas/PtaResource"
 
+  /pta/initiatives:
+    get:
+      operationId: listPtaInitiatives
+      tags: [pta]
+      summary: List PTA initiatives (the organise primitive)
+      responses:
+        "200":
+          description: Initiatives list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initiatives:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        title: { type: string }
+                        summary: { type: string }
+                        status: { type: string }
+                        ownerId: { type: string, nullable: true }
+                        owner: { type: string, nullable: true }
+                        originVoiceId: { type: string, nullable: true }
+                        originVoiceName: { type: string, nullable: true }
+                        targetDate: { type: string, nullable: true }
+                        createdAt: { type: string }
+                        completedAt: { type: string, nullable: true }
+                        goalId: { type: string, nullable: true }
+                        goalTitle: { type: string, nullable: true }
+                        goalStatus: { type: string, nullable: true }
+                        successCriteria: { type: string, nullable: true }
+                        resourcesNeeded: { type: string, nullable: true }
+                        conflicts: { type: string, nullable: true }
+                        checklist: { type: object }
+                        schoolStage: { type: string }
+                        responseDueAt: { type: string, nullable: true }
+                        approvalType: { type: string, nullable: true }
+                        approvedAt: { type: string, nullable: true }
+                        approvedBy: { type: string, nullable: true }
+                        awaitingResponse: { type: boolean }
+                        followUpCount: { type: integer }
+    post:
+      operationId: createPtaInitiative
+      tags: [pta]
+      summary: Start a PTA initiative
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                summary: { type: string }
+                ownerId: { type: string, nullable: true }
+                originVoiceId: { type: string, nullable: true }
+                targetDate: { type: string, nullable: true }
+                goalId: { type: string, nullable: true }
+                successCriteria: { type: string, nullable: true }
+                resourcesNeeded: { type: string, nullable: true }
+                conflicts: { type: string, nullable: true }
+              required: [title, summary]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initiative: { type: object }
+  /pta/initiatives/{id}:
+    patch:
+      operationId: updatePtaInitiative
+      tags: [pta]
+      summary: Update / advance a PTA initiative
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string }
+                title: { type: string }
+                summary: { type: string }
+                ownerId: { type: string, nullable: true }
+                targetDate: { type: string, nullable: true }
+                goalId: { type: string, nullable: true }
+                successCriteria: { type: string, nullable: true }
+                resourcesNeeded: { type: string, nullable: true }
+                conflicts: { type: string, nullable: true }
+                checklist: { type: object }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initiative: { type: object }
+  /pta/initiatives/{id}/detail:
+    get:
+      operationId: getPtaInitiative
+      tags: [pta]
+      summary: Initiative detail + stage history
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initiative: { type: object }
+                  stageHistory: { type: array, items: { type: object } }
+        "404": { description: Not found }
+  /pta/initiatives/{id}/approve:
+    post:
+      operationId: approvePtaInitiative
+      tags: [pta]
+      summary: Approve an initiative (self or board)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [approvalType]
+              properties:
+                approvalType: { type: string }
+                boardNote: { type: string, nullable: true }
+      responses:
+        "200": { description: Approved, content: { application/json: { schema: { type: object, properties: { initiative: { type: object } } } } } }
+        "400": { description: Invalid }
+        "409": { description: Checklist not met or already approved }
+  /pta/initiatives/{id}/stage:
+    post:
+      operationId: advancePtaInitiativeStage
+      tags: [pta]
+      summary: Advance the school-process stage
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toStage]
+              properties:
+                toStage: { type: string }
+                occurredAt: { type: string, nullable: true }
+                outcomeNote: { type: string, nullable: true }
+                reason: { type: string, nullable: true }
+                responseDueAt: { type: string, nullable: true }
+      responses:
+        "200": { description: Advanced, content: { application/json: { schema: { type: object, properties: { initiative: { type: object } } } } } }
+        "400": { description: Invalid }
+        "409": { description: Illegal transition }
+  /pta/initiatives/{id}/follow-up:
+    post:
+      operationId: followUpPtaInitiative
+      tags: [pta]
+      summary: Record a follow-up against a non-response
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [note]
+              properties:
+                note: { type: string }
+      responses:
+        "201": { description: Logged, content: { application/json: { schema: { type: object, properties: { entry: { type: object } } } } } }
+        "400": { description: Invalid }
+  /pta/goals:
+    get:
+      operationId: listPtaGoals
+      tags: [pta]
+      summary: List PTA annual goals (all stages) with proposer + ballot tally
+      responses:
+        "200":
+          description: Goals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goals:
+                    type: array
+                    items: { type: object }
+    post:
+      operationId: proposePtaGoal
+      tags: [pta]
+      summary: Propose a PTA goal (any approved member)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string }
+                description: { type: string, nullable: true }
+                year: { type: integer, nullable: true }
+      responses:
+        "201":
+          description: Proposed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goal: { type: object }
+        "400": { description: Invalid }
+        "403": { description: Not an approved member }
+  /pta/goals/{id}/open-ballot:
+    post:
+      operationId: openPtaGoalBallot
+      tags: [pta]
+      summary: Open the senior-group ratifying ballot for a shortlisted goal
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quorum: { type: integer, nullable: true }
+                closesAt: { type: string, nullable: true }
+      responses:
+        "200":
+          description: Ballot opened
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goal: { type: object }
+                  ballot: { type: object }
+        "409": { description: "Not shortlisted, or already has a ballot" }
+  /pta/goals/{id}:
+    patch:
+      operationId: updatePtaGoal
+      tags: [pta]
+      summary: Update a PTA goal (status transitions + edits while proposed)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string }
+                title: { type: string }
+                description: { type: string, nullable: true }
+                postmortemNote: { type: string }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goal: { type: object }
+        "400": { description: Invalid transition }
+        "409": { description: Transition not allowed in the current state }
+  /voice:
+    get:
+      operationId: listVoice
+      tags: [voice]
+      summary: List VOICE advocacy collectives for the school
+      responses:
+        "200":
+          description: VOICE list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  voices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                        mission: { type: string }
+                        status: { type: string }
+                        createdAt: { type: string }
+                        convertedAt: { type: string, nullable: true }
+                        createdBy: { type: string }
+                        memberCount: { type: integer }
+                        myRole: { type: string, nullable: true }
+    post:
+      operationId: createVoice
+      tags: [voice]
+      summary: Create a VOICE (creator becomes founder + first member)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                mission: { type: string }
+              required: [name, mission]
+      responses:
+        "201":
+          description: VOICE created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  voice: { type: object }
+  /voice/{id}:
+    get:
+      operationId: getVoice
+      tags: [voice]
+      summary: VOICE detail with members
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: VOICE detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  voice:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+                      mission: { type: string }
+                      status: { type: string }
+                      createdAt: { type: string }
+                      convertedAt: { type: string, nullable: true }
+                      createdBy: { type: string }
+                      memberCount: { type: integer }
+                      myRole: { type: string, nullable: true }
+                      members:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: string }
+                            userId: { type: string }
+                            role: { type: string }
+                            joinedAt: { type: string }
+                            name: { type: string }
+  /voice/{id}/join:
+    post:
+      operationId: joinVoice
+      tags: [voice]
+      summary: Back a VOICE (join as a member)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "201":
+          description: Joined
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member: { type: object }
+  /voice/{id}/leave:
+    post:
+      operationId: leaveVoice
+      tags: [voice]
+      summary: Withdraw backing from a VOICE
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Left
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+  /voice/{id}/convert:
+    post:
+      operationId: convertVoice
+      tags: [voice]
+      summary: Convert a VOICE into PTA membership (school adopted VBE)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Converted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  voice: { type: object }
+                  converted:
+                    type: object
+                    properties:
+                      backers: { type: integer }
+                      added: { type: integer }
+                      alreadyMembers: { type: integer }
+                  initiative:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      title: { type: string }
+        "409":
+          description: PTA not yet claimed, or the VOICE was already converted
+  /voice/{id}/public:
+    get:
+      operationId: getVoicePublic
+      tags: [voice]
+      summary: Public VOICE detail for the shareable page (no auth)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Public VOICE
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  name: { type: string }
+                  mission: { type: string }
+                  status: { type: string }
+                  startedBy: { type: string }
+                  backerCount: { type: integer }
+  /voice/{id}/support:
+    post:
+      operationId: supportVoice
+      tags: [voice]
+      summary: Add my voice — anonymous public support (no auth)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string }
+              required: [name, email]
+      responses:
+        "201":
+          description: Supported
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  alreadyBacking: { type: boolean }
+
+  /voice/{id}/pathway:
+    get:
+      operationId: getVoicePathway
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Pathway status
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [voiceId, stage, backerCount, signalThreshold, thresholdMet, legitimacy, complete, signals]
+                properties:
+                  voiceId: { type: string }
+                  stage: { type: string }
+                  backerCount: { type: integer }
+                  signalThreshold: { type: integer }
+                  thresholdMet: { type: boolean }
+                  signalFiredAt: { type: string, nullable: true }
+                  ptaMotionOutcome: { type: string, nullable: true }
+                  schoolRecognisedAt: { type: string, nullable: true }
+                  complete: { type: boolean }
+                  legitimacy:
+                    type: object
+                    properties:
+                      backerCount: { type: integer }
+                      declaredIncumbent: { type: integer, nullable: true }
+                      ptaMembersInVoice: { type: integer }
+                      nonVoicePta: { type: integer, nullable: true }
+                      met: { type: boolean, nullable: true }
+                      incumbentConfirmedBySchoolAt: { type: string, nullable: true }
+                  signals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        firedAt: { type: string }
+                        topics: { type: array, items: { type: string } }
+                        memberCountAtFire: { type: integer }
+                        schoolResponseStatus: { type: string, nullable: true }
+                        schoolResponseText: { type: string, nullable: true }
+                        schoolRespondedAt: { type: string, nullable: true }
+        "404": { description: Not found }
+  /voice/{id}/signal:
+    post:
+      operationId: fireCollectiveSignal
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "201":
+          description: Signal fired
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [signal, artefact, pathway]
+                properties:
+                  signal: { type: object, additionalProperties: true }
+                  artefact:
+                    type: object
+                    properties:
+                      topics: { type: array, items: { type: string } }
+                      authorisingParents: { type: array, items: { type: string } }
+                      message: { type: string }
+                  pathway: { type: object, additionalProperties: true }
+        "404": { description: Not found }
+        "409": { description: Below the signal threshold }
+  /voice/{id}/pathway/motion:
+    post:
+      operationId: recordPtaMotion
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [outcome]
+              properties:
+                outcome: { type: string, enum: [vad_adopted, vad_declined] }
+      responses:
+        "200":
+          description: Recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pathway]
+                properties:
+                  pathway: { type: object, additionalProperties: true }
+                  convert: { type: object, additionalProperties: true }
+        "400": { description: Invalid outcome }
+        "403": { description: Exec or platform-operator only }
+        "404": { description: Not found }
+  /voice/{id}/pathway/recognition:
+    post:
+      operationId: recordSchoolRecognition
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pathway]
+                properties:
+                  pathway: { type: object, additionalProperties: true }
+        "403": { description: Exec or platform-operator only }
+        "404": { description: Not found }
+  /voice/{id}/pathway/incumbent:
+    patch:
+      operationId: setIncumbentPtaSize
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [incumbentPtaSize]
+              properties:
+                incumbentPtaSize: { type: integer }
+                confirm: { type: boolean }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pathway]
+                properties:
+                  pathway: { type: object, additionalProperties: true }
+        "400": { description: Invalid size }
+        "403": { description: Exec or platform-operator only }
+        "404": { description: Not found }
+  /voice/{id}/signal/{signalId}/response:
+    post:
+      operationId: recordSignalResponse
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: signalId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [responded, none] }
+                text: { type: string }
+      responses:
+        "200":
+          description: Recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pathway]
+                properties:
+                  pathway: { type: object, additionalProperties: true }
+        "400": { description: Invalid status }
+        "403": { description: Exec or platform-operator only }
+        "404": { description: Not found }
+
+  /d/{slug}:
+    get:
+      operationId: getCommunityDiagnostic
+      tags: [diagnostic]
+      summary: Get a community diagnostic survey by slug (no auth)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Diagnostic survey
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title: { type: string }
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key: { type: string }
+                        section: { type: string }
+                        text: { type: string }
+                        type: { type: string }
+                        options:
+                          type: array
+                          items: { type: string }
+                        optional: { type: boolean }
+                      required: [key, section, text, type]
+                  submissionCount: { type: integer }
+                  released: { type: boolean }
+                required: [title, questions, submissionCount, released]
+        "404":
+          description: Not found
+
+  /d/{slug}/submit:
+    post:
+      operationId: submitCommunityDiagnostic
+      tags: [diagnostic]
+      summary: Submit answers to a community diagnostic (no auth)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                name: { type: string }
+                yearGroup: { type: string }
+                classOrTeacher: { type: string }
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      questionKey: { type: string }
+                      answer: { type: integer }
+                      freeText: { type: string }
+                    required: [questionKey]
+              required: [email, answers]
+      responses:
+        "201":
+          description: Submission recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  counted: { type: boolean }
+                  count: { type: integer }
+                required: [counted, count]
+        "400":
+          description: Invalid submission
+        "409":
+          description: Email already took part
+        "429":
+          description: Rate limited
+
+  /membership/pending:
+    get:
+      operationId: listPendingMembers
+      tags: [membership]
+      summary: List members awaiting approval (exec)
+      responses:
+        "200":
+          description: Pending members
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [members]
+                properties:
+                  members:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, firstName, lastName, email]
+                      properties:
+                        id: { type: string }
+                        firstName: { type: string }
+                        lastName: { type: string }
+                        email: { type: string }
+                        createdAt: { type: string }
+        "401": { description: Unauthorized }
+        "403": { description: Forbidden }
+  /membership/{userId}/approve:
+    post:
+      operationId: approveMember
+      tags: [membership]
+      summary: Approve a pending member and set their anonymity mode (exec)
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayMode: { type: string, enum: [named, anonymous] }
+      responses:
+        "200":
+          description: Approved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member: { type: object }
+        "403": { description: Forbidden }
+        "404": { description: Not found }
+        "409": { description: Member is not pending }
+  /membership/{userId}/reject:
+    post:
+      operationId: rejectMember
+      tags: [membership]
+      summary: Reject a pending member (exec)
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+        "403": { description: Forbidden }
+        "404": { description: Not found }
+  /d/{slug}/release:
+    post:
+      operationId: releaseDiagnosticResults
+      tags: [diagnostic]
+      summary: Release diagnostic results and notify participants (exec)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Released
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [released]
+                properties:
+                  released: { type: boolean }
+                  releasedAt: { type: string }
+        "403": { description: Forbidden }
+        "404": { description: Not found }
+  /d/{slug}/results:
+    get:
+      operationId: getDiagnosticResults
+      tags: [diagnostic]
+      summary: Aggregated diagnostic results (authed; exec sees free-text)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Aggregated results
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [title, released, totalResponses, questions]
+                properties:
+                  title: { type: string }
+                  released: { type: boolean }
+                  releasedAt: { type: string }
+                  isExec: { type: boolean }
+                  totalResponses: { type: integer }
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      required: [key, section, text, options, distribution, segments]
+                      properties:
+                        key: { type: string }
+                        section: { type: string }
+                        text: { type: string }
+                        type: { type: string }
+                        options: { type: array, items: { type: string } }
+                        distribution: { type: array, items: { type: integer } }
+                        segments:
+                          type: array
+                          items:
+                            type: object
+                            required: [yearGroup, n, distribution]
+                            properties:
+                              yearGroup: { type: string }
+                              n: { type: integer }
+                              distribution: { type: array, items: { type: integer } }
+                  freeText:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        questionKey: { type: string }
+                        text: { type: string }
+        "401": { description: Unauthorized }
+        "403": { description: Not released / not your school }
+        "404": { description: Not found }
+
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      summary: Email+password sign-up that logs the parent in instantly
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, schoolSlug]
+              properties:
+                email: { type: string }
+                password: { type: string }
+                name: { type: string }
+                schoolSlug: { type: string }
+                wasPtaMember: { type: boolean }
+      responses:
+        "201":
+          description: Created and logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, user]
+                properties:
+                  token: { type: string }
+                  user: { type: object }
+                  firstLogin: { type: boolean }
+        "400": { description: Invalid input }
+        "404": { description: School not found }
+        "409": { description: Email already registered }
+  /join/{slug}:
+    get:
+      operationId: getJoinSummary
+      tags: [join]
+      summary: Public school + vibes summary for the front door
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [schoolName, voiceName, joinCount, hasVibes]
+                properties:
+                  schoolName: { type: string }
+                  voiceName: { type: string }
+                  mission: { type: string }
+                  joinCount: { type: integer }
+                  hasVibes: { type: boolean }
+        "404": { description: Not found }
+  /tenant/{slug}:
+    get:
+      operationId: getTenant
+      summary: Public tenant config for the unified shell
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Resolved tenant config
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+        "404":
+          description: Tenant not found
+  /concerns:
+    post:
+      operationId: submitConcern
+      tags: [concerns]
+      summary: Submit a community concern
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id]
+                properties:
+                  id: { type: string }
+        "400": { description: Invalid input }
+    get:
+      operationId: listConcerns
+      tags: [concerns]
+      summary: List concerns for the exec's school
+      responses:
+        "200":
+          description: Concerns
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [concerns]
+                properties:
+                  concerns:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, body, status, createdAt, firstName, lastName]
+                      properties:
+                        id: { type: string }
+                        body: { type: string }
+                        status: { type: string }
+                        createdAt: { type: string }
+                        firstName: { type: string }
+                        lastName: { type: string }
+        "403": { description: Insufficient permissions }
+  /concerns/{id}/status:
+    post:
+      operationId: setConcernStatus
+      tags: [concerns]
+      summary: Triage a concern by setting its status
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok: { type: boolean }
+        "400": { description: Invalid input }
+        "404": { description: Not found }
+  /schools/search:
+    get:
+      operationId: searchSchools
+      tags: [schools]
+      summary: Public school finder (name match + whether it has a Vibes group)
+      parameters:
+        - { name: q, in: query, required: false, schema: { type: string } }
+      responses:
+        "200":
+          description: Matching schools
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [schools]
+                properties:
+                  schools:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, hasVibes]
+                      properties:
+                        slug: { type: string, nullable: true }
+                        name: { type: string }
+                        hasVibes: { type: boolean }
+  /schools/create-request:
+    post:
+      operationId: requestSchoolCreate
+      tags: [schools]
+      summary: Queue a request to create a Vibes for a school not yet in the directory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [schoolName, email]
+              properties:
+                schoolName: { type: string }
+                email: { type: string }
+                note: { type: string }
+      responses:
+        "201":
+          description: Request queued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok: { type: boolean }
+        "400": { description: Invalid input }
+
+  /pta/charter:
+    get:
+      operationId: getPtaCharter
+      tags: [pta]
+      summary: Operating-structure charter content + claim status (authed)
+      responses:
+        "200":
+          description: Charter
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [version, title, sections, claimed, youAcknowledged, officers, acknowledgements]
+                properties:
+                  version: { type: string }
+                  title: { type: string }
+                  youAcknowledged: { type: boolean }
+                  sections:
+                    type: array
+                    items:
+                      type: object
+                      required: [heading, body]
+                      properties:
+                        heading: { type: string }
+                        body: { type: string }
+                  claimed: { type: boolean }
+                  claimedAt: { type: string }
+                  officers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role: { type: string }
+                        domain: { type: string }
+                        name: { type: string }
+                  acknowledgements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        actionType: { type: string }
+                        createdAt: { type: string }
+        "401": { description: Unauthorized }
+  /pta/charter/adopt:
+    post:
+      operationId: adoptPtaCharter
+      tags: [pta]
+      summary: Admin adopts the operating structure, claiming the PTA
+      responses:
+        "200":
+          description: Claimed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  claimedAt: { type: string }
+        "403": { description: Forbidden }
+  /pta/charter/acknowledge:
+    post:
+      operationId: acknowledgePtaCharter
+      tags: [pta]
+      summary: An officer acknowledges the charter
+      responses:
+        "200":
+          description: Acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
+  /schools/{slug}/capabilities:
+    patch:
+      operationId: patchSchoolCapabilities
+      tags: [schools]
+      summary: Platform-operator capability toggle (spec §4.6)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [capabilities]
+              properties:
+                capabilities: { type: object, additionalProperties: { type: boolean } }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [slug, capabilities]
+                properties:
+                  slug: { type: string }
+                  capabilities: { type: object, additionalProperties: { type: boolean } }
+        "400": { description: Invalid }
+        "403": { description: Platform-operator only }
+        "404": { description: Not found }
+
+  /intake/{slug}/submit:
+    post:
+      operationId: submitIntake
+      tags: [intake]
+      security: []
+      summary: Submit answers to the short sign-up intake (no auth, rate-limited)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, selections]
+              properties:
+                email: { type: string }
+                selections:
+                  type: object
+                  additionalProperties:
+                    type: array
+                    items: { type: integer }
+      responses:
+        "201":
+          description: Counted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [counted, n]
+                properties:
+                  counted: { type: boolean }
+                  n: { type: integer }
+        "400": { description: Invalid }
+        "404": { description: Not found }
+        "409": { description: Already taken part }
+
+  /intake/{slug}/aggregate:
+    get:
+      operationId: getIntakeAggregate
+      tags: [intake]
+      security: []
+      summary: Intake aggregate — domain/option shape always present; counts suppressed below n>=5
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Aggregate (suppressed below n>=5)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [suppressed, n, floor, domains]
+                properties:
+                  suppressed: { type: boolean }
+                  n: { type: integer }
+                  floor: { type: integer }
+                  domains:
+                    type: array
+                    items:
+                      type: object
+                      required: [key, section, options]
+                      properties:
+                        key: { type: string }
+                        section: { type: string }
+                        options: { type: array, items: { type: string } }
+                        counts:
+                          type: array
+                          items: { type: integer }
+                          nullable: true
+        "404": { description: Not found }
+
+  /membership/{userId}/report:
+    post:
+      operationId: reportMember
+      tags: [membership]
+      summary: In-app report-this-member affordance (any authed member)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        "201":
+          description: Reported
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [reported]
+                properties:
+                  reported: { type: boolean }
+        "404": { description: Not found }
+
+  /membership/{userId}/remove:
+    post:
+      operationId: removeMember
+      tags: [membership]
+      summary: Platform-operator flag/remove a member (community moderation)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Removed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [removed]
+                properties:
+                  removed: { type: boolean }
+        "403": { description: Platform-operator only }
+        "404": { description: Not found }
+
 components:
   schemas:
     HealthStatus:
@@ -999,6 +2921,12 @@ components:
           type: boolean
         lastLogin:
           type: ["string", "null"]
+        membershipStatus:
+          type: string
+        tenant:
+          allOf:
+            - $ref: "#/components/schemas/Tenant"
+          nullable: true
       required:
         - id
         - schoolId
@@ -1006,6 +2934,7 @@ components:
         - firstName
         - lastName
         - active
+        - membershipStatus
 
     School:
       type: object
@@ -1955,3 +3884,24 @@ components:
         - description
         - category
         - type
+
+    Capabilities:
+      type: object
+      properties:
+        learn: { type: boolean }
+        diagnostic: { type: boolean }
+        voice: { type: boolean }
+        membership: { type: boolean }
+        results: { type: boolean }
+        concerns: { type: boolean }
+        pta: { type: boolean }
+        safeguarding: { type: boolean }
+        lessons: { type: boolean }
+        behaviour: { type: boolean }
+    Tenant:
+      type: object
+      properties:
+        slug: { type: string, nullable: true }
+        displayName: { type: string }
+        theme: { type: object, additionalProperties: true }
+        capabilities: { $ref: "#/components/schemas/Capabilities" }

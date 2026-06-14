@@ -28,7 +28,7 @@ export function LessonSlideView({
           Icon: Target,
           label: t("slide.objectivesLabel"),
           detail: null as string | null,
-          cls: "bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300",
+          cls: "bg-cat-8/15 text-cat-8",
         }
       : slide.kind === "activity"
       ? {
@@ -37,14 +37,14 @@ export function LessonSlideView({
           // The authored heading carries the instruction, e.g.
           // "Activity (60 seconds, silent, private)" — surface it as a subtitle.
           detail: slide.heading.replace(/^Activity\s*/i, "").trim() || null,
-          cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300",
+          cls: "bg-cat-5/15 text-cat-5",
         }
       : slide.kind === "reflection"
       ? {
           Icon: Sparkles,
           label: t("slide.reflectionLabel"),
           detail: null,
-          cls: "bg-violet-100 text-violet-800 dark:bg-violet-950/60 dark:text-violet-300",
+          cls: "bg-cat-4/15 text-cat-4",
         }
       : null;
 

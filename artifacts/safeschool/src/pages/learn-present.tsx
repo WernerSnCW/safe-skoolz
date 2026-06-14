@@ -232,7 +232,7 @@ export default function LearnPresentPage() {
 
               {current.type === "end" && (
                 <div className="space-y-5 text-center" data-testid="present-end">
-                  <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-500" />
+                  <CheckCircle2 className="mx-auto h-14 w-14 text-success" />
                   <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
                     {t("staff.endTitle")}
                   </h1>
@@ -241,7 +241,7 @@ export default function LearnPresentPage() {
                   </p>
                   <button
                     onClick={exit}
-                    className="mt-2 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold transition"
+                    className="mt-2 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition"
                   >
                     {t("staff.exitPresent")}
                   </button>
@@ -267,7 +267,7 @@ export default function LearnPresentPage() {
           onClick={goNext}
           disabled={step === total - 1}
           data-testid="present-next"
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold transition disabled:opacity-40"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold transition disabled:opacity-40"
         >
           {t("detail.next")}
           <ArrowRight className="h-4 w-4" />
@@ -312,7 +312,7 @@ function PresentQuiz({
               key={o.key}
               className={`flex items-center gap-4 px-5 py-4 rounded-xl border text-lg transition ${
                 isCorrect
-                  ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30"
+                  ? "border-success/30 bg-success/10"
                   : "border-border"
               }`}
             >
@@ -320,7 +320,7 @@ function PresentQuiz({
                 {o.key}
               </span>
               <span className="flex-1">{o.label}</span>
-              {isCorrect && <CheckCircle2 className="h-6 w-6 text-emerald-600" />}
+              {isCorrect && <CheckCircle2 className="h-6 w-6 text-success" />}
             </div>
           );
         })}
@@ -329,13 +329,13 @@ function PresentQuiz({
         <button
           onClick={onReveal}
           data-testid="present-reveal"
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-warning hover:bg-warning/90 text-warning-foreground font-semibold transition"
         >
           <Eye className="h-5 w-5" />
           {t("staff.revealAnswer")}
         </button>
       ) : (
-        <p className="text-base font-semibold text-emerald-700 dark:text-emerald-400">
+        <p className="text-base font-semibold text-success">
           {t("staff.answerIs", { option: q.correctOption })}
         </p>
       )}

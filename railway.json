@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd artifacts/safeschool && PORT=5173 BASE_PATH=/ NODE_ENV=production pnpm build && cd ../api-server && pnpm build"
+  },
+  "deploy": {
+    "startCommand": "node artifacts/api-server/dist/index.cjs",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 5
+  }
+}

@@ -14,11 +14,11 @@ import {
 } from "lucide-react";
 
 const LEVEL_COLORS: Record<string, string> = {
-  green: "bg-green-100 text-green-800 border-green-300",
-  yellow: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  orange: "bg-orange-100 text-orange-800 border-orange-300",
-  red: "bg-red-100 text-red-800 border-red-300",
-  darkred: "bg-red-200 text-red-900 border-red-400",
+  green: "bg-scale-5/15 text-scale-5 border-scale-5/30",
+  yellow: "bg-scale-4/15 text-scale-4 border-scale-4/30",
+  orange: "bg-scale-2/15 text-scale-2 border-scale-2/30",
+  red: "bg-scale-1/15 text-scale-1 border-scale-1/30",
+  darkred: "bg-destructive/15 text-destructive border-destructive/30",
   purple: "bg-purple-100 text-purple-800 border-purple-300",
   black: "bg-gray-900 text-white border-gray-700",
 };
@@ -254,7 +254,7 @@ function AddPointsForm({ pupilId, pupilName, onClose }: { pupilId: string; pupil
               key={cat.id}
               type="button"
               onClick={() => handleCategoryChange(cat.id)}
-              className={`text-left px-3 py-2 rounded-lg text-sm border-2 transition-all ${
+              className={`text-left px-3 py-2 rounded-xl text-sm border-2 transition-all ${
                 category === cat.id
                   ? "border-primary bg-primary/5 text-primary font-medium"
                   : "border-border hover:border-muted-foreground/30"
@@ -275,7 +275,7 @@ function AddPointsForm({ pupilId, pupilName, onClose }: { pupilId: string; pupil
               key={v}
               type="button"
               onClick={() => setPoints(v)}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all border-2 ${
+              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all border-2 ${
                 points === v
                   ? v <= 2 ? "bg-yellow-100 border-yellow-500 text-yellow-800"
                     : v <= 5 ? "bg-orange-100 border-orange-500 text-orange-800"

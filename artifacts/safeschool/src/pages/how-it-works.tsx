@@ -164,13 +164,13 @@ const STEPS: StoryStep[] = [
   {
     id: "pattern",
     week: "Week 3",
-    title: "safeskoolz connects the dots",
+    title: "How vibez connects the dots",
     subtitle: "No single teacher saw the full picture. The system did.",
     color: "text-red-600",
     bgColor: "bg-red-50 dark:bg-red-950/20",
     borderColor: "border-red-200 dark:border-red-800",
     icon: AlertTriangle,
-    narrative: "Four incidents logged by three different staff members and one anonymous pupil. No individual saw more than one event. But safeskoolz links them all: same victim, escalating severity, group forming around a ringleader, and a mood that's falling off a cliff.",
+    narrative: "Four incidents logged by three different staff members and one anonymous pupil. No individual saw more than one event. But vibez links them all: same victim, escalating severity, group forming around a ringleader, and a mood that's falling off a cliff.",
     screens: [
       {
         role: "System",
@@ -288,7 +288,7 @@ const STEPS: StoryStep[] = [
         page: "Protocol Tracker",
         pageIcon: ClipboardCheck,
         title: "Each child gets a proportionate response",
-        description: "The Convivèxit protocol requires different actions for ringleaders vs recruited participants. safeskoolz tracks each task and deadline.",
+        description: "The Convivèxit protocol requires different actions for ringleaders vs recruited participants. Each task and deadline is tracked by vibez.",
         mockupElements: [
           { type: "badge", content: "Marcus: Formal parent meeting \u2022 Behaviour contract \u2022 Daily check-in with Head of Year", color: "red" },
           { type: "badge", content: "Tyler: Restorative conversation with Sofia (with consent) \u2022 Mentoring sessions", color: "amber" },
@@ -519,9 +519,9 @@ const ROLES: RoleProfile[] = [
     id: "pupil",
     role: "Pupils",
     icon: Heart,
-    color: "text-teal-600",
-    bgColor: "bg-teal-50 dark:bg-teal-950/20",
-    borderColor: "border-teal-200 dark:border-teal-800",
+    color: "text-role-pupil",
+    bgColor: "bg-role-pupil/10",
+    borderColor: "border-role-pupil/30",
     tagline: "A safe, private space to speak up \u2014 even anonymously",
     features: [
       {
@@ -551,7 +551,7 @@ const ROLES: RoleProfile[] = [
         page: "Safe Messaging",
         icon: MessageSquare,
         title: "Message your safe adult",
-        description: "If you\u2019ve been assigned a safe adult, you can message them directly through safeskoolz. Private, secure, available any time.",
+        description: "If you\u2019ve been assigned a safe adult, you can message them directly through vibez. Private, secure, available any time.",
         mockup: [
           { type: "notification", content: "Your safe adult is: Ms Rivera. You can message her any time.", color: "teal" },
           { type: "form", content: "\"Can I talk to you at break? Something happened again.\"" },
@@ -572,9 +572,9 @@ const ROLES: RoleProfile[] = [
     id: "parent",
     role: "Parents",
     icon: Users,
-    color: "text-amber-600",
-    bgColor: "bg-amber-50 dark:bg-amber-950/20",
-    borderColor: "border-amber-200 dark:border-amber-800",
+    color: "text-role-parent",
+    bgColor: "bg-role-parent/10",
+    borderColor: "border-role-parent/30",
     tagline: "Know what the school is doing \u2014 and raise concerns yourself",
     features: [
       {
@@ -635,9 +635,9 @@ const ROLES: RoleProfile[] = [
     id: "teacher",
     role: "Teachers & Staff",
     icon: GraduationCap,
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
-    borderColor: "border-indigo-200 dark:border-indigo-800",
+    color: "text-role-staff",
+    bgColor: "bg-role-staff/10",
+    borderColor: "border-role-staff/30",
     tagline: "Log incidents in 60 seconds. Get guided through the right process.",
     features: [
       {
@@ -702,9 +702,9 @@ const ROLES: RoleProfile[] = [
     id: "coordinator",
     role: "Coordinators & Head Teachers",
     icon: Shield,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50 dark:bg-purple-950/20",
-    borderColor: "border-purple-200 dark:border-purple-800",
+    color: "text-role-leadership",
+    bgColor: "bg-role-leadership/10",
+    borderColor: "border-role-leadership/30",
     tagline: "See everything. Respond proportionately. Evidence every decision.",
     features: [
       {
@@ -802,7 +802,7 @@ function RoleFeaturesSection() {
           </div>
           <h2 className="text-3xl font-display font-bold mb-2">What each role can do</h2>
           <p className="text-muted-foreground max-w-xl mx-auto mb-4">
-            Sofia's story shows pattern detection. But safeskoolz is used every day by pupils, parents, teachers, and coordinators for much more.
+            Sofia's story shows pattern detection. But vibez is used every day by pupils, parents, teachers, and coordinators for much more.
           </p>
           <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
             <motion.div animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}>
@@ -956,9 +956,9 @@ const REPORT_AUDIENCES: ReportAudience[] = [
     id: "pta",
     role: "PTA & Governors",
     icon: Users,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50 dark:bg-purple-950/20",
-    borderColor: "border-purple-200 dark:border-purple-800",
+    color: "text-role-pta",
+    bgColor: "bg-role-pta/10",
+    borderColor: "border-role-pta/30",
     description: "Anonymised data that shows whether the school is getting safer. No child names, no incident details \u2014 just trends, patterns, and outcomes.",
     reports: [
       {
@@ -1000,9 +1000,9 @@ const REPORT_AUDIENCES: ReportAudience[] = [
     id: "staff",
     role: "Staff & Coordinators",
     icon: GraduationCap,
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
-    borderColor: "border-indigo-200 dark:border-indigo-800",
+    color: "text-role-staff",
+    bgColor: "bg-role-staff/10",
+    borderColor: "border-role-staff/30",
     description: "Operational reporting that helps staff see what\u2019s working and where to focus. Live data, not end-of-term surprises.",
     reports: [
       {
@@ -1045,9 +1045,9 @@ const REPORT_AUDIENCES: ReportAudience[] = [
     id: "parents",
     role: "Parents & Families",
     icon: Heart,
-    color: "text-amber-600",
-    bgColor: "bg-amber-50 dark:bg-amber-950/20",
-    borderColor: "border-amber-200 dark:border-amber-800",
+    color: "text-role-parent",
+    bgColor: "bg-role-parent/10",
+    borderColor: "border-role-parent/30",
     description: "Parents see what matters to their child and their school \u2014 not a data dump, but clear answers to \"is my child safe?\" and \"what is the school doing?\"",
     reports: [
       {
@@ -1075,7 +1075,7 @@ const REPORT_AUDIENCES: ReportAudience[] = [
         icon: Shield,
         frequency: "Termly",
         mockup: [
-          { type: "notification", content: "Morna International College \u2014 Term 2 Safeguarding Update", color: "blue" },
+          { type: "notification", content: "Your school \u2014 Term 2 Safeguarding Update", color: "blue" },
           { type: "chart", content: "Incidents this term: 47 (down 18%) \u2022 Resolved: 94% \u2022 Avg resolution: 8 days" },
           { type: "badge", content: "Climate survey: 89% of pupils completed. Key finding: reporting trust needs improvement.", color: "amber" },
           { type: "badge", content: "Action taken: New safe adult ambassador programme launched. Lunchtime supervision increased.", color: "green" },
@@ -1279,25 +1279,16 @@ export default function HowItWorksPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-background">
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 relative">
-        <Link
-          href="/admin"
-          className="absolute top-8 right-4 sm:top-12 sm:right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-600 text-white text-xs sm:text-sm font-bold shadow-md hover:bg-teal-700 transition-colors z-10"
-        >
-          <ShieldCheck size={14} />
-          Admin
-        </Link>
         <div className="text-center mb-10">
           <Link href="/login" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-6">
             <ArrowLeft size={14} /> Back to login
           </Link>
-          <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-br from-primary to-primary/80 p-4 rounded-2xl shadow-lg">
-              <ShieldCheck size={40} className="text-white" />
-            </div>
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-display font-bold mb-3">How safeskoolz works</h1>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary mb-3">vibez in action · safeguarding</p>
+          <h1 className="text-4xl sm:text-5xl font-display font-bold mb-3">See the safeguarding side of vibez</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
-            Follow Sofia's story through the actual platform &mdash; see every screen, every alert, every action that protects a child.
+            vibez is the software behind values-based education &mdash; supporting schools, parents and PTAs.
+            This walkthrough follows one story to show how the <strong>safeguarding</strong> side connects the
+            dots that no single teacher could see alone.
           </p>
           <motion.div
             initial={{ opacity: 0, y: 5 }}
@@ -1490,7 +1481,7 @@ export default function HowItWorksPage() {
           <div className="p-8 rounded-2xl bg-card border border-border shadow-sm">
             <h2 className="text-2xl font-bold mb-2">Every school has stories like Sofia's.</h2>
             <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-              The difference is whether anyone connects the dots in time. safeskoolz makes the invisible visible.
+              The difference is whether anyone connects the dots in time. With vibez, the invisible becomes visible.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/login">

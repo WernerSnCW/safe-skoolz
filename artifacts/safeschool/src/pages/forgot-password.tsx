@@ -28,11 +28,11 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-background">
       <Card className="w-full max-w-md">
         <CardContent className="p-8">
           <div className="flex items-center gap-2 mb-6">
-            <ShieldCheck className="w-6 h-6 text-blue-600" />
+            <ShieldCheck className="w-6 h-6 text-primary" />
             <h1 className="text-xl font-semibold">Forgot password</h1>
           </div>
 
@@ -42,14 +42,14 @@ export default function ForgotPassword() {
                 If that email matches a staff or parent account, we've sent a reset link. It will
                 expire in 30 minutes and can only be used once.
               </p>
-              <Link href="/login" className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1">
+              <Link href="/login" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
                 <ArrowLeft className="w-4 h-4" /> Back to sign in
               </Link>
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-4">
               <p className="text-sm text-slate-600">
-                Enter the email address on your Safeskoolz account. We'll send a link to reset
+                Enter the email address on your vibez account. We'll send a link to reset
                 your password.
               </p>
               <div>
@@ -66,7 +66,7 @@ export default function ForgotPassword() {
               <Button type="submit" disabled={submitting} className="w-full">
                 {submitting ? "Sending…" : "Send reset link"}
               </Button>
-              <Link href="/login" className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1">
+              <Link href="/login" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
                 <ArrowLeft className="w-4 h-4" /> Back to sign in
               </Link>
             </form>

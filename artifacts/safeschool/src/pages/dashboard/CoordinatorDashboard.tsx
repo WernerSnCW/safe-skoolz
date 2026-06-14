@@ -6,6 +6,11 @@ import { useGetCoordinatorDashboard } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-polished";
 import { Button } from "@/components/ui-polished";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
+import { MissionActions } from "@/components/dashboard/MissionActions";
+import { useMessageNotifications } from "@/hooks/useMessageNotifications";
+import { MessageCircle, ClipboardCheck, Presentation, Library } from "lucide-react";
 import {
   AlertTriangle, ShieldAlert, FileText, Activity,
   TrendingUp, BarChart3, PieChart as PieChartIcon, Eye,
@@ -16,7 +21,7 @@ import {
   PieChart, Pie, Cell, Legend, LineChart, Line
 } from "recharts";
 
-const CHART_COLORS = ["#14b8a6", "#6366f1", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#ec4899", "#3b82f6", "#f97316", "#06b6d4"];
+const CHART_COLORS = ["hsl(var(--chart-1))","hsl(var(--chart-2))","hsl(var(--chart-3))","hsl(var(--chart-4))","hsl(var(--chart-5))","hsl(var(--chart-6))","hsl(var(--chart-7))","hsl(var(--chart-8))","hsl(var(--chart-9))","hsl(var(--chart-10))"];
 
 export default function CoordinatorDashboardView() {
   const { t } = useTranslation("dashboard");
@@ -25,6 +30,8 @@ export default function CoordinatorDashboardView() {
   const { user } = useAuth();
   const canManageReports = ["coordinator", "head_teacher"].includes(user?.role || "");
   const { data, isLoading } = useGetCoordinatorDashboard();
+  const { totalUnread: messageUnread } = useMessageNotifications();
+  const roleLabel = user?.role === "head_teacher" ? "Head teacher" : user?.role === "senco" ? "SENCO" : "Coordinator";
 
   const CATEGORY_LABELS: Record<string, string> = {
     bullying: t("categoryBullying"),
@@ -127,8 +134,8 @@ export default function CoordinatorDashboardView() {
   </div>;
 
   const stats = [
-    { label: t("totalIncidents"), value: analytics?.totalIncidents || 0, icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: t("openProtocols"), value: data?.openProtocols || 0, icon: ShieldAlert, color: "text-violet-500", bg: "bg-violet-500/10" },
+    { label: t("totalIncidents"), value: analytics?.totalIncidents || 0, icon: FileText, color: "text-info", bg: "bg-info/10" },
+    { label: t("openProtocols"), value: data?.openProtocols || 0, icon: ShieldAlert, color: "text-secondary", bg: "bg-secondary/10" },
     { label: t("common:safeguarding"), value: analytics?.safeguardingCount || 0, icon: AlertTriangle, color: "text-destructive", bg: "bg-destructive/10" },
     { label: t("reportsMonth"), value: data?.reportsThisMonth || 0, icon: Activity, color: "text-primary", bg: "bg-primary/10" },
   ];
@@ -150,20 +157,43 @@ export default function CoordinatorDashboardView() {
   const topPerpetrators = analytics?.topPerpetrators || [];
   const escalationData = analytics?.byEscalationTier || [];
 
+  const digest: DigestItem[] = [];
+  if (messageUnread > 0) {
+    digest.push({
+      id: "messages", icon: MessageCircle, tone: "info",
+      title: t("newMessagesCount", { count: messageUnread, defaultValue: `${messageUnread} new messages` }),
+      href: "/messages", unread: true,
+    });
+  }
+  if ((analytics?.safeguardingCount || 0) > 0) {
+    digest.push({
+      id: "safeguarding", icon: AlertTriangle, tone: "destructive",
+      title: t("safeguardingNeedAttention", { count: analytics.safeguardingCount, defaultValue: `${analytics.safeguardingCount} safeguarding concerns` }),
+      detail: t("reviewIncidents", { defaultValue: "Review incidents" }),
+      href: "/incidents",
+    });
+  } else if ((data?.reportsThisMonth || 0) > 0) {
+    digest.push({
+      id: "reports", icon: FileText, tone: "info",
+      title: t("reportsThisMonthCount", { count: data.reportsThisMonth, defaultValue: `${data.reportsThisMonth} reports this month` }),
+      href: "/incidents",
+    });
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-display font-bold">{t("dashboard")}</h1>
-          <p className="text-muted-foreground mt-1">{t("safeguardingOverview")}</p>
-        </div>
+      <PageHeader
+        eyebrow={roleLabel}
+        title={t("welcomeBack", { name: user?.firstName, defaultValue: "Welcome back" })}
+        subtitle={t("safeguardingOverview")}
+        action={
         <div className="flex gap-1 bg-muted p-1 rounded-xl" role="tablist" aria-label="Dashboard view">
           <button
             role="tab"
             aria-selected={activeTab === "overview"}
             aria-controls="tabpanel-overview"
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "overview" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab === "overview" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             {t("overview")}
           </button>
@@ -172,7 +202,7 @@ export default function CoordinatorDashboardView() {
             aria-selected={activeTab === "analytics"}
             aria-controls="tabpanel-analytics"
             onClick={() => setActiveTab("analytics")}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "analytics" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab === "analytics" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             <BarChart3 size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />{t("analytics")}
           </button>
@@ -182,13 +212,29 @@ export default function CoordinatorDashboardView() {
               aria-selected={activeTab === "reports"}
               aria-controls="tabpanel-reports"
               onClick={() => setActiveTab("reports")}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "reports" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab === "reports" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               <FileText size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />{t("ptaReports")}
             </button>
           )}
         </div>
-      </div>
+        }
+      />
+
+      <WhatsNewBand
+        items={digest}
+        heading={t("sinceLastHere", { defaultValue: "Since you were last here" })}
+        emptyLabel={t("allCaughtUp", { defaultValue: "You're all caught up." })}
+      />
+
+      <MissionActions
+        actions={[
+          { label: "Log an incident", sub: "Safeguarding & wellbeing", icon: AlertTriangle, href: "/report" },
+          { label: "Lessons & PSHE", sub: "Teach your values", icon: Presentation, href: "/lessons" },
+          { label: "Run a diagnostic", sub: "Check VBE readiness", icon: ClipboardCheck, href: "/diagnostics" },
+          { label: "Resource Centre", sub: "Packs, guides & tools", icon: Library, href: "/resources-hub" },
+        ]}
+      />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
@@ -251,15 +297,15 @@ export default function CoordinatorDashboardView() {
           </div>
 
           {lockedPupils.length > 0 && (
-            <Card className="border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20">
+            <Card className="border-warning/40 bg-warning/10">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600">
+                  <div className="p-2.5 rounded-xl bg-warning/15 text-warning">
                     <Lock size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-amber-900 dark:text-amber-200">{t("lockedPupilAccounts")}</h3>
-                    <p className="text-sm text-amber-700 dark:text-amber-400">{t("lockedPupilCount", { count: lockedPupils.length })}</p>
+                    <h3 className="font-bold text-warning">{t("lockedPupilAccounts")}</h3>
+                    <p className="text-sm text-warning">{t("lockedPupilCount", { count: lockedPupils.length })}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -270,7 +316,7 @@ export default function CoordinatorDashboardView() {
                       : t("lockedUntil", { time: new Date(pupil.lockedUntil).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) });
 
                     return (
-                      <div key={pupil.id} className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-background border border-amber-200 dark:border-amber-800/50">
+                      <div key={pupil.id} className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-background border border-warning/30">
                         <div>
                           <p className="font-semibold text-sm">{pupil.firstName} {pupil.lastName}</p>
                           <p className="text-xs text-muted-foreground">
@@ -279,14 +325,14 @@ export default function CoordinatorDashboardView() {
                         </div>
                         <div className="flex items-center gap-2">
                           {unlockResult && unlockResult.pupilId === pupil.id && (
-                            <span className="text-xs font-mono font-bold text-green-700 bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded">{t("newPin", { pin: unlockResult.newPin })}</span>
+                            <span className="text-xs font-mono font-bold text-success bg-success/15 px-2 py-1 rounded">{t("newPin", { pin: unlockResult.newPin })}</span>
                           )}
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleUnlockPupil(pupil.id)}
                             disabled={unlockingId === pupil.id}
-                            className="border-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-800 dark:text-amber-300"
+                            className="border-warning/40 hover:bg-warning/15 text-warning"
                           >
                             {unlockingId === pupil.id ? (
                               <Loader2 size={14} className="animate-spin" />
@@ -306,7 +352,7 @@ export default function CoordinatorDashboardView() {
           <Link href="/training-status">
             <Card className="hover:border-primary/50 transition-all cursor-pointer group">
               <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-green-500/10 text-green-600 group-hover:bg-green-500 group-hover:text-white transition-colors">
+                <div className="p-3 rounded-2xl bg-success/10 text-success group-hover:bg-success group-hover:text-white transition-colors">
                   <GraduationCap size={24} />
                 </div>
                 <div className="flex-1">
@@ -324,9 +370,9 @@ export default function CoordinatorDashboardView() {
 
           {canManageReports && (
             <Link href="/audit">
-              <Card className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-slate-400">
+              <Card className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-foreground/30">
                 <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:bg-slate-600 group-hover:text-white transition-colors">
+                  <div className="p-3 rounded-2xl bg-muted text-muted-foreground group-hover:bg-foreground group-hover:text-background transition-colors">
                     <ScrollText size={24} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -343,9 +389,9 @@ export default function CoordinatorDashboardView() {
 
           {user?.role === "coordinator" && (
             <Link href="/admin">
-              <Card className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-teal-400">
+              <Card className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary">
                 <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                  <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
                     <ShieldCheck size={24} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -381,7 +427,7 @@ export default function CoordinatorDashboardView() {
                         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
                         <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
-                        <Bar dataKey="count" fill="#14b8a6" radius={[0, 6, 6, 0]} name={t("incidents")} />
+                        <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[0, 6, 6, 0]} name={t("incidents")} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -433,7 +479,7 @@ export default function CoordinatorDashboardView() {
                         <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                         <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))" }} />
-                        <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={{ r: 4, fill: "#6366f1" }} name={t("incidents")} />
+                        <Line type="monotone" dataKey="count" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--chart-2))" }} name={t("incidents")} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -486,7 +532,7 @@ export default function CoordinatorDashboardView() {
                       <Tooltip />
                       <Bar dataKey="count" name={t("incidents")}>
                         {escalationData.map((_: any, i: number) => (
-                          <Cell key={i} fill={["#22c55e", "#f59e0b", "#ef4444"][i] || "#6366f1"} />
+                          <Cell key={i} fill={["hsl(var(--scale-5))","hsl(var(--scale-3))","hsl(var(--scale-1))"][i] || "hsl(var(--chart-1))"} />
                         ))}
                       </Bar>
                     </BarChart>
@@ -510,7 +556,7 @@ export default function CoordinatorDashboardView() {
                       <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
                       <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
                       <Tooltip />
-                      <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name={t("incidents")} />
+                      <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[0, 6, 6, 0]} name={t("incidents")} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -659,8 +705,8 @@ function AnnualReportManager() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const STATUS_STYLES: Record<string, { icon: any; label: string; color: string; bg: string }> = {
-    draft: { icon: Clock, label: t("draft"), color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50" },
-    approved: { icon: CheckCircle2, label: t("approvedStatus"), color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900/50" },
+    draft: { icon: Clock, label: t("draft"), color: "text-warning", bg: "bg-warning/10 border-warning/30" },
+    approved: { icon: CheckCircle2, label: t("approvedStatus"), color: "text-success", bg: "bg-success/10 border-success/30" },
   };
 
   if (isLoading) {
@@ -693,9 +739,9 @@ function AnnualReportManager() {
       </div>
 
       {errorMsg && (
-        <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 flex items-center gap-2">
-          <AlertTriangle size={16} className="text-red-500 shrink-0" />
-          <p className="text-sm text-red-700 dark:text-red-400">{errorMsg}</p>
+        <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 flex items-center gap-2">
+          <AlertTriangle size={16} className="text-destructive shrink-0" />
+          <p className="text-sm text-destructive">{errorMsg}</p>
         </div>
       )}
 
@@ -738,7 +784,7 @@ function AnnualReportManager() {
                           size="sm"
                           onClick={() => approveMutation.mutate(report.id)}
                           disabled={approveMutation.isPending}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-success hover:bg-success/90 text-success-foreground"
                         >
                           {approveMutation.isPending ? (
                             <Loader2 size={12} className="animate-spin" />
@@ -752,22 +798,22 @@ function AnnualReportManager() {
 
                   {rd && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/30 text-center">
-                        <p className="text-2xl font-bold text-blue-600">{rd.totalIncidents ?? 0}</p>
+                      <div className="p-3 rounded-xl bg-info/10 border border-info/20 text-center">
+                        <p className="text-2xl font-bold text-info">{rd.totalIncidents ?? 0}</p>
                         <p className="text-xs text-muted-foreground">{t("totalIncidents")}</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900/30 text-center">
-                        <p className="text-2xl font-bold text-violet-600">{rd.incidentsByCategory?.length ?? 0}</p>
+                      <div className="p-3 rounded-xl bg-secondary/10 border border-secondary/20 text-center">
+                        <p className="text-2xl font-bold text-secondary">{rd.incidentsByCategory?.length ?? 0}</p>
                         <p className="text-xs text-muted-foreground">{t("categories")}</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-900/30 text-center">
-                        <p className="text-2xl font-bold text-teal-600">
+                      <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-center">
+                        <p className="text-2xl font-bold text-primary">
                           {rd.protocolsByStatus?.reduce((a: number, p: any) => a + (Number(p.count) || 0), 0) ?? 0}
                         </p>
                         <p className="text-xs text-muted-foreground">{t("protocolsCount")}</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 text-center">
-                        <p className="text-2xl font-bold text-amber-600">
+                      <div className="p-3 rounded-xl bg-warning/10 border border-warning/20 text-center">
+                        <p className="text-2xl font-bold text-warning">
                           {rd.alertsSummary?.reduce((a: number, al: any) => a + (Number(al.count) || 0), 0) ?? 0}
                         </p>
                         <p className="text-xs text-muted-foreground">{t("patternAlerts")}</p>

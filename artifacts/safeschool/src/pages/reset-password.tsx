@@ -49,12 +49,12 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 space-y-4">
             <h1 className="text-xl font-semibold">Reset password</h1>
-            <p className="text-sm text-red-600">Missing reset token.</p>
-            <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+            <p className="text-sm text-destructive">Missing reset token.</p>
+            <Link href="/forgot-password" className="text-sm text-primary hover:underline">
               Request a new link
             </Link>
           </CardContent>
@@ -64,16 +64,16 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-background">
       <Card className="w-full max-w-md">
         <CardContent className="p-8">
           <div className="flex items-center gap-2 mb-6">
-            <ShieldCheck className="w-6 h-6 text-blue-600" />
+            <ShieldCheck className="w-6 h-6 text-primary" />
             <h1 className="text-xl font-semibold">Choose a new password</h1>
           </div>
 
           {done ? (
-            <p className="text-sm text-green-700">
+            <p className="text-sm text-success">
               Password updated. Redirecting to sign in…
             </p>
           ) : (
@@ -89,11 +89,11 @@ export default function ResetPassword() {
                 <Label htmlFor="pw2">Confirm new password</Label>
                 <Input id="pw2" type="password" required value={pw2} onChange={(e) => setPw2(e.target.value)} />
               </div>
-              {err && <p className="text-sm text-red-600">{err}</p>}
+              {err && <p className="text-sm text-destructive">{err}</p>}
               <Button type="submit" disabled={submitting} className="w-full">
                 {submitting ? "Saving…" : "Update password"}
               </Button>
-              <Link href="/login" className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1">
+              <Link href="/login" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
                 <ArrowLeft className="w-4 h-4" /> Back to sign in
               </Link>
             </form>

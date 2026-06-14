@@ -91,10 +91,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+const ANON_AUTH: AuthContextType = {
+  user: null,
+  isLoading: false,
+  isAuthenticated: false,
+  logout: () => {},
+  setToken: () => {},
+};
+
+export function useAuth(): AuthContextType {
+  const ctx = useContext(AuthContext);
+  return ctx ?? ANON_AUTH;
 }

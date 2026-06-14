@@ -35,17 +35,17 @@ const FACE_EMOJIS_REVERSED_BASE = [
 const LIKERT_KEYS = ["stronglyDisagree", "disagree", "neutral", "agree", "stronglyAgree"] as const;
 
 const CATEGORY_COLORS: Record<string, string> = {
-  "Awareness & Prevalence": "bg-blue-500",
-  "Trust & Reporting": "bg-teal-500",
-  "Culture & Wellbeing": "bg-green-500",
-  "Safeguarding Knowledge": "bg-purple-500",
-  "System Readiness": "bg-amber-500",
+  "Awareness & Prevalence": "bg-cat-1",
+  "Trust & Reporting": "bg-cat-2",
+  "Culture & Wellbeing": "bg-cat-3",
+  "Safeguarding Knowledge": "bg-cat-4",
+  "System Readiness": "bg-cat-5",
 };
 
 const GROUP_COLORS: Record<string, string> = {
-  pupil: "#0d9488",
-  staff: "#6366f1",
-  parent: "#f59e0b",
+  pupil: "hsl(var(--role-pupil))",
+  staff: "hsl(var(--role-staff))",
+  parent: "hsl(var(--role-parent))",
 };
 
 function fetchWithAuth(url: string, opts: RequestInit = {}) {

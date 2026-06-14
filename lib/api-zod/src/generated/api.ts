@@ -62,6 +62,28 @@ export const PupilLoginResponse = zod.object({
     parentOf: zod.array(zod.string()).optional(),
     active: zod.boolean(),
     lastLogin: zod.string().nullish(),
+    membershipStatus: zod.string(),
+    tenant: zod
+      .object({
+        slug: zod.string().nullish(),
+        displayName: zod.string().optional(),
+        theme: zod.record(zod.string(), zod.unknown()).optional(),
+        capabilities: zod
+          .object({
+            learn: zod.boolean().optional(),
+            diagnostic: zod.boolean().optional(),
+            voice: zod.boolean().optional(),
+            membership: zod.boolean().optional(),
+            results: zod.boolean().optional(),
+            concerns: zod.boolean().optional(),
+            pta: zod.boolean().optional(),
+            safeguarding: zod.boolean().optional(),
+            lessons: zod.boolean().optional(),
+            behaviour: zod.boolean().optional(),
+          })
+          .optional(),
+      })
+      .nullish(),
   }),
   firstLogin: zod.boolean(),
 });
@@ -91,6 +113,28 @@ export const StaffLoginResponse = zod.object({
     parentOf: zod.array(zod.string()).optional(),
     active: zod.boolean(),
     lastLogin: zod.string().nullish(),
+    membershipStatus: zod.string(),
+    tenant: zod
+      .object({
+        slug: zod.string().nullish(),
+        displayName: zod.string().optional(),
+        theme: zod.record(zod.string(), zod.unknown()).optional(),
+        capabilities: zod
+          .object({
+            learn: zod.boolean().optional(),
+            diagnostic: zod.boolean().optional(),
+            voice: zod.boolean().optional(),
+            membership: zod.boolean().optional(),
+            results: zod.boolean().optional(),
+            concerns: zod.boolean().optional(),
+            pta: zod.boolean().optional(),
+            safeguarding: zod.boolean().optional(),
+            lessons: zod.boolean().optional(),
+            behaviour: zod.boolean().optional(),
+          })
+          .optional(),
+      })
+      .nullish(),
   }),
   firstLogin: zod.boolean(),
 });
@@ -120,6 +164,28 @@ export const ParentLoginResponse = zod.object({
     parentOf: zod.array(zod.string()).optional(),
     active: zod.boolean(),
     lastLogin: zod.string().nullish(),
+    membershipStatus: zod.string(),
+    tenant: zod
+      .object({
+        slug: zod.string().nullish(),
+        displayName: zod.string().optional(),
+        theme: zod.record(zod.string(), zod.unknown()).optional(),
+        capabilities: zod
+          .object({
+            learn: zod.boolean().optional(),
+            diagnostic: zod.boolean().optional(),
+            voice: zod.boolean().optional(),
+            membership: zod.boolean().optional(),
+            results: zod.boolean().optional(),
+            concerns: zod.boolean().optional(),
+            pta: zod.boolean().optional(),
+            safeguarding: zod.boolean().optional(),
+            lessons: zod.boolean().optional(),
+            behaviour: zod.boolean().optional(),
+          })
+          .optional(),
+      })
+      .nullish(),
   }),
   firstLogin: zod.boolean(),
 });
@@ -142,6 +208,28 @@ export const GetCurrentUserResponse = zod.object({
   parentOf: zod.array(zod.string()).optional(),
   active: zod.boolean(),
   lastLogin: zod.string().nullish(),
+  membershipStatus: zod.string(),
+  tenant: zod
+    .object({
+      slug: zod.string().nullish(),
+      displayName: zod.string().optional(),
+      theme: zod.record(zod.string(), zod.unknown()).optional(),
+      capabilities: zod
+        .object({
+          learn: zod.boolean().optional(),
+          diagnostic: zod.boolean().optional(),
+          voice: zod.boolean().optional(),
+          membership: zod.boolean().optional(),
+          results: zod.boolean().optional(),
+          concerns: zod.boolean().optional(),
+          pta: zod.boolean().optional(),
+          safeguarding: zod.boolean().optional(),
+          lessons: zod.boolean().optional(),
+          behaviour: zod.boolean().optional(),
+        })
+        .optional(),
+    })
+    .nullish(),
 });
 
 /**
@@ -158,6 +246,18 @@ export const ListSchoolsResponseItem = zod.object({
   active: zod.boolean(),
 });
 export const ListSchoolsResponse = zod.array(ListSchoolsResponseItem);
+
+/**
+ * @summary Create a school + founding VOICE in one transaction (public, rate-limited)
+ */
+export const CreateSchoolBody = zod.object({
+  name: zod.string(),
+  slug: zod.string().optional(),
+  coalitionName: zod.string().optional(),
+  contactName: zod.string().optional(),
+  contactEmail: zod.string().optional(),
+  contactPhone: zod.string().optional(),
+});
 
 /**
  * @summary List staff for a school
@@ -181,6 +281,28 @@ export const ListStaffBySchoolResponseItem = zod.object({
   parentOf: zod.array(zod.string()).optional(),
   active: zod.boolean(),
   lastLogin: zod.string().nullish(),
+  membershipStatus: zod.string(),
+  tenant: zod
+    .object({
+      slug: zod.string().nullish(),
+      displayName: zod.string().optional(),
+      theme: zod.record(zod.string(), zod.unknown()).optional(),
+      capabilities: zod
+        .object({
+          learn: zod.boolean().optional(),
+          diagnostic: zod.boolean().optional(),
+          voice: zod.boolean().optional(),
+          membership: zod.boolean().optional(),
+          results: zod.boolean().optional(),
+          concerns: zod.boolean().optional(),
+          pta: zod.boolean().optional(),
+          safeguarding: zod.boolean().optional(),
+          lessons: zod.boolean().optional(),
+          behaviour: zod.boolean().optional(),
+        })
+        .optional(),
+    })
+    .nullish(),
 });
 export const ListStaffBySchoolResponse = zod.array(
   ListStaffBySchoolResponseItem,
@@ -1038,6 +1160,338 @@ export const GetPtaDashboardResponse = zod.object({
 });
 
 /**
+ * @summary Announcements visible to the current user (parent feed)
+ */
+export const GetPtaAnnouncementFeedResponse = zod.object({
+  announcements: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        title: zod.string().optional(),
+        body: zod.string().optional(),
+        audience: zod.string().optional(),
+        pinned: zod.boolean().optional(),
+        createdAt: zod.string().optional(),
+        author: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary PTA announcements (published log)
+ */
+export const ListPtaAnnouncementsResponse = zod.object({
+  announcements: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        title: zod.string().optional(),
+        body: zod.string().optional(),
+        audience: zod.string().optional(),
+        pinned: zod.boolean().optional(),
+        createdAt: zod.string().optional(),
+        author: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Publish a PTA announcement
+ */
+export const PostPtaAnnouncementBody = zod.object({
+  title: zod.string(),
+  body: zod.string(),
+  audience: zod.string().optional(),
+  pinned: zod.boolean().optional(),
+});
+
+/**
+ * @summary Delete a PTA announcement
+ */
+export const DeletePtaAnnouncementParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const DeletePtaAnnouncementResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary Ballots with live tally and quorum status
+ */
+export const ListPtaBallotsResponse = zod.object({
+  rosterActive: zod.number().optional(),
+  isMember: zod.boolean().optional(),
+  ballots: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        question: zod.string().optional(),
+        description: zod.string().nullish(),
+        options: zod.array(zod.string()).optional(),
+        status: zod.string().optional(),
+        quorum: zod.number().nullish(),
+        closesAt: zod.string().nullish(),
+        createdAt: zod.string().optional(),
+        tally: zod.record(zod.string(), zod.number()).optional(),
+        totalVotes: zod.number().optional(),
+        quorumMet: zod.boolean().nullish(),
+        myVote: zod.string().nullish(),
+        electorate: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Open a ballot
+ */
+export const OpenPtaBallotBody = zod.object({
+  question: zod.string(),
+  description: zod.string().optional(),
+  options: zod.array(zod.string()).optional(),
+  quorum: zod.number().optional(),
+  closesAt: zod.string().optional(),
+  proposalId: zod.string().optional(),
+});
+
+/**
+ * @summary Close a ballot
+ */
+export const ClosePtaBallotParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ClosePtaBallotResponse = zod.object({
+  ballot: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Cast a vote (self or by proxy)
+ */
+export const CastPtaVoteParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const CastPtaVoteBody = zod.object({
+  choice: zod.string(),
+  memberId: zod.string().optional(),
+});
+
+/**
+ * @summary Standing proxies (grantor to holder)
+ */
+export const ListPtaProxiesResponse = zod.object({
+  myMemberId: zod.string().nullish(),
+  proxies: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        grantorMemberId: zod.string().optional(),
+        holderMemberId: zod.string().optional(),
+        grantor: zod.string().optional(),
+        holder: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Set my standing proxy holder
+ */
+export const SetPtaProxyBody = zod.object({
+  holderMemberId: zod.string(),
+});
+
+/**
+ * @summary Revoke my standing proxy
+ */
+export const RevokePtaProxyResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary The PTA decision log
+ */
+export const ListPtaProposalsResponse = zod.object({
+  proposals: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        title: zod.string().optional(),
+        detail: zod.string().optional(),
+        category: zod.string().optional(),
+        status: zod.string().optional(),
+        decisionDueAt: zod.string().nullish(),
+        decisionRationale: zod.string().nullish(),
+        decidedAt: zod.string().nullish(),
+        createdAt: zod.string().optional(),
+        raisedBy: zod.string().optional(),
+        decidedBy: zod.string().nullish(),
+        overdue: zod.boolean().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Raise a proposal for decision
+ */
+export const RaisePtaProposalBody = zod.object({
+  title: zod.string(),
+  detail: zod.string(),
+  category: zod.string().optional(),
+  decisionDueAt: zod.string().optional(),
+});
+
+/**
+ * @summary Record an explicit decision on a proposal
+ */
+export const DecidePtaProposalParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const DecidePtaProposalBody = zod.object({
+  outcome: zod.string(),
+  rationale: zod.string().optional(),
+});
+
+export const DecidePtaProposalResponse = zod.object({
+  proposal: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Withdraw an open proposal
+ */
+export const WithdrawPtaProposalParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const WithdrawPtaProposalResponse = zod.object({
+  proposal: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary List PTA members with their active officer roles
+ */
+export const ListPtaMembersResponse = zod.object({
+  members: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        userId: zod.string().optional(),
+        name: zod.string().optional(),
+        email: zod.string().optional(),
+        tier: zod.string().optional(),
+        status: zod.string().optional(),
+        joinedAt: zod.string().optional(),
+        offices: zod
+          .array(
+            zod.object({
+              role: zod.string().optional(),
+              domain: zod.string().nullish(),
+            }),
+          )
+          .optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Add a PTA member
+ */
+export const AddPtaMemberBody = zod.object({
+  userId: zod.string(),
+  tier: zod.string().optional(),
+  status: zod.string().optional(),
+});
+
+/**
+ * @summary School users (parents/PTA) not yet members
+ */
+export const ListPtaMemberCandidatesResponse = zod.object({
+  candidates: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        name: zod.string().optional(),
+        email: zod.string().optional(),
+        role: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Update a PTA member's tier or status
+ */
+export const UpdatePtaMemberParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdatePtaMemberBody = zod.object({
+  tier: zod.string().optional(),
+  status: zod.string().optional(),
+});
+
+export const UpdatePtaMemberResponse = zod.object({
+  member: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Remove a PTA member (and end their officer appointments)
+ */
+export const RemovePtaMemberParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const RemovePtaMemberResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary List active PTA officers
+ */
+export const ListPtaOfficersResponse = zod.object({
+  officers: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        memberId: zod.string().optional(),
+        name: zod.string().optional(),
+        role: zod.string().optional(),
+        domain: zod.string().nullish(),
+        termStartAt: zod.string().optional(),
+        active: zod.boolean().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Appoint a PTA officer
+ */
+export const AppointPtaOfficerBody = zod.object({
+  memberId: zod.string(),
+  role: zod.string(),
+  domain: zod.string().optional(),
+});
+
+/**
+ * @summary End a PTA officer appointment
+ */
+export const EndPtaOfficerParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const EndPtaOfficerResponse = zod.object({
+  officer: zod.object({}).passthrough().optional(),
+});
+
+/**
  * @summary List PTA-coordinator channel messages
  */
 export const ListPtaMessagesResponse = zod.object({
@@ -1227,4 +1681,779 @@ export const GetPtaResourcesResponse = zod.object({
       }),
     )
     .optional(),
+});
+
+/**
+ * @summary List PTA initiatives (the organise primitive)
+ */
+export const ListPtaInitiativesResponse = zod.object({
+  initiatives: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        title: zod.string().optional(),
+        summary: zod.string().optional(),
+        status: zod.string().optional(),
+        ownerId: zod.string().nullish(),
+        owner: zod.string().nullish(),
+        originVoiceId: zod.string().nullish(),
+        originVoiceName: zod.string().nullish(),
+        targetDate: zod.string().nullish(),
+        createdAt: zod.string().optional(),
+        completedAt: zod.string().nullish(),
+        goalId: zod.string().nullish(),
+        goalTitle: zod.string().nullish(),
+        goalStatus: zod.string().nullish(),
+        successCriteria: zod.string().nullish(),
+        resourcesNeeded: zod.string().nullish(),
+        conflicts: zod.string().nullish(),
+        checklist: zod.object({}).passthrough().optional(),
+        schoolStage: zod.string().optional(),
+        responseDueAt: zod.string().nullish(),
+        approvalType: zod.string().nullish(),
+        approvedAt: zod.string().nullish(),
+        approvedBy: zod.string().nullish(),
+        awaitingResponse: zod.boolean().optional(),
+        followUpCount: zod.number().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Start a PTA initiative
+ */
+export const CreatePtaInitiativeBody = zod.object({
+  title: zod.string(),
+  summary: zod.string(),
+  ownerId: zod.string().nullish(),
+  originVoiceId: zod.string().nullish(),
+  targetDate: zod.string().nullish(),
+  goalId: zod.string().nullish(),
+  successCriteria: zod.string().nullish(),
+  resourcesNeeded: zod.string().nullish(),
+  conflicts: zod.string().nullish(),
+});
+
+/**
+ * @summary Update / advance a PTA initiative
+ */
+export const UpdatePtaInitiativeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdatePtaInitiativeBody = zod.object({
+  status: zod.string().optional(),
+  title: zod.string().optional(),
+  summary: zod.string().optional(),
+  ownerId: zod.string().nullish(),
+  targetDate: zod.string().nullish(),
+  goalId: zod.string().nullish(),
+  successCriteria: zod.string().nullish(),
+  resourcesNeeded: zod.string().nullish(),
+  conflicts: zod.string().nullish(),
+  checklist: zod.object({}).passthrough().optional(),
+});
+
+export const UpdatePtaInitiativeResponse = zod.object({
+  initiative: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Initiative detail + stage history
+ */
+export const GetPtaInitiativeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetPtaInitiativeResponse = zod.object({
+  initiative: zod.object({}).passthrough().optional(),
+  stageHistory: zod.array(zod.object({}).passthrough()).optional(),
+});
+
+/**
+ * @summary Approve an initiative (self or board)
+ */
+export const ApprovePtaInitiativeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ApprovePtaInitiativeBody = zod.object({
+  approvalType: zod.string(),
+  boardNote: zod.string().nullish(),
+});
+
+export const ApprovePtaInitiativeResponse = zod.object({
+  initiative: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Advance the school-process stage
+ */
+export const AdvancePtaInitiativeStageParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AdvancePtaInitiativeStageBody = zod.object({
+  toStage: zod.string(),
+  occurredAt: zod.string().nullish(),
+  outcomeNote: zod.string().nullish(),
+  reason: zod.string().nullish(),
+  responseDueAt: zod.string().nullish(),
+});
+
+export const AdvancePtaInitiativeStageResponse = zod.object({
+  initiative: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Record a follow-up against a non-response
+ */
+export const FollowUpPtaInitiativeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const FollowUpPtaInitiativeBody = zod.object({
+  note: zod.string(),
+});
+
+/**
+ * @summary List PTA annual goals (all stages) with proposer + ballot tally
+ */
+export const ListPtaGoalsResponse = zod.object({
+  goals: zod.array(zod.object({}).passthrough()).optional(),
+});
+
+/**
+ * @summary Propose a PTA goal (any approved member)
+ */
+export const ProposePtaGoalBody = zod.object({
+  title: zod.string(),
+  description: zod.string().nullish(),
+  year: zod.number().nullish(),
+});
+
+/**
+ * @summary Open the senior-group ratifying ballot for a shortlisted goal
+ */
+export const OpenPtaGoalBallotParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const OpenPtaGoalBallotBody = zod.object({
+  quorum: zod.number().nullish(),
+  closesAt: zod.string().nullish(),
+});
+
+export const OpenPtaGoalBallotResponse = zod.object({
+  goal: zod.object({}).passthrough().optional(),
+  ballot: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Update a PTA goal (status transitions + edits while proposed)
+ */
+export const UpdatePtaGoalParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdatePtaGoalBody = zod.object({
+  status: zod.string().optional(),
+  title: zod.string().optional(),
+  description: zod.string().nullish(),
+  postmortemNote: zod.string().optional(),
+});
+
+export const UpdatePtaGoalResponse = zod.object({
+  goal: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary List VOICE advocacy collectives for the school
+ */
+export const ListVoiceResponse = zod.object({
+  voices: zod
+    .array(
+      zod.object({
+        id: zod.string().optional(),
+        name: zod.string().optional(),
+        mission: zod.string().optional(),
+        status: zod.string().optional(),
+        createdAt: zod.string().optional(),
+        convertedAt: zod.string().nullish(),
+        createdBy: zod.string().optional(),
+        memberCount: zod.number().optional(),
+        myRole: zod.string().nullish(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Create a VOICE (creator becomes founder + first member)
+ */
+export const CreateVoiceBody = zod.object({
+  name: zod.string(),
+  mission: zod.string(),
+});
+
+/**
+ * @summary VOICE detail with members
+ */
+export const GetVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetVoiceResponse = zod.object({
+  voice: zod
+    .object({
+      id: zod.string().optional(),
+      name: zod.string().optional(),
+      mission: zod.string().optional(),
+      status: zod.string().optional(),
+      createdAt: zod.string().optional(),
+      convertedAt: zod.string().nullish(),
+      createdBy: zod.string().optional(),
+      memberCount: zod.number().optional(),
+      myRole: zod.string().nullish(),
+      members: zod
+        .array(
+          zod.object({
+            id: zod.string().optional(),
+            userId: zod.string().optional(),
+            role: zod.string().optional(),
+            joinedAt: zod.string().optional(),
+            name: zod.string().optional(),
+          }),
+        )
+        .optional(),
+    })
+    .optional(),
+});
+
+/**
+ * @summary Back a VOICE (join as a member)
+ */
+export const JoinVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
+ * @summary Withdraw backing from a VOICE
+ */
+export const LeaveVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const LeaveVoiceResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary Convert a VOICE into PTA membership (school adopted VBE)
+ */
+export const ConvertVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ConvertVoiceResponse = zod.object({
+  voice: zod.object({}).passthrough().optional(),
+  converted: zod
+    .object({
+      backers: zod.number().optional(),
+      added: zod.number().optional(),
+      alreadyMembers: zod.number().optional(),
+    })
+    .optional(),
+  initiative: zod
+    .object({
+      id: zod.string().optional(),
+      title: zod.string().optional(),
+    })
+    .optional(),
+});
+
+/**
+ * @summary Public VOICE detail for the shareable page (no auth)
+ */
+export const GetVoicePublicParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetVoicePublicResponse = zod.object({
+  id: zod.string().optional(),
+  name: zod.string().optional(),
+  mission: zod.string().optional(),
+  status: zod.string().optional(),
+  startedBy: zod.string().optional(),
+  backerCount: zod.number().optional(),
+});
+
+/**
+ * @summary Add my voice — anonymous public support (no auth)
+ */
+export const SupportVoiceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const SupportVoiceBody = zod.object({
+  name: zod.string(),
+  email: zod.string(),
+});
+
+export const GetVoicePathwayParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetVoicePathwayResponse = zod.object({
+  voiceId: zod.string(),
+  stage: zod.string(),
+  backerCount: zod.number(),
+  signalThreshold: zod.number(),
+  thresholdMet: zod.boolean(),
+  signalFiredAt: zod.string().nullish(),
+  ptaMotionOutcome: zod.string().nullish(),
+  schoolRecognisedAt: zod.string().nullish(),
+  complete: zod.boolean(),
+  legitimacy: zod.object({
+    backerCount: zod.number().optional(),
+    declaredIncumbent: zod.number().nullish(),
+    ptaMembersInVoice: zod.number().optional(),
+    nonVoicePta: zod.number().nullish(),
+    met: zod.boolean().nullish(),
+    incumbentConfirmedBySchoolAt: zod.string().nullish(),
+  }),
+  signals: zod.array(
+    zod.object({
+      id: zod.string().optional(),
+      firedAt: zod.string().optional(),
+      topics: zod.array(zod.string()).optional(),
+      memberCountAtFire: zod.number().optional(),
+      schoolResponseStatus: zod.string().nullish(),
+      schoolResponseText: zod.string().nullish(),
+      schoolRespondedAt: zod.string().nullish(),
+    }),
+  ),
+});
+
+export const FireCollectiveSignalParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const RecordPtaMotionParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const RecordPtaMotionBody = zod.object({
+  outcome: zod.enum(["vad_adopted", "vad_declined"]),
+});
+
+export const RecordPtaMotionResponse = zod.object({
+  pathway: zod.record(zod.string(), zod.unknown()),
+  convert: zod.record(zod.string(), zod.unknown()).optional(),
+});
+
+export const RecordSchoolRecognitionParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const RecordSchoolRecognitionResponse = zod.object({
+  pathway: zod.record(zod.string(), zod.unknown()),
+});
+
+export const SetIncumbentPtaSizeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const SetIncumbentPtaSizeBody = zod.object({
+  incumbentPtaSize: zod.number(),
+  confirm: zod.boolean().optional(),
+});
+
+export const SetIncumbentPtaSizeResponse = zod.object({
+  pathway: zod.record(zod.string(), zod.unknown()),
+});
+
+export const RecordSignalResponseParams = zod.object({
+  id: zod.coerce.string(),
+  signalId: zod.coerce.string(),
+});
+
+export const RecordSignalResponseBody = zod.object({
+  status: zod.enum(["responded", "none"]),
+  text: zod.string().optional(),
+});
+
+export const RecordSignalResponseResponse = zod.object({
+  pathway: zod.record(zod.string(), zod.unknown()),
+});
+
+/**
+ * @summary Get a community diagnostic survey by slug (no auth)
+ */
+export const GetCommunityDiagnosticParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetCommunityDiagnosticResponse = zod.object({
+  title: zod.string(),
+  questions: zod.array(
+    zod.object({
+      key: zod.string(),
+      section: zod.string(),
+      text: zod.string(),
+      type: zod.string(),
+      options: zod.array(zod.string()).optional(),
+      optional: zod.boolean().optional(),
+    }),
+  ),
+  submissionCount: zod.number(),
+  released: zod.boolean(),
+});
+
+/**
+ * @summary Submit answers to a community diagnostic (no auth)
+ */
+export const SubmitCommunityDiagnosticParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const SubmitCommunityDiagnosticBody = zod.object({
+  email: zod.string(),
+  name: zod.string().optional(),
+  yearGroup: zod.string().optional(),
+  classOrTeacher: zod.string().optional(),
+  answers: zod.array(
+    zod.object({
+      questionKey: zod.string(),
+      answer: zod.number().optional(),
+      freeText: zod.string().optional(),
+    }),
+  ),
+});
+
+/**
+ * @summary List members awaiting approval (exec)
+ */
+export const ListPendingMembersResponse = zod.object({
+  members: zod.array(
+    zod.object({
+      id: zod.string(),
+      firstName: zod.string(),
+      lastName: zod.string(),
+      email: zod.string(),
+      createdAt: zod.string().optional(),
+    }),
+  ),
+});
+
+/**
+ * @summary Approve a pending member and set their anonymity mode (exec)
+ */
+export const ApproveMemberParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const ApproveMemberBody = zod.object({
+  displayMode: zod.enum(["named", "anonymous"]).optional(),
+});
+
+export const ApproveMemberResponse = zod.object({
+  member: zod.object({}).passthrough().optional(),
+});
+
+/**
+ * @summary Reject a pending member (exec)
+ */
+export const RejectMemberParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const RejectMemberResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary Release diagnostic results and notify participants (exec)
+ */
+export const ReleaseDiagnosticResultsParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const ReleaseDiagnosticResultsResponse = zod.object({
+  released: zod.boolean(),
+  releasedAt: zod.string().optional(),
+});
+
+/**
+ * @summary Aggregated diagnostic results (authed; exec sees free-text)
+ */
+export const GetDiagnosticResultsParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetDiagnosticResultsResponse = zod.object({
+  title: zod.string(),
+  released: zod.boolean(),
+  releasedAt: zod.string().optional(),
+  isExec: zod.boolean().optional(),
+  totalResponses: zod.number(),
+  questions: zod.array(
+    zod.object({
+      key: zod.string(),
+      section: zod.string(),
+      text: zod.string(),
+      type: zod.string().optional(),
+      options: zod.array(zod.string()),
+      distribution: zod.array(zod.number()),
+      segments: zod.array(
+        zod.object({
+          yearGroup: zod.string(),
+          n: zod.number(),
+          distribution: zod.array(zod.number()),
+        }),
+      ),
+    }),
+  ),
+  freeText: zod
+    .array(
+      zod.object({
+        questionKey: zod.string().optional(),
+        text: zod.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
+/**
+ * @summary Email+password sign-up that logs the parent in instantly
+ */
+export const SignupBody = zod.object({
+  email: zod.string(),
+  password: zod.string(),
+  name: zod.string().optional(),
+  schoolSlug: zod.string(),
+  wasPtaMember: zod.boolean().optional(),
+});
+
+/**
+ * @summary Public school + vibes summary for the front door
+ */
+export const GetJoinSummaryParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetJoinSummaryResponse = zod.object({
+  schoolName: zod.string(),
+  voiceName: zod.string(),
+  mission: zod.string().optional(),
+  joinCount: zod.number(),
+  hasVibes: zod.boolean(),
+});
+
+/**
+ * @summary Public tenant config for the unified shell
+ */
+export const GetTenantParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetTenantResponse = zod.object({
+  slug: zod.string().nullish(),
+  displayName: zod.string().optional(),
+  theme: zod.record(zod.string(), zod.unknown()).optional(),
+  capabilities: zod
+    .object({
+      learn: zod.boolean().optional(),
+      diagnostic: zod.boolean().optional(),
+      voice: zod.boolean().optional(),
+      membership: zod.boolean().optional(),
+      results: zod.boolean().optional(),
+      concerns: zod.boolean().optional(),
+      pta: zod.boolean().optional(),
+      safeguarding: zod.boolean().optional(),
+      lessons: zod.boolean().optional(),
+      behaviour: zod.boolean().optional(),
+    })
+    .optional(),
+});
+
+/**
+ * @summary Submit a community concern
+ */
+export const SubmitConcernBody = zod.object({
+  body: zod.string(),
+});
+
+/**
+ * @summary List concerns for the exec's school
+ */
+export const ListConcernsResponse = zod.object({
+  concerns: zod.array(
+    zod.object({
+      id: zod.string(),
+      body: zod.string(),
+      status: zod.string(),
+      createdAt: zod.string(),
+      firstName: zod.string(),
+      lastName: zod.string(),
+    }),
+  ),
+});
+
+/**
+ * @summary Triage a concern by setting its status
+ */
+export const SetConcernStatusParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const SetConcernStatusBody = zod.object({
+  status: zod.string(),
+});
+
+export const SetConcernStatusResponse = zod.object({
+  ok: zod.boolean(),
+});
+
+/**
+ * @summary Public school finder (name match + whether it has a Vibes group)
+ */
+export const SearchSchoolsQueryParams = zod.object({
+  q: zod.coerce.string().optional(),
+});
+
+export const SearchSchoolsResponse = zod.object({
+  schools: zod.array(
+    zod.object({
+      slug: zod.string().nullish(),
+      name: zod.string(),
+      hasVibes: zod.boolean(),
+    }),
+  ),
+});
+
+/**
+ * @summary Queue a request to create a Vibes for a school not yet in the directory
+ */
+export const RequestSchoolCreateBody = zod.object({
+  schoolName: zod.string(),
+  email: zod.string(),
+  note: zod.string().optional(),
+});
+
+/**
+ * @summary Operating-structure charter content + claim status (authed)
+ */
+export const GetPtaCharterResponse = zod.object({
+  version: zod.string(),
+  title: zod.string(),
+  youAcknowledged: zod.boolean(),
+  sections: zod.array(
+    zod.object({
+      heading: zod.string(),
+      body: zod.string(),
+    }),
+  ),
+  claimed: zod.boolean(),
+  claimedAt: zod.string().optional(),
+  officers: zod.array(
+    zod.object({
+      role: zod.string().optional(),
+      domain: zod.string().optional(),
+      name: zod.string().optional(),
+    }),
+  ),
+  acknowledgements: zod.array(
+    zod.object({
+      name: zod.string().optional(),
+      actionType: zod.string().optional(),
+      createdAt: zod.string().optional(),
+    }),
+  ),
+});
+
+/**
+ * @summary Admin adopts the operating structure, claiming the PTA
+ */
+export const AdoptPtaCharterResponse = zod.object({
+  claimedAt: zod.string().optional(),
+});
+
+/**
+ * @summary An officer acknowledges the charter
+ */
+export const AcknowledgePtaCharterResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary Platform-operator capability toggle (spec §4.6)
+ */
+export const PatchSchoolCapabilitiesParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const PatchSchoolCapabilitiesBody = zod.object({
+  capabilities: zod.record(zod.string(), zod.boolean()),
+});
+
+export const PatchSchoolCapabilitiesResponse = zod.object({
+  slug: zod.string(),
+  capabilities: zod.record(zod.string(), zod.boolean()),
+});
+
+/**
+ * @summary Submit answers to the short sign-up intake (no auth, rate-limited)
+ */
+export const SubmitIntakeParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const SubmitIntakeBody = zod.object({
+  email: zod.string(),
+  selections: zod.record(zod.string(), zod.array(zod.number())),
+});
+
+/**
+ * @summary Intake aggregate — domain/option shape always present; counts suppressed below n>=5
+ */
+export const GetIntakeAggregateParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetIntakeAggregateResponse = zod.object({
+  suppressed: zod.boolean(),
+  n: zod.number(),
+  floor: zod.number(),
+  domains: zod.array(
+    zod.object({
+      key: zod.string(),
+      section: zod.string(),
+      options: zod.array(zod.string()),
+      counts: zod.array(zod.number()).nullish(),
+    }),
+  ),
+});
+
+/**
+ * @summary In-app report-this-member affordance (any authed member)
+ */
+export const ReportMemberParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const ReportMemberBody = zod.object({
+  reason: zod.string().optional(),
+});
+
+/**
+ * @summary Platform-operator flag/remove a member (community moderation)
+ */
+export const RemoveMemberParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const RemoveMemberResponse = zod.object({
+  removed: zod.boolean(),
 });

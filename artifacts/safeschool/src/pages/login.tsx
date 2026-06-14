@@ -7,6 +7,7 @@ import { ShieldCheck, User, Users, GraduationCap, AlertTriangle, Play, UserCheck
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
+import { BrandLockup } from "@/components/brand/BrandLockup";
 
 type DemoAccount = { label: string; subtitle: string; email: string; password: string };
 
@@ -32,7 +33,7 @@ export default function Login() {
   const [_, setLocation] = useLocation();
   const { setToken } = useAuth();
   const { t } = useTranslation("login");
-  const [activeTab, setActiveTab] = useState<"pupil" | "staff" | "parent" | "pta">("pupil");
+  const [activeTab, setActiveTab] = useState<"pupil" | "staff" | "parent" | "pta">("parent");
   const staffLogin = useStaffLogin();
   const parentLogin = useParentLogin();
   const { data: schools } = useListSchools();
@@ -40,7 +41,9 @@ export default function Login() {
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [selectedStaffEmail, setSelectedStaffEmail] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Demo build: pre-fill the universal demo password so feedback-givers can just
+  // pick a name and click Log in. (All non-pupil demo accounts use this.)
+  const [password, setPassword] = useState("password123");
   const [error, setError] = useState("");
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [demoEnabled, setDemoEnabled] = useState(false);
@@ -190,12 +193,25 @@ export default function Login() {
     loadAccounts();
   }, [selectedSchoolId]);
 
+  // Demo build: auto-select the first account for the active tab so the form is
+  // ready to submit with no typing — frictionless access for feedback.
+  useEffect(() => {
+    const list =
+      activeTab === "parent" ? loginAccounts.parent
+      : activeTab === "pta" ? loginAccounts.pta
+      : activeTab === "staff" ? loginAccounts.staff
+      : [];
+    if (list.length && !list.some((a) => a.email === selectedStaffEmail)) {
+      setSelectedStaffEmail(list[0].email);
+    }
+  }, [activeTab, loginAccounts]);
+
   const [pupilStep, setPupilStep] = useState<PupilLoginStep>("school");
-  const [accessCode, setAccessCode] = useState("");
+  const [accessCode, setAccessCode] = useState("7A-RIVER");
   const [loginSessionToken, setLoginSessionToken] = useState("");
   const [profiles, setProfiles] = useState<PupilProfile[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<PupilProfile | null>(null);
-  const [pin, setPin] = useState("");
+  const [pin, setPin] = useState("1234");
   const [pupilLoading, setPupilLoading] = useState(false);
 
   useEffect(() => {
@@ -392,7 +408,7 @@ export default function Login() {
   const profileSearch = useState("");
 
   return (
-    <div className="min-h-screen w-full flex bg-background relative overflow-hidden">
+    <div className="min-h-screen w-full grid md:grid-cols-2 bg-background relative">
       <button
         type="button"
         disabled={!!demoLoading}
@@ -419,31 +435,43 @@ export default function Login() {
             setDemoLoading(null);
           }
         }}
-        className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-600 text-white text-xs sm:text-sm font-bold shadow-md hover:bg-teal-700 transition-colors z-20 disabled:opacity-60"
+        className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-white text-xs sm:text-sm font-bold shadow-md hover:bg-primary/90 transition-colors z-20 disabled:opacity-60"
       >
         <ShieldCheck size={14} />
         Admin
       </button>
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-background"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/10 blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-secondary/10 blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+
+      {/* Brand-warmth panel (desktop) — carries the marketing language across the seam */}
+      <div
+        className="relative hidden md:flex flex-col justify-between p-10 text-white"
+        style={{ background: "linear-gradient(150deg,#0A4EC0,#126AF9 55%,#1EF4F4)" }}
+      >
+        <a href="/" target="_blank" rel="noopener" className="inline-flex w-fit items-center gap-1.5 text-sm font-bold text-white/90 hover:text-white transition-colors">
+          <ArrowLeft size={16} /> Back to SchoolVBE
+        </a>
+        <div>
+          <BrandLockup size="lg" endorse />
+          <p className="mt-5 max-w-xs text-xl font-semibold">{t("tagline")}</p>
+          <p className="mt-3 max-w-sm text-sm text-white/85">Free software for values-based education — supporting schools, parents and PTAs.</p>
+        </div>
+        <p className="max-w-sm text-xs text-white/70">{t("protectedBy")}</p>
       </div>
 
-      <div className="w-full max-w-md mx-auto flex flex-col justify-center px-4 relative z-10">
+      {/* Form column */}
+      <div className="w-full max-w-md mx-auto flex flex-col justify-center px-4 py-10 relative z-10">
+        <a href="/" target="_blank" rel="noopener" className="md:hidden inline-flex w-fit items-center gap-1.5 text-sm font-bold text-primary mb-6">
+          <ArrowLeft size={16} /> Back to SchoolVBE
+        </a>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-8 md:hidden"
         >
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-secondary shadow-xl shadow-primary/20 mb-6 text-white transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-            <ShieldCheck size={40} strokeWidth={2.5} />
-          </div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">safeskoolz</h1>
+          <BrandLockup size="lg" className="items-center" />
           <p className="mt-3 text-muted-foreground text-lg">{t("tagline")}</p>
         </motion.div>
 
-        <Card className="shadow-2xl shadow-primary/5 border-border/50 bg-background/80 backdrop-blur-xl">
+        <Card className="border-border shadow-sm">
           <div className="flex items-center justify-center gap-1 px-4 pt-3 pb-1">
             {LANGUAGES.map((lang) => (
               <button
@@ -517,76 +545,76 @@ export default function Login() {
               transition={{ duration: 0.2 }}
             >
               {activeTab === "pupil" && (
-                <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-teal-50/30 dark:bg-teal-950/10">
-                  <p className="text-sm font-bold text-teal-700 dark:text-teal-400 mb-2">{t("whatSafeskoolzDoes")}</p>
+                <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-role-pupil/10">
+                  <p className="text-sm font-bold text-role-pupil mb-2">{t("whatSafeskoolzDoes")}</p>
                   <div className="grid gap-1.5">
                     <div className="flex items-start gap-2">
-                      <Heart size={13} className="text-teal-500 mt-0.5 shrink-0" />
+                      <Heart size={13} className="text-role-pupil mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMe")}</span> — {t("pupilForMe")}</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Users size={13} className="text-teal-500 mt-0.5 shrink-0" />
+                      <Users size={13} className="text-role-pupil mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMyFriends")}</span> — {t("pupilForFriends")}</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Building2 size={13} className="text-teal-500 mt-0.5 shrink-0" />
+                      <Building2 size={13} className="text-role-pupil mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMySchool")}</span> — {t("pupilForSchool")}</p>
                     </div>
                   </div>
                 </div>
               )}
               {activeTab === "staff" && (
-                <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-indigo-50/30 dark:bg-indigo-950/10">
-                  <p className="text-sm font-bold text-indigo-700 dark:text-indigo-400 mb-2">{t("whatSafeskoolzDoes")}</p>
+                <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-role-staff/10">
+                  <p className="text-sm font-bold text-role-staff mb-2">{t("whatSafeskoolzDoes")}</p>
                   <div className="grid gap-1.5">
                     <div className="flex items-start gap-2">
-                      <ClipboardCheck size={13} className="text-indigo-500 mt-0.5 shrink-0" />
+                      <ClipboardCheck size={13} className="text-role-staff mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMe")}</span> — {t("staffForMe")}</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Eye size={13} className="text-indigo-500 mt-0.5 shrink-0" />
+                      <Eye size={13} className="text-role-staff mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMyPupils")}</span> — {t("staffForPupils")}</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Shield size={13} className="text-indigo-500 mt-0.5 shrink-0" />
+                      <Shield size={13} className="text-role-staff mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forTheirParents")}</span> — {t("staffForParents")}</p>
                     </div>
                   </div>
                 </div>
               )}
               {activeTab === "parent" && (
-                <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-amber-50/30 dark:bg-amber-950/10">
-                  <p className="text-sm font-bold text-amber-700 dark:text-amber-400 mb-2">{t("whatSafeskoolzDoes")}</p>
+                <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-role-parent/10">
+                  <p className="text-sm font-bold text-role-parent mb-2">{t("whatSafeskoolzDoes")}</p>
                   <div className="grid gap-1.5">
                     <div className="flex items-start gap-2">
-                      <Bell size={13} className="text-amber-500 mt-0.5 shrink-0" />
+                      <Bell size={13} className="text-role-parent mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMe")}</span> — {t("parentForMe")}</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Heart size={13} className="text-amber-500 mt-0.5 shrink-0" />
+                      <Heart size={13} className="text-role-parent mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMyChild")}</span> — {t("parentForChild")}</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <BarChart3 size={13} className="text-amber-500 mt-0.5 shrink-0" />
+                      <BarChart3 size={13} className="text-role-parent mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMySchool")}</span> — {t("parentForSchool")}</p>
                     </div>
                   </div>
                 </div>
               )}
               {activeTab === "pta" && (
-                <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-purple-50/30 dark:bg-purple-950/10">
-                  <p className="text-sm font-bold text-purple-700 dark:text-purple-400 mb-2">{t("whatSafeskoolzDoes")}</p>
+                <div className="px-6 sm:px-8 pt-5 pb-3 border-b border-border/30 bg-role-pta/10">
+                  <p className="text-sm font-bold text-role-pta mb-2">{t("whatSafeskoolzDoes")}</p>
                   <div className="grid gap-1.5">
                     <div className="flex items-start gap-2">
-                      <BarChart3 size={13} className="text-purple-500 mt-0.5 shrink-0" />
+                      <BarChart3 size={13} className="text-role-pta mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forMe")}</span> — {t("ptaForMe")}</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Users size={13} className="text-purple-500 mt-0.5 shrink-0" />
+                      <Users size={13} className="text-role-pta mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forParents")}</span> — {t("ptaForParents")}</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Shield size={13} className="text-purple-500 mt-0.5 shrink-0" />
+                      <Shield size={13} className="text-role-pta mt-0.5 shrink-0" />
                       <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground/80">{t("forTheSchool")}</span> — {t("ptaForSchool")}</p>
                     </div>
                   </div>

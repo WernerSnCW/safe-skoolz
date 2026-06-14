@@ -66,3 +66,33 @@ export function requireRole(...roles: string[]) {
     next();
   };
 }
+
+/** Platform-operator allowlist (spec §4.6) — env PLATFORM_OPERATOR_EMAILS. */
+export function isPlatformOperator(payload: JwtPayload): boolean {
+  const allow = (process.env.PLATFORM_OPERATOR_EMAILS ?? "")
+    .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  return !!payload.email && allow.includes(payload.email.toLowerCase());
+}
+
+export function requirePlatformOperator(req: Request, res: Response, next: NextFunction): void {
+  const user = (req as any).user as JwtPayload;
+  if (!user) { res.status(401).json({ error: "Authentication required" }); return; }
+  if (!isPlatformOperator(user)) { res.status(403).json({ error: "Platform-operator only." }); return; }
+  next();
+}
+
+/**
+ * Chapter 2 (spec §6): pathway outcome writes (motion / recognition / incumbent)
+ * are recorded by an EXEC (school leadership / PTA) OR a platform operator —
+ * school-confirmable per the Ch1 trust model. Reuses the exec role set.
+ */
+const EXEC_ROLES = new Set(["pta", "coordinator", "head_teacher"]);
+export function isExecOrOperator(payload: JwtPayload): boolean {
+  return isPlatformOperator(payload) || (!!payload.role && EXEC_ROLES.has(payload.role));
+}
+export function requireExecOrOperator(req: Request, res: Response, next: NextFunction): void {
+  const user = (req as any).user as JwtPayload;
+  if (!user) { res.status(401).json({ error: "Authentication required" }); return; }
+  if (!isExecOrOperator(user)) { res.status(403).json({ error: "Only school leadership or a platform operator can record this." }); return; }
+  next();
+}

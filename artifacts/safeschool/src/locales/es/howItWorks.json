@@ -1,6 +1,6 @@
 {
   "backToLogin": "Volver al inicio de sesión",
-  "pageTitle": "Cómo funciona safeskoolz",
+  "pageTitle": "Cómo funciona vibez",
   "pageSubtitle": "Sigue la historia de Sofia a través de la plataforma real: ve cada pantalla, cada alerta y cada acción que protege a una niña.",
   "clickTimelineHint": "Haz clic en la línea de tiempo para explorar cada semana",
   "stagesProgress": "{{current}} de {{total}} etapas",
@@ -9,13 +9,13 @@
   "seeNext": "Ver qué pasa después",
   "storyComplete": "Historia completa",
   "ctaTitle": "Cada colegio tiene historias como la de Sofia.",
-  "ctaSubtitle": "La diferencia está en si alguien conecta los puntos a tiempo. safeskoolz hace visible lo invisible.",
+  "ctaSubtitle": "La diferencia está en si alguien conecta los puntos a tiempo. Con vibez, lo invisible se hace visible.",
   "tryDemo": "Probar la demo",
   "footerDisclaimer": "Todos los nombres son ficticios. Los escenarios se basan en patrones reales observados en colegios de toda Europa.",
   "poweredBy": "Powered by",
   "interactiveDemoTag": "DEMO INTERACTIVA",
   "rolesTitle": "Qué puede hacer cada rol",
-  "rolesSubtitle": "La historia de Sofia muestra la detección de patrones. Pero safeskoolz se usa cada día por alumnos, familias, profesores y coordinadores para mucho más.",
+  "rolesSubtitle": "La historia de Sofia muestra la detección de patrones. Pero vibez se usa cada día por alumnos, familias, profesores y coordinadores para mucho más.",
   "chooseRoleHint": "Elige un rol y explora sus funciones",
   "featuresClickHint": "{{count}} funciones — haz clic para explorar",
   "featuresCount": "{{count}} funciones",
@@ -127,9 +127,9 @@
     },
     "pattern": {
       "week": "Semana 3",
-      "title": "safeskoolz une los puntos",
+      "title": "Cómo vibez une los puntos",
       "subtitle": "Ningún profesor solo vio el cuadro completo. El sistema sí.",
-      "narrative": "Cuatro incidentes registrados por tres miembros distintos del personal y un alumno anónimo. Ninguna persona vio más de un evento. Pero safeskoolz los conecta todos: misma víctima, gravedad creciente, grupo formándose en torno a un cabecilla y un estado de ánimo que cae en picado.",
+      "narrative": "Cuatro incidentes registrados por tres miembros distintos del personal y un alumno anónimo. Ninguna persona vio más de un evento. Pero vibez los conecta todos: misma víctima, gravedad creciente, grupo formándose en torno a un cabecilla y un estado de ánimo que cae en picado.",
       "screens": [
         {
           "role": "Sistema",
@@ -216,7 +216,7 @@
           "role": "Sra. Chen (coordinadora)",
           "page": "Seguimiento del protocolo",
           "title": "Cada niño recibe una respuesta proporcional",
-          "description": "El protocolo Convivèxit exige acciones distintas para cabecillas frente a participantes reclutados. safeskoolz hace seguimiento de cada tarea y plazo.",
+          "description": "El protocolo Convivèxit exige acciones distintas para cabecillas frente a participantes reclutados. Con vibez, cada tarea y plazo quedan registrados.",
           "mockup": [
             "Marcus: Reunión formal con familia • Contrato de conducta • Check-in diario con jefatura de etapa",
             "Tyler: Conversación restaurativa con Sofia (con consentimiento) • Sesiones de mentoría",
@@ -326,7 +326,7 @@
         {
           "page": "Mensajería segura",
           "title": "Escribe a tu adulto seguro",
-          "description": "Si te han asignado un adulto seguro, puedes escribirle directamente desde safeskoolz. Privado, seguro y disponible siempre.",
+          "description": "Si te han asignado un adulto seguro, puedes escribirle directamente desde vibez. Privado, seguro y disponible siempre.",
           "mockup": [
             "Tu adulta segura es: la profesora Rivera. Puedes escribirle cuando quieras.",
             "\"¿Podemos hablar en el recreo? Ha pasado algo otra vez.\""
@@ -620,7 +620,7 @@
           "title": "Informe de protección del colegio",
           "frequency": "Trimestral",
           "mockup": [
-            "Morna International College — Informe de protección del trimestre 2",
+            "Riverside School — Informe de protección del trimestre 2",
             "Incidentes este trimestre: 47 (18% menos) • Resueltos: 94% • Resolución media: 8 días",
             "Encuesta de clima: 89% del alumnado completada. Hallazgo clave: la confianza en la denuncia debe mejorar.",
             "Acción tomada: Lanzado nuevo programa de embajadores adulto seguro. Mayor supervisión en el comedor."

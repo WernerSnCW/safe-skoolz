@@ -3,9 +3,11 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { eq, and, isNull, gt, inArray, sql } from "drizzle-orm";
-import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable } from "@workspace/db";
+import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable, schoolsTable, voiceGroupsTable, voiceMembersTable, diagnosticSurveysTable, voiceMandatesTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import { tenantPublicView, isCommunityMode } from "../lib/tenant";
+import { INTAKE_INSTRUMENT } from "../lib/intakeInstrument";
 import { writeAudit } from "../lib/auditHelper";
 import { signMfaChallengeToken, signMfaEnrollmentToken, MFA_ENFORCED_ROLES } from "./mfa";
 
@@ -436,6 +438,134 @@ router.post("/auth/staff/login", async (req, res): Promise<void> => {
   });
 });
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// POST /auth/signup — email+password sign-up that logs the parent in instantly
+// (no email verification — production has no Resend yet). Creates a pending
+// parent at the school and backs that school's "Vibes" voice group (= backing
+// both goals). Returns the same shape as login.
+router.post("/auth/signup", async (req, res): Promise<void> => {
+  const { email, password, name, schoolSlug, wasPtaMember } = req.body ?? {};
+  if (!email || typeof email !== "string" || !EMAIL_RE.test(email)) {
+    res.status(400).json({ error: "A valid email address is required." });
+    return;
+  }
+  if (!password || typeof password !== "string" || password.length < 8) {
+    res.status(400).json({ error: "Password must be at least 8 characters." });
+    return;
+  }
+  if (!schoolSlug || typeof schoolSlug !== "string") {
+    res.status(400).json({ error: "A school is required." });
+    return;
+  }
+  const [school] = await db.select().from(schoolsTable)
+    .where(and(eq(schoolsTable.slug, schoolSlug), eq(schoolsTable.active, true)));
+  if (!school) {
+    res.status(404).json({ error: "School not found." });
+    return;
+  }
+
+  const normalEmail = email.toLowerCase().trim();
+  const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, normalEmail));
+  if (existing) {
+    res.status(409).json({ error: "This email already has an account. Try logging in." });
+    return;
+  }
+
+  const trimmed = name ? String(name).trim() : "";
+  const firstName = (trimmed.split(/\s+/)[0] || "Member").slice(0, 100);
+  const lastName = (trimmed.split(/\s+/).slice(1).join(" ") || "Parent").slice(0, 100);
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  // Community-mode tenants admit members active-on-join (open-join, spec §4.3).
+  // Whole-school tenants (Riverside) keep the pending → approve/reject queue.
+  const initialMembership = isCommunityMode(school) ? "approved" : "pending";
+
+  let newUser;
+  try {
+    [newUser] = await db.insert(usersTable).values({
+      schoolId: school.id,
+      role: "parent",
+      firstName,
+      lastName,
+      email: normalEmail,
+      passwordHash,
+      membershipStatus: initialMembership,
+      lastLogin: new Date(),
+    } as any).returning();
+  } catch (e: any) {
+    const pgCode = e?.code ?? e?.cause?.code;
+    if (pgCode === "23505") {
+      res.status(409).json({ error: "This email already has an account. Try logging in." });
+      return;
+    }
+    throw e;
+  }
+
+  // Chapter 2 (spec §3): normalise the self-declared PTA membership flag once.
+  // Anything other than an explicit `true` is treated as false (not a member).
+  const declaredPtaMember = wasPtaMember === true;
+
+  try {
+    // Back the school's advocating VOICE. If it was created founder-less
+    // (POST /api/schools, Phase 4b) and still has no founder, the FIRST backer
+    // becomes the founder: set voice_groups.createdById and insert role 'founder'.
+    // Otherwise the joiner is a flat member (existing behaviour).
+    const [voice] = await db.select({ id: voiceGroupsTable.id, createdById: voiceGroupsTable.createdById })
+      .from(voiceGroupsTable)
+      .where(and(eq(voiceGroupsTable.schoolId, school.id), eq(voiceGroupsTable.status, "advocating")));
+    if (voice) {
+      // Claim founder only if the VOICE has no founder yet AND no founder member
+      // exists (guards a race / a pre-4b VOICE that legitimately has createdById).
+      let role: "founder" | "member" = "member";
+      if (voice.createdById == null) {
+        const [existingFounder] = await db.select({ id: voiceMembersTable.id }).from(voiceMembersTable)
+          .where(and(eq(voiceMembersTable.voiceId, voice.id), eq(voiceMembersTable.role, "founder")));
+        if (!existingFounder) {
+          role = "founder";
+          await db.update(voiceGroupsTable).set({ createdById: newUser.id }).where(eq(voiceGroupsTable.id, voice.id));
+
+          // C1: the founder exists now, so provision the school's intake survey
+          // (kind='intake') if one doesn't already exist. created_by is NOT NULL,
+          // so set it to the founder. The intake resolves by SCHOOL slug at
+          // /api/intake/:slug. Idempotent — guarded by the existence check.
+          const [existingIntake] = await db.select({ id: diagnosticSurveysTable.id })
+            .from(diagnosticSurveysTable)
+            .where(and(eq(diagnosticSurveysTable.schoolId, school.id), eq(diagnosticSurveysTable.kind, "intake")));
+          if (!existingIntake) {
+            // 4b-created schools always have a slug; fall back to the id only as
+            // a defensive guard against a null slug for legacy tenants.
+            const intakeSlug = school.slug ? `${school.slug}-intake` : `intake-${school.id}`;
+            await db.insert(diagnosticSurveysTable).values({
+              schoolId: school.id,
+              title: `${school.name} intake`,
+              status: "active",
+              kind: "intake",
+              createdBy: newUser.id,
+              publicSlug: intakeSlug,
+              instrument: INTAKE_INSTRUMENT,
+            } as any).onConflictDoNothing();
+          }
+        }
+      }
+      await db.insert(voiceMembersTable).values({ voiceId: voice.id, userId: newUser.id, role, wasPtaMember: declaredPtaMember }).onConflictDoNothing();
+
+      // Chapter 2 (spec §3): joining IS the Delegated Voice authorisation. Write
+      // one mandate row per goal (G1+G2). confirmationEvent records the consent
+      // act (doubles as the GDPR consent step, spec §3/§7.1). Idempotent per
+      // (user, school, goal) via the unique index.
+      const confirmationEvent = `join:${new Date().toISOString()} — accepted G1/G2 delegated-voice mandate`;
+      await db.insert(voiceMandatesTable).values([
+        { userId: newUser.id, schoolId: school.id, goal: "G1", confirmationEvent },
+        { userId: newUser.id, schoolId: school.id, goal: "G2", confirmationEvent },
+      ]).onConflictDoNothing();
+    }
+  } catch (e) { console.error("[signup] backing voice failed:", e); }
+
+  const token = signToken({ userId: newUser.id, schoolId: newUser.schoolId, role: newUser.role, email: newUser.email || undefined });
+  res.status(201).json({ token, user: formatUser(newUser), firstLogin: true });
+});
+
 router.post("/auth/parent/login", async (req, res): Promise<void> => {
   const parsed = StaffLoginBody.safeParse(req.body);
   if (!parsed.success) {
@@ -444,10 +574,11 @@ router.post("/auth/parent/login", async (req, res): Promise<void> => {
   }
 
   const { email, password } = parsed.data;
+  const normalEmail = String(email).toLowerCase().trim();
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(and(eq(usersTable.email, email), eq(usersTable.role, "parent"), eq(usersTable.active, true)));
+    .where(and(eq(usersTable.email, normalEmail), eq(usersTable.role, "parent"), eq(usersTable.active, true)));
 
   if (!user || !user.passwordHash) {
     res.status(401).json({ error: "Invalid credentials" });
@@ -583,10 +714,11 @@ router.get("/auth/me", authMiddleware, async (req, res): Promise<void> => {
     return;
   }
 
-  res.json(formatUser(user));
+  const [school] = await db.select().from(schoolsTable).where(eq(schoolsTable.id, user.schoolId));
+  res.json(formatUser(user, school ? tenantPublicView(school) : undefined));
 });
 
-function formatUser(user: typeof usersTable.$inferSelect) {
+function formatUser(user: typeof usersTable.$inferSelect, tenant?: ReturnType<typeof tenantPublicView>) {
   return {
     id: user.id,
     schoolId: user.schoolId,
@@ -601,7 +733,10 @@ function formatUser(user: typeof usersTable.$inferSelect) {
     avatarImageUrl: user.avatarImageUrl,
     parentOf: user.parentOf || [],
     active: user.active,
+    membershipStatus: user.membershipStatus,
+    displayMode: user.displayMode,
     lastLogin: user.lastLogin?.toISOString() || null,
+    tenant: tenant ?? null,
   };
 }
 

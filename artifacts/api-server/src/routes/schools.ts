@@ -1,14 +1,167 @@
 import { Router, type IRouter } from "express";
 import { eq, and, inArray, ilike, or, sql } from "drizzle-orm";
-import { db, schoolsTable, usersTable } from "@workspace/db";
-import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
+import { db, schoolsTable, voiceGroupsTable, usersTable, coalitionPathwayTable } from "@workspace/db";
+import { authMiddleware, requireRole, requirePlatformOperator, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
+import { tenantPublicView, resolveCapabilities, CAPABILITY_KEYS } from "../lib/tenant";
+import { slugify, uniqueSlug } from "../lib/slugify";
+import { PgRateLimitStore } from "../lib/rateLimitStore";
 import bcrypt from "bcrypt";
 
 const TEACHING_ROLES = ["teacher", "head_of_year"];
 const ALL_STAFF_ROLES = ["teacher", "head_of_year", "coordinator", "head_teacher", "senco", "support_staff"];
 
 const router: IRouter = Router();
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+// Public, abuse-bounded create (spec §4.1). Keyed by IP since there is no auth.
+const createSchoolLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many schools created from this connection. Please try again later." },
+  store: new PgRateLimitStore("schools-create"),
+  keyGenerator: (req) => ipKeyGenerator(req.ip ?? "anon"),
+});
+
+// POST /api/schools — find-or-start (spec §4.1). Creates the schools row + an
+// advocating voice_groups row in ONE transaction. NO user is created here. The
+// advocating VOICE is created FOUNDER-LESS (createdById = null); the founder is
+// assigned when the creator signs up at /join/:slug — the first person to back a
+// founder-less advocating VOICE becomes its founder (see auth.ts signup, Task 7).
+// The contactName/contactEmail captured here are the SCHOOL/PTA contact for the
+// verification loop (spec §1.2 — could be the school office), NOT the creator.
+// Slug is derived from the name (slugify) with a collision suffix, or a
+// creator-supplied editable slug. Capabilities are left {} so they resolve to the
+// free community tier over CAPABILITY_DEFAULTS.
+router.post("/schools", createSchoolLimiter, async (req, res): Promise<void> => {
+  const { name, slug: rawSlug, coalitionName, contactName, contactEmail } = req.body ?? {};
+
+  if (!name || typeof name !== "string" || !name.trim()) {
+    res.status(400).json({ error: "A school name is required." });
+    return;
+  }
+  const cleanName = name.trim().slice(0, 255);
+
+  if (rawSlug != null && (typeof rawSlug !== "string" || !SLUG_RE.test(rawSlug) || rawSlug.length > 60)) {
+    res.status(400).json({ error: "Slug must be lowercase letters, numbers and single hyphens." });
+    return;
+  }
+  if (contactEmail != null && contactEmail !== "" && (typeof contactEmail !== "string" || !EMAIL_RE.test(contactEmail))) {
+    res.status(400).json({ error: "Please enter a valid contact email." });
+    return;
+  }
+
+  const slugExists = async (s: string): Promise<boolean> => {
+    const [hit] = await db.select({ id: schoolsTable.id }).from(schoolsTable).where(eq(schoolsTable.slug, s));
+    return hit != null;
+  };
+
+  let slug: string;
+  if (rawSlug) {
+    if (await slugExists(rawSlug)) {
+      res.status(409).json({ error: "That web address is already taken — try another." });
+      return;
+    }
+    slug = rawSlug;
+  } else {
+    slug = await uniqueSlug(slugify(cleanName), slugExists);
+  }
+
+  const voiceName =
+    typeof coalitionName === "string" && coalitionName.trim() ? coalitionName.trim().slice(0, 255) : `${cleanName} Vibes`;
+
+  const schoolContactEmail = (typeof contactEmail === "string" && contactEmail) ? contactEmail.toLowerCase().trim() : null;
+
+  let result: { school: typeof schoolsTable.$inferSelect; voice: typeof voiceGroupsTable.$inferSelect };
+  try {
+    result = await db.transaction(async (tx) => {
+      const [school] = await tx.insert(schoolsTable).values({
+        name: cleanName,
+        slug,
+        displayName: cleanName,
+        contactName: typeof contactName === "string" ? contactName.trim().slice(0, 255) || null : null,
+        contactEmail: schoolContactEmail,
+        // capabilities left {} -> resolves to the free community tier (spec §4.1).
+      }).returning();
+
+      const [voice] = await tx.insert(voiceGroupsTable).values({
+        schoolId: school.id,
+        name: voiceName,
+        mission: `Parents of ${cleanName} asking the school and PTA to act.`,
+        status: "advocating",
+        createdById: null, // founder-less; set at /join/:slug signup (Task 7)
+      }).returning();
+
+      // Chapter 2 (spec §5): the coalition_pathway is created WITH the VOICE
+      // (keys off voiceId/schoolId, no user needed). Starts at your_voice.
+      await tx.insert(coalitionPathwayTable).values({
+        voiceId: voice.id,
+        schoolId: school.id,
+        stage: "your_voice",
+      });
+
+      return { school, voice };
+    });
+  } catch (e: any) {
+    const pgCode = e?.code ?? e?.cause?.code;
+    if (pgCode === "23505") {
+      // Slug uniqueness lost a race (the only unique constraint in play now that
+      // no user is created) — surface a clean conflict.
+      res.status(409).json({ error: "That school or web address already exists — try finding it instead." });
+      return;
+    }
+    throw e;
+  }
+
+  await writeAudit({
+    schoolId: result.school.id,
+    eventType: "school_created",
+    targetType: "school",
+    targetId: result.school.id,
+    details: { slug, voiceId: result.voice.id },
+    req,
+  }).catch(() => {});
+
+  res.status(201).json({
+    school: { ...tenantPublicView(result.school), id: result.school.id, contactName: result.school.contactName },
+    voice: { id: result.voice.id, name: result.voice.name, status: result.voice.status },
+  });
+});
+
+// PATCH /api/schools/:slug/capabilities (spec §4.6) — platform-operator only.
+// Merges the provided overrides into schools.capabilities (stored as the sparse
+// override map; defaults still resolve over CAPABILITY_DEFAULTS). Tenants are
+// read-only and never reach this. Body: { capabilities: { <key>: boolean } }.
+router.patch("/schools/:slug/capabilities", authMiddleware, requirePlatformOperator, async (req, res): Promise<void> => {
+  const u = (req as any).user as JwtPayload;
+  const slug = String(req.params.slug).toLowerCase();
+  const incoming = req.body?.capabilities;
+  if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
+    res.status(400).json({ error: "capabilities object required." });
+    return;
+  }
+  const valid = new Set<string>(CAPABILITY_KEYS as readonly string[]);
+  const overrides: Record<string, boolean> = {};
+  for (const [k, v] of Object.entries(incoming)) {
+    if (!valid.has(k)) { res.status(400).json({ error: `Unknown capability: ${k}` }); return; }
+    if (typeof v !== "boolean") { res.status(400).json({ error: `Capability ${k} must be boolean.` }); return; }
+    overrides[k] = v;
+  }
+
+  const [school] = await db.select().from(schoolsTable).where(eq(schoolsTable.slug, slug));
+  if (!school) { res.status(404).json({ error: "School not found" }); return; }
+
+  const merged = { ...(school.capabilities && typeof school.capabilities === "object" ? school.capabilities as Record<string, boolean> : {}), ...overrides };
+  const [updated] = await db.update(schoolsTable).set({ capabilities: merged }).where(eq(schoolsTable.id, school.id)).returning();
+
+  await writeAudit({ schoolId: school.id, eventType: "capabilities_updated", actor: u, targetType: "school", targetId: school.id, details: { overrides }, req }).catch(() => {});
+  res.json({ slug, capabilities: resolveCapabilities(updated.capabilities) });
+});
 
 router.get("/schools", async (_req, res): Promise<void> => {
   const schools = await db.select().from(schoolsTable).where(eq(schoolsTable.active, true));

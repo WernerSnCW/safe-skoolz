@@ -7,7 +7,7 @@ import {
   ChevronRight, CheckCircle2, Monitor, BookOpen, Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { StartDemoButton } from "@/components/demo/DemoWalkthrough";
+import { StartDemoButton, StartJourneyButton } from "@/components/demo/DemoWalkthrough";
 
 const MODULE_IDS = [
   "loggingIncident",
@@ -50,7 +50,7 @@ function Step({ number, title, children }: { number: number; title: string; chil
 function CompletionBadge({ completedAt }: { completedAt: string }) {
   const date = new Date(completedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 text-xs font-bold">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 text-success text-xs font-bold">
       <CheckCircle2 size={12} />
       Completed {date}
     </span>
@@ -161,21 +161,21 @@ function QuickStart({ role }: { role: string }) {
     return (
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <CardContent className="p-6 space-y-3">
-          <h2 className="text-xl font-display font-bold">Welcome to safeskoolz</h2>
-          <p className="text-muted-foreground">safeskoolz is here to help you if something isn't right at school. Here are the main things you can do:</p>
+          <h2 className="text-xl font-display font-bold">Welcome to vibez</h2>
+          <p className="text-muted-foreground">If something isn't right at school, vibez is here to help. Here are the main things you can do:</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-border p-4 text-center space-y-2">
-              <div className="w-12 h-12 mx-auto rounded-full bg-red-100 dark:bg-red-950/50 flex items-center justify-center"><AlertTriangle size={20} className="text-red-600" /></div>
+            <div className="bg-card rounded-xl border border-border p-4 text-center space-y-2">
+              <div className="w-12 h-12 mx-auto rounded-full bg-destructive/10 flex items-center justify-center"><AlertTriangle size={20} className="text-destructive" /></div>
               <p className="font-bold text-sm">Report something</p>
               <p className="text-xs text-muted-foreground">Tell us what happened</p>
             </div>
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-border p-4 text-center space-y-2">
-              <div className="w-12 h-12 mx-auto rounded-full bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center"><MessageCircle size={20} className="text-blue-600" /></div>
+            <div className="bg-card rounded-xl border border-border p-4 text-center space-y-2">
+              <div className="w-12 h-12 mx-auto rounded-full bg-info/10 flex items-center justify-center"><MessageCircle size={20} className="text-info" /></div>
               <p className="font-bold text-sm">Message a teacher</p>
               <p className="text-xs text-muted-foreground">Talk to a safe adult</p>
             </div>
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-border p-4 text-center space-y-2">
-              <div className="w-12 h-12 mx-auto rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center"><Shield size={20} className="text-amber-600" /></div>
+            <div className="bg-card rounded-xl border border-border p-4 text-center space-y-2">
+              <div className="w-12 h-12 mx-auto rounded-full bg-warning/10 flex items-center justify-center"><Shield size={20} className="text-warning" /></div>
               <p className="font-bold text-sm">Get urgent help</p>
               <p className="text-xs text-muted-foreground">When you need help now</p>
             </div>
@@ -190,15 +190,15 @@ function QuickStart({ role }: { role: string }) {
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <CardContent className="p-6 space-y-3">
           <h2 className="text-xl font-display font-bold">Getting started as a parent</h2>
-          <p className="text-muted-foreground">safeskoolz keeps you informed about your child's wellbeing at school. Here's what you can do:</p>
+          <p className="text-muted-foreground">Stay informed about your child's wellbeing at school with vibez. Here's what you can do:</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-4">
             {[
-              { icon: Eye, label: "View incidents", desc: "See reports involving your child", color: "bg-blue-100 dark:bg-blue-950/50 text-blue-600" },
-              { icon: Gauge, label: "Check behaviour", desc: "Track your child's standing", color: "bg-amber-100 dark:bg-amber-950/50 text-amber-600" },
-              { icon: MessageCircle, label: "Message staff", desc: "Talk to teachers directly", color: "bg-green-100 dark:bg-green-950/50 text-green-600" },
-              { icon: AlertTriangle, label: "Report a concern", desc: "Submit a concern yourself", color: "bg-red-100 dark:bg-red-950/50 text-red-600" },
+              { icon: Eye, label: "View incidents", desc: "See reports involving your child", color: "bg-info/10 text-info" },
+              { icon: Gauge, label: "Check behaviour", desc: "Track your child's standing", color: "bg-warning/10 text-warning" },
+              { icon: MessageCircle, label: "Message staff", desc: "Talk to teachers directly", color: "bg-success/10 text-success" },
+              { icon: AlertTriangle, label: "Report a concern", desc: "Submit a concern yourself", color: "bg-destructive/10 text-destructive" },
             ].map(item => (
-              <div key={item.label} className="bg-white dark:bg-gray-900 rounded-xl border border-border p-4 text-center space-y-2">
+              <div key={item.label} className="bg-card rounded-xl border border-border p-4 text-center space-y-2">
                 <div className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center ${item.color}`}><item.icon size={20} /></div>
                 <p className="font-bold text-sm">{item.label}</p>
                 <p className="text-xs text-muted-foreground">{item.desc}</p>
@@ -214,7 +214,7 @@ function QuickStart({ role }: { role: string }) {
     <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
       <CardContent className="p-6 space-y-3">
         <h2 className="text-xl font-display font-bold">Staff training guide</h2>
-        <p className="text-muted-foreground">This guide covers every feature you'll use in safeskoolz. Work through each section to learn how to log incidents, manage pupil accounts, respond to alerts, and use the protocol system.</p>
+        <p className="text-muted-foreground">This guide covers every feature you'll use in vibez. Work through each section to learn how to log incidents, manage pupil accounts, respond to alerts, and use the protocol system.</p>
         <div className="flex items-center gap-2 text-sm text-primary font-bold mt-2">
           <CheckCircle2 size={16} />
           Estimated training time: 30–45 minutes
@@ -227,19 +227,19 @@ function QuickStart({ role }: { role: string }) {
 function PupilGuides() {
   return (
     <div className="space-y-3">
-      <GuideSection title="How to log in" icon={Key} color="bg-amber-100 dark:bg-amber-950/50 text-amber-600">
+      <GuideSection title="How to log in" icon={Key} color="bg-warning/10 text-warning">
         <div className="space-y-3">
-          <Step number={1} title="Select your school">Pick "Morna" from the school dropdown.</Step>
+          <Step number={1} title="Select your school">Pick your school from the dropdown.</Step>
           <Step number={2} title="Find your name">Click "My Name" and look for your name in the list. You'll see your animal avatar next to it.</Step>
           <Step number={3} title="Enter your secret PIN">Type in the 4-digit PIN your teacher gave you. Keep it secret — don't share it with anyone.</Step>
           <Step number={4} title="Press Sign In">You're in! You'll see your dashboard with quick actions.</Step>
-          <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 mt-2">
-            <p className="font-bold text-amber-700 dark:text-amber-400 text-sm">If you get locked out after 3 wrong tries, don't worry — just ask your teacher to reset your PIN.</p>
+          <div className="p-3 rounded-lg bg-warning/10 border border-warning/30 mt-2">
+            <p className="font-bold text-warning text-sm">If you get locked out after 3 wrong tries, don't worry — just ask your teacher to reset your PIN.</p>
           </div>
         </div>
       </GuideSection>
 
-      <GuideSection title="How to report something" icon={AlertTriangle} color="bg-red-100 dark:bg-red-950/50 text-red-600">
+      <GuideSection title="How to report something" icon={AlertTriangle} color="bg-destructive/10 text-destructive">
         <div className="space-y-3">
           <Step number={1} title="Click 'Report Incident'">Find this on your dashboard or in the menu on the left.</Step>
           <Step number={2} title="Tell us what happened">Pick the type of thing that happened (e.g. bullying, hitting, mean words). If you're not sure, just pick the closest one.</Step>
@@ -254,7 +254,7 @@ function PupilGuides() {
         </div>
       </GuideSection>
 
-      <GuideSection title="How to message a teacher" icon={MessageCircle} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600">
+      <GuideSection title="How to message a teacher" icon={MessageCircle} color="bg-info/10 text-info">
         <div className="space-y-3">
           <Step number={1} title="Go to your dashboard">Your safe contacts are shown on the main screen.</Step>
           <Step number={2} title="Pick a teacher">Click on the teacher you want to talk to. Your class teacher will be at the top.</Step>
@@ -262,19 +262,19 @@ function PupilGuides() {
         </div>
       </GuideSection>
 
-      <GuideSection title="How to use Urgent Help" icon={Shield} color="bg-red-100 dark:bg-red-950/50 text-red-600">
+      <GuideSection title="How to use Urgent Help" icon={Shield} color="bg-destructive/10 text-destructive">
         <div className="space-y-3">
           <Step number={1} title="Find the Urgent Help button">It's the red button on your dashboard — you can't miss it.</Step>
           <Step number={2} title="Pick where you are">Select your location so teachers can find you quickly.</Step>
           <Step number={3} title="Write a short message">Tell them what's wrong. Even just "I need help" is fine.</Step>
           <Step number={4} title="Send">Your message goes straight to staff. Someone will come to help.</Step>
-          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 mt-2">
-            <p className="font-bold text-red-700 dark:text-red-400 text-sm">Only use Urgent Help when you really need it — it sends an immediate alert to all your safe adults.</p>
+          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 mt-2">
+            <p className="font-bold text-destructive text-sm">Only use Urgent Help when you really need it — it sends an immediate alert to all your safe adults.</p>
           </div>
         </div>
       </GuideSection>
 
-      <GuideSection title="How to check your behaviour record" icon={Gauge} color="bg-green-100 dark:bg-green-950/50 text-green-600">
+      <GuideSection title="How to check your behaviour record" icon={Gauge} color="bg-success/10 text-success">
         <div className="space-y-3">
           <Step number={1} title="Click 'My Behaviour'">Find it in the menu on the left.</Step>
           <Step number={2} title="See your level">The gauge shows where you are — green is good! The ladder shows all the levels.</Step>
@@ -288,33 +288,33 @@ function PupilGuides() {
 function ParentGuides() {
   return (
     <div className="space-y-3">
-      <GuideSection title="Logging in" icon={Key} color="bg-amber-100 dark:bg-amber-950/50 text-amber-600">
+      <GuideSection title="Logging in" icon={Key} color="bg-warning/10 text-warning">
         <div className="space-y-3">
-          <Step number={1} title="Go to the safeskoolz login page">Click "I'm a Parent" tab at the top.</Step>
+          <Step number={1} title="Go to the vibez login page">Click "I'm a Parent" tab at the top.</Step>
           <Step number={2} title="Select your name or enter credentials">If you see your name in the dropdown, select it. Otherwise, enter your email and password manually.</Step>
           <Step number={3} title="Sign in">You'll see your dashboard with your child's information.</Step>
         </div>
       </GuideSection>
 
-      <GuideSection title="Viewing your child's incidents" icon={FileText} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600">
+      <GuideSection title="Viewing your child's incidents" icon={FileText} color="bg-info/10 text-info">
         <div className="space-y-3">
           <Step number={1} title="Click 'Incidents' in the sidebar">This shows all incidents involving your child that the school has made visible to you.</Step>
           <Step number={2} title="Click on any incident">You'll see the full details — what happened, when, where, how your child was feeling, and what the school is doing about it.</Step>
           <Step number={3} title="Check the status">Each incident shows its current status (submitted, under review, investigating, resolved, etc).</Step>
-          <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 mt-2">
-            <p className="font-bold text-blue-700 dark:text-blue-400 text-sm">Incidents are visible to you by default. In rare cases, the school may mark a report as not visible — for example, if a report was found to be unfounded.</p>
+          <div className="p-3 rounded-lg bg-info/10 border border-info/30 mt-2">
+            <p className="font-bold text-info text-sm">Incidents are visible to you by default. In rare cases, the school may mark a report as not visible — for example, if a report was found to be unfounded.</p>
           </div>
         </div>
       </GuideSection>
 
-      <GuideSection title="Checking behaviour standing" icon={Gauge} color="bg-green-100 dark:bg-green-950/50 text-green-600">
+      <GuideSection title="Checking behaviour standing" icon={Gauge} color="bg-success/10 text-success">
         <div className="space-y-3">
           <Step number={1} title="Check the dashboard">Your child's behaviour standing is shown as a colour-coded card on your dashboard — green means good standing.</Step>
           <Step number={2} title="Click 'Behaviour' for full details">This shows the complete behaviour record with all points, categories, and the escalation ladder.</Step>
         </div>
       </GuideSection>
 
-      <GuideSection title="Messaging school staff" icon={MessageCircle} color="bg-green-100 dark:bg-green-950/50 text-green-600">
+      <GuideSection title="Messaging school staff" icon={MessageCircle} color="bg-success/10 text-success">
         <div className="space-y-3">
           <Step number={1} title="Click 'Messages' in the sidebar">You'll see your conversation history and any emergency alerts from your child.</Step>
           <Step number={2} title="Start a new conversation">Click "New Message", then pick a staff member. Your child's teacher appears first.</Step>
@@ -325,7 +325,7 @@ function ParentGuides() {
         </div>
       </GuideSection>
 
-      <GuideSection title="Reporting a concern" icon={AlertTriangle} color="bg-red-100 dark:bg-red-950/50 text-red-600">
+      <GuideSection title="Reporting a concern" icon={AlertTriangle} color="bg-destructive/10 text-destructive">
         <div className="space-y-3">
           <Step number={1} title="Click 'Report Incident'">You can submit a concern on behalf of your child.</Step>
           <Step number={2} title="Fill in the details">Select the category, describe what happened, identify who was involved if you know, and include when it occurred.</Step>
@@ -343,7 +343,7 @@ function StaffGuides({ role, completions, onComplete }: { role: string; completi
 
   return (
     <div className="space-y-3">
-      <GuideSection title="Logging an incident" icon={AlertTriangle} color="bg-red-100 dark:bg-red-950/50 text-red-600" moduleId="loggingIncident" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
+      <GuideSection title="Logging an incident" icon={AlertTriangle} color="bg-destructive/10 text-destructive" moduleId="loggingIncident" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Click 'Log Incident'">Available from the sidebar or dashboard.</Step>
           <Step number={2} title="Select the category">Choose the most accurate category — this determines the escalation tier. Categories include physical, verbal, bullying, online, sexual, coercive, and more.</Step>
@@ -351,13 +351,13 @@ function StaffGuides({ role, completions, onComplete }: { role: string; completi
           <Step number={4} title="Record the details">Enter the date, time, location, and a full description. Use the child's exact words where possible.</Step>
           <Step number={5} title="Complete safeguarding checks">Answer the structured questions: Were children separated? Was the coordinator notified? Was immediate action taken?</Step>
           <Step number={6} title="Submit">The incident is logged with a reference number and auto-assigned an escalation tier (1–3) based on the category.</Step>
-          <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 mt-2">
-            <p className="font-bold text-amber-700 dark:text-amber-400 text-sm">Tier 3 incidents (sexual, coercive) require immediate coordinator notification. The system flags these automatically.</p>
+          <div className="p-3 rounded-lg bg-warning/10 border border-warning/30 mt-2">
+            <p className="font-bold text-warning text-sm">Tier 3 incidents (sexual, coercive) require immediate coordinator notification. The system flags these automatically.</p>
           </div>
         </div>
       </GuideSection>
 
-      <GuideSection title="Assessing an incident" icon={FileText} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600" moduleId="assessingIncident" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
+      <GuideSection title="Assessing an incident" icon={FileText} color="bg-info/10 text-info" moduleId="assessingIncident" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Open the incident">Go to Incidents, find the report, and click to open it.</Step>
           <Step number={2} title="Review the details">Read the full report including emotional state, people involved, and the reporter's description.</Step>
@@ -368,19 +368,19 @@ function StaffGuides({ role, completions, onComplete }: { role: string; completi
         </div>
       </GuideSection>
 
-      <GuideSection title="Managing pupil PINs" icon={Key} color="bg-amber-100 dark:bg-amber-950/50 text-amber-600" moduleId="managingPupilPins" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
+      <GuideSection title="Managing pupil PINs" icon={Key} color="bg-warning/10 text-warning" moduleId="managingPupilPins" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Go to My Class (or My Year Group)">Find it in the sidebar.</Step>
           <Step number={2} title="Find the PIN Management section">It's the amber card at the top of the page.</Step>
           <Step number={3} title="Generate PINs">Click the button for your class to generate new unique random PINs for all pupils at once.</Step>
           <Step number={4} title="Show and distribute">Click "Show PINs" to reveal them. Click "Print PIN Slips" to print individual slips you can cut and hand to each pupil privately.</Step>
-          <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 mt-2">
-            <p className="font-bold text-amber-700 dark:text-amber-400 text-sm">PINs are shown once and cannot be retrieved later. If a pupil forgets their PIN or gets locked out (3 wrong attempts), generate a new one from here.</p>
+          <div className="p-3 rounded-lg bg-warning/10 border border-warning/30 mt-2">
+            <p className="font-bold text-warning text-sm">PINs are shown once and cannot be retrieved later. If a pupil forgets their PIN or gets locked out (3 wrong attempts), generate a new one from here.</p>
           </div>
         </div>
       </GuideSection>
 
-      <GuideSection title="Behaviour points" icon={Gauge} color="bg-green-100 dark:bg-green-950/50 text-green-600" moduleId="behaviourPoints" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
+      <GuideSection title="Behaviour points" icon={Gauge} color="bg-success/10 text-success" moduleId="behaviourPoints" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Go to Behaviour">Click "Behaviour" in the sidebar.</Step>
           <Step number={2} title="Find the pupil">Use the search bar or scroll the list.</Step>
@@ -390,7 +390,7 @@ function StaffGuides({ role, completions, onComplete }: { role: string; completi
         </div>
       </GuideSection>
 
-      <GuideSection title="Responding to messages" icon={MessageCircle} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600" moduleId="respondingToMessages" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
+      <GuideSection title="Responding to messages" icon={MessageCircle} color="bg-info/10 text-info" moduleId="respondingToMessages" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Go to Messages">Click "Messages" in the sidebar. You'll see conversation threads from pupils and parents.</Step>
           <Step number={2} title="Check for urgent messages">Urgent help requests and chat requests appear with red/amber badges. Respond to these first.</Step>
@@ -398,7 +398,7 @@ function StaffGuides({ role, completions, onComplete }: { role: string; completi
         </div>
       </GuideSection>
 
-      <GuideSection title="Understanding alerts" icon={Activity} color="bg-red-100 dark:bg-red-950/50 text-red-600" moduleId="understandingAlerts" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
+      <GuideSection title="Understanding alerts" icon={Activity} color="bg-destructive/10 text-destructive" moduleId="understandingAlerts" completions={completions} onComplete={onComplete} showCompletion={showCompletion}>
         <div className="space-y-3">
           <Step number={1} title="Go to Alerts">The system automatically detects concerning patterns across incidents.</Step>
           <Step number={2} title="Review the pattern">Each alert shows what was detected — e.g. the same pupil named as perpetrator in 3 incidents within 30 days.</Step>
@@ -473,28 +473,28 @@ function CaseStudies() {
         </div>
         <div>
           <h2 className="text-lg font-display font-bold">Case Studies</h2>
-          <p className="text-xs text-muted-foreground">Real-world scenarios showing how safeskoolz supports safeguarding</p>
+          <p className="text-xs text-muted-foreground">Real-world scenarios showing how vibez supports safeguarding</p>
         </div>
       </div>
 
       <GuideSection title='Luna (Year 3) — Early detection through diary and pattern alerts' icon={Eye} color="bg-pink-100 dark:bg-pink-950/50 text-pink-600">
         <div className="space-y-3 text-muted-foreground">
-          <p>Luna, in Year 3, has started sitting alone at lunch. Over two weeks she writes in her safeskoolz diary that some children tell her she can't play with them and laugh when she comes near. She doesn't feel brave enough to say this out loud.</p>
+          <p>Luna, in Year 3, has started sitting alone at lunch. Over two weeks she writes in her vibez diary that some children tell her she can't play with them and laugh when she comes near. She doesn't feel brave enough to say this out loud.</p>
           <p>The diary safeguarding scanner notices repeated entries about feeling "left out" and "sad at lunch" and quietly creates a pattern alert for the safeguarding coordinator, without showing Luna's diary pages.</p>
-          <p>At the same time, three low-severity incident reports are logged by different staff about minor playground fall-outs involving the same group. safeskoolz links these patterns. The coordinator arranges to observe lunchtime, speaks with Luna's class teacher, and holds a small restorative meeting with the pupils involved.</p>
-          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
-            <p className="font-bold text-green-700 dark:text-green-400 text-sm">Outcome: Within a month, new incidents drop and Luna's diagnostic survey response changes from "Sometimes" to "Always" when asked if she feels safe at school.</p>
+          <p>At the same time, three low-severity incident reports are logged by different staff about minor playground fall-outs involving the same group. These patterns are linked by vibez. The coordinator arranges to observe lunchtime, speaks with Luna's class teacher, and holds a small restorative meeting with the pupils involved.</p>
+          <div className="p-3 rounded-lg bg-success/10 border border-success/30">
+            <p className="font-bold text-success text-sm">Outcome: Within a month, new incidents drop and Luna's diagnostic survey response changes from "Sometimes" to "Always" when asked if she feels safe at school.</p>
           </div>
         </div>
       </GuideSection>
 
-      <GuideSection title='Mr. Diego (Year 4 teacher) — Early intervention with behaviour data' icon={Activity} color="bg-blue-100 dark:bg-blue-950/50 text-blue-600">
+      <GuideSection title='Mr. Diego (Year 4 teacher) — Early intervention with behaviour data' icon={Activity} color="bg-info/10 text-info">
         <div className="space-y-3 text-muted-foreground">
           <p>Mr. Diego teaches Year 4. Using the My Class view, he spots that one pupil, Sam, has several low-level reports about shouting at others during football, alongside a recent drop in kindness points.</p>
-          <p>Instead of waiting for a serious incident, Mr. Diego logs a behaviour conversation, awards points when Sam plays fairly, and messages the SENCO through safeskoolz to ask whether there might be underlying needs.</p>
+          <p>Instead of waiting for a serious incident, Mr. Diego logs a behaviour conversation, awards points when Sam plays fairly, and messages the SENCO through vibez to ask whether there might be underlying needs.</p>
           <p>Over the term, behaviour points for "Teamwork" increase, and no new bullying-type incidents are recorded for Sam.</p>
-          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
-            <p className="font-bold text-green-700 dark:text-green-400 text-sm">Outcome: The DSL uses this as evidence of early intervention when reviewing safeguarding practice with leadership.</p>
+          <div className="p-3 rounded-lg bg-success/10 border border-success/30">
+            <p className="font-bold text-success text-sm">Outcome: The DSL uses this as evidence of early intervention when reviewing safeguarding practice with leadership.</p>
           </div>
         </div>
       </GuideSection>
@@ -502,10 +502,10 @@ function CaseStudies() {
       <GuideSection title="DSL & PTA — Data-driven safeguarding improvement" icon={Users} color="bg-violet-100 dark:bg-violet-950/50 text-violet-600">
         <div className="space-y-3 text-muted-foreground">
           <p>Diagnostic survey results show that while most children say they "always" feel safe, only just over half know which adults to talk to if they are worried. Parents rate "communication about incidents" lower than other areas.</p>
-          <p>The safeguarding coordinator shares the safeskoolz dashboard with the PTA through the PTA portal. Together, they design a simple communication plan: termly safeguarding newsletters, a "Meet the Trusted Adults" wall, and a parent workshop on how pupils can report worries using safeskoolz.</p>
+          <p>The safeguarding coordinator shares the vibez dashboard with the PTA through the PTA portal. Together, they design a simple communication plan: termly safeguarding newsletters, a "Meet the Trusted Adults" wall, and a parent workshop on how pupils can report worries using vibez.</p>
           <p>At the next survey cycle, pupil knowledge of trusted adults and parent confidence scores both rise, and the AI action-plan generator records these actions as completed, updating baselines and targets for the following year.</p>
-          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
-            <p className="font-bold text-green-700 dark:text-green-400 text-sm">Outcome: Genuine PTA–school partnership drives measurable improvement in safeguarding culture.</p>
+          <div className="p-3 rounded-lg bg-success/10 border border-success/30">
+            <p className="font-bold text-success text-sm">Outcome: Genuine PTA–school partnership drives measurable improvement in safeguarding culture.</p>
           </div>
         </div>
       </GuideSection>
@@ -555,14 +555,15 @@ export default function TrainingPage() {
         <div className="w-16 h-16 mx-auto bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-4">
           <GraduationCap size={32} />
         </div>
-        <h1 className="text-3xl font-display font-bold">How to use safeskoolz</h1>
+        <h1 className="text-3xl font-display font-bold">How to use vibez</h1>
         <p className="text-muted-foreground mt-2">
-          {isPupil && "A simple guide to help you use safeskoolz"}
-          {isParent && "Everything you need to know about using safeskoolz as a parent"}
-          {isStaff && "Step-by-step training guide for all safeskoolz features"}
+          {isPupil && "A simple guide to help you use vibez"}
+          {isParent && "Everything you need to know about using vibez as a parent"}
+          {isStaff && "Step-by-step training guide for all vibez features"}
         </p>
-        <div className="mt-4">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
           <StartDemoButton />
+          <StartJourneyButton />
         </div>
       </div>
 
@@ -570,7 +571,7 @@ export default function TrainingPage() {
         <div className="flex items-center justify-center gap-3">
           <div className="h-2 flex-1 max-w-xs bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-green-500 rounded-full transition-all duration-500"
+              className="h-full bg-success rounded-full transition-all duration-500"
               style={{ width: `${Math.round((completedCount / totalModules) * 100)}%` }}
             />
           </div>

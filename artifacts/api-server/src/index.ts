@@ -106,10 +106,11 @@ async function startup() {
     // protects us when prod is on a fresh DB or the seed was partial.
     const schools = await db.select({ id: schoolsTable.id }).from(schoolsTable);
     const standardCodes = [
-      { code: "3A-MORNA", className: "3A" },
-      { code: "4A-MORNA", className: "4A" },
-      { code: "5B-MORNA", className: "5B" },
-      { code: "6A-MORNA", className: "6A" },
+      { code: "3A-RIVER", className: "3A" },
+      { code: "4A-RIVER", className: "4A" },
+      { code: "5B-RIVER", className: "5B" },
+      { code: "6A-RIVER", className: "6A" },
+      { code: "7A-RIVER", className: "7A" }, // Y7 — the class that sees the KS3 lesson pilot
     ];
     for (const s of schools) {
       // Wipe any existing pupil_login codes (they may not match the demo

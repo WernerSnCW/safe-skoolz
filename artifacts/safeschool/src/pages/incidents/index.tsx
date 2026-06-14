@@ -246,8 +246,8 @@ export default function IncidentsList() {
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                       <span className="font-mono text-xs font-bold text-muted-foreground">{inc.referenceNumber}</span>
                       <span className={`px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wider ${
-                        inc.escalationTier === 3 ? "bg-destructive/10 text-destructive" :
-                        inc.escalationTier === 2 ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" :
+                        inc.escalationTier === 3 ? "bg-destructive/15 text-destructive" :
+                        inc.escalationTier === 2 ? "bg-warning/15 text-warning" :
                         "bg-muted text-muted-foreground"
                       }`}>
                         {t("tier", { number: inc.escalationTier })}
@@ -258,7 +258,7 @@ export default function IncidentsList() {
                         </span>
                       )}
                       {inc.anonymous && (
-                        <span className="px-2 py-0.5 rounded-sm bg-slate-800 text-white text-[10px] font-bold uppercase tracking-wider">
+                        <span className="px-2 py-0.5 rounded-sm bg-muted text-muted-foreground text-[10px] font-bold uppercase tracking-wider">
                           {t("common:anonymous")}
                         </span>
                       )}
@@ -269,12 +269,12 @@ export default function IncidentsList() {
                     {(inc.victimNames?.length || inc.perpetratorNames?.length) ? (
                       <div className="flex flex-wrap gap-2 mt-1">
                         {inc.victimNames?.map((name, i) => (
-                          <span key={`v-${i}`} className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 font-medium">
+                          <span key={`v-${i}`} className="text-xs px-2 py-0.5 rounded-full bg-info/15 text-info font-medium">
                             {t("victim", { name })}
                           </span>
                         ))}
                         {inc.perpetratorNames?.map((name, i) => (
-                          <span key={`p-${i}`} className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 font-medium">
+                          <span key={`p-${i}`} className="text-xs px-2 py-0.5 rounded-full bg-destructive/15 text-destructive font-medium">
                             {t("involvedPerson", { name })}
                           </span>
                         ))}
@@ -290,7 +290,7 @@ export default function IncidentsList() {
                       <p className="text-sm font-semibold">{formatDate(inc.incidentDate)}</p>
                       <p className={`text-xs font-bold capitalize ${
                         inc.status === "escalated" ? "text-destructive" :
-                        inc.status === "investigating" ? "text-amber-600" :
+                        inc.status === "investigating" ? "text-warning" :
                         inc.status === "open" ? "text-primary" :
                         "text-muted-foreground"
                       }`}>

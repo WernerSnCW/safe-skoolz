@@ -272,21 +272,21 @@ function PupilSearchPicker({
             type="button"
             onClick={handleSelectAll}
             disabled={availableForSelect.length === 0}
-            className="px-2.5 py-1 text-xs rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/15 text-primary font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-2.5 py-1 text-xs rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/15 text-primary font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Select all ({availableForSelect.length})
           </button>
           <button
             type="button"
             onClick={() => setGroupFilter(groupFilter === "year" ? "none" : "year")}
-            className={`px-2.5 py-1 text-xs rounded-lg border font-medium transition-colors ${groupFilter === "year" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
+            className={`px-2.5 py-1 text-xs rounded-xl border font-medium transition-colors ${groupFilter === "year" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
           >
             By year group
           </button>
           <button
             type="button"
             onClick={() => setGroupFilter(groupFilter === "class" ? "none" : "class")}
-            className={`px-2.5 py-1 text-xs rounded-lg border font-medium transition-colors ${groupFilter === "class" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
+            className={`px-2.5 py-1 text-xs rounded-xl border font-medium transition-colors ${groupFilter === "class" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
           >
             By class
           </button>
@@ -316,7 +316,7 @@ function PupilSearchPicker({
                     type="button"
                     onClick={() => handleSelectGroup(groupFilter, g!)}
                     disabled={count === 0}
-                    className="px-3 py-1.5 text-xs rounded-lg border border-primary/20 bg-white dark:bg-zinc-900 hover:bg-primary/10 transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 text-xs rounded-lg border border-primary/20 bg-background hover:bg-primary/10 transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {g} ({count})
                   </button>
@@ -345,7 +345,7 @@ function PupilSearchPicker({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className={`absolute z-20 top-full mt-1 left-0 right-0 bg-white dark:bg-zinc-900 border border-border rounded-xl shadow-lg overflow-y-auto ${isPupil ? "max-h-72" : "max-h-56"}`}
+              className={`absolute z-20 top-full mt-1 left-0 right-0 bg-background border border-border rounded-xl shadow-lg overflow-y-auto ${isPupil ? "max-h-72" : "max-h-56"}`}
             >
               {isSearching && <p className="p-3 text-sm text-muted-foreground">Searching...</p>}
               {!isSearching && !allLoaded && results.length === 0 && (
@@ -675,15 +675,15 @@ export default function ReportIncident() {
 
         {guidance && (
           <>
-            <Card className={`border-2 ${guidance.severity === "critical" ? "border-red-300 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20" : "border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20"}`}>
+            <Card className={`border-2 ${guidance.severity === "critical" ? "border-destructive/40 bg-destructive/10" : "border-warning/40 bg-warning/10"}`}>
               <CardContent className="p-6">
                 <div className="flex items-start gap-3 mb-4">
-                  <div className={`p-2 rounded-xl ${guidance.severity === "critical" ? "bg-red-100 dark:bg-red-900/40 text-red-600" : "bg-amber-100 dark:bg-amber-900/40 text-amber-600"}`}>
+                  <div className={`p-2 rounded-xl ${guidance.severity === "critical" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
                     <AlertTriangle size={24} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${guidance.severity === "critical" ? "bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200" : "bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200"}`}>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${guidance.severity === "critical" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"}`}>
                         Tier {guidance.tier} &mdash; {guidance.severity === "critical" ? "CRITICAL" : "SERIOUS"}
                       </span>
                       <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
@@ -727,16 +727,16 @@ export default function ReportIncident() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-red-200 dark:border-red-900">
+            <Card className="border-2 border-destructive/30">
               <CardContent className="p-6">
-                <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-red-600 dark:text-red-400">
+                <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-destructive">
                   <AlertTriangle size={20} />
                   Do NOT
                 </h3>
                 <ul className="space-y-2">
                   {guidance.doNots.map((d: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-sm">
-                      <span className="text-red-500 mt-0.5 shrink-0">&times;</span>
+                      <span className="text-destructive mt-0.5 shrink-0">&times;</span>
                       <span>{d}</span>
                     </li>
                   ))}
@@ -770,8 +770,8 @@ export default function ReportIncident() {
                   </h4>
                   <p className="text-sm text-muted-foreground mb-3">{guidance.legalBasis}</p>
                   {guidance.externalReferral?.required && (
-                    <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
-                      <p className="text-xs font-bold text-red-700 dark:text-red-400">
+                    <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/30">
+                      <p className="text-xs font-bold text-destructive">
                         Mandatory external referral: {guidance.externalReferral.body}
                       </p>
                     </div>
@@ -893,9 +893,9 @@ export default function ReportIncident() {
               </div>
 
               {!isPupil && (
-                <div className="p-5 rounded-xl bg-blue-50/50 dark:bg-blue-950/10 border border-blue-200/50 dark:border-blue-800/30 space-y-4">
+                <div className="p-5 rounded-xl bg-info/5 border border-info/20 space-y-4">
                   <h4 className="font-bold text-foreground flex items-center gap-2">
-                    <Info size={18} className="text-blue-600 dark:text-blue-400"/>
+                    <Info size={18} className="text-info"/>
                     {t("howBecameAware")}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

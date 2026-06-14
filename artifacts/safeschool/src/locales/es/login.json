@@ -1,9 +1,9 @@
 {
-  "tagline": "Un espacio seguro para hablar y pedir ayuda.",
+  "tagline": "New School vibez, Old School Values.",
   "pupil": "Alumno",
   "staff": "Personal",
   "parent": "Padre/Madre",
-  "whatSafeskoolzDoes": "Qué hace safeskoolz por ti",
+  "whatSafeskoolzDoes": "Qué hace vibez por ti",
   "forMe": "Para mí",
   "forMyFriends": "Para mis amigos",
   "forMySchool": "Para mi colegio",
@@ -28,7 +28,7 @@
   "selectYourSchool": "Selecciona tu colegio...",
   "classAccessCode": "Código de acceso de clase",
   "enterAccessCodePrompt": "Introduce el código de acceso que te dio tu profesor",
-  "accessCodePlaceholder": "ej. 6A-MORNA",
+  "accessCodePlaceholder": "ej. 6A-RIVER",
   "checking": "Comprobando...",
   "enter": "Entrar",
   "findYourName": "Busca tu nombre",
@@ -50,6 +50,6 @@
   "startingDemo": "Iniciando demo...",
   "seeHowItWorks": "Mira cómo funciona",
   "seeHowItWorksDesc": "Sigue la historia de Sofía — ve cómo trabajan juntos alumnos, padres, profesores y coordinadores",
-  "protectedBy": "Protegido por safeskoolz. Tus informes son confidenciales.",
+  "protectedBy": "vibez — software para VBE. Gratis para toda comunidad escolar.",
   "loginType": "Tipo de acceso"
 }

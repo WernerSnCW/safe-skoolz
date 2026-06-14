@@ -3,9 +3,14 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useListIncidents } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
+import { MissionActions } from "@/components/dashboard/MissionActions";
+import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import {
   AlertTriangle, FileText, TrendingUp, Users,
-  BarChart3, MapPin, ArrowRight
+  BarChart3, MapPin, ArrowRight, MessageCircle,
+  Presentation, BookOpen, Library
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import {
@@ -29,6 +34,8 @@ export default function TeacherDashboard({ user }: { user: any }) {
 
   const { data: incidentsData, isLoading: incidentsLoading, isError: incidentsError } = useListIncidents({ limit: 5 });
   const incidents = incidentsData?.data || [];
+
+  const { totalUnread: messageUnread } = useMessageNotifications();
 
   const { data: analyticsData } = useQuery<any>({
     queryKey: ["/api/dashboard/teacher-analytics"],
@@ -76,14 +83,45 @@ export default function TeacherDashboard({ user }: { user: any }) {
     );
   }
 
+  const digest: DigestItem[] = [];
+  if (messageUnread > 0) {
+    digest.push({
+      id: "messages", icon: MessageCircle, tone: "info",
+      title: t("newMessagesCount", { count: messageUnread, defaultValue: `${messageUnread} new messages` }),
+      href: "/messages", unread: true,
+    });
+  }
+  for (const inc of incidents.slice(0, 2)) {
+    digest.push({
+      id: `inc-${inc.id}`, icon: FileText,
+      tone: inc.escalationTier === 3 ? "destructive" : inc.escalationTier === 2 ? "warning" : "info",
+      title: `${t("incidents")}: ${(inc.category ?? "").split(",")[0]}`.trim(),
+      detail: inc.referenceNumber, href: `/incidents/${inc.id}`,
+    });
+  }
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-display font-bold">{t("welcomeBack", { name: user.firstName })}</h1>
-        <p className="text-muted-foreground mt-1">
-          {isHoY ? t("headOfYearFor", { group: scopeLabel }) : t("classTeacherFor", { group: scopeLabel })} — {t("pupilsInYourCare", { count: totalPupils })}
-        </p>
-      </div>
+      <PageHeader
+        eyebrow={isHoY ? "Head of year" : "Class teacher"}
+        title={t("welcomeBack", { name: user.firstName })}
+        subtitle={`${isHoY ? t("headOfYearFor", { group: scopeLabel }) : t("classTeacherFor", { group: scopeLabel })} — ${t("pupilsInYourCare", { count: totalPupils })}`}
+      />
+
+      <WhatsNewBand
+        items={digest}
+        heading={t("sinceLastHere", { defaultValue: "Since you were last here" })}
+        emptyLabel={t("allCaughtUp", { defaultValue: "You're all caught up." })}
+      />
+
+      <MissionActions
+        actions={[
+          { label: "Report an incident", sub: "Safeguarding & wellbeing", icon: AlertTriangle, href: "/report" },
+          { label: "Lessons & PSHE", sub: "Teach your values", icon: Presentation, href: "/lessons" },
+          { label: "Learning library", sub: "Guides & training", icon: BookOpen, href: "/learn" },
+          { label: "Resource Centre", sub: "Packs, guides & tools", icon: Library, href: "/resources-hub" },
+        ]}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link href="/report">
@@ -111,7 +149,7 @@ export default function TeacherDashboard({ user }: { user: any }) {
         <Link href="/incidents">
           <Card className="hover:border-primary/50 transition-all cursor-pointer group h-full">
             <CardContent className="p-6 flex flex-col items-center text-center gap-3">
-              <div className="p-4 rounded-2xl bg-amber-100 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors dark:bg-amber-900/30 dark:text-amber-400">
+              <div className="p-4 rounded-2xl bg-warning/10 text-warning group-hover:bg-warning group-hover:text-white transition-colors">
                 <FileText size={28} />
               </div>
               <h3 className="font-bold text-lg">{t("viewIncidents")}</h3>
@@ -175,7 +213,7 @@ export default function TeacherDashboard({ user }: { user: any }) {
                       <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                       <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={95} />
                       <Tooltip />
-                      <Bar dataKey="count" fill="#ef4444" radius={[0, 6, 6, 0]} name={t("incidents")} />
+                      <Bar dataKey="count" fill="hsl(var(--chart-4))" radius={[0, 6, 6, 0]} name={t("incidents")} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -197,7 +235,7 @@ export default function TeacherDashboard({ user }: { user: any }) {
                       <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                       <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={95} />
                       <Tooltip />
-                      <Bar dataKey="count" fill="#6366f1" radius={[0, 6, 6, 0]} name={t("incidents")} />
+                      <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={[0, 6, 6, 0]} name={t("incidents")} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -234,7 +272,7 @@ export default function TeacherDashboard({ user }: { user: any }) {
                         return `${months[parseInt(mo) - 1]} ${y}`;
                       }}
                     />
-                    <Line type="monotone" dataKey="count" stroke="#0d9488" strokeWidth={2} dot={{ r: 3 }} name={t("incidents")} />
+                    <Line type="monotone" dataKey="count" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} name={t("incidents")} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>

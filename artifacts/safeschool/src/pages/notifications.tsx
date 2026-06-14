@@ -159,7 +159,7 @@ function BroadcastPanel() {
           className="w-full flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
+            <div className="p-2 rounded-xl bg-primary/10">
               <Megaphone size={20} className="text-primary" />
             </div>
             <div className="text-left">
@@ -181,8 +181,8 @@ function BroadcastPanel() {
             >
               <div className="mt-4 space-y-3 border-t border-border/50 pt-4">
                 {sent && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/30">
-                    <CheckCircle2 size={16} className="text-green-500" />
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-success/10 border border-success/30">
+                    <CheckCircle2 size={16} className="text-success" />
                     <p className="text-sm font-medium">Sent to {sent.count} {sent.count === 1 ? "person" : "people"}.</p>
                   </div>
                 )}
@@ -193,7 +193,7 @@ function BroadcastPanel() {
                     <select
                       value={audience}
                       onChange={e => setAudience(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+                      className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm"
                     >
                       {AUDIENCE_OPTIONS.map(o => (
                         <option key={o.value} value={o.value}>{o.label}</option>
@@ -205,7 +205,7 @@ function BroadcastPanel() {
                     <select
                       value={category}
                       onChange={e => setCategory(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+                      className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm"
                     >
                       {CATEGORY_OPTIONS.map(o => (
                         <option key={o.value} value={o.value}>{o.label}</option>
@@ -221,7 +221,7 @@ function BroadcastPanel() {
                     value={subject}
                     onChange={e => setSubject(e.target.value)}
                     placeholder="e.g. Important: Addressing inappropriate behaviour toward girls"
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
                 </div>
 
@@ -232,7 +232,7 @@ function BroadcastPanel() {
                     onChange={e => setBody(e.target.value)}
                     placeholder="Write your message to parents/staff..."
                     rows={4}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                   />
                 </div>
 

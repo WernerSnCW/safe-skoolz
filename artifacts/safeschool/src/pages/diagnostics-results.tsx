@@ -16,9 +16,9 @@ import {
 } from "recharts";
 
 const GROUP_COLORS: Record<string, string> = {
-  pupil: "#0d9488",
-  staff: "#6366f1",
-  parent: "#f59e0b",
+  pupil: "hsl(var(--role-pupil))",
+  staff: "hsl(var(--role-staff))",
+  parent: "hsl(var(--role-parent))",
 };
 
 const GROUP_LABELS: Record<string, string> = {
@@ -201,17 +201,17 @@ export default function DiagnosticsResults() {
               <p className="text-sm text-destructive mt-2">{(seedMutation.error as Error).message}</p>
             )}
             {seedMutation.isSuccess && (
-              <p className="text-sm text-green-600 mt-2">Demo data loaded — refreshing results...</p>
+              <p className="text-sm text-success mt-2">Demo data loaded — refreshing results...</p>
             )}
           </CardContent>
         </Card>
       ) : (
         <>
           {strengths && strengths.length > 0 && (
-            <Card className="border-green-200 dark:border-green-900/50">
+            <Card className="border-success/30">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Sparkles size={20} className="text-green-500" />
+                  <Sparkles size={20} className="text-success" />
                   Strengths
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
@@ -221,8 +221,8 @@ export default function DiagnosticsResults() {
               <CardContent>
                 <ul className="space-y-2">
                   {strengths.map((s: string, i: number) => (
-                    <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200/50 dark:border-green-900/30">
-                      <CheckCircle2 size={16} className="text-green-500 mt-0.5 shrink-0" />
+                    <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-success/10 border border-success/30">
+                      <CheckCircle2 size={16} className="text-success mt-0.5 shrink-0" />
                       <span className="text-sm">{s}</span>
                     </li>
                   ))}
@@ -232,10 +232,10 @@ export default function DiagnosticsResults() {
           )}
 
           {growthAreas && growthAreas.length > 0 && (
-            <Card className="border-blue-200 dark:border-blue-900/50">
+            <Card className="border-info/30">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Target size={20} className="text-blue-500" />
+                  <Target size={20} className="text-info" />
                   Growth Areas
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
@@ -245,8 +245,8 @@ export default function DiagnosticsResults() {
               <CardContent>
                 <ul className="space-y-2">
                   {growthAreas.map((g: string, i: number) => (
-                    <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-900/30">
-                      <TrendingUp size={16} className="text-blue-500 mt-0.5 shrink-0" />
+                    <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-info/10 border border-info/30">
+                      <TrendingUp size={16} className="text-info mt-0.5 shrink-0" />
                       <span className="text-sm">{g}</span>
                     </li>
                   ))}
@@ -256,10 +256,10 @@ export default function DiagnosticsResults() {
           )}
 
           {alignmentNotes && alignmentNotes.length > 0 && (
-            <Card className="border-amber-200 dark:border-amber-900/50">
+            <Card className="border-warning/30">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MessageSquare size={20} className="text-amber-500" />
+                  <MessageSquare size={20} className="text-warning" />
                   Alignment Notes
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
@@ -269,8 +269,8 @@ export default function DiagnosticsResults() {
               <CardContent>
                 <ul className="space-y-2">
                   {alignmentNotes.map((n: string, i: number) => (
-                    <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30">
-                      <MessageSquare size={16} className="text-amber-500 mt-0.5 shrink-0" />
+                    <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-warning/10 border border-warning/30">
+                      <MessageSquare size={16} className="text-warning mt-0.5 shrink-0" />
                       <span className="text-sm">{n}</span>
                     </li>
                   ))}
@@ -293,10 +293,10 @@ export default function DiagnosticsResults() {
               <CardContent className="space-y-4">
                 {priorities.map((p: any) => {
                   const urgencyStyles: Record<string, { bg: string; text: string; badge: string; label: string }> = {
-                    critical: { bg: "bg-red-50 dark:bg-red-950/20", text: "text-red-800 dark:text-red-300", badge: "bg-red-500 text-white", label: "Critical" },
-                    high: { bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-800 dark:text-amber-300", badge: "bg-amber-500 text-white", label: "High Priority" },
-                    moderate: { bg: "bg-blue-50 dark:bg-blue-950/20", text: "text-blue-800 dark:text-blue-300", badge: "bg-blue-500 text-white", label: "Moderate" },
-                    monitor: { bg: "bg-green-50 dark:bg-green-950/20", text: "text-green-800 dark:text-green-300", badge: "bg-green-600 text-white", label: "Strength" },
+                    critical: { bg: "bg-scale-1/10", text: "text-foreground", badge: "bg-scale-1 text-scale-1-foreground", label: "Critical" },
+                    high: { bg: "bg-scale-3/10", text: "text-foreground", badge: "bg-scale-3 text-scale-3-foreground", label: "High Priority" },
+                    moderate: { bg: "bg-info/10", text: "text-foreground", badge: "bg-info text-info-foreground", label: "Moderate" },
+                    monitor: { bg: "bg-scale-5/10", text: "text-foreground", badge: "bg-scale-5 text-scale-5-foreground", label: "Strength" },
                   };
                   const style = urgencyStyles[p.urgency] || urgencyStyles.moderate;
                   return (
@@ -311,7 +311,7 @@ export default function DiagnosticsResults() {
                         </div>
                         <div className="flex items-center gap-2">
                           {p.perceptionGap !== null && p.perceptionGap >= 1.0 && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-warning/15 text-warning">
                               {p.perceptionGap}pt gap
                             </span>
                           )}
@@ -525,7 +525,7 @@ function AgreedActionsPanel({ surveyId, existingActions, categories }: {
                     {a.category && <span>{a.category}</span>}
                     {a.owner && <span>Owner: {a.owner}</span>}
                     {a.publishedAt && (
-                      <span className="text-green-600 dark:text-green-400 font-bold">Published</span>
+                      <span className="text-success font-bold">Published</span>
                     )}
                   </div>
                 </div>
@@ -611,7 +611,7 @@ function AgreedActionsPanel({ surveyId, existingActions, categories }: {
         )}
 
         {isPublished && (
-          <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm font-medium p-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200/50 dark:border-green-900/30">
+          <div className="flex items-center gap-2 text-success text-sm font-medium p-3 rounded-xl bg-success/10 border border-success/30">
             <CheckCircle2 size={16} />
             Actions published — the wider school community can now see these agreed actions.
           </div>
@@ -653,11 +653,11 @@ function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
   }
 
   const CATEGORY_COLORS: Record<string, string> = {
-    "Awareness & Prevalence": "#3b82f6",
-    "Trust & Reporting": "#0d9488",
-    "Culture & Wellbeing": "#22c55e",
-    "Safeguarding Knowledge": "#8b5cf6",
-    "System Readiness": "#f59e0b",
+    "Awareness & Prevalence": "hsl(var(--cat-1))",
+    "Trust & Reporting": "hsl(var(--cat-2))",
+    "Culture & Wellbeing": "hsl(var(--cat-3))",
+    "Safeguarding Knowledge": "hsl(var(--cat-4))",
+    "System Readiness": "hsl(var(--cat-5))",
   };
 
   return (
@@ -684,13 +684,13 @@ function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold text-teal-600">{summary.participation.pupil}</p>
+                <p className="text-2xl font-bold text-role-pupil">{summary.participation.pupil}</p>
                 <p className="text-xs text-muted-foreground">Pupils</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold text-indigo-600">{summary.participation.staff + summary.participation.parent}</p>
+                <p className="text-2xl font-bold text-role-staff">{summary.participation.staff + summary.participation.parent}</p>
                 <p className="text-xs text-muted-foreground">Staff & Parents</p>
               </CardContent>
             </Card>
@@ -751,15 +751,15 @@ function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
                     <XAxis dataKey="category" tick={{ fontSize: 11 }} />
                     <YAxis domain={[0, 5]} tick={{ fontSize: 11 }} />
                     <Tooltip />
-                    <Bar dataKey="pupil" name="Pupils" fill="#0d9488" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="staff" name="Staff" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="parent" name="Parents" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="pupil" name="Pupils" fill={GROUP_COLORS.pupil} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="staff" name="Staff" fill={GROUP_COLORS.staff} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="parent" name="Parents" fill={GROUP_COLORS.parent} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
                 <div className="flex justify-center gap-6 mt-3">
-                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-teal-500" /><span className="text-xs text-muted-foreground">Pupils</span></div>
-                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-indigo-500" /><span className="text-xs text-muted-foreground">Staff</span></div>
-                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-amber-500" /><span className="text-xs text-muted-foreground">Parents</span></div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-role-pupil" /><span className="text-xs text-muted-foreground">Pupils</span></div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-role-staff" /><span className="text-xs text-muted-foreground">Staff</span></div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-role-parent" /><span className="text-xs text-muted-foreground">Parents</span></div>
                 </div>
               </CardContent>
             </Card>
@@ -798,10 +798,10 @@ function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
         }
         if (gaps.length === 0) return null;
         return (
-          <Card className="border-amber-200 dark:border-amber-900/50">
+          <Card className="border-warning/30">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MessageSquare size={20} className="text-amber-500" />
+                <MessageSquare size={20} className="text-warning" />
                 Perception Gaps
               </CardTitle>
               <p className="text-sm text-muted-foreground">
@@ -810,15 +810,15 @@ function PublicActionsView({ surveyId }: { surveyId: string | undefined }) {
             </CardHeader>
             <CardContent className="space-y-3">
               {gaps.sort((a, b) => b.gap - a.gap).map((g, i) => (
-                <div key={i} className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30">
+                <div key={i} className="p-4 rounded-xl bg-warning/10 border border-warning/30">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-sm">{g.category}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">
                       {g.gap}pt gap
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">{g.interpretation}</p>
-                  <p className="text-xs mt-2 text-amber-600 dark:text-amber-400">
+                  <p className="text-xs mt-2 text-warning">
                     {g.groups.high} scored higher — {g.groups.low} scored lower
                   </p>
                 </div>
@@ -913,12 +913,12 @@ function PTAContactPrompt() {
   if (!ptaContacts || ptaContacts.length === 0) return null;
 
   return (
-    <Card className="border-purple-200 dark:border-purple-900/50">
+    <Card className="border-role-pta/30">
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-950/30 rounded-xl flex items-center justify-center">
-              <MessageCircle size={20} className="text-purple-600 dark:text-purple-400" />
+            <div className="w-10 h-10 bg-role-pta/15 rounded-xl flex items-center justify-center">
+              <MessageCircle size={20} className="text-role-pta" />
             </div>
             <div>
               <p className="font-bold text-sm">Have questions about these actions?</p>
@@ -932,7 +932,7 @@ function PTAContactPrompt() {
               variant="outline"
               size="sm"
               onClick={() => setShowForm(!showForm)}
-              className="border-purple-300 text-purple-700 dark:text-purple-400"
+              className="border-role-pta/40 text-role-pta"
             >
               <Send size={14} className="mr-1" />
               {showForm ? "Close" : "Message PTA"}
@@ -941,8 +941,8 @@ function PTAContactPrompt() {
         </div>
 
         {sent && (
-          <div className="mt-3 p-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/30 flex items-center gap-2">
-            <CheckCircle2 size={16} className="text-green-500" />
+          <div className="mt-3 p-3 rounded-xl bg-success/10 border border-success/30 flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-success" />
             <p className="text-sm font-medium">Message sent to your PTA representatives.</p>
           </div>
         )}
@@ -954,14 +954,14 @@ function PTAContactPrompt() {
               onChange={e => setMessage(e.target.value)}
               placeholder="Write your question or comment about the agreed actions..."
               rows={3}
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-role-pta/40 resize-none"
             />
             <div className="flex justify-end">
               <Button
                 onClick={() => sendMutation.mutate()}
                 disabled={!message.trim() || sendMutation.isPending}
                 size="sm"
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-role-pta hover:bg-role-pta/90"
               >
                 <Send size={14} className="mr-1" />
                 {sendMutation.isPending ? "Sending..." : "Send to PTA"}

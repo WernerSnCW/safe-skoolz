@@ -43,6 +43,28 @@ export interface StaffLoginBody {
   password: string;
 }
 
+export interface Capabilities {
+  learn?: boolean;
+  diagnostic?: boolean;
+  voice?: boolean;
+  membership?: boolean;
+  results?: boolean;
+  concerns?: boolean;
+  pta?: boolean;
+  safeguarding?: boolean;
+  lessons?: boolean;
+  behaviour?: boolean;
+}
+
+export type TenantTheme = { [key: string]: unknown };
+
+export interface Tenant {
+  slug?: string | null;
+  displayName?: string;
+  theme?: TenantTheme;
+  capabilities?: Capabilities;
+}
+
 export interface User {
   id: string;
   schoolId: string;
@@ -65,6 +87,8 @@ export interface User {
   active: boolean;
   /** @nullable */
   lastLogin?: string | null;
+  membershipStatus: string;
+  tenant?: Tenant | null;
 }
 
 export interface LoginResponse {
@@ -553,6 +577,39 @@ export interface PtaResource {
   type: string;
 }
 
+export type CreateSchoolBody = {
+  name: string;
+  slug?: string;
+  coalitionName?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+};
+
+export type CreateSchool201SchoolTheme = { [key: string]: unknown };
+
+export type CreateSchool201SchoolCapabilities = { [key: string]: boolean };
+
+export type CreateSchool201School = {
+  id: string;
+  slug: string;
+  displayName: string;
+  contactName?: string | null;
+  theme?: CreateSchool201SchoolTheme;
+  capabilities: CreateSchool201SchoolCapabilities;
+};
+
+export type CreateSchool201Voice = {
+  id: string;
+  name: string;
+  status: string;
+};
+
+export type CreateSchool201 = {
+  school: CreateSchool201School;
+  voice: CreateSchool201Voice;
+};
+
 export type ListIncidentsParams = {
   status?: string;
   category?: string;
@@ -579,6 +636,273 @@ export type ListAlertsParams = {
 export type ListNotificationsParams = {
   page?: number;
   limit?: number;
+};
+
+export type GetPtaAnnouncementFeed200AnnouncementsItem = {
+  id?: string;
+  title?: string;
+  body?: string;
+  audience?: string;
+  pinned?: boolean;
+  createdAt?: string;
+  author?: string;
+};
+
+export type GetPtaAnnouncementFeed200 = {
+  announcements?: GetPtaAnnouncementFeed200AnnouncementsItem[];
+};
+
+export type ListPtaAnnouncements200AnnouncementsItem = {
+  id?: string;
+  title?: string;
+  body?: string;
+  audience?: string;
+  pinned?: boolean;
+  createdAt?: string;
+  author?: string;
+};
+
+export type ListPtaAnnouncements200 = {
+  announcements?: ListPtaAnnouncements200AnnouncementsItem[];
+};
+
+export type PostPtaAnnouncementBody = {
+  title: string;
+  body: string;
+  audience?: string;
+  pinned?: boolean;
+};
+
+export type PostPtaAnnouncement201Announcement = { [key: string]: unknown };
+
+export type PostPtaAnnouncement201 = {
+  announcement?: PostPtaAnnouncement201Announcement;
+};
+
+export type DeletePtaAnnouncement200 = {
+  ok?: boolean;
+};
+
+export type ListPtaBallots200BallotsItemTally = { [key: string]: number };
+
+export type ListPtaBallots200BallotsItem = {
+  id?: string;
+  question?: string;
+  description?: string | null;
+  options?: string[];
+  status?: string;
+  quorum?: number | null;
+  closesAt?: string | null;
+  createdAt?: string;
+  tally?: ListPtaBallots200BallotsItemTally;
+  totalVotes?: number;
+  quorumMet?: boolean | null;
+  myVote?: string | null;
+  electorate?: string;
+};
+
+export type ListPtaBallots200 = {
+  rosterActive?: number;
+  isMember?: boolean;
+  ballots?: ListPtaBallots200BallotsItem[];
+};
+
+export type OpenPtaBallotBody = {
+  question: string;
+  description?: string;
+  options?: string[];
+  quorum?: number;
+  closesAt?: string;
+  proposalId?: string;
+};
+
+export type OpenPtaBallot201Ballot = { [key: string]: unknown };
+
+export type OpenPtaBallot201 = {
+  ballot?: OpenPtaBallot201Ballot;
+};
+
+export type ClosePtaBallot200Ballot = { [key: string]: unknown };
+
+export type ClosePtaBallot200 = {
+  ballot?: ClosePtaBallot200Ballot;
+};
+
+export type CastPtaVoteBody = {
+  choice: string;
+  memberId?: string;
+};
+
+export type CastPtaVote201Vote = { [key: string]: unknown };
+
+export type CastPtaVote201 = {
+  vote?: CastPtaVote201Vote;
+};
+
+export type ListPtaProxies200ProxiesItem = {
+  id?: string;
+  grantorMemberId?: string;
+  holderMemberId?: string;
+  grantor?: string;
+  holder?: string;
+};
+
+export type ListPtaProxies200 = {
+  myMemberId?: string | null;
+  proxies?: ListPtaProxies200ProxiesItem[];
+};
+
+export type SetPtaProxyBody = {
+  holderMemberId: string;
+};
+
+export type SetPtaProxy201Proxy = { [key: string]: unknown };
+
+export type SetPtaProxy201 = {
+  proxy?: SetPtaProxy201Proxy;
+};
+
+export type RevokePtaProxy200 = {
+  ok?: boolean;
+};
+
+export type ListPtaProposals200ProposalsItem = {
+  id?: string;
+  title?: string;
+  detail?: string;
+  category?: string;
+  status?: string;
+  decisionDueAt?: string | null;
+  decisionRationale?: string | null;
+  decidedAt?: string | null;
+  createdAt?: string;
+  raisedBy?: string;
+  decidedBy?: string | null;
+  overdue?: boolean;
+};
+
+export type ListPtaProposals200 = {
+  proposals?: ListPtaProposals200ProposalsItem[];
+};
+
+export type RaisePtaProposalBody = {
+  title: string;
+  detail: string;
+  category?: string;
+  decisionDueAt?: string;
+};
+
+export type RaisePtaProposal201Proposal = { [key: string]: unknown };
+
+export type RaisePtaProposal201 = {
+  proposal?: RaisePtaProposal201Proposal;
+};
+
+export type DecidePtaProposalBody = {
+  outcome: string;
+  rationale?: string;
+};
+
+export type DecidePtaProposal200Proposal = { [key: string]: unknown };
+
+export type DecidePtaProposal200 = {
+  proposal?: DecidePtaProposal200Proposal;
+};
+
+export type WithdrawPtaProposal200Proposal = { [key: string]: unknown };
+
+export type WithdrawPtaProposal200 = {
+  proposal?: WithdrawPtaProposal200Proposal;
+};
+
+export type ListPtaMembers200MembersItemOfficesItem = {
+  role?: string;
+  domain?: string | null;
+};
+
+export type ListPtaMembers200MembersItem = {
+  id?: string;
+  userId?: string;
+  name?: string;
+  email?: string;
+  tier?: string;
+  status?: string;
+  joinedAt?: string;
+  offices?: ListPtaMembers200MembersItemOfficesItem[];
+};
+
+export type ListPtaMembers200 = {
+  members?: ListPtaMembers200MembersItem[];
+};
+
+export type AddPtaMemberBody = {
+  userId: string;
+  tier?: string;
+  status?: string;
+};
+
+export type AddPtaMember201Member = { [key: string]: unknown };
+
+export type AddPtaMember201 = {
+  member?: AddPtaMember201Member;
+};
+
+export type ListPtaMemberCandidates200CandidatesItem = {
+  id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+};
+
+export type ListPtaMemberCandidates200 = {
+  candidates?: ListPtaMemberCandidates200CandidatesItem[];
+};
+
+export type UpdatePtaMemberBody = {
+  tier?: string;
+  status?: string;
+};
+
+export type UpdatePtaMember200Member = { [key: string]: unknown };
+
+export type UpdatePtaMember200 = {
+  member?: UpdatePtaMember200Member;
+};
+
+export type RemovePtaMember200 = {
+  ok?: boolean;
+};
+
+export type ListPtaOfficers200OfficersItem = {
+  id?: string;
+  memberId?: string;
+  name?: string;
+  role?: string;
+  domain?: string | null;
+  termStartAt?: string;
+  active?: boolean;
+};
+
+export type ListPtaOfficers200 = {
+  officers?: ListPtaOfficers200OfficersItem[];
+};
+
+export type AppointPtaOfficerBody = {
+  memberId: string;
+  role: string;
+  domain?: string;
+};
+
+export type AppointPtaOfficer201Officer = { [key: string]: unknown };
+
+export type AppointPtaOfficer201 = {
+  officer?: AppointPtaOfficer201Officer;
+};
+
+export type EndPtaOfficer200Officer = { [key: string]: unknown };
+
+export type EndPtaOfficer200 = {
+  officer?: EndPtaOfficer200Officer;
 };
 
 export type ListPtaMessages200 = {
@@ -638,4 +962,645 @@ export type SubmitPtaCodesignResponse201 = { [key: string]: unknown };
 
 export type GetPtaResources200 = {
   resources?: PtaResource[];
+};
+
+export type ListPtaInitiatives200InitiativesItemChecklist = {
+  [key: string]: unknown;
+};
+
+export type ListPtaInitiatives200InitiativesItem = {
+  id?: string;
+  title?: string;
+  summary?: string;
+  status?: string;
+  ownerId?: string | null;
+  owner?: string | null;
+  originVoiceId?: string | null;
+  originVoiceName?: string | null;
+  targetDate?: string | null;
+  createdAt?: string;
+  completedAt?: string | null;
+  goalId?: string | null;
+  goalTitle?: string | null;
+  goalStatus?: string | null;
+  successCriteria?: string | null;
+  resourcesNeeded?: string | null;
+  conflicts?: string | null;
+  checklist?: ListPtaInitiatives200InitiativesItemChecklist;
+  schoolStage?: string;
+  responseDueAt?: string | null;
+  approvalType?: string | null;
+  approvedAt?: string | null;
+  approvedBy?: string | null;
+  awaitingResponse?: boolean;
+  followUpCount?: number;
+};
+
+export type ListPtaInitiatives200 = {
+  initiatives?: ListPtaInitiatives200InitiativesItem[];
+};
+
+export type CreatePtaInitiativeBody = {
+  title: string;
+  summary: string;
+  ownerId?: string | null;
+  originVoiceId?: string | null;
+  targetDate?: string | null;
+  goalId?: string | null;
+  successCriteria?: string | null;
+  resourcesNeeded?: string | null;
+  conflicts?: string | null;
+};
+
+export type CreatePtaInitiative201Initiative = { [key: string]: unknown };
+
+export type CreatePtaInitiative201 = {
+  initiative?: CreatePtaInitiative201Initiative;
+};
+
+export type UpdatePtaInitiativeBodyChecklist = { [key: string]: unknown };
+
+export type UpdatePtaInitiativeBody = {
+  status?: string;
+  title?: string;
+  summary?: string;
+  ownerId?: string | null;
+  targetDate?: string | null;
+  goalId?: string | null;
+  successCriteria?: string | null;
+  resourcesNeeded?: string | null;
+  conflicts?: string | null;
+  checklist?: UpdatePtaInitiativeBodyChecklist;
+};
+
+export type UpdatePtaInitiative200Initiative = { [key: string]: unknown };
+
+export type UpdatePtaInitiative200 = {
+  initiative?: UpdatePtaInitiative200Initiative;
+};
+
+export type GetPtaInitiative200Initiative = { [key: string]: unknown };
+
+export type GetPtaInitiative200StageHistoryItem = { [key: string]: unknown };
+
+export type GetPtaInitiative200 = {
+  initiative?: GetPtaInitiative200Initiative;
+  stageHistory?: GetPtaInitiative200StageHistoryItem[];
+};
+
+export type ApprovePtaInitiativeBody = {
+  approvalType: string;
+  boardNote?: string | null;
+};
+
+export type ApprovePtaInitiative200Initiative = { [key: string]: unknown };
+
+export type ApprovePtaInitiative200 = {
+  initiative?: ApprovePtaInitiative200Initiative;
+};
+
+export type AdvancePtaInitiativeStageBody = {
+  toStage: string;
+  occurredAt?: string | null;
+  outcomeNote?: string | null;
+  reason?: string | null;
+  responseDueAt?: string | null;
+};
+
+export type AdvancePtaInitiativeStage200Initiative = { [key: string]: unknown };
+
+export type AdvancePtaInitiativeStage200 = {
+  initiative?: AdvancePtaInitiativeStage200Initiative;
+};
+
+export type FollowUpPtaInitiativeBody = {
+  note: string;
+};
+
+export type FollowUpPtaInitiative201Entry = { [key: string]: unknown };
+
+export type FollowUpPtaInitiative201 = {
+  entry?: FollowUpPtaInitiative201Entry;
+};
+
+export type ListPtaGoals200GoalsItem = { [key: string]: unknown };
+
+export type ListPtaGoals200 = {
+  goals?: ListPtaGoals200GoalsItem[];
+};
+
+export type ProposePtaGoalBody = {
+  title: string;
+  description?: string | null;
+  year?: number | null;
+};
+
+export type ProposePtaGoal201Goal = { [key: string]: unknown };
+
+export type ProposePtaGoal201 = {
+  goal?: ProposePtaGoal201Goal;
+};
+
+export type OpenPtaGoalBallotBody = {
+  quorum?: number | null;
+  closesAt?: string | null;
+};
+
+export type OpenPtaGoalBallot200Goal = { [key: string]: unknown };
+
+export type OpenPtaGoalBallot200Ballot = { [key: string]: unknown };
+
+export type OpenPtaGoalBallot200 = {
+  goal?: OpenPtaGoalBallot200Goal;
+  ballot?: OpenPtaGoalBallot200Ballot;
+};
+
+export type UpdatePtaGoalBody = {
+  status?: string;
+  title?: string;
+  description?: string | null;
+  postmortemNote?: string;
+};
+
+export type UpdatePtaGoal200Goal = { [key: string]: unknown };
+
+export type UpdatePtaGoal200 = {
+  goal?: UpdatePtaGoal200Goal;
+};
+
+export type ListVoice200VoicesItem = {
+  id?: string;
+  name?: string;
+  mission?: string;
+  status?: string;
+  createdAt?: string;
+  convertedAt?: string | null;
+  createdBy?: string;
+  memberCount?: number;
+  myRole?: string | null;
+};
+
+export type ListVoice200 = {
+  voices?: ListVoice200VoicesItem[];
+};
+
+export type CreateVoiceBody = {
+  name: string;
+  mission: string;
+};
+
+export type CreateVoice201Voice = { [key: string]: unknown };
+
+export type CreateVoice201 = {
+  voice?: CreateVoice201Voice;
+};
+
+export type GetVoice200VoiceMembersItem = {
+  id?: string;
+  userId?: string;
+  role?: string;
+  joinedAt?: string;
+  name?: string;
+};
+
+export type GetVoice200Voice = {
+  id?: string;
+  name?: string;
+  mission?: string;
+  status?: string;
+  createdAt?: string;
+  convertedAt?: string | null;
+  createdBy?: string;
+  memberCount?: number;
+  myRole?: string | null;
+  members?: GetVoice200VoiceMembersItem[];
+};
+
+export type GetVoice200 = {
+  voice?: GetVoice200Voice;
+};
+
+export type JoinVoice201Member = { [key: string]: unknown };
+
+export type JoinVoice201 = {
+  member?: JoinVoice201Member;
+};
+
+export type LeaveVoice200 = {
+  ok?: boolean;
+};
+
+export type ConvertVoice200Voice = { [key: string]: unknown };
+
+export type ConvertVoice200Converted = {
+  backers?: number;
+  added?: number;
+  alreadyMembers?: number;
+};
+
+export type ConvertVoice200Initiative = {
+  id?: string;
+  title?: string;
+};
+
+export type ConvertVoice200 = {
+  voice?: ConvertVoice200Voice;
+  converted?: ConvertVoice200Converted;
+  initiative?: ConvertVoice200Initiative;
+};
+
+export type GetVoicePublic200 = {
+  id?: string;
+  name?: string;
+  mission?: string;
+  status?: string;
+  startedBy?: string;
+  backerCount?: number;
+};
+
+export type SupportVoiceBody = {
+  name: string;
+  email: string;
+};
+
+export type SupportVoice201 = {
+  ok?: boolean;
+  alreadyBacking?: boolean;
+};
+
+export type GetVoicePathway200Legitimacy = {
+  backerCount?: number;
+  declaredIncumbent?: number | null;
+  ptaMembersInVoice?: number;
+  nonVoicePta?: number | null;
+  met?: boolean | null;
+  incumbentConfirmedBySchoolAt?: string | null;
+};
+
+export type GetVoicePathway200SignalsItem = {
+  id?: string;
+  firedAt?: string;
+  topics?: string[];
+  memberCountAtFire?: number;
+  schoolResponseStatus?: string | null;
+  schoolResponseText?: string | null;
+  schoolRespondedAt?: string | null;
+};
+
+export type GetVoicePathway200 = {
+  voiceId: string;
+  stage: string;
+  backerCount: number;
+  signalThreshold: number;
+  thresholdMet: boolean;
+  signalFiredAt?: string | null;
+  ptaMotionOutcome?: string | null;
+  schoolRecognisedAt?: string | null;
+  complete: boolean;
+  legitimacy: GetVoicePathway200Legitimacy;
+  signals: GetVoicePathway200SignalsItem[];
+};
+
+export type FireCollectiveSignal201Signal = { [key: string]: unknown };
+
+export type FireCollectiveSignal201Artefact = {
+  topics?: string[];
+  authorisingParents?: string[];
+  message?: string;
+};
+
+export type FireCollectiveSignal201Pathway = { [key: string]: unknown };
+
+export type FireCollectiveSignal201 = {
+  signal: FireCollectiveSignal201Signal;
+  artefact: FireCollectiveSignal201Artefact;
+  pathway: FireCollectiveSignal201Pathway;
+};
+
+export type RecordPtaMotionBodyOutcome =
+  (typeof RecordPtaMotionBodyOutcome)[keyof typeof RecordPtaMotionBodyOutcome];
+
+export const RecordPtaMotionBodyOutcome = {
+  vad_adopted: "vad_adopted",
+  vad_declined: "vad_declined",
+} as const;
+
+export type RecordPtaMotionBody = {
+  outcome: RecordPtaMotionBodyOutcome;
+};
+
+export type RecordPtaMotion200Pathway = { [key: string]: unknown };
+
+export type RecordPtaMotion200Convert = { [key: string]: unknown };
+
+export type RecordPtaMotion200 = {
+  pathway: RecordPtaMotion200Pathway;
+  convert?: RecordPtaMotion200Convert;
+};
+
+export type RecordSchoolRecognition200Pathway = { [key: string]: unknown };
+
+export type RecordSchoolRecognition200 = {
+  pathway: RecordSchoolRecognition200Pathway;
+};
+
+export type SetIncumbentPtaSizeBody = {
+  incumbentPtaSize: number;
+  confirm?: boolean;
+};
+
+export type SetIncumbentPtaSize200Pathway = { [key: string]: unknown };
+
+export type SetIncumbentPtaSize200 = {
+  pathway: SetIncumbentPtaSize200Pathway;
+};
+
+export type RecordSignalResponseBodyStatus =
+  (typeof RecordSignalResponseBodyStatus)[keyof typeof RecordSignalResponseBodyStatus];
+
+export const RecordSignalResponseBodyStatus = {
+  responded: "responded",
+  none: "none",
+} as const;
+
+export type RecordSignalResponseBody = {
+  status: RecordSignalResponseBodyStatus;
+  text?: string;
+};
+
+export type RecordSignalResponse200Pathway = { [key: string]: unknown };
+
+export type RecordSignalResponse200 = {
+  pathway: RecordSignalResponse200Pathway;
+};
+
+export type GetCommunityDiagnostic200QuestionsItem = {
+  key: string;
+  section: string;
+  text: string;
+  type: string;
+  options?: string[];
+  optional?: boolean;
+};
+
+export type GetCommunityDiagnostic200 = {
+  title: string;
+  questions: GetCommunityDiagnostic200QuestionsItem[];
+  submissionCount: number;
+  released: boolean;
+};
+
+export type SubmitCommunityDiagnosticBodyAnswersItem = {
+  questionKey: string;
+  answer?: number;
+  freeText?: string;
+};
+
+export type SubmitCommunityDiagnosticBody = {
+  email: string;
+  name?: string;
+  yearGroup?: string;
+  classOrTeacher?: string;
+  answers: SubmitCommunityDiagnosticBodyAnswersItem[];
+};
+
+export type SubmitCommunityDiagnostic201 = {
+  counted: boolean;
+  count: number;
+};
+
+export type ListPendingMembers200MembersItem = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  createdAt?: string;
+};
+
+export type ListPendingMembers200 = {
+  members: ListPendingMembers200MembersItem[];
+};
+
+export type ApproveMemberBodyDisplayMode =
+  (typeof ApproveMemberBodyDisplayMode)[keyof typeof ApproveMemberBodyDisplayMode];
+
+export const ApproveMemberBodyDisplayMode = {
+  named: "named",
+  anonymous: "anonymous",
+} as const;
+
+export type ApproveMemberBody = {
+  displayMode?: ApproveMemberBodyDisplayMode;
+};
+
+export type ApproveMember200Member = { [key: string]: unknown };
+
+export type ApproveMember200 = {
+  member?: ApproveMember200Member;
+};
+
+export type RejectMember200 = {
+  ok?: boolean;
+};
+
+export type ReleaseDiagnosticResults200 = {
+  released: boolean;
+  releasedAt?: string;
+};
+
+export type GetDiagnosticResults200QuestionsItemSegmentsItem = {
+  yearGroup: string;
+  n: number;
+  distribution: number[];
+};
+
+export type GetDiagnosticResults200QuestionsItem = {
+  key: string;
+  section: string;
+  text: string;
+  type?: string;
+  options: string[];
+  distribution: number[];
+  segments: GetDiagnosticResults200QuestionsItemSegmentsItem[];
+};
+
+export type GetDiagnosticResults200FreeTextItem = {
+  questionKey?: string;
+  text?: string;
+};
+
+export type GetDiagnosticResults200 = {
+  title: string;
+  released: boolean;
+  releasedAt?: string;
+  isExec?: boolean;
+  totalResponses: number;
+  questions: GetDiagnosticResults200QuestionsItem[];
+  freeText?: GetDiagnosticResults200FreeTextItem[];
+};
+
+export type SignupBody = {
+  email: string;
+  password: string;
+  name?: string;
+  schoolSlug: string;
+  wasPtaMember?: boolean;
+};
+
+export type Signup201User = { [key: string]: unknown };
+
+export type Signup201 = {
+  token: string;
+  user: Signup201User;
+  firstLogin?: boolean;
+};
+
+export type GetJoinSummary200 = {
+  schoolName: string;
+  voiceName: string;
+  mission?: string;
+  joinCount: number;
+  hasVibes: boolean;
+};
+
+export type SubmitConcernBody = {
+  body: string;
+};
+
+export type SubmitConcern201 = {
+  id: string;
+};
+
+export type ListConcerns200ConcernsItem = {
+  id: string;
+  body: string;
+  status: string;
+  createdAt: string;
+  firstName: string;
+  lastName: string;
+};
+
+export type ListConcerns200 = {
+  concerns: ListConcerns200ConcernsItem[];
+};
+
+export type SetConcernStatusBody = {
+  status: string;
+};
+
+export type SetConcernStatus200 = {
+  ok: boolean;
+};
+
+export type SearchSchoolsParams = {
+  q?: string;
+};
+
+export type SearchSchools200SchoolsItem = {
+  slug?: string | null;
+  name: string;
+  hasVibes: boolean;
+};
+
+export type SearchSchools200 = {
+  schools: SearchSchools200SchoolsItem[];
+};
+
+export type RequestSchoolCreateBody = {
+  schoolName: string;
+  email: string;
+  note?: string;
+};
+
+export type RequestSchoolCreate201 = {
+  ok: boolean;
+};
+
+export type GetPtaCharter200SectionsItem = {
+  heading: string;
+  body: string;
+};
+
+export type GetPtaCharter200OfficersItem = {
+  role?: string;
+  domain?: string;
+  name?: string;
+};
+
+export type GetPtaCharter200AcknowledgementsItem = {
+  name?: string;
+  actionType?: string;
+  createdAt?: string;
+};
+
+export type GetPtaCharter200 = {
+  version: string;
+  title: string;
+  youAcknowledged: boolean;
+  sections: GetPtaCharter200SectionsItem[];
+  claimed: boolean;
+  claimedAt?: string;
+  officers: GetPtaCharter200OfficersItem[];
+  acknowledgements: GetPtaCharter200AcknowledgementsItem[];
+};
+
+export type AdoptPtaCharter200 = {
+  claimedAt?: string;
+};
+
+export type AcknowledgePtaCharter200 = {
+  ok?: boolean;
+};
+
+export type PatchSchoolCapabilitiesBodyCapabilities = {
+  [key: string]: boolean;
+};
+
+export type PatchSchoolCapabilitiesBody = {
+  capabilities: PatchSchoolCapabilitiesBodyCapabilities;
+};
+
+export type PatchSchoolCapabilities200Capabilities = { [key: string]: boolean };
+
+export type PatchSchoolCapabilities200 = {
+  slug: string;
+  capabilities: PatchSchoolCapabilities200Capabilities;
+};
+
+export type SubmitIntakeBodySelections = { [key: string]: number[] };
+
+export type SubmitIntakeBody = {
+  email: string;
+  selections: SubmitIntakeBodySelections;
+};
+
+export type SubmitIntake201 = {
+  counted: boolean;
+  n: number;
+};
+
+export type GetIntakeAggregate200DomainsItem = {
+  key: string;
+  section: string;
+  options: string[];
+  counts?: number[] | null;
+};
+
+export type GetIntakeAggregate200 = {
+  suppressed: boolean;
+  n: number;
+  floor: number;
+  domains: GetIntakeAggregate200DomainsItem[];
+};
+
+export type ReportMemberBody = {
+  reason?: string;
+};
+
+export type ReportMember201 = {
+  reported: boolean;
+};
+
+export type RemoveMember200 = {
+  removed: boolean;
 };

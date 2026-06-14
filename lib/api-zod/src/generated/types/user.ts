@@ -5,6 +5,7 @@
  * SafeSchool safeguarding and incident reporting API
  * OpenAPI spec version: 0.2.0
  */
+import type { Tenant } from "./tenant";
 
 export interface User {
   id: string;
@@ -28,4 +29,6 @@ export interface User {
   active: boolean;
   /** @nullable */
   lastLogin?: string | null;
+  membershipStatus: string;
+  tenant?: Tenant | null;
 }

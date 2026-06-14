@@ -133,7 +133,7 @@ export default function MyClass() {
                   className="w-full flex items-center justify-between p-5 hover:bg-muted/50 transition-colors text-left"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center font-bold">
                       {className}
                     </div>
                     <div>
@@ -243,7 +243,7 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
     const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(`
-        <html><head><title>PIN Slips - safeskoolz</title>
+        <html><head><title>PIN Slips - vibez</title>
         <style>
           body { font-family: Arial, sans-serif; padding: 20px; }
           h1 { font-size: 18px; margin-bottom: 10px; }
@@ -253,13 +253,13 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
           .note { font-size: 10px; color: #666; margin-top: 4px; }
           @media print { .no-print { display: none; } }
         </style></head><body>
-        <h1>safeskoolz Login PINs</h1>
+        <h1>vibez Login PINs</h1>
         <p class="no-print" style="font-size:12px;color:#666;">Print this page and cut along the dashed lines. Give each pupil their slip privately.</p>
         ${generatedPins.map(p => `
           <div class="slip">
             <div class="name">${p.firstName} ${p.lastName} ${p.className ? `(${p.className})` : ""}</div>
             <div class="pin">${p.newPin}</div>
-            <div class="note">This is your secret PIN for safeskoolz. Do not share it with anyone.</div>
+            <div class="note">This is your secret PIN for vibez. Do not share it with anyone.</div>
           </div>
         `).join("")}
         </body></html>
@@ -270,9 +270,9 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
   };
 
   return (
-    <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/10">
+    <Card className="border-warning/30 bg-warning/10">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2 text-amber-700 dark:text-amber-400">
+        <CardTitle className="text-lg flex items-center gap-2 text-warning">
           <Key size={20} />
           PIN Management
         </CardTitle>
@@ -288,7 +288,7 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
               size="sm"
               onClick={() => bulkResetPins.mutate({ className: classNames[0] })}
               disabled={bulkResetPins.isPending}
-              className="border-amber-300 hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/30"
+              className="border-warning/40 hover:bg-warning/15"
             >
               <RefreshCw size={14} className={bulkResetPins.isPending ? "animate-spin" : ""} />
               {bulkResetPins.isPending ? "Generating..." : `Generate New PINs for Class ${classNames[0]}`}
@@ -301,7 +301,7 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
                 size="sm"
                 onClick={() => bulkResetPins.mutate({ className: cn })}
                 disabled={bulkResetPins.isPending}
-                className="border-amber-300 hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/30"
+                className="border-warning/40 hover:bg-warning/15"
               >
                 <RefreshCw size={14} className={bulkResetPins.isPending ? "animate-spin" : ""} />
                 {bulkResetPins.isPending ? "..." : `Class ${cn}`}
@@ -313,7 +313,7 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
         {generatedPins.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-amber-700 dark:text-amber-400">
+              <p className="text-sm font-bold text-warning">
                 {generatedPins.length} PIN{generatedPins.length !== 1 ? "s" : ""} generated
               </p>
               <div className="flex gap-2">
@@ -330,10 +330,10 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
             {showPins && (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                 {generatedPins.map(p => (
-                  <div key={p.pupilId} className="flex items-center justify-between bg-white dark:bg-gray-900 rounded-lg border border-amber-200/50 dark:border-amber-800/30 px-3 py-2">
+                  <div key={p.pupilId} className="flex items-center justify-between bg-white dark:bg-gray-900 rounded-lg border border-warning/30 px-3 py-2">
                     <div>
                       <p className="text-sm font-bold">{p.firstName} {p.lastName}</p>
-                      <p className="text-lg font-mono font-bold tracking-widest text-amber-700 dark:text-amber-400">{p.newPin}</p>
+                      <p className="text-lg font-mono font-bold tracking-widest text-warning">{p.newPin}</p>
                     </div>
                     <Button
                       variant="ghost"
@@ -341,14 +341,14 @@ function PinManagement({ classes, scope }: { classes: Record<string, Pupil[]>; s
                       className="h-8 w-8"
                       onClick={() => handleCopyPin(p.pupilId, p.newPin)}
                     >
-                      {copiedId === p.pupilId ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                      {copiedId === p.pupilId ? <Check size={14} className="text-success" /> : <Copy size={14} />}
                     </Button>
                   </div>
                 ))}
               </div>
             )}
 
-            <p className="text-xs text-amber-600/70 dark:text-amber-400/50">
+            <p className="text-xs text-warning/70">
               PINs are shown once. Print or copy them now — they cannot be retrieved later, only reset.
             </p>
           </motion.div>

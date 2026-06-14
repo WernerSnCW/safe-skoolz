@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
+import { useTenant } from "@/providers/tenant";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useListNotifications } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
+import { WhatsNewBand, type DigestItem } from "@/components/dashboard/WhatsNewBand";
+import { MissionActions } from "@/components/dashboard/MissionActions";
+import { Megaphone, Library } from "lucide-react";
+import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import {
   AlertTriangle, Bell, FileText, Activity, TrendingUp, Users,
   BarChart3, PieChart as PieChartIcon, MapPin, Clock, Calendar,
   UserCheck, ChevronDown, ChevronUp, Shield, Gauge, MessageCircle, Send,
-  CheckCircle2
+  CheckCircle2, Vote,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
@@ -17,7 +22,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line
 } from "recharts";
 
-const CHART_COLORS_PARENT = ["#0d9488", "#6366f1", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#10b981"];
+const CHART_COLORS_PARENT = ["hsl(var(--chart-1))","hsl(var(--chart-2))","hsl(var(--chart-3))","hsl(var(--chart-4))","hsl(var(--chart-5))","hsl(var(--chart-6))","hsl(var(--chart-7))"];
 
 function ParentReportCard({ inc }: { inc: any }) {
   const { t } = useTranslation("dashboard");
@@ -69,9 +74,9 @@ function ParentReportCard({ inc }: { inc: any }) {
   };
 
   const PARENT_TIER_LABELS: Record<number, { label: string; color: string }> = {
-    1: { label: t("lowLevel"), color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" },
-    2: { label: t("moderate"), color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" },
-    3: { label: t("serious"), color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" },
+    1: { label: t("lowLevel"), color: "bg-scale-5/15 text-scale-5" },
+    2: { label: t("moderate"), color: "bg-scale-3/15 text-scale-3" },
+    3: { label: t("serious"), color: "bg-scale-1/15 text-scale-1" },
   };
 
   const emotion = inc.emotionalState ? PARENT_EMOTION_LABELS[inc.emotionalState] : null;
@@ -90,8 +95,8 @@ function ParentReportCard({ inc }: { inc: any }) {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-mono text-xs text-muted-foreground">{inc.referenceNumber}</span>
               <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                inc.status === "closed" ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" :
-                inc.status === "investigating" ? "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" :
+                inc.status === "closed" ? "bg-success/15 text-success" :
+                inc.status === "investigating" ? "bg-info/15 text-info" :
                 "bg-warning/20 text-warning"
               }`}>
                 {PARENT_STATUS_LABELS[inc.status] || inc.status}
@@ -267,12 +272,12 @@ function ContactPTACard() {
   if (!ptaContacts || ptaContacts.length === 0) return null;
 
   return (
-    <Card className="border-purple-200 dark:border-purple-900/50">
+    <Card className="border-role-pta/30">
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-950/30 rounded-xl flex items-center justify-center">
-              <MessageCircle size={24} className="text-purple-600 dark:text-purple-400" />
+            <div className="w-12 h-12 bg-role-pta/15 rounded-xl flex items-center justify-center">
+              <MessageCircle size={24} className="text-role-pta" />
             </div>
             <div>
               <h3 className="font-bold">{t("contactYourPta")}</h3>
@@ -285,7 +290,7 @@ function ContactPTACard() {
             variant="outline"
             size="sm"
             onClick={() => { setIsOpen(!isOpen); setSent(false); }}
-            className="border-purple-300 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/30"
+            className="border-role-pta/40 text-role-pta hover:bg-role-pta/10"
           >
             <Send size={14} className="mr-1" />
             {isOpen ? t("common:close") : t("sendMessage")}
@@ -301,8 +306,8 @@ function ContactPTACard() {
               className="overflow-hidden"
             >
               {sent ? (
-                <div className="mt-4 p-4 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/30 text-center">
-                  <CheckCircle2 size={32} className="mx-auto text-green-500 mb-2" />
+                <div className="mt-4 p-4 rounded-xl bg-success/10 border border-success/30 text-center">
+                  <CheckCircle2 size={32} className="mx-auto text-success mb-2" />
                   <p className="font-bold text-sm">{t("messageSent")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {t("messageSentPta")}
@@ -317,7 +322,7 @@ function ContactPTACard() {
                       value={subject}
                       onChange={e => setSubject(e.target.value)}
                       placeholder={t("subjectPlaceholder")}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-role-pta/40"
                     />
                   </div>
                   <div>
@@ -327,7 +332,7 @@ function ContactPTACard() {
                       onChange={e => setMessage(e.target.value)}
                       placeholder={t("writeMessageToPta")}
                       rows={3}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-role-pta/40 resize-none"
                     />
                   </div>
                   <div className="flex justify-end">
@@ -335,7 +340,7 @@ function ContactPTACard() {
                       onClick={() => sendMutation.mutate()}
                       disabled={!message.trim() || sendMutation.isPending}
                       size="sm"
-                      className="bg-purple-600 hover:bg-purple-700"
+                      className="bg-role-pta hover:bg-role-pta/90"
                     >
                       <Send size={14} className="mr-1" />
                       {sendMutation.isPending ? t("common:sending") : t("sendToPta")}
@@ -354,7 +359,9 @@ function ContactPTACard() {
   );
 }
 
-export default function ParentDashboard({ user }: { user: any }) {
+export function ChildrenSafeguardingSection() {
+  const { tenant, isLoading: tenantLoading } = useTenant();
+  const cap = (tenant?.capabilities ?? {}) as any;
   const { t } = useTranslation("dashboard");
   const [periodDays, setPeriodDays] = useState(180);
   const { data: notificationsData } = useListNotifications();
@@ -392,6 +399,7 @@ export default function ParentDashboard({ user }: { user: any }) {
 
   const { data: parentData, isLoading } = useQuery({
     queryKey: ["/api/dashboard/parent"],
+    enabled: !!cap.safeguarding,
     queryFn: async () => {
       const token = localStorage.getItem("safeschool_token");
       const res = await fetch("/api/dashboard/parent", {
@@ -402,6 +410,7 @@ export default function ParentDashboard({ user }: { user: any }) {
     },
   });
 
+  const { totalUnread: messageUnread } = useMessageNotifications();
   const childIds = parentData?.children?.map((c: any) => c.id) || [];
   const { data: childBehaviourData } = useQuery({
     queryKey: ["parent-children-behaviour", childIds],
@@ -424,6 +433,7 @@ export default function ParentDashboard({ user }: { user: any }) {
   const queryClient = useQueryClient();
   const { data: disclosuresData } = useQuery({
     queryKey: ["/api/incidents/my-disclosures"],
+    enabled: !!cap.safeguarding,
     queryFn: async () => {
       const token = localStorage.getItem("safeschool_token");
       const res = await fetch("/api/incidents/my-disclosures", {
@@ -496,15 +506,31 @@ export default function ParentDashboard({ user }: { user: any }) {
     .map(([name, count]) => ({ name: PARENT_STATUS_LABELS[name] || name, count }));
 
   const childrenList = parentData?.children || [];
-  const childName = childrenList.length === 1
-    ? `${childrenList[0].firstName} ${childrenList[0].lastName}`
-    : childrenList.length > 1
-    ? childrenList.map((c: any) => c.firstName).join(" & ")
-    : t("yourChild");
+
+  const digest: DigestItem[] = [];
+  if (messageUnread > 0) {
+    digest.push({
+      id: "messages", icon: MessageCircle, tone: "info",
+      title: t("newMessagesCount", { count: messageUnread, defaultValue: `${messageUnread} new messages` }),
+      detail: t("fromSchool", { defaultValue: "From the school" }),
+      href: "/messages", unread: true,
+    });
+  }
+  for (const inc of filteredIncidents.slice(0, 2)) {
+    digest.push({
+      id: `inc-${inc.id}`, icon: FileText,
+      tone: inc.status === "closed" || inc.status === "resolved" ? "info" : "warning",
+      title: t("incidentUpdate", { defaultValue: "Incident update" }),
+      detail: `${inc.referenceNumber} · ${inc.status}`,
+      href: `/incidents/${inc.id}`,
+    });
+  }
+
+  if (tenantLoading || !cap.safeguarding) return null;   // capability gate
 
   if (isLoading) {
     return (
-      <div className="space-y-8 max-w-5xl mx-auto animate-pulse">
+      <div className="space-y-8 animate-pulse">
         <div>
           <div className="h-9 bg-muted rounded-lg w-64 mb-2" />
           <div className="h-5 bg-muted rounded w-56" />
@@ -520,24 +546,21 @@ export default function ParentDashboard({ user }: { user: any }) {
     );
   }
 
+  if (childrenList.length === 0) return null;            // data gate
+
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-display font-bold">{t("welcomeBack", { name: user.firstName })}</h1>
-          <p className="text-muted-foreground mt-1">
-            {t("stayInformed", { child: childName })}
-          </p>
-        </div>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h2 className="font-display text-xl font-bold flex items-center gap-2">
+          <Users size={20} className="text-primary" aria-hidden="true" /> Your children
+        </h2>
         <div className="flex items-center gap-2">
           {PERIOD_OPTIONS.map((opt) => (
             <button
               key={opt.days}
               onClick={() => setPeriodDays(opt.days)}
               className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                periodDays === opt.days
-                  ? "bg-primary text-white"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                periodDays === opt.days ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
               {opt.label}
@@ -546,18 +569,34 @@ export default function ParentDashboard({ user }: { user: any }) {
         </div>
       </div>
 
+      <WhatsNewBand
+        items={digest}
+        heading={t("sinceLastHere", { defaultValue: "Since you were last here" })}
+        emptyLabel={t("allCaughtUp", { defaultValue: "You're all caught up." })}
+      />
+
+      <MissionActions
+        actions={[
+          { label: "Raise a concern", sub: "Tell the school", icon: AlertTriangle, href: "/report" },
+          { label: "Start or join a VOICE", sub: "A parent group with one ask: adopt VBE", icon: Vote, href: "/voice" },
+          { label: "Message the school", sub: "Securely, any time", icon: MessageCircle, href: "/messages" },
+          { label: "PTA updates", sub: "Stay in the loop", icon: Megaphone, href: "/pta-updates" },
+          { label: "Resource Centre", sub: "Guides for parents", icon: Library, href: "/resources-hub" },
+        ]}
+      />
+
       {pendingDisclosures.length > 0 && (
         <div className="space-y-3">
           {pendingDisclosures.map((disc: any) => (
-            <Card key={disc.id} className="border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20">
+            <Card key={disc.id} className="border-warning/40 bg-warning/10">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center flex-shrink-0">
-                    <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400" />
+                  <div className="w-10 h-10 rounded-xl bg-warning/15 flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle size={20} className="text-warning" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm">{t("actionRequired")}</h3>
-                    <p className="text-sm text-amber-700 dark:text-amber-400 mt-1" dangerouslySetInnerHTML={{ __html: t("schoolSharedDetails", { ref: disc.referenceNumber }) }} />
+                    <h3 className="font-bold text-warning text-sm">{t("actionRequired")}</h3>
+                    <p className="text-sm text-warning mt-1" dangerouslySetInnerHTML={{ __html: t("schoolSharedDetails", { ref: disc.referenceNumber }) }} />
 
                     {ackDisclosureId === disc.id ? (
                       <div className="mt-3 space-y-2">
@@ -567,14 +606,14 @@ export default function ParentDashboard({ user }: { user: any }) {
                           placeholder={t("addResponseOptional")}
                           maxLength={1000}
                           rows={2}
-                          className="w-full px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-300"
+                          className="w-full px-3 py-2 rounded-lg border border-warning/30 bg-white dark:bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-warning/40"
                         />
                         <div className="flex gap-2">
                           <Button
                             size="sm"
                             onClick={() => acknowledgeMutation.mutate({ incidentId: disc.incidentId, disclosureId: disc.id, response: ackResponse })}
                             disabled={acknowledgeMutation.isPending}
-                            className="bg-amber-600 hover:bg-amber-700 text-white"
+                            className="bg-warning hover:bg-warning/90 text-warning-foreground"
                           >
                             <CheckCircle2 size={14} className="mr-1" />
                             {acknowledgeMutation.isPending ? t("confirming") : t("confirmAcknowledgement")}
@@ -596,7 +635,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                       <Button
                         size="sm"
                         onClick={() => setAckDisclosureId(disc.id)}
-                        className="mt-2 bg-amber-600 hover:bg-amber-700 text-white"
+                        className="mt-2 bg-warning hover:bg-warning/90 text-warning-foreground"
                       >
                         <CheckCircle2 size={14} className="mr-1" />
                         {t("acknowledge")}
@@ -627,7 +666,7 @@ export default function ParentDashboard({ user }: { user: any }) {
         </Card>
         <Card>
           <CardContent className="p-5 text-center">
-            <Activity className="mx-auto text-green-600 mb-2" size={28} aria-hidden="true" />
+            <Activity className="mx-auto text-success mb-2" size={28} aria-hidden="true" />
             <p className="text-3xl font-bold">{filteredIncidents.filter((i: any) => i.status === "closed").length}</p>
             <p className="text-xs text-muted-foreground font-medium mt-1">{t("statusResolved")}</p>
           </CardContent>
@@ -669,7 +708,7 @@ export default function ParentDashboard({ user }: { user: any }) {
               <div>
                 <h2 className="text-lg font-bold">{child.firstName} {child.lastName}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {child.yearGroup && `Year ${child.yearGroup}`}{child.className && ` \u00b7 ${child.className}`}
+                  {child.yearGroup && `Year ${child.yearGroup}`}{child.className && ` · ${child.className}`}
                 </p>
               </div>
             </CardContent>
@@ -771,7 +810,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                     return `${months[parseInt(mo) - 1]} ${y}`;
                   }}
                 />
-                <Line type="monotone" dataKey="count" stroke="#0d9488" strokeWidth={2} dot={{ r: 4 }} name={t("totalReports")} />
+                <Line type="monotone" dataKey="count" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 4 }} name={t("totalReports")} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -793,7 +832,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                   <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
                   <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={100} />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name={t("totalReports")} />
+                  <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[0, 6, 6, 0]} name={t("totalReports")} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -861,7 +900,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                         <p className="text-xs text-muted-foreground font-medium mt-1">{t("totalReports")}</p>
                       </div>
                       <div className="text-center p-4 rounded-xl bg-muted/50">
-                        <p className="text-2xl font-bold text-green-600">{schoolData.resolutionRate}%</p>
+                        <p className="text-2xl font-bold text-success">{schoolData.resolutionRate}%</p>
                         <p className="text-xs text-muted-foreground font-medium mt-1">{t("resolutionRate")}</p>
                       </div>
                       <div className="text-center p-4 rounded-xl bg-muted/50">
@@ -869,7 +908,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                         <p className="text-xs text-muted-foreground font-medium mt-1">{t("pupilsEnrolled")}</p>
                       </div>
                       <div className="text-center p-4 rounded-xl bg-muted/50">
-                        <p className="text-2xl font-bold text-amber-600">{schoolData.resolvedCount}</p>
+                        <p className="text-2xl font-bold text-warning">{schoolData.resolvedCount}</p>
                         <p className="text-xs text-muted-foreground font-medium mt-1">{t("casesResolved")}</p>
                       </div>
                     </div>
@@ -899,7 +938,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                                 return `${months[parseInt(mo) - 1]} ${y}`;
                               }}
                             />
-                            <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={{ r: 3 }} name={t("totalReports")} />
+                            <Line type="monotone" dataKey="count" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={{ r: 3 }} name={t("totalReports")} />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
@@ -917,7 +956,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                               <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                               <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={90} />
                               <Tooltip />
-                              <Bar dataKey="count" fill="#6366f1" radius={[0, 6, 6, 0]} name={t("totalReports")} />
+                              <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={[0, 6, 6, 0]} name={t("totalReports")} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -934,7 +973,7 @@ export default function ParentDashboard({ user }: { user: any }) {
                               <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                               <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={90} />
                               <Tooltip />
-                              <Bar dataKey="count" fill="#0d9488" radius={[0, 6, 6, 0]} name={t("totalReports")} />
+                              <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[0, 6, 6, 0]} name={t("totalReports")} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -950,8 +989,8 @@ export default function ParentDashboard({ user }: { user: any }) {
                           {schoolData.byEscalationTier.map((tier: any) => (
                             <div key={tier.name} className={`text-center p-3 rounded-xl ${
                               tier.name === "Level 3" ? "bg-destructive/10 text-destructive" :
-                              tier.name === "Level 2" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400" :
-                              "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                              tier.name === "Level 2" ? "bg-warning/15 text-warning" :
+                              "bg-success/15 text-success"
                             }`}>
                               <p className="text-xl font-bold">{tier.count}</p>
                               <p className="text-xs font-medium mt-0.5">{tier.name}</p>

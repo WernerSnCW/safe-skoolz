@@ -418,7 +418,7 @@ function QuizStep({
           const isWrongPick = locked && isSelected && !check?.correct;
           let cls = "border-border hover:border-foreground/40";
           if (locked) {
-            if (isCorrect) cls = "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30";
+            if (isCorrect) cls = "border-success/30 bg-success/10";
             else if (isWrongPick) cls = "border-rose-400 bg-rose-50 dark:bg-rose-950/30";
             else cls = "border-border opacity-60";
           } else if (isSelected) {
@@ -439,7 +439,7 @@ function QuizStep({
                 {o.key}
               </span>
               <span className="text-sm flex-1">{o.label}</span>
-              {locked && isCorrect && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
+              {locked && isCorrect && <CheckCircle2 className="h-5 w-5 text-success" />}
               {locked && isWrongPick && <XCircle className="h-5 w-5 text-rose-600" />}
             </button>
           );
@@ -461,7 +461,7 @@ function QuizStep({
           data-testid="quiz-feedback"
           className={`inline-flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-xl ${
             check?.correct
-              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+              ? "bg-success/10 text-success"
               : "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
           }`}
         >

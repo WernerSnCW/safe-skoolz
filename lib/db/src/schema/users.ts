@@ -21,6 +21,12 @@ export const usersTable = pgTable("users", {
   failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
   active: boolean("active").default(true).notNull(),
+  // Community membership (spec §4.1). Existing accounts default to approved;
+  // diagnostic signups are created pending until an exec approves them (M2).
+  membershipStatus: varchar("membership_status", { length: 20 }).default("approved").notNull(),
+  // named | anonymous — how this member renders to OTHER PARENTS (admins
+  // always see the real name). Chosen at approval time (M2).
+  displayMode: varchar("display_mode", { length: 20 }).default("named").notNull(),
   // T3: set by an admin-initiated MFA reset; cleared after the user completes
   // re-enrolment. While true, normal login is blocked and the user is routed
   // straight into the enrolment flow.

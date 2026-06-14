@@ -156,7 +156,7 @@ export default function AuditPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+        <div className="p-3 rounded-2xl bg-muted text-muted-foreground">
           <ScrollText className="h-6 w-6" />
         </div>
         <div>
@@ -171,7 +171,7 @@ export default function AuditPage() {
         data-testid="card-retention-status"
         className={
           retentionStatus?.anyStale
-            ? "border-amber-400 dark:border-amber-500"
+            ? "border-warning/40"
             : undefined
         }
       >
@@ -181,8 +181,8 @@ export default function AuditPage() {
               className={
                 "p-2 rounded-xl shrink-0 " +
                 (retentionStatus?.anyStale
-                  ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
-                  : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300")
+                  ? "bg-warning/15 text-warning"
+                  : "bg-success/15 text-success")
               }
             >
               {retentionStatus?.anyStale ? (
@@ -197,11 +197,11 @@ export default function AuditPage() {
                 {retentionLoading ? (
                   <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
                 ) : retentionStatus?.anyStale ? (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-warning/15 text-warning">
                     Action needed
                   </span>
                 ) : (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200">
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-success/15 text-success">
                     Healthy
                   </span>
                 )}
@@ -219,7 +219,7 @@ export default function AuditPage() {
                       className={
                         "rounded-lg border p-3 text-sm " +
                         (cat.stale
-                          ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30"
+                          ? "border-warning/40 bg-warning/10"
                           : "border-border bg-muted/30")
                       }
                     >
@@ -236,7 +236,7 @@ export default function AuditPage() {
                         <span
                           className={
                             cat.stale
-                              ? "font-semibold text-amber-700 dark:text-amber-300"
+                              ? "font-semibold text-warning"
                               : "font-medium text-foreground"
                           }
                         >
@@ -342,7 +342,7 @@ export default function AuditPage() {
                           {formatDateTime(row.createdAt)}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium">
+                          <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-xs font-medium">
                             {formatEventType(row.eventType)}
                           </span>
                         </td>

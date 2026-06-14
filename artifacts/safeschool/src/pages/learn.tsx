@@ -23,7 +23,7 @@ export default function LearnPage() {
       <div className="flex gap-2 p-1 bg-muted/50 rounded-xl border border-border">
         <button
           onClick={() => setActiveTab("safeguarding")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
             activeTab === "safeguarding"
               ? "bg-white dark:bg-zinc-800 text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
@@ -34,14 +34,14 @@ export default function LearnPage() {
         </button>
         <button
           onClick={() => setActiveTab("using")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
             activeTab === "using"
               ? "bg-white dark:bg-zinc-800 text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
           <GraduationCap size={18} />
-          Using safeskoolz
+          Using vibez
         </button>
       </div>
 

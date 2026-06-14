@@ -1,0 +1,75 @@
+import { useState } from "react";
+import { useGetPtaCharter, useAdoptPtaCharter, useAcknowledgePtaCharter } from "@workspace/api-client-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useTenant } from "@/providers/tenant";
+import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
+import { PageHeader } from "@/components/layout/PageHeader";
+
+export default function PtaCharterPage() {
+  const q = useGetPtaCharter();
+  const adopt = useAdoptPtaCharter();
+  const ack = useAcknowledgePtaCharter();
+  const { user } = useAuth();
+  const { tenant } = useTenant();
+  const data = q.data as any;
+  const isAdmin = (user as any)?.role === "pta";
+
+  const [err, setErr] = useState<string | null>(null);
+  const onAdopt = async () => {
+    setErr(null);
+    try { await adopt.mutateAsync(); await q.refetch(); }
+    catch (e: any) { setErr(e?.data?.error ?? "Couldn't adopt the charter — please try again."); }
+  };
+  const onAck = async () => {
+    setErr(null);
+    try { await ack.mutateAsync(); await q.refetch(); }
+    catch (e: any) { setErr(e?.data?.error ?? "Couldn't record your acknowledgement — please try again."); }
+  };
+
+  if (q.isLoading) return <div className="mx-auto max-w-2xl px-4 py-16 text-center text-muted-foreground">Loading…</div>;
+  if (!data) return <div className="mx-auto max-w-2xl px-4 py-16 text-center"><h1 className="font-display text-2xl font-bold">Charter unavailable</h1></div>;
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+      <PageHeader
+        eyebrow={`${tenant?.displayName ?? ""} vibez`.trim()}
+        title={data.title}
+        subtitle={data.claimed ? `Adopted ${new Date(data.claimedAt).toLocaleDateString()}` : "Forming — not yet adopted"}
+        action={
+          isAdmin && !data.claimed
+            ? <Button onClick={onAdopt} isLoading={adopt.isPending}>Adopt the operating structure</Button>
+            : data.youAcknowledged
+              ? <span className="text-sm text-muted-foreground">✓ You've acknowledged</span>
+              : <Button variant="outline" onClick={onAck} isLoading={ack.isPending}>I acknowledge</Button>
+        }
+      />
+      {err && <p className="text-sm text-destructive">{err}</p>}
+      {(data.sections ?? []).map((s: any) => (
+        <Card key={s.heading}>
+          <CardHeader><CardTitle className="text-base">{s.heading}</CardTitle></CardHeader>
+          <CardContent className="text-sm text-muted-foreground">{s.body}</CardContent>
+        </Card>
+      ))}
+      {data.officers?.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle className="text-base">Officers</CardTitle></CardHeader>
+          <CardContent className="space-y-1 text-sm">
+            {data.officers.map((o: any, i: number) => (
+              <div key={i} className="flex justify-between"><span className="text-foreground">{o.name}</span><span className="text-muted-foreground capitalize">{String(o.role).replace(/_/g, " ")}</span></div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+      {data.acknowledgements?.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle className="text-base">Adopted &amp; acknowledged by</CardTitle></CardHeader>
+          <CardContent className="space-y-1 text-sm">
+            {data.acknowledgements.map((a: any, i: number) => (
+              <div key={i} className="flex justify-between"><span className="text-foreground">{a.name}</span><span className="text-muted-foreground">{a.actionType}</span></div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

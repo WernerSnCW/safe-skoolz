@@ -1,7 +1,7 @@
 import { db, lessonsTable, lessonQuizzesTable } from "@workspace/db";
   import { sql } from "drizzle-orm";
 
-  // Year 7 (KS3) PSHE lessons for the Morna pilot.
+  // Year 7 (KS3) PSHE lessons for the Riverside pilot.
   // Generated from CURRICULUM_YEAR7.md. The seeded `body` is pupil-facing only:
   // learning objectives + slides + activity + reflection. Teacher notes and
   // safeguarding signposts are intentionally NOT seeded (they are not
