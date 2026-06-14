@@ -12,8 +12,9 @@ import {
   ptaInitiativesTable,
   schoolsTable,
   usersTable,
+  PTA_MOTION_OUTCOMES,
 } from "@workspace/db";
-import { authMiddleware, requireRole, isExecOrOperator, type JwtPayload } from "../lib/auth";
+import { authMiddleware, requireRole, isExecOrOperator, requireExecOrOperator, type JwtPayload } from "../lib/auth";
 import { effectiveStage, thresholdMet, legitimacyMetric, isPathwayComplete } from "../lib/pathway";
 import { writeAudit } from "../lib/auditHelper";
 import { isExecRole, memberDisplayName } from "../lib/memberDisplay";
@@ -459,6 +460,91 @@ router.post("/voice/:id/convert", authMiddleware, CONVERT, async (req, res): Pro
 
   await writeAudit({ schoolId: u.schoolId, eventType: "voice_converted", actor: u, targetType: "voice_group", targetId: id, details: { backers: backers.length, added, alreadyMembers: backers.length - added, initiativeId: initiative.id }, req });
   res.json({ voice, converted: { backers: backers.length, added, alreadyMembers: backers.length - added }, initiative: { id: initiative.id, title: initiative.title } });
+});
+
+// Shared: load a VOICE + its pathway scoped to the caller's school, or null.
+async function loadVoiceAndPathway(id: string, schoolId: string) {
+  const [voiceRow] = await db.select({ id: voiceGroupsTable.id, status: voiceGroupsTable.status })
+    .from(voiceGroupsTable).where(and(eq(voiceGroupsTable.id, id), eq(voiceGroupsTable.schoolId, schoolId)));
+  if (!voiceRow) return null;
+  const pathway = await loadPathway(id, schoolId);
+  if (!pathway) return null;
+  return { voiceRow, pathway };
+}
+
+// POST /voice/:id/pathway/motion (spec §2 Stage 4)
+router.post("/voice/:id/pathway/motion", authMiddleware, requireExecOrOperator, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const outcome = req.body?.outcome;
+  if (!(PTA_MOTION_OUTCOMES as readonly string[]).includes(outcome)) {
+    res.status(400).json({ error: "outcome must be vad_adopted or vad_declined." });
+    return;
+  }
+  const loaded = await loadVoiceAndPathway(id, u.schoolId);
+  if (!loaded) { res.status(404).json({ error: "Pathway not found" }); return; }
+
+  // vad_adopted records stage `pta_motion` (where the vote was cast) — it is NOT
+  // advanced to a terminal stage; terminal-ness is derived from isPathwayComplete
+  // (ptaMotionOutcome === "vad_adopted"), not the stage column. vad_declined
+  // advances to Stage 5 (school_recognition) so the coalition can proceed.
+  const nextStage = outcome === "vad_declined" ? "school_recognition" : "pta_motion";
+  await db.update(coalitionPathwayTable).set({
+    ptaMotionOutcome: outcome, ptaMotionRecordedAt: sql`now()`, ptaMotionRecordedBy: u.userId, stage: nextStage,
+  }).where(eq(coalitionPathwayTable.voiceId, id));
+  await writeAudit({ schoolId: u.schoolId, eventType: "pta_motion_recorded", actor: u, targetType: "voice_group", targetId: id, details: { outcome }, req }).catch(() => {});
+
+  const view = await pathwayView(loaded.voiceRow, u.schoolId);
+  const body: any = { pathway: view };
+  if (outcome === "vad_adopted") {
+    body.convert = { voiceId: id, eligible: true, hint: "Merge the VOICE into the PTA via the convert flow." };
+  }
+  res.json(body);
+});
+
+// POST /voice/:id/pathway/recognition (spec §2 Stage 5)
+router.post("/voice/:id/pathway/recognition", authMiddleware, requireExecOrOperator, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const loaded = await loadVoiceAndPathway(id, u.schoolId);
+  if (!loaded) { res.status(404).json({ error: "Pathway not found" }); return; }
+  await db.update(coalitionPathwayTable).set({ schoolRecognisedAt: sql`now()`, stage: "school_recognition" })
+    .where(eq(coalitionPathwayTable.voiceId, id));
+  await writeAudit({ schoolId: u.schoolId, eventType: "school_recognised", actor: u, targetType: "voice_group", targetId: id, details: {}, req }).catch(() => {});
+  res.json({ pathway: await pathwayView(loaded.voiceRow, u.schoolId) });
+});
+
+// PATCH /voice/:id/pathway/incumbent (spec §4)
+router.patch("/voice/:id/pathway/incumbent", authMiddleware, requireExecOrOperator, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id } = req.params;
+  const size = req.body?.incumbentPtaSize;
+  if (!Number.isInteger(size) || size < 0) { res.status(400).json({ error: "incumbentPtaSize must be a non-negative integer." }); return; }
+  const loaded = await loadVoiceAndPathway(id, u.schoolId);
+  if (!loaded) { res.status(404).json({ error: "Pathway not found" }); return; }
+  await db.update(coalitionPathwayTable).set({
+    incumbentPtaSize: size,
+    ...(req.body?.confirm === true ? { incumbentConfirmedBySchoolAt: sql`now()` } : {}),
+  }).where(eq(coalitionPathwayTable.voiceId, id));
+  await writeAudit({ schoolId: u.schoolId, eventType: "incumbent_pta_size_set", actor: u, targetType: "voice_group", targetId: id, details: { size, confirmed: req.body?.confirm === true }, req }).catch(() => {});
+  res.json({ pathway: await pathwayView(loaded.voiceRow, u.schoolId) });
+});
+
+// POST /voice/:id/signal/:signalId/response (spec §4)
+router.post("/voice/:id/signal/:signalId/response", authMiddleware, requireExecOrOperator, async (req, res): Promise<void> => {
+  const u = user(req);
+  const { id, signalId } = req.params;
+  const status = req.body?.status;
+  if (status !== "responded" && status !== "none") { res.status(400).json({ error: "status must be responded or none." }); return; }
+  const loaded = await loadVoiceAndPathway(id, u.schoolId);
+  if (!loaded) { res.status(404).json({ error: "Pathway not found" }); return; }
+  const text = typeof req.body?.text === "string" ? req.body.text.trim().slice(0, 4000) : null;
+  const [updated] = await db.update(collectiveSignalsTable).set({
+    schoolResponseStatus: status, schoolResponseText: text, schoolRespondedAt: sql`now()`,
+  }).where(and(eq(collectiveSignalsTable.id, signalId), eq(collectiveSignalsTable.voiceId, id))).returning();
+  if (!updated) { res.status(404).json({ error: "Signal not found" }); return; }
+  await writeAudit({ schoolId: u.schoolId, eventType: "signal_response_recorded", actor: u, targetType: "voice_group", targetId: id, details: { signalId, status }, req }).catch(() => {});
+  res.json({ pathway: await pathwayView(loaded.voiceRow, u.schoolId) });
 });
 
 // --- Public (no auth) — the shareable VOICE page ---------------------------
