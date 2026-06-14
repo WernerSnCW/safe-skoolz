@@ -20,7 +20,7 @@ export function CompleteSolution() {
           One operating system for the whole community
         </h2>
         <p className="mt-4 text-lg text-muted-foreground">
-          VBE works when everyone is part of it. Vibes brings all four together —
+          VBE works when everyone is part of it. vibez brings all four together —
           switched on for your community as your school adopts VBE.
         </p>
       </div>

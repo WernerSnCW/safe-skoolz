@@ -32,7 +32,7 @@ export default function PtaCharterPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
       <PageHeader
-        eyebrow={`${tenant?.displayName ?? ""} Vibes`.trim()}
+        eyebrow={`${tenant?.displayName ?? ""} vibez`.trim()}
         title={data.title}
         subtitle={data.claimed ? `Adopted ${new Date(data.claimedAt).toLocaleDateString()}` : "Forming — not yet adopted"}
         action={

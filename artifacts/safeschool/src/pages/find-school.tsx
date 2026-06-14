@@ -87,7 +87,7 @@ export default function FindSchoolPage() {
               <span className="font-medium text-foreground">{s.name}</span>
               {s.hasVibes && (
                 <span className="ml-2 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                  Has a Vibes
+                  Has a vibez
                 </span>
               )}
             </a>

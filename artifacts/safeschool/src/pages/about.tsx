@@ -22,7 +22,7 @@ const PRINCIPLES: { lead: string; body: string }[] = [
   },
   {
     lead: "Free and open.",
-    body: "Everything on Vibes is free — the resource library, the diagnostic, the surveys, and the software. Access is never the product.",
+    body: "Everything on vibez is free — the resource library, the diagnostic, the surveys, and the software. Access is never the product.",
   },
   {
     lead: "Evidence-led.",
@@ -75,7 +75,7 @@ export default function AboutPage() {
             Build deliberately, not by default.
           </h1>
           <p className="mt-6 max-w-3xl text-lg text-muted-foreground">
-            Every school community has a culture — whether it chose one or not. Vibes exists to
+            Every school community has a culture — whether it chose one or not. vibez exists to
             help school communities choose theirs, on purpose, with everyone involved.
           </p>
         </div>
@@ -128,15 +128,15 @@ export default function AboutPage() {
         </blockquote>
       </section>
 
-      {/* Vibes */}
+      {/* vibez */}
       <section className="mx-auto max-w-4xl px-4 pb-16 sm:px-6">
-        <h2 className="font-display text-2xl font-bold text-foreground">Vibes</h2>
+        <h2 className="font-display text-2xl font-bold text-foreground">vibez</h2>
         <p className="mt-4 text-lg text-muted-foreground">
-          This site is the front door: the adoption and advocacy resource. Vibes is the destination —
+          This site is the front door: the adoption and advocacy resource. vibez is the destination —
           the school platform where Values-Based Education becomes daily practice: values-led
           learning and PSHE, pupil wellbeing and voice, parent and PTA participation, with
           safeguarding tools built in for when they're needed. The free resources here stand on
-          their own; Vibes is where the framework becomes day-to-day operational reality.
+          their own; vibez is where the framework becomes day-to-day operational reality.
         </p>
       </section>
 
@@ -145,7 +145,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
           <h2 className="font-display text-2xl font-bold text-foreground">Get in touch</h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Everything on Vibes is free — the resources, the diagnostic, and the surveys. If
+            Everything on vibez is free — the resources, the diagnostic, and the surveys. If
             you'd like help putting any of it to work, or want to talk about VBE adoption, just ask.
             There's no charge and no catch.
           </p>

@@ -60,7 +60,7 @@ export default function PupilsPage() {
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">
             Values-based education only matters if it reaches the pupils living it. Here's what your
-            children experience in Vibes — calm, wellbeing-first, and built around them.
+            children experience in vibez — calm, wellbeing-first, and built around them.
           </p>
         </div>
       </section>

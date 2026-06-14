@@ -24,7 +24,7 @@ const SPINE: {
     icon: RouteIcon,
     eyebrow: "The framework",
     title: "How a school adopts VBE",
-    body: "Diagnose, Adopt, Embed, Sustain — the end-to-end journey, and what Vibes does at each step.",
+    body: "Diagnose, Adopt, Embed, Sustain — the end-to-end journey, and what vibez does at each step.",
     cta: { label: "See the framework", href: "/how-it-works" },
   },
   {
@@ -77,7 +77,7 @@ export default function LearnHub() {
         <div className="rounded-2xl border border-border bg-accent/40 p-8">
           <p className="text-lg text-foreground">
             Values-based education makes a school&apos;s values something children live every day — not a poster on the wall.
-            It works on how children treat each other, and how the adults respond. Vibes is the software that makes it run.
+            It works on how children treat each other, and how the adults respond. vibez is the software that makes it run.
           </p>
         </div>
       </section>

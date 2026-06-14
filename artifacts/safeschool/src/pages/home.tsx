@@ -30,7 +30,7 @@ export default function HomePage() {
           VBE improves how children treat each other — and how the school responds when they don't.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-          Vibes is the software that makes Values-Based Education work for your whole
+          vibez is the software that makes Values-Based Education work for your whole
           community — children, parents, the PTA, and the school.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -48,7 +48,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-3xl px-4 pb-4 text-center sm:px-6">
         <div className="rounded-2xl border border-border bg-accent/40 p-8">
           <p className="text-lg text-foreground">
-            Vibes helps your school adopt VBE — working <em>with</em> the school, not against it.
+            vibez helps your school adopt VBE — working <em>with</em> the school, not against it.
             For a school to commit, it needs its parents behind it. That's what this is for.
           </p>
         </div>

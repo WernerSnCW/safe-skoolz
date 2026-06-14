@@ -346,7 +346,7 @@ function AuthedShell({ children }: { children: ReactNode }) {
 //     Option-C naming, SSR-safe ────────────────────────────────────────────────
 
 // Multi-column marketing footer (lifted verbatim from PublicLayout FOOTER const,
-// with Option-C naming: "Log in to vibez" → "Log in", copyright text → Vibes).
+// with Option-C naming: "Log in to vibez" → "Log in", copyright text → vibez).
 const PUBLIC_FOOTER: { heading: string; links: { label: string; href: string }[] }[] = [
   {
     heading: "Explore",
@@ -402,7 +402,7 @@ function PublicShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           {/* Option-C: replace hardcoded "SchoolVBE" wordmark with BrandLockup */}
-          <Link href="/" className="flex items-center gap-2" aria-label="Vibes home">
+          <Link href="/" className="flex items-center gap-2" aria-label="vibez home">
             <BrandLockup size="md" />
           </Link>
 
@@ -488,8 +488,8 @@ function PublicShell({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-1">
-              {/* Option-C: "SchoolVBE" heading → "Vibes" */}
-              <span className="font-display text-lg font-bold text-primary">Vibes</span>
+              {/* Option-C: "SchoolVBE" heading → "vibez" */}
+              <span className="font-display text-lg font-bold text-primary">vibez</span>
               <p className="mt-2 text-sm font-semibold text-foreground">
                 New School Vibez, Old School Values
               </p>
@@ -515,9 +515,9 @@ function PublicShell({ children }: { children: ReactNode }) {
               </div>
             ))}
           </div>
-          {/* Option-C: "© 2026 SchoolVBE. Everything here is free." → "© 2026 Vibes — software for VBE." */}
+          {/* Option-C: "© 2026 SchoolVBE. Everything here is free." → "© 2026 vibez — software for VBE." */}
           <div className="mt-10 border-t border-border/60 pt-6 text-sm text-muted-foreground">
-            © 2026 Vibes — software for VBE.
+            © 2026 vibez — software for VBE.
           </div>
         </div>
       </footer>

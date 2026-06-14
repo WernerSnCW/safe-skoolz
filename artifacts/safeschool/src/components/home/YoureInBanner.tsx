@@ -15,14 +15,14 @@ export function YoureInBanner() {
   const summary = joinQ.data as any;
   const state = getMembershipState(user);
   const firstName = user?.firstName ?? "";
-  const eyebrow = `${tenant?.displayName ?? ""} Vibes`.trim();
+  const eyebrow = `${tenant?.displayName ?? ""} vibez`.trim();
   const subtitle =
     state === "pending"
       ? "You're in — your membership is awaiting approval. You'll be notified when results are released."
       : "You're backing the cause. Here's everything in one place.";
 
   // Defer tenant-dependent strings (eyebrow/title) until the tenant resolves, so
-  // the banner doesn't flash "Vibes" / "Welcome" before the school name lands.
+  // the banner doesn't flash "vibez" / "Welcome" before the school name lands.
   if (isLoading) {
     return <div className="h-24 animate-pulse rounded-2xl bg-muted" />;
   }

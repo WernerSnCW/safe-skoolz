@@ -19,7 +19,7 @@ export function SwitchedOnPromises() {
   return (
     <section className="space-y-3">
       <h2 className="font-display text-xl font-bold flex items-center gap-2">
-        <Sparkles size={20} className="text-primary" aria-hidden /> More of Vibes
+        <Sparkles size={20} className="text-primary" aria-hidden /> More of vibez
       </h2>
       <div className="grid gap-4 sm:grid-cols-2">
         {off.map((p) => (

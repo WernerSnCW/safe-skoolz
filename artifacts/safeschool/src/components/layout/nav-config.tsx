@@ -208,7 +208,7 @@ export function getRoleNavSections(
 }
 
 // ---------------------------------------------------------------------------
-// Off-capability "More of Vibes" block
+// Off-capability "More of vibez" block
 // ---------------------------------------------------------------------------
 function moreOfVibesSection(capabilities: Capabilities, displayName: string): NavSection | null {
   const candidates: Array<{ key: keyof Capabilities; name: string; href: string; icon: any }> = [
@@ -219,7 +219,7 @@ function moreOfVibesSection(capabilities: Capabilities, displayName: string): Na
   const off = candidates.filter(c => capabilities[c.key] === false);
   if (off.length === 0) return null;
   return {
-    label: `More of Vibes — switched on as ${displayName} adopts`,
+    label: `More of vibez — switched on as ${displayName} adopts`,
     items: off.map(c => ({ name: c.name, href: c.href, icon: c.icon, state: "soon" as const })),
   };
 }

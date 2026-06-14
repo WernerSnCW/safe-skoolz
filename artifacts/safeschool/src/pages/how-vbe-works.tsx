@@ -26,7 +26,7 @@ const STEPS: {
     title: "Diagnose",
     lead: "See where your community stands.",
     body: "Before you commit to anything, run the free readiness diagnostic. Pupils, staff and parents each answer role-appropriate questions, and you get a clear report on how ready your community is for values-based education.",
-    does: "Vibes runs the survey, protects anonymity, and turns the responses into a readiness picture you can act on.",
+    does: "vibez runs the survey, protects anonymity, and turns the responses into a readiness picture you can act on.",
     cta: { label: "Run the diagnostic", href: "/diagnostic" },
   },
   {
@@ -35,7 +35,7 @@ const STEPS: {
     title: "Adopt",
     lead: "Choose your values — in 10 working days.",
     body: "The VBE Adoption Pack walks your SLT, teachers, parents and pupils through choosing five values and, crucially, the observable behaviours that make each one real — something a child can do and be held to on any given day.",
-    does: "Vibes gives you the pack, the process, and a place to record the values and behaviours your community agrees on.",
+    does: "vibez gives you the pack, the process, and a place to record the values and behaviours your community agrees on.",
     cta: { label: "Get the VBE Adoption Pack", href: "/resources" },
   },
   {
@@ -44,7 +44,7 @@ const STEPS: {
     title: "Embed",
     lead: "Values lived every day — not a poster on the wall.",
     body: "Your values run through PSHE and lessons, through how behaviour is recognised and addressed, and through the everyday life of the school. The framework becomes the shared language pupils, staff and parents actually use.",
-    does: "Vibes carries your values into ready-to-teach lessons, behaviour tracking, and the tools staff use day to day.",
+    does: "vibez carries your values into ready-to-teach lessons, behaviour tracking, and the tools staff use day to day.",
     cta: { label: "See the learning tools", href: "/learning" },
   },
   {
@@ -52,8 +52,8 @@ const STEPS: {
     icon: HeartHandshake,
     title: "Sustain",
     lead: "Everyone pulling in the same direction.",
-    body: "VBE only lasts when the whole community owns it: schools rolling it out, parents advocating for it, and PTAs operating well behind it — the three missions Vibes is built around. Safeguarding sits underneath as one supporting pillar: when something does go wrong, Vibes connects the dots no single person could see alone.",
-    does: "Vibes keeps schools, parents and PTAs working together — and quietly watches for the patterns that matter.",
+    body: "VBE only lasts when the whole community owns it: schools rolling it out, parents advocating for it, and PTAs operating well behind it — the three missions vibez is built around. Safeguarding sits underneath as one supporting pillar: when something does go wrong, vibez connects the dots no single person could see alone.",
+    does: "vibez keeps schools, parents and PTAs working together — and quietly watches for the patterns that matter.",
     cta: { label: "See the safeguarding side in action", href: "/how-it-works/safeguarding" },
   },
 ];
@@ -109,8 +109,8 @@ export default function HowVbeWorks() {
         <div className="rounded-2xl bg-primary px-8 py-12 text-center text-primary-foreground sm:px-12">
           <h2 className="font-display text-3xl font-bold">Ready to start?</h2>
           <p className="mx-auto mt-3 max-w-2xl text-lg text-primary-foreground/90">
-            Begin with a free diagnostic, or pick up the VBE Adoption Pack. Everything on Vibes is free —
-            Vibes is the software that carries it through.
+            Begin with a free diagnostic, or pick up the VBE Adoption Pack. Everything on vibez is free —
+            vibez is the software that carries it through.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
@@ -123,7 +123,7 @@ export default function HowVbeWorks() {
               href="/login"
               className="inline-flex items-center rounded-xl border-2 border-primary-foreground/40 px-7 py-3 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/10"
             >
-              Log in to Vibes
+              Log in to vibez
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </div>
