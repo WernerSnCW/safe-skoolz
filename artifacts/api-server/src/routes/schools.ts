@@ -39,7 +39,7 @@ const createSchoolLimiter = rateLimit({
 // creator-supplied editable slug. Capabilities are left {} so they resolve to the
 // free community tier over CAPABILITY_DEFAULTS.
 router.post("/schools", createSchoolLimiter, async (req, res): Promise<void> => {
-  const { name, slug: rawSlug, coalitionName, contactName, contactEmail, contactPhone } = req.body ?? {};
+  const { name, slug: rawSlug, coalitionName, contactName, contactEmail } = req.body ?? {};
 
   if (!name || typeof name !== "string" || !name.trim()) {
     res.status(400).json({ error: "A school name is required." });
@@ -77,10 +77,6 @@ router.post("/schools", createSchoolLimiter, async (req, res): Promise<void> => 
 
   const schoolContactEmail = (typeof contactEmail === "string" && contactEmail) ? contactEmail.toLowerCase().trim() : null;
 
-  // ONE transaction, NO user. The advocating VOICE is created founder-less
-  // (createdById = null); the founder is assigned at /join/:slug signup (first
-  // backer becomes founder — Task 7). The contact name/email are stored on the
-  // school as the SCHOOL/PTA contact for the verification loop, not the creator.
   let result: { school: typeof schoolsTable.$inferSelect; voice: typeof voiceGroupsTable.$inferSelect };
   try {
     result = await db.transaction(async (tx) => {
@@ -91,7 +87,7 @@ router.post("/schools", createSchoolLimiter, async (req, res): Promise<void> => 
         contactName: typeof contactName === "string" ? contactName.trim().slice(0, 255) || null : null,
         contactEmail: schoolContactEmail,
         // capabilities left {} -> resolves to the free community tier (spec §4.1).
-      } as any).returning();
+      }).returning();
 
       const [voice] = await tx.insert(voiceGroupsTable).values({
         schoolId: school.id,

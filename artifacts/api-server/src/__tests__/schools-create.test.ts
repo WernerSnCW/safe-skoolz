@@ -45,7 +45,7 @@ describe("POST /api/schools", () => {
     const r = await create({ name, contactName: "Head Teacher", contactEmail: "head@greenfield.test" });
     expect(r.status).toBe(201);
     const body = await r.json();
-    expect(body.school.slug).toBe(`greenfield-${TAG}`.toLowerCase());
+    expect(body.school.slug).toBe(`greenfield-${TAG}`);
     expect(body.school.contactName).toBe("Head Teacher"); // SCHOOL contact, not a user
     expect(body.voice.status).toBe("advocating");
     // No internal capabilities override stored: defaults resolve to community tier.
