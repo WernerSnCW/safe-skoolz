@@ -1,32 +1,50 @@
 import { useState } from "react";
-import { useSearchSchools, useRequestSchoolCreate } from "@workspace/api-client-react";
+import { useLocation } from "wouter";
+import { useSearchSchools, useCreateSchool } from "@workspace/api-client-react";
 import { AppShell } from "@/components/layout/AppShell";
 
 const inputCls = "w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm";
 
-export default function FindSchoolPage() {
-  const [query, setQuery] = useState("");
-  const q = query.trim();
-  const search = useSearchSchools({ q }, { query: { enabled: q.length > 0 } });
+// Naive client-side slug preview; the server derives the authoritative unique slug.
+function previewSlug(name: string): string {
+  return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60).replace(/-+$/g, "");
+}
 
-  // Request-to-create form state.
-  const createReq = useRequestSchoolCreate();
-  const [schoolName, setSchoolName] = useState("");
-  const [email, setEmail] = useState("");
-  const [reqErr, setReqErr] = useState<string | null>(null);
-  const [reqDone, setReqDone] = useState(false);
+export default function FindSchoolPage() {
+  const [, setLocation] = useLocation();
+  const [query, setQuery] = useState("");
+  const qStr = query.trim();
+  const search = useSearchSchools({ q: qStr }, { query: { enabled: qStr.length > 0 } });
+
+  const createSchool = useCreateSchool();
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [createErr, setCreateErr] = useState<string | null>(null);
 
   const results = (search.data as any)?.schools as
     | Array<{ slug?: string | null; name: string; hasVibes: boolean }>
     | undefined;
 
-  const submitRequest = async () => {
-    setReqErr(null);
+  const effectiveSlug = slugTouched ? slug : previewSlug(name);
+
+  const onCreate = async () => {
+    setCreateErr(null);
     try {
-      await createReq.mutateAsync({ data: { schoolName: schoolName.trim(), email: email.trim() } });
-      setReqDone(true);
+      const res = (await createSchool.mutateAsync({
+        data: {
+          name: name.trim(),
+          slug: effectiveSlug || undefined,
+          contactName: contactName.trim() || undefined,
+          contactEmail: contactEmail.trim() || undefined,
+        },
+      })) as any;
+      // Creator now signs up (flat role=parent) at the new school's join page.
+      setLocation(`/join/${res.school.slug}`);
     } catch (e: any) {
-      setReqErr(e?.data?.error ?? "Couldn't submit your request — please try again.");
+      setCreateErr(e?.data?.error ?? "Couldn't start your school — please try again.");
     }
   };
 
@@ -51,14 +69,14 @@ export default function FindSchoolPage() {
         </div>
 
         <div className="mt-4 space-y-2">
-          {q.length > 0 && search.isLoading && (
+          {qStr.length > 0 && search.isLoading && (
             <p className="text-sm text-muted-foreground">Searching…</p>
           )}
-          {q.length > 0 && search.isError && (
+          {qStr.length > 0 && search.isError && (
             <p className="text-sm text-destructive">Search failed — please try again.</p>
           )}
-          {q.length > 0 && !search.isLoading && !search.isError && results && results.length === 0 && (
-            <p className="text-sm text-muted-foreground">No schools found for “{q}”.</p>
+          {qStr.length > 0 && !search.isLoading && !search.isError && results && results.length === 0 && (
+            <p className="text-sm text-muted-foreground">No schools found for "{qStr}".</p>
           )}
           {results?.map((s) => (
             <a
@@ -78,44 +96,56 @@ export default function FindSchoolPage() {
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-6">
-        <h2 className="font-display text-lg font-bold text-foreground">Can't find your school?</h2>
+        <h2 className="font-display text-lg font-bold text-foreground">Can't find your school? Start one</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Request to create a Vibes for your school and we'll be in touch.
+          You're not creating an admin account — you're starting the parent coalition for your school.
+          Everyone who joins has the same right: to share and grow it.
         </p>
-        {reqDone ? (
-          <p className="mt-4 rounded-md bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary">
-            Thanks — your request has been received. We'll email you at {email.trim()}.
-          </p>
-        ) : (
-          <>
-            <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-2">
+          <input
+            className={inputCls}
+            placeholder="Your school's name"
+            aria-label="Your school's name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <label className="block text-xs text-muted-foreground">
+            Web address
+            <div className="mt-1 flex items-center gap-1">
+              <span className="text-sm text-muted-foreground">/join/</span>
               <input
                 className={inputCls}
-                placeholder="Your school's name"
-                aria-label="Your school's name"
-                value={schoolName}
-                onChange={(e) => setSchoolName(e.target.value)}
-              />
-              <input
-                className={inputCls}
-                type="email"
-                placeholder="Your email"
-                aria-label="Your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                aria-label="Web address slug"
+                value={effectiveSlug}
+                onChange={(e) => { setSlugTouched(true); setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")); }}
               />
             </div>
-            {reqErr && <p className="mt-3 text-sm text-destructive">{reqErr}</p>}
-            <button
-              type="button"
-              disabled={!schoolName.trim() || !email.trim() || createReq.isPending}
-              onClick={submitRequest}
-              className="mt-4 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-            >
-              {createReq.isPending ? "Submitting…" : "Request to create one"}
-            </button>
-          </>
-        )}
+          </label>
+          <input
+            className={inputCls}
+            placeholder="School / PTA contact name (optional)"
+            aria-label="School or PTA contact name"
+            value={contactName}
+            onChange={(e) => setContactName(e.target.value)}
+          />
+          <input
+            className={inputCls}
+            type="email"
+            placeholder="School / PTA contact email (optional)"
+            aria-label="School or PTA contact email"
+            value={contactEmail}
+            onChange={(e) => setContactEmail(e.target.value)}
+          />
+        </div>
+        {createErr && <p className="mt-3 text-sm text-destructive">{createErr}</p>}
+        <button
+          type="button"
+          disabled={!name.trim() || createSchool.isPending}
+          onClick={onCreate}
+          className="mt-4 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        >
+          {createSchool.isPending ? "Starting…" : `Start the coalition for ${name.trim() || "your school"}`}
+        </button>
       </div>
     </div>
     </AppShell>

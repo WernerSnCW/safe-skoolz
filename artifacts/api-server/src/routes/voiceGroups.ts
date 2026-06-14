@@ -339,7 +339,7 @@ router.get("/voice/:id/public", async (req, res): Promise<void> => {
       createdByDisplayMode: usersTable.displayMode,
     })
     .from(voiceGroupsTable)
-    .innerJoin(usersTable, eq(usersTable.id, voiceGroupsTable.createdById))
+    .leftJoin(usersTable, eq(usersTable.id, voiceGroupsTable.createdById))
     .where(eq(voiceGroupsTable.id, id))
     .limit(1);
   if (!rows.length) { res.status(404).json({ error: "VOICE not found" }); return; }
@@ -355,10 +355,12 @@ router.get("/voice/:id/public", async (req, res): Promise<void> => {
     name: g.name,
     mission: g.mission,
     status: g.status,
-    startedBy: memberDisplayName(
-      { firstName: g.createdByFirst, lastName: g.createdByLast, displayMode: g.createdByDisplayMode },
-      false,
-    ),
+    startedBy: g.createdByFirst
+      ? memberDisplayName(
+          { firstName: g.createdByFirst, lastName: g.createdByLast, displayMode: g.createdByDisplayMode },
+          false,
+        )
+      : null, // founder-less VOICE (no creator yet) — UI renders "the community"
     backerCount: (memberCount?.n ?? 0) + (supporterCount?.n ?? 0),
   });
 });

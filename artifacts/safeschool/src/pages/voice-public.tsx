@@ -60,7 +60,7 @@ export default function VoicePublicPage({ id }: { id: string }) {
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1.5"><Users className="h-4 w-4" /> {v.backerCount} {v.backerCount === 1 ? "parent backing" : "parents backing"}</span>
               <span>·</span>
-              <span>Started by {v.startedBy}</span>
+              <span>Started by {v.startedBy ?? "the community"}</span>
             </div>
 
             <div className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-sm">

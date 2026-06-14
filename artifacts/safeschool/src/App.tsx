@@ -79,6 +79,7 @@ import HowVbeWorks from "@/pages/how-vbe-works";
 import DiagnosticResultsPage from "@/pages/diagnostic-results";
 import JoinPage from "@/pages/join";
 import FindSchoolPage from "@/pages/find-school";
+import IntakePage from "@/pages/intake";
 import GoalsPage from "@/pages/goals";
 import ConcernsPage from "@/pages/concerns";
 
@@ -331,6 +332,7 @@ function Router() {
       <Route path="/membership">
         {() => <ProtectedRoute component={MembershipQueuePage} allowedRoles={["pta", "coordinator", "head_teacher"]} />}
       </Route>
+      <Route path="/intake">{() => <ProtectedRoute component={IntakePage} />}</Route>
       <Route path="/settings">
         {() => <ProtectedRoute component={Settings} />}
       </Route>

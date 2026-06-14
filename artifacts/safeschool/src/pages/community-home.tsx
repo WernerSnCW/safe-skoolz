@@ -2,6 +2,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { YoureInBanner } from "@/components/home/YoureInBanner";
 import { VoiceSection } from "@/components/home/VoiceSection";
+import { ShareSchoolCard } from "@/components/home/ShareSchoolCard";
+import { FirstDataSection } from "@/components/home/FirstDataSection";
 import { PtaSection } from "@/components/home/PtaSection";
 import { ResultsSection } from "@/components/home/ResultsSection";
 import { ConcernsSection } from "@/components/home/ConcernsSection";
@@ -32,6 +34,8 @@ export default function CommunityHome() {
     <div className="space-y-8 max-w-5xl mx-auto">
       <YoureInBanner />
       <VoiceSection />
+      <ShareSchoolCard />
+      <FirstDataSection />
       <PtaSection />
       <ResultsSection />
       <ConcernsSection />
