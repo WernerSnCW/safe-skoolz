@@ -12,7 +12,9 @@ import {
   usersTable,
   passwordResetTokensTable,
   notificationsTable,
+  schoolsTable,
 } from "@workspace/db";
+import { isCommunityMode } from "../lib/tenant";
 import { PgRateLimitStore } from "../lib/rateLimitStore";
 import { sendEmail } from "../lib/emailHelper";
 import { authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
@@ -364,6 +366,20 @@ router.post("/d/:slug/release", authMiddleware, EXEC, async (req, res): Promise<
   res.json({ released: true, releasedAt });
 });
 
+// Helper: has a community-mode tenant met its release threshold? Counts the
+// distinct INTAKE respondents for the school against schools.releaseThreshold
+// (default = the n>=5 floor). Whole-school tenants never auto-release here.
+async function communityThresholdMet(school: typeof schoolsTable.$inferSelect): Promise<boolean> {
+  if (!isCommunityMode(school)) return false;
+  const target = school.releaseThreshold ?? SEGMENT_MIN;
+  const [intake] = await db.select({ id: diagnosticSurveysTable.id }).from(diagnosticSurveysTable)
+    .where(and(eq(diagnosticSurveysTable.schoolId, school.id), eq(diagnosticSurveysTable.kind, "intake")));
+  if (!intake) return false;
+  const [{ n }] = await db.select({ n: sql<number>`count(distinct ${diagnosticAnswersTable.responseId})::int` })
+    .from(diagnosticAnswersTable).where(eq(diagnosticAnswersTable.surveyId, intake.id));
+  return n >= Math.max(target, SEGMENT_MIN);
+}
+
 // GET /d/:slug/results — authed. Seeing results requires signing up. Non-execs
 // only after release and without free-text; execs any time + shuffled free-text.
 router.get("/d/:slug/results", authMiddleware, async (req, res): Promise<void> => {
@@ -379,7 +395,13 @@ router.get("/d/:slug/results", authMiddleware, async (req, res): Promise<void> =
     return;
   }
   const isExec = isExecRole(u.role);
-  if (!isExec && survey.releasedAt == null) {
+  const [school] = await db.select().from(schoolsTable).where(eq(schoolsTable.id, survey.schoolId));
+  // Effective release: the manual exec switch OR — for community-mode tenants —
+  // the coalition reaching the intake threshold (spec §4.4). Whole-school tenants
+  // (Riverside) ignore the threshold and keep the manual switch only (spec §6).
+  const thresholdReleased = school ? await communityThresholdMet(school) : false;
+  const effectivelyReleased = survey.releasedAt != null || thresholdReleased;
+  if (!isExec && !effectivelyReleased) {
     res.status(403).json({ error: "Results haven't been released yet.", released: false });
     return;
   }
@@ -391,7 +413,7 @@ router.get("/d/:slug/results", authMiddleware, async (req, res): Promise<void> =
       .from(usersTable)
       .where(eq(usersTable.id, u.userId));
     if (!viewer || viewer.membershipStatus !== "approved") {
-      res.status(403).json({ error: "Your membership isn't approved yet.", released: survey.releasedAt != null });
+      res.status(403).json({ error: "Your membership isn't approved yet.", released: effectivelyReleased });
       return;
     }
   }
@@ -472,7 +494,7 @@ router.get("/d/:slug/results", authMiddleware, async (req, res): Promise<void> =
 
   res.json({
     title: survey.title,
-    released: survey.releasedAt != null,
+    released: effectivelyReleased,
     releasedAt: survey.releasedAt,
     isExec,
     totalResponses: total,
