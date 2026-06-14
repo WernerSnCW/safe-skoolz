@@ -35,8 +35,15 @@ The governing content principles for all vibez / VBE / SchoolVBE-ecosystem copy.
 - Public transparency reports only the **positive end-state** ("the school has published X"), never "the school was non-compliant."
 - **Mechanism (future feature — a school-onboarding / compliance phase, NOT Chapter 2; captured in the Chapter-4 engagement IP):** school shares its governing bodies + regulations + current policy docs → AI-assisted review (skills/agents) against the legal-obligation map produces private feedback/suggestions → school gets a response window → only then does anything surface to the community, framed positively. Makes VIBE a partner that helps the school look good, not a watchdog.
 
+## GL6 — Three-depth (L1/L2/L3) applied selectively, at the decisions that matter
+- The L1/L2/L3 model (headline / exec summary / full detail) is a sound principle but is **NOT authored for every piece** (that's 3× content cost; the brief itself says most parents stop at L1).
+- **L1 (headline)** — always (nearly free). **L2 + L3** — only where the stakes are real:
+  - **(a) the big decision points** a parent is asked to make — supporting **VBE (G1)**, backing **PTA reform (G2)**, and the **join / mandate authorisation** (so the decision is genuinely informed — ties to GL5).
+  - **(b) the rights / compliance cluster** — parent rights, the school's published commitments, the legal-obligation answers.
+- Routine / marketing / community-update content stays L1-ish (L2 only where it clearly helps); no L3.
+- **Verifiable criterion:** the content inventory tags each surface with the levels it actually needs; L2/L3 exist only on the decision points + rights/compliance cluster.
+
 ## Open / Tom-owned (not yet decided)
 - Whether "VAD" survives as an internal term (GL1).
-- The three-depth content model (L1/L2/L3) — confirm it's a real V1 production commitment vs a later layer (risk: 3× content cost — likely defer full L2/L3 to where it earns its place, not every piece up front).
 - Final voice/copy for the H1, the journey stages, the diagnostic observed-behaviour wording, and the join mandate statement — these remain Tom-authored.
 - Content-production + sign-off process: what "content done" means and who signs off each surface.
