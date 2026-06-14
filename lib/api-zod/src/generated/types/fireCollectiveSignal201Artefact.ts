@@ -6,10 +6,8 @@
  * OpenAPI spec version: 0.2.0
  */
 
-export type SignupBody = {
-  email: string;
-  password: string;
-  name?: string;
-  schoolSlug: string;
-  wasPtaMember?: boolean;
+export type FireCollectiveSignal201Artefact = {
+  topics?: string[];
+  authorisingParents?: string[];
+  message?: string;
 };

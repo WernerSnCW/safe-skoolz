@@ -2001,6 +2001,93 @@ export const SupportVoiceBody = zod.object({
   email: zod.string(),
 });
 
+export const GetVoicePathwayParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetVoicePathwayResponse = zod.object({
+  voiceId: zod.string(),
+  stage: zod.string(),
+  backerCount: zod.number(),
+  signalThreshold: zod.number(),
+  thresholdMet: zod.boolean(),
+  signalFiredAt: zod.string().nullish(),
+  ptaMotionOutcome: zod.string().nullish(),
+  schoolRecognisedAt: zod.string().nullish(),
+  complete: zod.boolean(),
+  legitimacy: zod.object({
+    backerCount: zod.number().optional(),
+    declaredIncumbent: zod.number().nullish(),
+    ptaMembersInVoice: zod.number().optional(),
+    nonVoicePta: zod.number().nullish(),
+    met: zod.boolean().nullish(),
+    incumbentConfirmedBySchoolAt: zod.string().nullish(),
+  }),
+  signals: zod.array(
+    zod.object({
+      id: zod.string().optional(),
+      firedAt: zod.string().optional(),
+      topics: zod.array(zod.string()).optional(),
+      memberCountAtFire: zod.number().optional(),
+      schoolResponseStatus: zod.string().nullish(),
+      schoolResponseText: zod.string().nullish(),
+      schoolRespondedAt: zod.string().nullish(),
+    }),
+  ),
+});
+
+export const FireCollectiveSignalParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const RecordPtaMotionParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const RecordPtaMotionBody = zod.object({
+  outcome: zod.enum(["vad_adopted", "vad_declined"]),
+});
+
+export const RecordPtaMotionResponse = zod.object({
+  pathway: zod.record(zod.string(), zod.unknown()),
+  convert: zod.record(zod.string(), zod.unknown()).optional(),
+});
+
+export const RecordSchoolRecognitionParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const RecordSchoolRecognitionResponse = zod.object({
+  pathway: zod.record(zod.string(), zod.unknown()),
+});
+
+export const SetIncumbentPtaSizeParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const SetIncumbentPtaSizeBody = zod.object({
+  incumbentPtaSize: zod.number(),
+  confirm: zod.boolean().optional(),
+});
+
+export const SetIncumbentPtaSizeResponse = zod.object({
+  pathway: zod.record(zod.string(), zod.unknown()),
+});
+
+export const RecordSignalResponseParams = zod.object({
+  id: zod.coerce.string(),
+  signalId: zod.coerce.string(),
+});
+
+export const RecordSignalResponseBody = zod.object({
+  status: zod.enum(["responded", "none"]),
+  text: zod.string().optional(),
+});
+
+export const RecordSignalResponseResponse = zod.object({
+  pathway: zod.record(zod.string(), zod.unknown()),
+});
+
 /**
  * @summary Get a community diagnostic survey by slug (no auth)
  */
@@ -2146,6 +2233,7 @@ export const SignupBody = zod.object({
   password: zod.string(),
   name: zod.string().optional(),
   schoolSlug: zod.string(),
+  wasPtaMember: zod.boolean().optional(),
 });
 
 /**

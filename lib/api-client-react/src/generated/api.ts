@@ -54,6 +54,7 @@ import type {
   DeletePtaAnnouncement200,
   EndPtaOfficer200,
   ErrorResponse,
+  FireCollectiveSignal201,
   FlagPtaPolicy201,
   FlagPtaPolicyBody,
   FollowUpPtaInitiative201,
@@ -69,6 +70,7 @@ import type {
   GetPtaInitiative200,
   GetPtaResources200,
   GetVoice200,
+  GetVoicePathway200,
   GetVoicePublic200,
   HealthStatus,
   Incident,
@@ -121,6 +123,11 @@ import type {
   PupilStartResponse,
   RaisePtaProposal201,
   RaisePtaProposalBody,
+  RecordPtaMotion200,
+  RecordPtaMotionBody,
+  RecordSchoolRecognition200,
+  RecordSignalResponse200,
+  RecordSignalResponseBody,
   RejectMember200,
   ReleaseDiagnosticResults200,
   RemoveMember200,
@@ -136,6 +143,8 @@ import type {
   SendPtaMessageBody,
   SetConcernStatus200,
   SetConcernStatusBody,
+  SetIncumbentPtaSize200,
+  SetIncumbentPtaSizeBody,
   SetPtaProxy201,
   SetPtaProxyBody,
   Signup201,
@@ -6942,6 +6951,493 @@ export const useSupportVoice = <
   TContext
 > => {
   return useMutation(getSupportVoiceMutationOptions(options));
+};
+
+export const getGetVoicePathwayUrl = (id: string) => {
+  return `/api/voice/${id}/pathway`;
+};
+
+export const getVoicePathway = async (
+  id: string,
+  options?: RequestInit,
+): Promise<GetVoicePathway200> => {
+  return customFetch<GetVoicePathway200>(getGetVoicePathwayUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetVoicePathwayQueryKey = (id: string) => {
+  return [`/api/voice/${id}/pathway`] as const;
+};
+
+export const getGetVoicePathwayQueryOptions = <
+  TData = Awaited<ReturnType<typeof getVoicePathway>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVoicePathway>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetVoicePathwayQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVoicePathway>>> = ({
+    signal,
+  }) => getVoicePathway(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getVoicePathway>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetVoicePathwayQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getVoicePathway>>
+>;
+export type GetVoicePathwayQueryError = ErrorType<void>;
+
+export function useGetVoicePathway<
+  TData = Awaited<ReturnType<typeof getVoicePathway>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVoicePathway>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetVoicePathwayQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+export const getFireCollectiveSignalUrl = (id: string) => {
+  return `/api/voice/${id}/signal`;
+};
+
+export const fireCollectiveSignal = async (
+  id: string,
+  options?: RequestInit,
+): Promise<FireCollectiveSignal201> => {
+  return customFetch<FireCollectiveSignal201>(getFireCollectiveSignalUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getFireCollectiveSignalMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof fireCollectiveSignal>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof fireCollectiveSignal>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["fireCollectiveSignal"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof fireCollectiveSignal>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return fireCollectiveSignal(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type FireCollectiveSignalMutationResult = NonNullable<
+  Awaited<ReturnType<typeof fireCollectiveSignal>>
+>;
+
+export type FireCollectiveSignalMutationError = ErrorType<void>;
+
+export const useFireCollectiveSignal = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof fireCollectiveSignal>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof fireCollectiveSignal>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getFireCollectiveSignalMutationOptions(options));
+};
+
+export const getRecordPtaMotionUrl = (id: string) => {
+  return `/api/voice/${id}/pathway/motion`;
+};
+
+export const recordPtaMotion = async (
+  id: string,
+  recordPtaMotionBody: RecordPtaMotionBody,
+  options?: RequestInit,
+): Promise<RecordPtaMotion200> => {
+  return customFetch<RecordPtaMotion200>(getRecordPtaMotionUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(recordPtaMotionBody),
+  });
+};
+
+export const getRecordPtaMotionMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof recordPtaMotion>>,
+    TError,
+    { id: string; data: BodyType<RecordPtaMotionBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof recordPtaMotion>>,
+  TError,
+  { id: string; data: BodyType<RecordPtaMotionBody> },
+  TContext
+> => {
+  const mutationKey = ["recordPtaMotion"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof recordPtaMotion>>,
+    { id: string; data: BodyType<RecordPtaMotionBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return recordPtaMotion(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RecordPtaMotionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof recordPtaMotion>>
+>;
+export type RecordPtaMotionMutationBody = BodyType<RecordPtaMotionBody>;
+export type RecordPtaMotionMutationError = ErrorType<void>;
+
+export const useRecordPtaMotion = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof recordPtaMotion>>,
+    TError,
+    { id: string; data: BodyType<RecordPtaMotionBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof recordPtaMotion>>,
+  TError,
+  { id: string; data: BodyType<RecordPtaMotionBody> },
+  TContext
+> => {
+  return useMutation(getRecordPtaMotionMutationOptions(options));
+};
+
+export const getRecordSchoolRecognitionUrl = (id: string) => {
+  return `/api/voice/${id}/pathway/recognition`;
+};
+
+export const recordSchoolRecognition = async (
+  id: string,
+  options?: RequestInit,
+): Promise<RecordSchoolRecognition200> => {
+  return customFetch<RecordSchoolRecognition200>(
+    getRecordSchoolRecognitionUrl(id),
+    {
+      ...options,
+      method: "POST",
+    },
+  );
+};
+
+export const getRecordSchoolRecognitionMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof recordSchoolRecognition>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof recordSchoolRecognition>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["recordSchoolRecognition"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof recordSchoolRecognition>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return recordSchoolRecognition(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RecordSchoolRecognitionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof recordSchoolRecognition>>
+>;
+
+export type RecordSchoolRecognitionMutationError = ErrorType<void>;
+
+export const useRecordSchoolRecognition = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof recordSchoolRecognition>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof recordSchoolRecognition>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getRecordSchoolRecognitionMutationOptions(options));
+};
+
+export const getSetIncumbentPtaSizeUrl = (id: string) => {
+  return `/api/voice/${id}/pathway/incumbent`;
+};
+
+export const setIncumbentPtaSize = async (
+  id: string,
+  setIncumbentPtaSizeBody: SetIncumbentPtaSizeBody,
+  options?: RequestInit,
+): Promise<SetIncumbentPtaSize200> => {
+  return customFetch<SetIncumbentPtaSize200>(getSetIncumbentPtaSizeUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(setIncumbentPtaSizeBody),
+  });
+};
+
+export const getSetIncumbentPtaSizeMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setIncumbentPtaSize>>,
+    TError,
+    { id: string; data: BodyType<SetIncumbentPtaSizeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof setIncumbentPtaSize>>,
+  TError,
+  { id: string; data: BodyType<SetIncumbentPtaSizeBody> },
+  TContext
+> => {
+  const mutationKey = ["setIncumbentPtaSize"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof setIncumbentPtaSize>>,
+    { id: string; data: BodyType<SetIncumbentPtaSizeBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return setIncumbentPtaSize(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SetIncumbentPtaSizeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof setIncumbentPtaSize>>
+>;
+export type SetIncumbentPtaSizeMutationBody = BodyType<SetIncumbentPtaSizeBody>;
+export type SetIncumbentPtaSizeMutationError = ErrorType<void>;
+
+export const useSetIncumbentPtaSize = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setIncumbentPtaSize>>,
+    TError,
+    { id: string; data: BodyType<SetIncumbentPtaSizeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof setIncumbentPtaSize>>,
+  TError,
+  { id: string; data: BodyType<SetIncumbentPtaSizeBody> },
+  TContext
+> => {
+  return useMutation(getSetIncumbentPtaSizeMutationOptions(options));
+};
+
+export const getRecordSignalResponseUrl = (id: string, signalId: string) => {
+  return `/api/voice/${id}/signal/${signalId}/response`;
+};
+
+export const recordSignalResponse = async (
+  id: string,
+  signalId: string,
+  recordSignalResponseBody: RecordSignalResponseBody,
+  options?: RequestInit,
+): Promise<RecordSignalResponse200> => {
+  return customFetch<RecordSignalResponse200>(
+    getRecordSignalResponseUrl(id, signalId),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(recordSignalResponseBody),
+    },
+  );
+};
+
+export const getRecordSignalResponseMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof recordSignalResponse>>,
+    TError,
+    { id: string; signalId: string; data: BodyType<RecordSignalResponseBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof recordSignalResponse>>,
+  TError,
+  { id: string; signalId: string; data: BodyType<RecordSignalResponseBody> },
+  TContext
+> => {
+  const mutationKey = ["recordSignalResponse"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof recordSignalResponse>>,
+    { id: string; signalId: string; data: BodyType<RecordSignalResponseBody> }
+  > = (props) => {
+    const { id, signalId, data } = props ?? {};
+
+    return recordSignalResponse(id, signalId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RecordSignalResponseMutationResult = NonNullable<
+  Awaited<ReturnType<typeof recordSignalResponse>>
+>;
+export type RecordSignalResponseMutationBody =
+  BodyType<RecordSignalResponseBody>;
+export type RecordSignalResponseMutationError = ErrorType<void>;
+
+export const useRecordSignalResponse = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof recordSignalResponse>>,
+    TError,
+    { id: string; signalId: string; data: BodyType<RecordSignalResponseBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof recordSignalResponse>>,
+  TError,
+  { id: string; signalId: string; data: BodyType<RecordSignalResponseBody> },
+  TContext
+> => {
+  return useMutation(getRecordSignalResponseMutationOptions(options));
 };
 
 /**

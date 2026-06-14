@@ -5,11 +5,8 @@
  * SafeSchool safeguarding and incident reporting API
  * OpenAPI spec version: 0.2.0
  */
+import type { RecordPtaMotionBodyOutcome } from "./recordPtaMotionBodyOutcome";
 
-export type SignupBody = {
-  email: string;
-  password: string;
-  name?: string;
-  schoolSlug: string;
-  wasPtaMember?: boolean;
+export type RecordPtaMotionBody = {
+  outcome: RecordPtaMotionBodyOutcome;
 };

@@ -1946,6 +1946,184 @@ paths:
                   ok: { type: boolean }
                   alreadyBacking: { type: boolean }
 
+  /voice/{id}/pathway:
+    get:
+      operationId: getVoicePathway
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Pathway status
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [voiceId, stage, backerCount, signalThreshold, thresholdMet, legitimacy, complete, signals]
+                properties:
+                  voiceId: { type: string }
+                  stage: { type: string }
+                  backerCount: { type: integer }
+                  signalThreshold: { type: integer }
+                  thresholdMet: { type: boolean }
+                  signalFiredAt: { type: string, nullable: true }
+                  ptaMotionOutcome: { type: string, nullable: true }
+                  schoolRecognisedAt: { type: string, nullable: true }
+                  complete: { type: boolean }
+                  legitimacy:
+                    type: object
+                    properties:
+                      backerCount: { type: integer }
+                      declaredIncumbent: { type: integer, nullable: true }
+                      ptaMembersInVoice: { type: integer }
+                      nonVoicePta: { type: integer, nullable: true }
+                      met: { type: boolean, nullable: true }
+                      incumbentConfirmedBySchoolAt: { type: string, nullable: true }
+                  signals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        firedAt: { type: string }
+                        topics: { type: array, items: { type: string } }
+                        memberCountAtFire: { type: integer }
+                        schoolResponseStatus: { type: string, nullable: true }
+                        schoolResponseText: { type: string, nullable: true }
+                        schoolRespondedAt: { type: string, nullable: true }
+        "404": { description: Not found }
+  /voice/{id}/signal:
+    post:
+      operationId: fireCollectiveSignal
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "201":
+          description: Signal fired
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [signal, artefact, pathway]
+                properties:
+                  signal: { type: object, additionalProperties: true }
+                  artefact:
+                    type: object
+                    properties:
+                      topics: { type: array, items: { type: string } }
+                      authorisingParents: { type: array, items: { type: string } }
+                      message: { type: string }
+                  pathway: { type: object, additionalProperties: true }
+        "404": { description: Not found }
+        "409": { description: Below the signal threshold }
+  /voice/{id}/pathway/motion:
+    post:
+      operationId: recordPtaMotion
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [outcome]
+              properties:
+                outcome: { type: string, enum: [vad_adopted, vad_declined] }
+      responses:
+        "200":
+          description: Recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pathway]
+                properties:
+                  pathway: { type: object, additionalProperties: true }
+                  convert: { type: object, additionalProperties: true }
+        "400": { description: Invalid outcome }
+        "403": { description: Exec or platform-operator only }
+        "404": { description: Not found }
+  /voice/{id}/pathway/recognition:
+    post:
+      operationId: recordSchoolRecognition
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pathway]
+                properties:
+                  pathway: { type: object, additionalProperties: true }
+        "403": { description: Exec or platform-operator only }
+        "404": { description: Not found }
+  /voice/{id}/pathway/incumbent:
+    patch:
+      operationId: setIncumbentPtaSize
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [incumbentPtaSize]
+              properties:
+                incumbentPtaSize: { type: integer }
+                confirm: { type: boolean }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pathway]
+                properties:
+                  pathway: { type: object, additionalProperties: true }
+        "400": { description: Invalid size }
+        "403": { description: Exec or platform-operator only }
+        "404": { description: Not found }
+  /voice/{id}/signal/{signalId}/response:
+    post:
+      operationId: recordSignalResponse
+      tags: [voice]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: signalId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [responded, none] }
+                text: { type: string }
+      responses:
+        "200":
+          description: Recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pathway]
+                properties:
+                  pathway: { type: object, additionalProperties: true }
+        "400": { description: Invalid status }
+        "403": { description: Exec or platform-operator only }
+        "404": { description: Not found }
+
   /d/{slug}:
     get:
       operationId: getCommunityDiagnostic
@@ -2190,6 +2368,7 @@ paths:
                 password: { type: string }
                 name: { type: string }
                 schoolSlug: { type: string }
+                wasPtaMember: { type: boolean }
       responses:
         "201":
           description: Created and logged in

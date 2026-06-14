@@ -1228,6 +1228,112 @@ export type SupportVoice201 = {
   alreadyBacking?: boolean;
 };
 
+export type GetVoicePathway200Legitimacy = {
+  backerCount?: number;
+  declaredIncumbent?: number | null;
+  ptaMembersInVoice?: number;
+  nonVoicePta?: number | null;
+  met?: boolean | null;
+  incumbentConfirmedBySchoolAt?: string | null;
+};
+
+export type GetVoicePathway200SignalsItem = {
+  id?: string;
+  firedAt?: string;
+  topics?: string[];
+  memberCountAtFire?: number;
+  schoolResponseStatus?: string | null;
+  schoolResponseText?: string | null;
+  schoolRespondedAt?: string | null;
+};
+
+export type GetVoicePathway200 = {
+  voiceId: string;
+  stage: string;
+  backerCount: number;
+  signalThreshold: number;
+  thresholdMet: boolean;
+  signalFiredAt?: string | null;
+  ptaMotionOutcome?: string | null;
+  schoolRecognisedAt?: string | null;
+  complete: boolean;
+  legitimacy: GetVoicePathway200Legitimacy;
+  signals: GetVoicePathway200SignalsItem[];
+};
+
+export type FireCollectiveSignal201Signal = { [key: string]: unknown };
+
+export type FireCollectiveSignal201Artefact = {
+  topics?: string[];
+  authorisingParents?: string[];
+  message?: string;
+};
+
+export type FireCollectiveSignal201Pathway = { [key: string]: unknown };
+
+export type FireCollectiveSignal201 = {
+  signal: FireCollectiveSignal201Signal;
+  artefact: FireCollectiveSignal201Artefact;
+  pathway: FireCollectiveSignal201Pathway;
+};
+
+export type RecordPtaMotionBodyOutcome =
+  (typeof RecordPtaMotionBodyOutcome)[keyof typeof RecordPtaMotionBodyOutcome];
+
+export const RecordPtaMotionBodyOutcome = {
+  vad_adopted: "vad_adopted",
+  vad_declined: "vad_declined",
+} as const;
+
+export type RecordPtaMotionBody = {
+  outcome: RecordPtaMotionBodyOutcome;
+};
+
+export type RecordPtaMotion200Pathway = { [key: string]: unknown };
+
+export type RecordPtaMotion200Convert = { [key: string]: unknown };
+
+export type RecordPtaMotion200 = {
+  pathway: RecordPtaMotion200Pathway;
+  convert?: RecordPtaMotion200Convert;
+};
+
+export type RecordSchoolRecognition200Pathway = { [key: string]: unknown };
+
+export type RecordSchoolRecognition200 = {
+  pathway: RecordSchoolRecognition200Pathway;
+};
+
+export type SetIncumbentPtaSizeBody = {
+  incumbentPtaSize: number;
+  confirm?: boolean;
+};
+
+export type SetIncumbentPtaSize200Pathway = { [key: string]: unknown };
+
+export type SetIncumbentPtaSize200 = {
+  pathway: SetIncumbentPtaSize200Pathway;
+};
+
+export type RecordSignalResponseBodyStatus =
+  (typeof RecordSignalResponseBodyStatus)[keyof typeof RecordSignalResponseBodyStatus];
+
+export const RecordSignalResponseBodyStatus = {
+  responded: "responded",
+  none: "none",
+} as const;
+
+export type RecordSignalResponseBody = {
+  status: RecordSignalResponseBodyStatus;
+  text?: string;
+};
+
+export type RecordSignalResponse200Pathway = { [key: string]: unknown };
+
+export type RecordSignalResponse200 = {
+  pathway: RecordSignalResponse200Pathway;
+};
+
 export type GetCommunityDiagnostic200QuestionsItem = {
   key: string;
   section: string;
@@ -1338,6 +1444,7 @@ export type SignupBody = {
   password: string;
   name?: string;
   schoolSlug: string;
+  wasPtaMember?: boolean;
 };
 
 export type Signup201User = { [key: string]: unknown };

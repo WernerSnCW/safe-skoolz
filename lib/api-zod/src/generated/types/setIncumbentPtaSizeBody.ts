@@ -6,10 +6,7 @@
  * OpenAPI spec version: 0.2.0
  */
 
-export type SignupBody = {
-  email: string;
-  password: string;
-  name?: string;
-  schoolSlug: string;
-  wasPtaMember?: boolean;
+export type SetIncumbentPtaSizeBody = {
+  incumbentPtaSize: number;
+  confirm?: boolean;
 };
