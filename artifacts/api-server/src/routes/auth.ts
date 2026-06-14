@@ -6,7 +6,7 @@ import { eq, and, isNull, gt, inArray, sql } from "drizzle-orm";
 import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable, schoolsTable, voiceGroupsTable, voiceMembersTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
-import { tenantPublicView } from "../lib/tenant";
+import { tenantPublicView, isCommunityMode } from "../lib/tenant";
 import { writeAudit } from "../lib/auditHelper";
 import { signMfaChallengeToken, signMfaEnrollmentToken, MFA_ENFORCED_ROLES } from "./mfa";
 
@@ -476,6 +476,10 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
   const lastName = (trimmed.split(/\s+/).slice(1).join(" ") || "Parent").slice(0, 100);
   const passwordHash = await bcrypt.hash(password, 10);
 
+  // Community-mode tenants admit members active-on-join (open-join, spec §4.3).
+  // Whole-school tenants (Riverside) keep the pending → approve/reject queue.
+  const initialMembership = isCommunityMode(school) ? "approved" : "pending";
+
   let newUser;
   try {
     [newUser] = await db.insert(usersTable).values({
@@ -485,7 +489,7 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
       lastName,
       email: normalEmail,
       passwordHash,
-      membershipStatus: "pending",
+      membershipStatus: initialMembership,
       lastLogin: new Date(),
     } as any).returning();
   } catch (e: any) {
@@ -498,10 +502,26 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
   }
 
   try {
-    const [voice] = await db.select({ id: voiceGroupsTable.id }).from(voiceGroupsTable)
+    // Back the school's advocating VOICE. If it was created founder-less
+    // (POST /api/schools, Phase 4b) and still has no founder, the FIRST backer
+    // becomes the founder: set voice_groups.createdById and insert role 'founder'.
+    // Otherwise the joiner is a flat member (existing behaviour).
+    const [voice] = await db.select({ id: voiceGroupsTable.id, createdById: voiceGroupsTable.createdById })
+      .from(voiceGroupsTable)
       .where(and(eq(voiceGroupsTable.schoolId, school.id), eq(voiceGroupsTable.status, "advocating")));
     if (voice) {
-      await db.insert(voiceMembersTable).values({ voiceId: voice.id, userId: newUser.id, role: "member" }).onConflictDoNothing();
+      // Claim founder only if the VOICE has no founder yet AND no founder member
+      // exists (guards a race / a pre-4b VOICE that legitimately has createdById).
+      let role: "founder" | "member" = "member";
+      if (voice.createdById == null) {
+        const [existingFounder] = await db.select({ id: voiceMembersTable.id }).from(voiceMembersTable)
+          .where(and(eq(voiceMembersTable.voiceId, voice.id), eq(voiceMembersTable.role, "founder")));
+        if (!existingFounder) {
+          role = "founder";
+          await db.update(voiceGroupsTable).set({ createdById: newUser.id }).where(eq(voiceGroupsTable.id, voice.id));
+        }
+      }
+      await db.insert(voiceMembersTable).values({ voiceId: voice.id, userId: newUser.id, role }).onConflictDoNothing();
     }
   } catch (e) { console.error("[signup] backing voice failed:", e); }
 

@@ -39,7 +39,10 @@ const signup = (body: unknown) => fetch(`${baseUrl}/api/auth/signup`, {
 });
 
 describe("POST /api/auth/signup", () => {
-  it("creates a pending parent, backs the voice group, and returns a token", async () => {
+  it("creates an approved parent (community-mode school), backs the voice group, and returns a token", async () => {
+    // Phase 4b: schools with no capability overrides resolve as community-mode
+    // (no safeguarding/lessons/behaviour). Community-mode signup → approved immediately
+    // (open-join). Whole-school tenants with safeguarding=true still get pending.
     const r = await signup({ email: `New.Parent-${stamp}@Example.com`, password: "hunter2pass", name: "New Parent", schoolSlug: slug });
     expect(r.status).toBe(201);
     const body = await r.json();
@@ -48,7 +51,8 @@ describe("POST /api/auth/signup", () => {
 
     const u = await pool.query(`SELECT * FROM users WHERE email = $1`, [`new.parent-${stamp}@example.com`]);
     expect(u.rows).toHaveLength(1);
-    expect(u.rows[0].membership_status).toBe("pending");
+    // Community-mode school → active on join (spec §4.3).
+    expect(u.rows[0].membership_status).toBe("approved");
     expect(u.rows[0].password_hash).toBeTruthy();
 
     const m = await pool.query(`SELECT * FROM voice_members WHERE voice_id = $1 AND user_id = $2`, [voiceId, u.rows[0].id]);
