@@ -481,4 +481,120 @@ router.get("/d/:slug/results", authMiddleware, async (req, res): Promise<void> =
   });
 });
 
+// ── Phase 4b intake (spec §4.4) ──────────────────────────────────────────────
+// The short, multiple-choice (select-all) sign-up intake. Same unlinkable model
+// as /d/:slug/submit: one answer row per SELECTED OPTION INDEX, all sharing one
+// random responseId; the email-bearing submission row holds no answers.
+// Loads the school's kind='intake' survey by slug.
+async function loadIntakeBySlug(slug: string) {
+  const [survey] = await db
+    .select()
+    .from(diagnosticSurveysTable)
+    .where(and(
+      eq(diagnosticSurveysTable.publicSlug, slug),
+      eq(diagnosticSurveysTable.kind, "intake"),
+      isNotNull(diagnosticSurveysTable.publicSlug),
+    ));
+  return survey ?? null;
+}
+
+router.post("/intake/:slug/submit", submitLimiter, async (req, res): Promise<void> => {
+  const slug = String(req.params.slug).toLowerCase();
+  const { email, selections } = req.body ?? {};
+  const survey = await loadIntakeBySlug(slug);
+  if (!survey || survey.status !== "active") { res.status(404).json({ error: "Intake not found" }); return; }
+  if (!email || typeof email !== "string" || !EMAIL_RE.test(email)) {
+    res.status(400).json({ error: "A valid email address is required." });
+    return;
+  }
+  const instrument = (survey.instrument ?? []) as Array<{ key: string; options: string[] }>;
+  const byKey = new Map(instrument.map((q) => [q.key, q]));
+  if (!selections || typeof selections !== "object" || Array.isArray(selections)) {
+    res.status(400).json({ error: "Selections are required." });
+    return;
+  }
+  // Validate every key and option index; collect flat answer rows.
+  const flat: { questionKey: string; answer: number }[] = [];
+  for (const [key, idxs] of Object.entries(selections)) {
+    const q = byKey.get(key);
+    if (!q) { res.status(400).json({ error: `Unknown domain: ${key}` }); return; }
+    if (!Array.isArray(idxs)) { res.status(400).json({ error: "Selections must be arrays." }); return; }
+    for (const i of idxs as number[]) {
+      if (!Number.isInteger(i) || i < 0 || i >= q.options.length) {
+        res.status(400).json({ error: "Invalid option." });
+        return;
+      }
+      flat.push({ questionKey: key, answer: i });
+    }
+  }
+
+  const normalEmail = email.toLowerCase().trim();
+  const emailHash = crypto.createHash("sha256").update(normalEmail).digest("hex");
+  const [existing] = await db.select({ id: diagnosticSubmissionsTable.id }).from(diagnosticSubmissionsTable)
+    .where(and(eq(diagnosticSubmissionsTable.surveyId, survey.id), eq(diagnosticSubmissionsTable.emailHash, emailHash)));
+  if (existing) { res.status(409).json({ error: "This email has already taken the intake." }); return; }
+
+  const responseId = crypto.randomUUID();
+  const dayBucket = new Date(new Date().toISOString().slice(0, 10));
+  try {
+    await db.transaction(async (tx) => {
+      await tx.insert(diagnosticSubmissionsTable).values({ surveyId: survey.id, email: normalEmail, emailHash });
+      if (flat.length) {
+        await tx.insert(diagnosticAnswersTable).values(
+          flat.map((a) => ({ surveyId: survey.id, responseId, questionKey: a.questionKey, answer: a.answer, createdAt: dayBucket })),
+        );
+      } else {
+        // Selected nothing: still record the response so n increments. Use a
+        // sentinel answer=-1 row tagging participation without an option.
+        await tx.insert(diagnosticAnswersTable).values({ surveyId: survey.id, responseId, questionKey: "__none__", answer: -1, createdAt: dayBucket });
+      }
+    });
+  } catch (e: any) {
+    const pgCode = e?.code ?? e?.cause?.code;
+    if (pgCode === "23505") { res.status(409).json({ error: "This email has already taken the intake." }); return; }
+    throw e;
+  }
+
+  const [{ n }] = await db.select({ n: sql<number>`count(distinct ${diagnosticAnswersTable.responseId})::int` })
+    .from(diagnosticAnswersTable).where(eq(diagnosticAnswersTable.surveyId, survey.id));
+  res.status(201).json({ counted: true, n });
+});
+
+// GET /api/intake/:slug/aggregate — the FIRST DATA (spec §4.4). Public; honours
+// the n>=5 floor (whole tally suppressed below 5 respondents).
+router.get("/intake/:slug/aggregate", async (req, res): Promise<void> => {
+  const slug = String(req.params.slug).toLowerCase();
+  const survey = await loadIntakeBySlug(slug);
+  if (!survey) { res.status(404).json({ error: "Intake not found" }); return; }
+  const instrument = (survey.instrument ?? []) as Array<{ key: string; section: string; options: string[] }>;
+
+  const [{ n }] = await db.select({ n: sql<number>`count(distinct ${diagnosticAnswersTable.responseId})::int` })
+    .from(diagnosticAnswersTable).where(eq(diagnosticAnswersTable.surveyId, survey.id));
+
+  const suppressed = n < SEGMENT_MIN;
+
+  // ALWAYS return the domain/option SHAPE (read from the instrument), regardless
+  // of suppression — the intake FORM (intake.tsx) reads `domains` to render its
+  // questions, so the first <5 families must still get the shape. Only the
+  // per-option COUNTS are gated: omitted while suppressed, included once revealed.
+  if (suppressed) {
+    const domains = instrument.map((q) => ({ key: q.key, section: q.section, options: q.options }));
+    res.json({ suppressed: true, n, floor: SEGMENT_MIN, domains });
+    return;
+  }
+
+  const rows = await db.select({ questionKey: diagnosticAnswersTable.questionKey, answer: diagnosticAnswersTable.answer })
+    .from(diagnosticAnswersTable)
+    .where(and(eq(diagnosticAnswersTable.surveyId, survey.id), isNotNull(diagnosticAnswersTable.answer)));
+
+  const domains = instrument.map((q) => {
+    const counts = new Array(q.options.length).fill(0);
+    for (const r of rows) {
+      if (r.questionKey === q.key && r.answer != null && r.answer >= 0 && r.answer < counts.length) counts[r.answer]++;
+    }
+    return { key: q.key, section: q.section, options: q.options, counts };
+  });
+  res.json({ suppressed: false, n, floor: SEGMENT_MIN, domains });
+});
+
 export default router;
