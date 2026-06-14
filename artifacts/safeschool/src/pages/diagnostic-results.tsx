@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "wouter";
 import { useGetDiagnosticResults, useReleaseDiagnosticResults } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui-polished";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -51,6 +52,9 @@ export default function DiagnosticResultsPage({ slug }: { slug: string }) {
         <p className="mt-3 text-muted-foreground">
           You'll be notified the moment they're released. Thank you for taking part.
         </p>
+        <Link href="/" className="mt-6 inline-block text-sm font-semibold text-primary hover:underline">
+          ← Back to home
+        </Link>
       </div>
     );
   }

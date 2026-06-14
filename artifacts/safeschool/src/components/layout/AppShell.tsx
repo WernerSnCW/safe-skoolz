@@ -197,13 +197,13 @@ function AuthedShell({ children }: { children: ReactNode }) {
               <NavRow key={item.name} item={item} location={location} />
             ))}
             <a
-              href="/"
+              href="/how-it-works"
               target="_blank"
               rel="noopener"
               className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-sm font-medium"
             >
               <ExternalLink size={18} />
-              SchoolVBE
+              About VBE
             </a>
           </div>
         </div>

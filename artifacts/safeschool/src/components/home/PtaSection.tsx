@@ -40,7 +40,7 @@ export function PtaSection() {
         <Users size={20} className="text-primary" aria-hidden /> The PTA
       </h2>
 
-      {!adopted && (
+      {!adopted && !locked && (
         <Card className="border-primary/30 bg-primary/5">
           <CardContent className="p-5">
             <p className="font-semibold text-foreground flex items-center gap-2">
