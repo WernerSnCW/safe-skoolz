@@ -15,12 +15,17 @@ export default function JoinPage({ slug }: { slug: string }) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState<string | null>(null);
+  // Chapter 2 (spec §3): the Delegated Voice mandate. Joining IS the authorisation;
+  // the checkbox is default-on and a condition of joining (cannot submit unticked).
+  // Copy is placeholder — Tom-owned (content audit).
+  const [mandateConfirmed, setMandateConfirmed] = useState(true);
+  const [wasPtaMember, setWasPtaMember] = useState(false);
 
   const data = q.data as any;
   const onSubmit = async () => {
     setErr(null);
     try {
-      const res = (await signup.mutateAsync({ data: { email: email.trim(), password, name: name.trim() || undefined, schoolSlug: slug } })) as any;
+      const res = (await signup.mutateAsync({ data: { email: email.trim(), password, name: name.trim() || undefined, schoolSlug: slug, wasPtaMember } })) as any;
       setToken(res.token);
       setLocation("/");
     } catch (e: any) {
@@ -45,9 +50,20 @@ export default function JoinPage({ slug }: { slug: string }) {
         </div>
         <h1 className="mt-4 text-center font-display text-xl font-bold text-foreground">How is {data?.schoolName ?? "your school"} really doing?</h1>
         <p className="mt-2 text-center text-sm text-muted-foreground">Join the parents asking the school and PTA to act.</p>
-        <div className="mt-5 space-y-2">
-          <div className="flex items-center gap-2 text-sm"><span className="text-primary">●</span> Ask the school to adopt VBE</div>
-          <div className="flex items-center gap-2 text-sm"><span className="text-primary">●</span> Ask the PTA to give every parent a voice</div>
+        <div className="mt-5 rounded-lg border border-border bg-muted/30 p-4">
+          <p className="text-sm font-semibold text-foreground">By joining, you authorise {data?.voiceName ?? "Vibes"} to contact your school about two things on your behalf:</p>
+          <div className="mt-3 space-y-2">
+            <div className="flex items-start gap-2 text-sm"><span className="mt-0.5 text-primary">●</span> <span><strong>Ask the school to adopt VBE</strong> — embed a values-based education framework.</span></div>
+            <div className="flex items-start gap-2 text-sm"><span className="mt-0.5 text-primary">●</span> <span><strong>Ask the PTA to give every parent a voice</strong> — adopt a structure that represents every family.</span></div>
+          </div>
+          <label className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
+            <input type="checkbox" className="mt-0.5" checked={mandateConfirmed} onChange={(e) => setMandateConfirmed(e.target.checked)} aria-label="Confirm the mandate" />
+            <span>I authorise this on these two topics only. (You can leave any time.)</span>
+          </label>
+          <label className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
+            <input type="checkbox" className="mt-0.5" checked={wasPtaMember} onChange={(e) => setWasPtaMember(e.target.checked)} aria-label="I am currently a PTA member" />
+            <span>I'm currently a member of the school's PTA.</span>
+          </label>
         </div>
         <div className="mt-4 text-center">
           <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
@@ -62,7 +78,7 @@ export default function JoinPage({ slug }: { slug: string }) {
         {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
         <button
           type="button"
-          disabled={!email.trim() || password.length < 8 || signup.isPending}
+          disabled={!email.trim() || password.length < 8 || signup.isPending || !mandateConfirmed}
           onClick={onSubmit}
           className="mt-4 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
         >

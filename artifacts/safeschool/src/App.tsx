@@ -82,6 +82,7 @@ import FindSchoolPage from "@/pages/find-school";
 import IntakePage from "@/pages/intake";
 import GoalsPage from "@/pages/goals";
 import ConcernsPage from "@/pages/concerns";
+import JourneyPage from "@/pages/journey";
 
 const queryClient = new QueryClient();
 
@@ -193,6 +194,7 @@ function Router() {
       </Route>
       <Route path="/goals">{() => <ProtectedRoute component={GoalsPage} allowedRoles={["parent", "pta", "coordinator", "head_teacher"]} />}</Route>
       <Route path="/concerns">{() => <ProtectedRoute component={ConcernsPage} allowedRoles={["parent", "pta", "coordinator", "head_teacher"]} />}</Route>
+      <Route path="/journey">{() => <ProtectedRoute component={JourneyPage} allowedRoles={["parent", "pta", "coordinator", "head_teacher"]} />}</Route>
       {/* Ported public deep guide pages (specific routes BEFORE the catch-all). */}
       <Route path="/schools/10-day-rollout" component={Schools10DayRollout} />
       <Route path="/schools/case-study" component={SchoolsCaseStudy} />
