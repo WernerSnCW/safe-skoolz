@@ -204,7 +204,7 @@ const CLUSTERS: Cluster[] = [
     num: "5",
     title: "Evidence & Research",
     blurb:
-      "Research instruments and methodology — pre-adoption tools for building a picture of community needs. Once your school deploys vibez, these instruments are replaced by the platform's built-in diagnostics and climate surveys.",
+      "Research instruments and methodology — pre-adoption tools for building a picture of community needs. Once your school deploys Vibes, these instruments are replaced by the platform's built-in diagnostics and climate surveys.",
     docs: [
       {
         title: "The Community Prevalence Survey",
@@ -250,7 +250,7 @@ const CLUSTERS: Cluster[] = [
     num: "7",
     title: "Coalition Toolkit",
     blurb:
-      "For parent groups (Track D) — everything needed to build a credible, constructive case for VBE adoption.",
+      "For parent groups — everything needed to build a credible, constructive case for VBE adoption. The parent-coalition toolkit.",
     docs: [
       {
         title: "VBE Advocacy Brief",
@@ -320,7 +320,7 @@ export default function ResourcesPage() {
             Everything, in one library.
           </h1>
           <p className="mt-6 max-w-3xl text-lg text-muted-foreground">
-            The full SchoolVBE resource set, organised by what you're trying to do. Every document
+            The full Vibes resource set, organised by what you're trying to do. Every document
             is free; an email unlocks the downloads and lets us send you the files. The document is
             on its way the moment you submit — the email is a bonus, not a paywall.
           </p>
@@ -374,7 +374,7 @@ export default function ResourcesPage() {
           <p className="mt-3 max-w-3xl text-muted-foreground">
             Before your school has a structured survey system, this tells you whether your informal
             survey responses are statistically meaningful. For schools that have adopted VBE and
-            deployed vibez, the platform's diagnostics module handles this automatically.
+            deployed Vibes, the platform's diagnostics module handles this automatically.
           </p>
           <p className="mt-3 max-w-3xl text-sm text-muted-foreground">
             For a school of 500 pupils/parents, you need at least 218 responses to achieve 95%
@@ -390,7 +390,7 @@ export default function ResourcesPage() {
       <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6">
         <blockquote className="rounded-2xl border-l-4 border-primary bg-card p-8 text-xl text-foreground sm:text-2xl">
           These tools help you make the case.{" "}
-          <span className="font-semibold">vibez delivers the reality.</span>
+          <span className="font-semibold">Vibes delivers the reality.</span>
         </blockquote>
       </section>
     </AppShell>

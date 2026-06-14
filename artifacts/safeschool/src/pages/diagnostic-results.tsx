@@ -121,7 +121,7 @@ export default function DiagnosticResultsPage({ slug }: { slug: string }) {
       {data.isExec && data.freeText && data.freeText.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">In families' own words (exec only · shuffled)</CardTitle>
+            <CardTitle className="text-base">In families' own words</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {data.freeText.map((f: any, i: number) => (

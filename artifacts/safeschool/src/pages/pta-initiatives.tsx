@@ -50,6 +50,17 @@ const CHECK_ITEMS: { key: string; label: string }[] = [
 ];
 
 const STAGES = ["idea", "presented", "accepted", "planning", "delivering", "delivered"];
+
+const STAGE_LABELS: Record<string, string> = {
+  none: "None",
+  idea: "Idea",
+  presented: "Presented to school",
+  accepted: "Accepted",
+  rejected: "Not taken forward",
+  planning: "Planning",
+  delivering: "Delivering",
+  delivered: "Delivered",
+};
 const NEXT: Record<string, string[]> = {
   none: ["idea"],
   idea: ["presented"],
@@ -73,7 +84,7 @@ function StageHistory({ id }: { id: string }) {
       {hist.map((h: any) => (
         <li key={h.id} className="text-xs text-muted-foreground">
           <span className="font-mono">{new Date(h.occurredAt).toLocaleDateString()}</span>{" "}
-          {h.entryType === "follow_up" ? <b>Follow-up:</b> : <b>{h.fromStage} → {h.toStage}</b>}{" "}
+          {h.entryType === "follow_up" ? <b>Follow-up:</b> : <b>{STAGE_LABELS[h.fromStage] ?? h.fromStage} → {STAGE_LABELS[h.toStage] ?? h.toStage}</b>}{" "}
           {h.outcomeNote}{h.reason ? ` — reason: ${h.reason}` : ""}{h.recordedBy ? ` (${h.recordedBy})` : ""}
         </li>
       ))}
@@ -350,7 +361,7 @@ export default function PtaInitiatives() {
                               : "rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground"
                           }
                         >
-                          {s}
+                          {STAGE_LABELS[s] ?? s}
                         </span>
                       ))}
                     </div>
@@ -392,7 +403,7 @@ export default function PtaInitiatives() {
                               run(() => advance.mutateAsync({ id: i.id, data: body }));
                             }}
                           >
-                            <ChevronRight className="w-3 h-3" /> {to}
+                            <ChevronRight className="w-3 h-3" /> {STAGE_LABELS[to] ?? to}
                           </Button>
                         ))}
                       </div>

@@ -91,13 +91,13 @@ export default function LearningPage() {
             The learning that brings values to life.
           </h1>
           <p className="mt-6 max-w-3xl text-lg text-muted-foreground">
-            vibez gives teachers and pupils a complete learning centre built around values-based
+            Vibes gives teachers and pupils a complete learning centre built around values-based
             education — sequenced lessons, pupil activities, and ready-to-teach slides that turn
             agreed values into everyday behaviour. Here's a free look at what's inside.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link href="/login" className={cn(buttonVariants({ size: "lg" }))}>
-              Try vibez
+              Try Vibes
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
@@ -177,12 +177,12 @@ export default function LearningPage() {
             See the learning tools for yourself.
           </h2>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            Log in to vibez to open the full learning centre, or take the VBE Adoption Pack to your
+            Log in to Vibes to open the full learning centre, or take the VBE Adoption Pack to your
             school. Everything you need to start is free.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link href="/login" className={cn(buttonVariants({ size: "lg" }))}>
-              Try vibez
+              Try Vibes
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link

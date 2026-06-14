@@ -90,7 +90,7 @@ export default function ConcernsPage() {
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <h1 className="font-display text-2xl font-bold text-foreground">Community concerns</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        This is the parent community's concern channel — raised to the Vibes coalition and PTA. It is separate from the
+        This is the parent community's concern channel — raised to the PTA. It is separate from the
         school's formal safeguarding reporting line. If a child is at risk, always use the school's official route.
       </p>
 
@@ -110,7 +110,7 @@ export default function ConcernsPage() {
         <h2 className="font-display text-lg font-semibold text-foreground">Raise your own concern</h2>
         {done ? (
           <div className="mt-3 rounded-lg border border-border bg-card p-4">
-            <p className="text-sm text-foreground">Thank you — your concern has been shared with the coalition.</p>
+            <p className="text-sm text-foreground">Thank you — your concern has been shared with the PTA.</p>
             <Button type="button" variant="outline" onClick={() => setDone(false)} className="mt-3">
               Raise another
             </Button>

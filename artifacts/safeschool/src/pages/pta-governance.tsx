@@ -112,7 +112,7 @@ export default function PtaGovernance() {
         <CardHeader><CardTitle className="flex items-center gap-2"><UserPlus className="w-4 h-4 text-primary" /> Add a member</CardTitle></CardHeader>
         <CardContent>
           {candidates.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No eligible parents/PTA users left to add.</p>
+            <p className="text-sm text-muted-foreground">No eligible community members to add.</p>
           ) : (
             <div className="flex flex-wrap items-end gap-3">
               <label className="flex flex-col gap-1">

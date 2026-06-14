@@ -40,7 +40,7 @@ export default function MembershipQueuePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
       <PageHeader
-        eyebrow="Exec"
+        eyebrow="Membership"
         title="Membership approvals"
         subtitle={`${members.length} ${members.length === 1 ? "person" : "people"} awaiting approval`}
       />
