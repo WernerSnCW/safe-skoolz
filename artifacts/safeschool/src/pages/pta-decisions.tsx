@@ -24,8 +24,8 @@ const STATUS_STYLE: Record<string, string> = {
   open: "bg-warning/15 text-warning",
   carried: "bg-success/15 text-success",
   rejected: "bg-destructive/15 text-destructive",
-  deferred: "bg-slate-200 text-slate-600",
-  withdrawn: "bg-slate-100 text-slate-500",
+  deferred: "bg-muted text-muted-foreground",
+  withdrawn: "bg-muted text-muted-foreground",
 };
 const labelOf = (l: { value: string; label: string }[], v: string) => l.find((x) => x.value === v)?.label ?? v;
 const selectCls = "h-9 rounded-md border border-border bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30";
@@ -104,7 +104,7 @@ export default function PtaDecisions() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLE[p.status] || "bg-slate-100 text-slate-600"}`}>{p.status}</span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLE[p.status] || "bg-muted text-muted-foreground"}`}>{p.status}</span>
                     {p.overdue && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-destructive/15 text-destructive inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Overdue</span>}
                     <span className="text-xs text-muted-foreground">{labelOf(CATEGORIES, p.category)}</span>
                   </div>

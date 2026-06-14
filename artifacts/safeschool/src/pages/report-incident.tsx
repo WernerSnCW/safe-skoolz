@@ -272,21 +272,21 @@ function PupilSearchPicker({
             type="button"
             onClick={handleSelectAll}
             disabled={availableForSelect.length === 0}
-            className="px-2.5 py-1 text-xs rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/15 text-primary font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-2.5 py-1 text-xs rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/15 text-primary font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Select all ({availableForSelect.length})
           </button>
           <button
             type="button"
             onClick={() => setGroupFilter(groupFilter === "year" ? "none" : "year")}
-            className={`px-2.5 py-1 text-xs rounded-lg border font-medium transition-colors ${groupFilter === "year" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
+            className={`px-2.5 py-1 text-xs rounded-xl border font-medium transition-colors ${groupFilter === "year" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
           >
             By year group
           </button>
           <button
             type="button"
             onClick={() => setGroupFilter(groupFilter === "class" ? "none" : "class")}
-            className={`px-2.5 py-1 text-xs rounded-lg border font-medium transition-colors ${groupFilter === "class" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
+            className={`px-2.5 py-1 text-xs rounded-xl border font-medium transition-colors ${groupFilter === "class" ? "border-primary bg-primary/15 text-primary" : "border-border bg-muted/30 hover:bg-muted/60 text-foreground/70"}`}
           >
             By class
           </button>
@@ -316,7 +316,7 @@ function PupilSearchPicker({
                     type="button"
                     onClick={() => handleSelectGroup(groupFilter, g!)}
                     disabled={count === 0}
-                    className="px-3 py-1.5 text-xs rounded-lg border border-primary/20 bg-white dark:bg-zinc-900 hover:bg-primary/10 transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 text-xs rounded-lg border border-primary/20 bg-background hover:bg-primary/10 transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {g} ({count})
                   </button>
@@ -345,7 +345,7 @@ function PupilSearchPicker({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className={`absolute z-20 top-full mt-1 left-0 right-0 bg-white dark:bg-zinc-900 border border-border rounded-xl shadow-lg overflow-y-auto ${isPupil ? "max-h-72" : "max-h-56"}`}
+              className={`absolute z-20 top-full mt-1 left-0 right-0 bg-background border border-border rounded-xl shadow-lg overflow-y-auto ${isPupil ? "max-h-72" : "max-h-56"}`}
             >
               {isSearching && <p className="p-3 text-sm text-muted-foreground">Searching...</p>}
               {!isSearching && !allLoaded && results.length === 0 && (
@@ -893,9 +893,9 @@ export default function ReportIncident() {
               </div>
 
               {!isPupil && (
-                <div className="p-5 rounded-xl bg-blue-50/50 dark:bg-blue-950/10 border border-blue-200/50 dark:border-blue-800/30 space-y-4">
+                <div className="p-5 rounded-xl bg-info/5 border border-info/20 space-y-4">
                   <h4 className="font-bold text-foreground flex items-center gap-2">
-                    <Info size={18} className="text-blue-600 dark:text-blue-400"/>
+                    <Info size={18} className="text-info"/>
                     {t("howBecameAware")}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

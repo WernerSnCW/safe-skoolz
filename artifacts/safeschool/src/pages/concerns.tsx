@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSubmitConcern, useListConcerns, useSetConcernStatus } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui-polished";
 
 const EXEC_ROLES = ["pta", "coordinator", "head_teacher"];
 
@@ -39,7 +40,7 @@ function TriageList() {
       {setStatus.isError && <p className="text-sm text-destructive">Couldn't update that concern — please try again.</p>}
       {concerns.length === 0 && <p className="text-sm text-muted-foreground">No concerns raised yet.</p>}
       {concerns.map((c) => (
-        <div key={c.id} className="rounded-lg border border-border bg-card p-4">
+        <div key={c.id} className="rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-foreground">{c.firstName} {c.lastName}</span>
             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{c.status}</span>
@@ -47,15 +48,16 @@ function TriageList() {
           <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{c.body}</p>
           <div className="mt-3 flex gap-2">
             {["reviewed", "actioned", "dismissed"].map((s) => (
-              <button
+              <Button
                 key={s}
                 type="button"
+                variant="outline"
+                size="sm"
                 disabled={setStatus.isPending || c.status === s}
                 onClick={() => onSet(c.id, s)}
-                className="rounded-md border border-border px-2.5 py-1 text-xs font-medium capitalize hover:bg-muted disabled:opacity-50"
               >
                 {s}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -109,9 +111,9 @@ export default function ConcernsPage() {
         {done ? (
           <div className="mt-3 rounded-lg border border-border bg-card p-4">
             <p className="text-sm text-foreground">Thank you — your concern has been shared with the coalition.</p>
-            <button type="button" onClick={() => setDone(false)} className="mt-3 text-sm font-medium text-primary hover:underline">
+            <Button type="button" variant="outline" onClick={() => setDone(false)} className="mt-3">
               Raise another
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="mt-3 space-y-3">
@@ -123,14 +125,13 @@ export default function ConcernsPage() {
               onChange={(e) => setBody(e.target.value)}
             />
             {err && <p className="text-sm text-destructive">{err}</p>}
-            <button
+            <Button
               type="button"
               disabled={!body.trim() || submit.isPending}
               onClick={onSubmit}
-              className="rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
             >
               {submit.isPending ? "Submitting…" : "Submit concern"}
-            </button>
+            </Button>
           </div>
         )}
       </section>

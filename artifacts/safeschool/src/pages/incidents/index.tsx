@@ -258,7 +258,7 @@ export default function IncidentsList() {
                         </span>
                       )}
                       {inc.anonymous && (
-                        <span className="px-2 py-0.5 rounded-sm bg-slate-800 text-white text-[10px] font-bold uppercase tracking-wider">
+                        <span className="px-2 py-0.5 rounded-sm bg-muted text-muted-foreground text-[10px] font-bold uppercase tracking-wider">
                           {t("common:anonymous")}
                         </span>
                       )}

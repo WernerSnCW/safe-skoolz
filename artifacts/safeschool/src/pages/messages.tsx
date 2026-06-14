@@ -55,7 +55,7 @@ function ConversationList({ onSelect, selectedId }: { onSelect: (id: string) => 
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               {conv.lastMessageType === "urgent_help" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-destructive/15 text-destructive">{t("urgent")}</span>}
-              {conv.lastMessageType === "chat_request" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">{t("chatReq")}</span>}
+              {conv.lastMessageType === "chat_request" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-info/15 text-info">{t("chatReq")}</span>}
               {conv.lastMessagePriority === "important" && conv.lastMessageType === "message" && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-warning/15 text-warning">{t("important")}</span>}
               <p className="text-xs text-muted-foreground truncate">
                 {conv.lastMessageIsFromMe ? t("you") : ""}{conv.lastMessage}
@@ -363,7 +363,7 @@ function ChildEmergencyAlerts() {
               {alerts.map((alert: any) => (
                 <div
                   key={alert.id}
-                  className="bg-white dark:bg-gray-900 border border-destructive/30 rounded-xl p-4 space-y-2"
+                  className="bg-card border border-destructive/30 rounded-xl p-4 space-y-2"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">

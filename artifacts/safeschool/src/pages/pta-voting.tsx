@@ -134,9 +134,9 @@ export default function PtaVoting() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${open ? "bg-warning/15 text-warning" : "bg-slate-200 text-slate-600"}`}>{b.status}</span>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${open ? "bg-warning/15 text-warning" : "bg-muted text-muted-foreground"}`}>{b.status}</span>
                       {b.quorum != null && (
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${b.quorumMet ? "bg-success/15 text-success" : "bg-slate-100 text-slate-500"}`}>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${b.quorumMet ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>
                           Quorum {b.totalVotes}/{b.quorum} {b.quorumMet ? "✓" : ""}
                         </span>
                       )}

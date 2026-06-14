@@ -196,7 +196,7 @@ export default function IncidentDetail() {
               {inc.status.replace('_', ' ')}
             </span>
             {incAny.addedToFile && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-info/15 text-info">
                 {t("common:onFile")}
               </span>
             )}
@@ -400,7 +400,7 @@ export default function IncidentDetail() {
                 
                 {!inc.protocolId && (
                   <Link href={`/protocols/new?incidentId=${inc.id}`}>
-                    <Button className="w-full bg-slate-900 text-white hover:bg-slate-800">
+                    <Button className="w-full">
                       {t("openFormalProtocol")}
                     </Button>
                   </Link>
@@ -828,7 +828,7 @@ function ParentIncidentReport({ inc }: { inc: any }) {
     investigating: { label: t("beingInvestigated"), color: "text-cat-4", bg: "bg-cat-4/10 border-cat-4/30", icon: Shield },
     escalated: { label: t("escalatedExtraSupport"), color: "text-destructive", bg: "bg-destructive/10 border-destructive/30", icon: ShieldAlert },
     resolved: { label: t("common:resolved"), color: "text-success", bg: "bg-success/10 border-success/30", icon: CheckCircle },
-    closed: { label: t("common:closed"), color: "text-gray-600", bg: "bg-gray-50 border-gray-200", icon: CheckCircle },
+    closed: { label: t("common:closed"), color: "text-muted-foreground", bg: "bg-muted/30 border-border", icon: CheckCircle },
   };
   const status = statusConfig[inc.status] || statusConfig.open;
   const StatusIcon = status.icon;
@@ -901,7 +901,7 @@ function ParentIncidentReport({ inc }: { inc: any }) {
           </div>
 
           {inc.victimNames && inc.victimNames.length > 0 && (
-            <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/30 p-4 rounded-xl">
+            <div className="bg-info/5 border border-info/20 p-4 rounded-xl">
               <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">{t("yourChild")}</p>
               <p className="font-semibold">{inc.victimNames.join(", ")}</p>
             </div>

@@ -134,8 +134,8 @@ export default function CoordinatorDashboardView() {
   </div>;
 
   const stats = [
-    { label: t("totalIncidents"), value: analytics?.totalIncidents || 0, icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: t("openProtocols"), value: data?.openProtocols || 0, icon: ShieldAlert, color: "text-violet-500", bg: "bg-violet-500/10" },
+    { label: t("totalIncidents"), value: analytics?.totalIncidents || 0, icon: FileText, color: "text-info", bg: "bg-info/10" },
+    { label: t("openProtocols"), value: data?.openProtocols || 0, icon: ShieldAlert, color: "text-secondary", bg: "bg-secondary/10" },
     { label: t("common:safeguarding"), value: analytics?.safeguardingCount || 0, icon: AlertTriangle, color: "text-destructive", bg: "bg-destructive/10" },
     { label: t("reportsMonth"), value: data?.reportsThisMonth || 0, icon: Activity, color: "text-primary", bg: "bg-primary/10" },
   ];
@@ -193,7 +193,7 @@ export default function CoordinatorDashboardView() {
             aria-selected={activeTab === "overview"}
             aria-controls="tabpanel-overview"
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "overview" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab === "overview" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             {t("overview")}
           </button>
@@ -202,7 +202,7 @@ export default function CoordinatorDashboardView() {
             aria-selected={activeTab === "analytics"}
             aria-controls="tabpanel-analytics"
             onClick={() => setActiveTab("analytics")}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "analytics" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab === "analytics" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             <BarChart3 size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />{t("analytics")}
           </button>
@@ -212,7 +212,7 @@ export default function CoordinatorDashboardView() {
               aria-selected={activeTab === "reports"}
               aria-controls="tabpanel-reports"
               onClick={() => setActiveTab("reports")}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "reports" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab === "reports" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               <FileText size={14} className="inline mr-1.5 -mt-0.5" aria-hidden="true" />{t("ptaReports")}
             </button>
@@ -352,7 +352,7 @@ export default function CoordinatorDashboardView() {
           <Link href="/training-status">
             <Card className="hover:border-primary/50 transition-all cursor-pointer group">
               <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-green-500/10 text-green-600 group-hover:bg-green-500 group-hover:text-white transition-colors">
+                <div className="p-3 rounded-2xl bg-success/10 text-success group-hover:bg-success group-hover:text-white transition-colors">
                   <GraduationCap size={24} />
                 </div>
                 <div className="flex-1">
@@ -370,9 +370,9 @@ export default function CoordinatorDashboardView() {
 
           {canManageReports && (
             <Link href="/audit">
-              <Card className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-slate-400">
+              <Card className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-foreground/30">
                 <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:bg-slate-600 group-hover:text-white transition-colors">
+                  <div className="p-3 rounded-2xl bg-muted text-muted-foreground group-hover:bg-foreground group-hover:text-background transition-colors">
                     <ScrollText size={24} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -389,9 +389,9 @@ export default function CoordinatorDashboardView() {
 
           {user?.role === "coordinator" && (
             <Link href="/admin">
-              <Card className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-teal-400">
+              <Card className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary">
                 <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                  <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
                     <ShieldCheck size={24} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -798,22 +798,22 @@ function AnnualReportManager() {
 
                   {rd && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/30 text-center">
-                        <p className="text-2xl font-bold text-blue-600">{rd.totalIncidents ?? 0}</p>
+                      <div className="p-3 rounded-xl bg-info/10 border border-info/20 text-center">
+                        <p className="text-2xl font-bold text-info">{rd.totalIncidents ?? 0}</p>
                         <p className="text-xs text-muted-foreground">{t("totalIncidents")}</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900/30 text-center">
-                        <p className="text-2xl font-bold text-violet-600">{rd.incidentsByCategory?.length ?? 0}</p>
+                      <div className="p-3 rounded-xl bg-secondary/10 border border-secondary/20 text-center">
+                        <p className="text-2xl font-bold text-secondary">{rd.incidentsByCategory?.length ?? 0}</p>
                         <p className="text-xs text-muted-foreground">{t("categories")}</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-900/30 text-center">
-                        <p className="text-2xl font-bold text-teal-600">
+                      <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-center">
+                        <p className="text-2xl font-bold text-primary">
                           {rd.protocolsByStatus?.reduce((a: number, p: any) => a + (Number(p.count) || 0), 0) ?? 0}
                         </p>
                         <p className="text-xs text-muted-foreground">{t("protocolsCount")}</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 text-center">
-                        <p className="text-2xl font-bold text-amber-600">
+                      <div className="p-3 rounded-xl bg-warning/10 border border-warning/20 text-center">
+                        <p className="text-2xl font-bold text-warning">
                           {rd.alertsSummary?.reduce((a: number, al: any) => a + (Number(al.count) || 0), 0) ?? 0}
                         </p>
                         <p className="text-xs text-muted-foreground">{t("patternAlerts")}</p>

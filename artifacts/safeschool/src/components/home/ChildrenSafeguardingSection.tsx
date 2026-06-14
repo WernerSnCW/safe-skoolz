@@ -560,7 +560,7 @@ export function ChildrenSafeguardingSection() {
               key={opt.days}
               onClick={() => setPeriodDays(opt.days)}
               className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                periodDays === opt.days ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                periodDays === opt.days ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
               {opt.label}
@@ -908,7 +908,7 @@ export function ChildrenSafeguardingSection() {
                         <p className="text-xs text-muted-foreground font-medium mt-1">{t("pupilsEnrolled")}</p>
                       </div>
                       <div className="text-center p-4 rounded-xl bg-muted/50">
-                        <p className="text-2xl font-bold text-amber-600">{schoolData.resolvedCount}</p>
+                        <p className="text-2xl font-bold text-warning">{schoolData.resolvedCount}</p>
                         <p className="text-xs text-muted-foreground font-medium mt-1">{t("casesResolved")}</p>
                       </div>
                     </div>

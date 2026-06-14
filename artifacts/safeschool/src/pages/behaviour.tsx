@@ -254,7 +254,7 @@ function AddPointsForm({ pupilId, pupilName, onClose }: { pupilId: string; pupil
               key={cat.id}
               type="button"
               onClick={() => handleCategoryChange(cat.id)}
-              className={`text-left px-3 py-2 rounded-lg text-sm border-2 transition-all ${
+              className={`text-left px-3 py-2 rounded-xl text-sm border-2 transition-all ${
                 category === cat.id
                   ? "border-primary bg-primary/5 text-primary font-medium"
                   : "border-border hover:border-muted-foreground/30"
@@ -275,7 +275,7 @@ function AddPointsForm({ pupilId, pupilName, onClose }: { pupilId: string; pupil
               key={v}
               type="button"
               onClick={() => setPoints(v)}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all border-2 ${
+              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all border-2 ${
                 points === v
                   ? v <= 2 ? "bg-yellow-100 border-yellow-500 text-yellow-800"
                     : v <= 5 ? "bg-orange-100 border-orange-500 text-orange-800"
