@@ -1,7 +1,8 @@
 import { Router, type IRouter } from "express";
 import { and, eq } from "drizzle-orm";
-import { db, usersTable, notificationsTable, memberReportsTable } from "@workspace/db";
+import { db, usersTable, notificationsTable, memberReportsTable, schoolsTable } from "@workspace/db";
 import { authMiddleware, requireRole, requirePlatformOperator, type JwtPayload } from "../lib/auth";
+import { isCommunityMode } from "../lib/tenant";
 import { writeAudit } from "../lib/auditHelper";
 import { sendEmail } from "../lib/emailHelper";
 
@@ -169,6 +170,14 @@ router.post("/membership/:userId/remove", authMiddleware, requirePlatformOperato
   const [target] = await db.select({ id: usersTable.id, schoolId: usersTable.schoolId })
     .from(usersTable).where(eq(usersTable.id, userId));
   if (!target) { res.status(404).json({ error: "Member not found" }); return; }
+
+  // I1 (spec §6): flag/remove is the COMMUNITY-mode moderation path only. Whole-school
+  // tenants keep the approve/reject queue — removing there bypasses it. Reject 409.
+  const [school] = await db.select().from(schoolsTable).where(eq(schoolsTable.id, target.schoolId));
+  if (!school || !isCommunityMode(school)) {
+    res.status(409).json({ error: "This school uses the membership approval queue; use approve/reject." });
+    return;
+  }
 
   await db.transaction(async (tx) => {
     await tx.update(usersTable).set({ membershipStatus: "rejected" }).where(eq(usersTable.id, userId));

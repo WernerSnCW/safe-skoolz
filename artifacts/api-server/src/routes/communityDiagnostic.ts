@@ -507,15 +507,20 @@ router.get("/d/:slug/results", authMiddleware, async (req, res): Promise<void> =
 // The short, multiple-choice (select-all) sign-up intake. Same unlinkable model
 // as /d/:slug/submit: one answer row per SELECTED OPTION INDEX, all sharing one
 // random responseId; the email-bearing submission row holds no answers.
-// Loads the school's kind='intake' survey by slug.
+// :slug is the SCHOOL slug — resolve the school, then ITS kind='intake' survey by
+// schoolId (the frontend keys intake off the school, not the survey's publicSlug).
 async function loadIntakeBySlug(slug: string) {
+  const [school] = await db
+    .select({ id: schoolsTable.id })
+    .from(schoolsTable)
+    .where(eq(schoolsTable.slug, slug));
+  if (!school) return null;
   const [survey] = await db
     .select()
     .from(diagnosticSurveysTable)
     .where(and(
-      eq(diagnosticSurveysTable.publicSlug, slug),
+      eq(diagnosticSurveysTable.schoolId, school.id),
       eq(diagnosticSurveysTable.kind, "intake"),
-      isNotNull(diagnosticSurveysTable.publicSlug),
     ));
   return survey ?? null;
 }

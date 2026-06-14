@@ -3,10 +3,11 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { eq, and, isNull, gt, inArray, sql } from "drizzle-orm";
-import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable, schoolsTable, voiceGroupsTable, voiceMembersTable } from "@workspace/db";
+import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable, schoolsTable, voiceGroupsTable, voiceMembersTable, diagnosticSurveysTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { tenantPublicView, isCommunityMode } from "../lib/tenant";
+import { INTAKE_INSTRUMENT } from "../lib/intakeInstrument";
 import { writeAudit } from "../lib/auditHelper";
 import { signMfaChallengeToken, signMfaEnrollmentToken, MFA_ENFORCED_ROLES } from "./mfa";
 
@@ -519,6 +520,28 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
         if (!existingFounder) {
           role = "founder";
           await db.update(voiceGroupsTable).set({ createdById: newUser.id }).where(eq(voiceGroupsTable.id, voice.id));
+
+          // C1: the founder exists now, so provision the school's intake survey
+          // (kind='intake') if one doesn't already exist. created_by is NOT NULL,
+          // so set it to the founder. The intake resolves by SCHOOL slug at
+          // /api/intake/:slug. Idempotent — guarded by the existence check.
+          const [existingIntake] = await db.select({ id: diagnosticSurveysTable.id })
+            .from(diagnosticSurveysTable)
+            .where(and(eq(diagnosticSurveysTable.schoolId, school.id), eq(diagnosticSurveysTable.kind, "intake")));
+          if (!existingIntake) {
+            // 4b-created schools always have a slug; fall back to the id only as
+            // a defensive guard against a null slug for legacy tenants.
+            const intakeSlug = school.slug ? `${school.slug}-intake` : `intake-${school.id}`;
+            await db.insert(diagnosticSurveysTable).values({
+              schoolId: school.id,
+              title: `${school.name} intake`,
+              status: "active",
+              kind: "intake",
+              createdBy: newUser.id,
+              publicSlug: intakeSlug,
+              instrument: INTAKE_INSTRUMENT,
+            } as any).onConflictDoNothing();
+          }
         }
       }
       await db.insert(voiceMembersTable).values({ voiceId: voice.id, userId: newUser.id, role }).onConflictDoNothing();

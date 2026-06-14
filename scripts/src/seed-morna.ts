@@ -1,6 +1,7 @@
 import { db, schoolsTable, usersTable, diagnosticSurveysTable, voiceGroupsTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { MORNA_INSTRUMENT } from "../../artifacts/api-server/src/lib/communityInstrument";
+import { INTAKE_INSTRUMENT } from "../../artifacts/api-server/src/lib/intakeInstrument";
 
 // Idempotent Morna production seed: school + community diagnostic + chair account.
 // Usage: MORNA_CHAIR_EMAIL=tom@... pnpm --filter @workspace/scripts seed-morna
@@ -71,6 +72,26 @@ async function main() {
     console.log("[seed-morna] created community survey /d/morna");
   } else {
     console.log("[seed-morna] survey exists");
+  }
+
+  // Phase 4b intake (spec §4.4): the short sign-up intake for Morna. Resolves by
+  // SCHOOL slug at /api/intake/morna. One kind='intake' survey per school.
+  const [existingIntake] = await db.select().from(diagnosticSurveysTable)
+    .where(and(eq(diagnosticSurveysTable.schoolId, school.id), eq(diagnosticSurveysTable.kind, "intake")));
+  if (!existingIntake) {
+    await db.insert(diagnosticSurveysTable).values({
+      schoolId: school.id,
+      title: "Morna intake",
+      status: "active",
+      kind: "intake",
+      createdBy: chair.id,
+      publicSlug: "morna-intake",
+      instrument: INTAKE_INSTRUMENT,
+    // as any: drizzle insert type lags the new columns (kind / instrument jsonb)
+    } as any);
+    console.log("[seed-morna] created intake survey /api/intake/morna");
+  } else {
+    console.log("[seed-morna] intake survey exists");
   }
   const [existingVoice] = await db.select().from(voiceGroupsTable)
     .where(and(eq(voiceGroupsTable.schoolId, school.id), eq(voiceGroupsTable.name, "Morna Vibes")));

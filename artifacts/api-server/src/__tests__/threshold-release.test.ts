@@ -54,8 +54,10 @@ afterAll(async () => {
   }
 });
 
+// Intake resolves by SCHOOL slug now (the school's kind='intake' survey by
+// schoolId), so POST to the school slug, not the intake survey's publicSlug.
 const intakeSubmit = (email: string) =>
-  fetch(`${baseUrl}/api/intake/comm-intake-${TAG}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, selections: { d1: [0] } }) });
+  fetch(`${baseUrl}/api/intake/comm-${TAG}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, selections: { d1: [0] } }) });
 
 const results = (slug: string, tok: string) =>
   fetch(`${baseUrl}/api/d/${slug}/results`, { headers: { Authorization: `Bearer ${tok}` } });

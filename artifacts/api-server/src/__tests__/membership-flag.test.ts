@@ -9,7 +9,7 @@ const TAG = Date.now().toString(36);
 const OP_EMAIL = `operator-${TAG}@cloudworkz.com`;
 
 let commSchool: string, wsSchool: string;
-let commMember: string, commReporter: string, wsPending: string;
+let commMember: string, commReporter: string, wsPending: string, wsMember: string;
 let opTok: string, commReporterTok: string, wsExecTok: string;
 
 function mint(userId: string, schoolId: string, role: string, email?: string) {
@@ -33,6 +33,8 @@ beforeAll(async () => {
   const op = await pool.query<{ id: string }>(`INSERT INTO users (school_id, role, first_name, last_name, email) VALUES ($1,'parent','Op','Er',$2) RETURNING id`, [commSchool, OP_EMAIL]);
   const wp = await pool.query<{ id: string }>(`INSERT INTO users (school_id, role, first_name, last_name, email, membership_status) VALUES ($1,'parent','Pend','Ing',$2,'pending') RETURNING id`, [wsSchool, `pend-${TAG}@t.example`]);
   wsPending = wp.rows[0].id;
+  const wm = await pool.query<{ id: string }>(`INSERT INTO users (school_id, role, first_name, last_name, email, membership_status) VALUES ($1,'parent','WS','Mem',$2,'approved') RETURNING id`, [wsSchool, `wsmem-${TAG}@t.example`]);
+  wsMember = wm.rows[0].id;
   const wexec = await pool.query<{ id: string }>(`INSERT INTO users (school_id, role, first_name, last_name, email) VALUES ($1,'pta','Ex','Ec',$2) RETURNING id`, [wsSchool, `exec-${TAG}@t.example`]);
 
   opTok = mint(op.rows[0].id, commSchool, "parent", OP_EMAIL);
@@ -139,6 +141,17 @@ describe("community moderation — report + flag/remove", () => {
       method: "POST", headers: { Authorization: `Bearer ${commReporterTok}` },
     });
     expect(r.status).toBe(403);
+  });
+
+  it("a whole-school member cannot be /remove'd — wrong moderation path (409)", async () => {
+    // I1 (spec §6): flag/remove is community-mode only. Whole-school tenants use
+    // the approve/reject queue, so even a platform operator gets 409 here.
+    const r = await fetch(`${baseUrl}/api/membership/${wsMember}/remove`, {
+      method: "POST", headers: { Authorization: `Bearer ${opTok}` },
+    });
+    expect(r.status).toBe(409);
+    const u = await pool.query(`SELECT membership_status FROM users WHERE id=$1`, [wsMember]);
+    expect(u.rows[0].membership_status).toBe("approved"); // untouched
   });
 });
 
