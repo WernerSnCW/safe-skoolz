@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, and, inArray, ilike, or, sql } from "drizzle-orm";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
-import { db, schoolsTable, voiceGroupsTable, usersTable } from "@workspace/db";
+import { db, schoolsTable, voiceGroupsTable, usersTable, coalitionPathwayTable } from "@workspace/db";
 import { authMiddleware, requireRole, requirePlatformOperator, type JwtPayload } from "../lib/auth";
 import { writeAudit } from "../lib/auditHelper";
 import { tenantPublicView, resolveCapabilities, CAPABILITY_KEYS } from "../lib/tenant";
@@ -96,6 +96,14 @@ router.post("/schools", createSchoolLimiter, async (req, res): Promise<void> => 
         status: "advocating",
         createdById: null, // founder-less; set at /join/:slug signup (Task 7)
       }).returning();
+
+      // Chapter 2 (spec §5): the coalition_pathway is created WITH the VOICE
+      // (keys off voiceId/schoolId, no user needed). Starts at your_voice.
+      await tx.insert(coalitionPathwayTable).values({
+        voiceId: voice.id,
+        schoolId: school.id,
+        stage: "your_voice",
+      });
 
       return { school, voice };
     });

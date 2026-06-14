@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { eq, and, isNull, gt, inArray, sql } from "drizzle-orm";
-import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable, schoolsTable, voiceGroupsTable, voiceMembersTable, diagnosticSurveysTable } from "@workspace/db";
+import { db, usersTable, schoolLoginCodesTable, pupilLoginSessionsTable, userMfaSecretsTable, schoolsTable, voiceGroupsTable, voiceMembersTable, diagnosticSurveysTable, voiceMandatesTable } from "@workspace/db";
 import { StaffLoginBody } from "@workspace/api-zod";
 import { signToken, authMiddleware, requireRole, type JwtPayload } from "../lib/auth";
 import { tenantPublicView, isCommunityMode } from "../lib/tenant";
@@ -445,7 +445,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // parent at the school and backs that school's "Vibes" voice group (= backing
 // both goals). Returns the same shape as login.
 router.post("/auth/signup", async (req, res): Promise<void> => {
-  const { email, password, name, schoolSlug } = req.body ?? {};
+  const { email, password, name, schoolSlug, wasPtaMember } = req.body ?? {};
   if (!email || typeof email !== "string" || !EMAIL_RE.test(email)) {
     res.status(400).json({ error: "A valid email address is required." });
     return;
@@ -502,6 +502,10 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
     throw e;
   }
 
+  // Chapter 2 (spec §3): normalise the self-declared PTA membership flag once.
+  // Anything other than an explicit `true` is treated as false (not a member).
+  const declaredPtaMember = wasPtaMember === true;
+
   try {
     // Back the school's advocating VOICE. If it was created founder-less
     // (POST /api/schools, Phase 4b) and still has no founder, the FIRST backer
@@ -544,7 +548,17 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
           }
         }
       }
-      await db.insert(voiceMembersTable).values({ voiceId: voice.id, userId: newUser.id, role }).onConflictDoNothing();
+      await db.insert(voiceMembersTable).values({ voiceId: voice.id, userId: newUser.id, role, wasPtaMember: declaredPtaMember }).onConflictDoNothing();
+
+      // Chapter 2 (spec §3): joining IS the Delegated Voice authorisation. Write
+      // one mandate row per goal (G1+G2). confirmationEvent records the consent
+      // act (doubles as the GDPR consent step, spec §3/§7.1). Idempotent per
+      // (user, school, goal) via the unique index.
+      const confirmationEvent = `join:${new Date().toISOString()} — accepted G1/G2 delegated-voice mandate`;
+      await db.insert(voiceMandatesTable).values([
+        { userId: newUser.id, schoolId: school.id, goal: "G1", confirmationEvent },
+        { userId: newUser.id, schoolId: school.id, goal: "G2", confirmationEvent },
+      ]).onConflictDoNothing();
     }
   } catch (e) { console.error("[signup] backing voice failed:", e); }
 
