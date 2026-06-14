@@ -156,7 +156,7 @@ export default function AuditPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+        <div className="p-3 rounded-2xl bg-muted text-muted-foreground">
           <ScrollText className="h-6 w-6" />
         </div>
         <div>
@@ -342,7 +342,7 @@ export default function AuditPage() {
                           {formatDateTime(row.createdAt)}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium">
+                          <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-xs font-medium">
                             {formatEventType(row.eventType)}
                           </span>
                         </td>

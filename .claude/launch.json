@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vibez",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd artifacts/api-server && set -a && . ../../.env && set +a && PORT=8080 NODE_ENV=production node dist/index.cjs"],
+      "port": 8080
+    },
+    {
+      "name": "vibez-inspect",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd artifacts/api-server && set -a && . ../../.env && set +a && PORT=8095 NODE_ENV=production node dist/index.cjs"],
+      "port": 8095
+    }
+  ]
+}

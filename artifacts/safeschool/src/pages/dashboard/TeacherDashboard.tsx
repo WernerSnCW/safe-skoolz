@@ -149,7 +149,7 @@ export default function TeacherDashboard({ user }: { user: any }) {
         <Link href="/incidents">
           <Card className="hover:border-primary/50 transition-all cursor-pointer group h-full">
             <CardContent className="p-6 flex flex-col items-center text-center gap-3">
-              <div className="p-4 rounded-2xl bg-amber-100 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors dark:bg-amber-900/30 dark:text-amber-400">
+              <div className="p-4 rounded-2xl bg-warning/10 text-warning group-hover:bg-warning group-hover:text-white transition-colors">
                 <FileText size={28} />
               </div>
               <h3 className="font-bold text-lg">{t("viewIncidents")}</h3>

@@ -572,7 +572,7 @@ function PupilContent() {
             <li>Your parents will be involved to support you, not just told off</li>
           </ul>
 
-          <div className="p-4 rounded-xl bg-gradient-to-br from-secondary/10 to-green-50 dark:from-secondary/10 dark:to-green-950/20 border border-secondary/20 mt-3">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-secondary/10 to-success/10 dark:from-secondary/10 dark:to-success/20 border border-secondary/20 mt-3">
             <p className="font-bold text-secondary">You are not stuck being this person.</p>
             <p className="text-sm mt-1">People change all the time. The version of you that did something unkind is not the final version of you. Every day you get to decide who you want to be. And the fact that you read all of this? That's already the start of something different.</p>
           </div>
@@ -1009,7 +1009,7 @@ function ParentContent() {
             <li><strong>Take care of yourself too</strong> — this is stressful for parents. You don't have to handle it alone. Talk to the school counsellor or seek your own support</li>
           </ul>
 
-          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-green-50 dark:from-primary/10 dark:to-green-950/20 border border-primary/20 mt-3">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-success/10 dark:from-primary/10 dark:to-success/20 border border-primary/20 mt-3">
             <p className="font-bold text-primary">Your child is not defined by this behaviour.</p>
             <p className="text-sm mt-1">With the right support from home and school working together, children can and do change. What they need most right now is a combination of firm boundaries, genuine understanding, and the belief that they can be better. You reading this is already part of that.</p>
           </div>

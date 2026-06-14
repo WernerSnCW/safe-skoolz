@@ -236,7 +236,7 @@ export default function ProtocolDetail() {
                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">{t("riskFactors")}</h4>
                 <div className="flex flex-wrap gap-2">
                   {prot.riskFactors.map((rf: string, i: number) => (
-                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning/10 border border-warning/30 text-warning text-sm font-medium">
+                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-warning/10 border border-warning/30 text-warning text-sm font-medium">
                       <AlertTriangle size={12} />
                       {rf}
                     </span>
@@ -250,7 +250,7 @@ export default function ProtocolDetail() {
                 <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">{t("protectiveFactors")}</h4>
                 <div className="flex flex-wrap gap-2">
                   {prot.protectiveFactors.map((pf: string, i: number) => (
-                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-success/10 border border-success/30 text-success text-sm font-medium">
+                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-success/10 border border-success/30 text-success text-sm font-medium">
                       <CheckCircle size={12} />
                       {pf}
                     </span>

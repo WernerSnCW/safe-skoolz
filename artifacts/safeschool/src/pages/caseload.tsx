@@ -91,9 +91,9 @@ function ProgressSlider({ value, onChange }: { value: number | null; onChange: (
             onClick={() => onChange(v)}
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all border-2 ${
               value === v
-                ? v <= 2 ? "bg-red-500/10 border-red-500 text-red-700"
-                  : v === 3 ? "bg-yellow-500/10 border-yellow-500 text-yellow-700"
-                  : "bg-green-500/10 border-green-500 text-green-700"
+                ? v <= 2 ? "bg-destructive/10 border-destructive text-destructive"
+                  : v === 3 ? "bg-warning/10 border-warning text-warning"
+                  : "bg-success/10 border-success text-success"
                 : "border-muted hover:border-muted-foreground/30 text-muted-foreground"
             }`}
           >

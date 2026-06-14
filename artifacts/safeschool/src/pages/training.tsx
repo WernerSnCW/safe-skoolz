@@ -164,17 +164,17 @@ function QuickStart({ role }: { role: string }) {
           <h2 className="text-xl font-display font-bold">Welcome to vibez</h2>
           <p className="text-muted-foreground">If something isn't right at school, vibez is here to help. Here are the main things you can do:</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-border p-4 text-center space-y-2">
+            <div className="bg-card rounded-xl border border-border p-4 text-center space-y-2">
               <div className="w-12 h-12 mx-auto rounded-full bg-destructive/10 flex items-center justify-center"><AlertTriangle size={20} className="text-destructive" /></div>
               <p className="font-bold text-sm">Report something</p>
               <p className="text-xs text-muted-foreground">Tell us what happened</p>
             </div>
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-border p-4 text-center space-y-2">
+            <div className="bg-card rounded-xl border border-border p-4 text-center space-y-2">
               <div className="w-12 h-12 mx-auto rounded-full bg-info/10 flex items-center justify-center"><MessageCircle size={20} className="text-info" /></div>
               <p className="font-bold text-sm">Message a teacher</p>
               <p className="text-xs text-muted-foreground">Talk to a safe adult</p>
             </div>
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-border p-4 text-center space-y-2">
+            <div className="bg-card rounded-xl border border-border p-4 text-center space-y-2">
               <div className="w-12 h-12 mx-auto rounded-full bg-warning/10 flex items-center justify-center"><Shield size={20} className="text-warning" /></div>
               <p className="font-bold text-sm">Get urgent help</p>
               <p className="text-xs text-muted-foreground">When you need help now</p>
@@ -198,7 +198,7 @@ function QuickStart({ role }: { role: string }) {
               { icon: MessageCircle, label: "Message staff", desc: "Talk to teachers directly", color: "bg-success/10 text-success" },
               { icon: AlertTriangle, label: "Report a concern", desc: "Submit a concern yourself", color: "bg-destructive/10 text-destructive" },
             ].map(item => (
-              <div key={item.label} className="bg-white dark:bg-gray-900 rounded-xl border border-border p-4 text-center space-y-2">
+              <div key={item.label} className="bg-card rounded-xl border border-border p-4 text-center space-y-2">
                 <div className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center ${item.color}`}><item.icon size={20} /></div>
                 <p className="font-bold text-sm">{item.label}</p>
                 <p className="text-xs text-muted-foreground">{item.desc}</p>

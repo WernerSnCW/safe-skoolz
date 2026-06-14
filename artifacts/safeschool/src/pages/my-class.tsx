@@ -133,7 +133,7 @@ export default function MyClass() {
                   className="w-full flex items-center justify-between p-5 hover:bg-muted/50 transition-colors text-left"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center font-bold">
                       {className}
                     </div>
                     <div>

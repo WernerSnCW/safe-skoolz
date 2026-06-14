@@ -241,7 +241,7 @@ export default function LearnPresentPage() {
                   </p>
                   <button
                     onClick={exit}
-                    className="mt-2 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold transition"
+                    className="mt-2 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition"
                   >
                     {t("staff.exitPresent")}
                   </button>
@@ -267,7 +267,7 @@ export default function LearnPresentPage() {
           onClick={goNext}
           disabled={step === total - 1}
           data-testid="present-next"
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold transition disabled:opacity-40"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold transition disabled:opacity-40"
         >
           {t("detail.next")}
           <ArrowRight className="h-4 w-4" />
@@ -329,7 +329,7 @@ function PresentQuiz({
         <button
           onClick={onReveal}
           data-testid="present-reveal"
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-warning hover:bg-warning/90 text-warning-foreground font-semibold transition"
         >
           <Eye className="h-5 w-5" />
           {t("staff.revealAnswer")}

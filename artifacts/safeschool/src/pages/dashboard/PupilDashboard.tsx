@@ -182,7 +182,7 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
                   key={phrase}
                   type="button"
                   onClick={() => { setBody(phrase); inputRef.current?.focus(); }}
-                  className="px-2.5 py-1 rounded-lg text-xs bg-muted/60 hover:bg-primary/10 text-muted-foreground hover:text-primary border border-border transition-all"
+                  className="px-2.5 py-1 rounded-xl text-xs bg-muted/60 hover:bg-primary/10 text-muted-foreground hover:text-primary border border-border transition-all"
                 >
                   {phrase}
                 </button>
@@ -208,7 +208,7 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
                       key={opt.id}
                       type="button"
                       onClick={() => setPriority(opt.id)}
-                      className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-bold transition-all border ${
+                      className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all border ${
                         priority === opt.id ? `${opt.color} border-current` : "bg-background border-border text-muted-foreground hover:bg-muted"
                       }`}
                     >
@@ -226,7 +226,7 @@ function MessageDialog({ contact, onClose, user }: { contact: any; onClose: () =
                           key={loc.id}
                           type="button"
                           onClick={() => setLocation(loc.id)}
-                          className={`px-1.5 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${
+                          className={`px-1.5 py-1.5 rounded-xl text-[10px] font-bold transition-all border ${
                             location === loc.id ? "bg-destructive/15 border-destructive/40 text-destructive" : "bg-background border-border text-muted-foreground hover:bg-muted"
                           }`}
                         >
@@ -387,7 +387,7 @@ function UrgentHelpDialog({ contacts, onClose, user }: { contacts: any[]; onClos
                 key={loc.id}
                 type="button"
                 onClick={() => setLocation(loc.id)}
-                className={`px-2 py-2 rounded-lg text-xs font-bold transition-all border ${
+                className={`px-2 py-2 rounded-xl text-xs font-bold transition-all border ${
                   location === loc.id ? "bg-destructive/15 border-destructive/40 text-destructive" : "bg-muted/30 border-border text-muted-foreground"
                 }`}
               >
