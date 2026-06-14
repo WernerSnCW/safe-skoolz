@@ -25,6 +25,14 @@ Applied to: VBE adoption status, KB answers, community updates, parent rights. C
 ## §10 Legal-obligation question framework
 Questions are anchored ONLY to what the school is already legally required to do/disclose — VIBES doesn't invent demands, it makes existing obligations visible. (Aspirational G1/G2 go through the **Ideas** track + vote, not Questions.) Includes a **legal-obligation map for Balearic Islands private schools** (LOPIVI, LOMLOE, Balearic coexistence decrees, LODE, LGDCU, Constitution Art.14) with example permitted questions per obligation area (safeguarding/bullying protocol, disciplinary triggers, child welfare/pastoral, coexistence-plan publication, parent information rights, complaint procedure, fair treatment/non-discrimination). Edge-case classification rules for complaints-disguised-as-questions and obligation-questions that implicate individuals (auto-reject individual/incident-specific; flag accusatory-tone for reframing).
 
+## §11 School compliance-onboarding (private-first remediation) — NEW (Tom, 2026-06-14)
+Content guideline **GL5** (`docs/content/2026-06-14-content-guidelines-V1.md`) made concrete as a feature: a **private "compliance concierge"** that PRECEDES public community engagement. VIBE never publicly holds the school to account — it privately helps the school get compliant first.
+- **School onboarding:** the school provides which governing bodies + regulations it's subject to, and shares its current policies/documents.
+- **AI-assisted review** (skills/agents) compares those docs against the §10 legal-obligation map → produces **private, constructive feedback + suggestions** (gaps, improvements), visible ONLY to the school.
+- **Response window:** the school has time to update/clarify before anything is shared.
+- **Then** compliance status / answered questions surface to the community — framed positively ("the school has published X"), never "non-compliant".
+- Sits with this engagement layer / a school-facing track; needs its own design. Makes VIBE a partner that helps the school look good, not a watchdog.
+
 ## Open (for the future brainstorm)
 - Whether the AI rules engine is V1 (admin-first manual queue) then AI-on-top.
 - KB cross-school intelligence (multi-tenant) — out of scope until multi-school.
