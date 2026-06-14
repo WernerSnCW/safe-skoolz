@@ -10,8 +10,11 @@ import { ArrowRight, Megaphone, Users, Vote, HeartHandshake, Eye, CheckCircle2 }
 // WhatsApp — understands what it is and why it works. Unified on the term VOICE.
 // Presentational + SSR-safe (prerendered); app tokens; no framer enter-animation.
 
-// A live VOICE to show the concept in action (the Riverside pilot).
-const LIVE_VOICE = "/v/91bedd3e-460d-4782-8fcc-478cf8e7a24e";
+// The live VOICE to feature ("See a live VOICE" → its public sign-up page).
+// Set per environment via VITE_FEATURED_VOICE_ID (12-factor config — no hardcoded
+// id, no stale demo link). When unset, the "See a live VOICE" CTAs hide gracefully.
+const FEATURED_VOICE_ID = import.meta.env.VITE_FEATURED_VOICE_ID as string | undefined;
+const LIVE_VOICE = FEATURED_VOICE_ID ? `/v/${FEATURED_VOICE_ID}` : null;
 
 const JOURNEY: { icon: typeof Users; step: string; title: string; body: string }[] = [
   {
@@ -62,9 +65,11 @@ export default function CoalitionsPage() {
               Start a VOICE
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
-            <Link href={LIVE_VOICE} className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>
-              <Eye className="mr-2 h-4 w-4" /> See a live VOICE
-            </Link>
+            {LIVE_VOICE && (
+              <Link href={LIVE_VOICE} className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>
+                <Eye className="mr-2 h-4 w-4" /> See a live VOICE
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -131,12 +136,14 @@ export default function CoalitionsPage() {
               Start a VOICE
               <ArrowRight className="ml-1.5 h-4 w-4" />
             </Link>
-            <Link
-              href={LIVE_VOICE}
-              className={cn(buttonVariants({ variant: "outline" }), "border-primary-foreground/30 bg-transparent font-semibold text-primary-foreground hover:bg-primary-foreground/10")}
-            >
-              See a live VOICE
-            </Link>
+            {LIVE_VOICE && (
+              <Link
+                href={LIVE_VOICE}
+                className={cn(buttonVariants({ variant: "outline" }), "border-primary-foreground/30 bg-transparent font-semibold text-primary-foreground hover:bg-primary-foreground/10")}
+              >
+                See a live VOICE
+              </Link>
+            )}
           </div>
         </div>
       </section>
